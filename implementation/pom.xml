@@ -4,8 +4,8 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>nl.thales.inaethics.drones-simulator</groupId>
-    <artifactId>drones-simulator</artifactId>
+    <groupId>org.inaetics</groupId>
+    <artifactId>dronessimulator</artifactId>
     <packaging>pom</packaging>
     <version>0.1</version>
     <modules>
@@ -14,6 +14,7 @@
         <module>collisionrules</module>
         <module>pubsub</module>
         <module>drone</module>
+        <module>physicsengine</module>
         <module>instancemanager</module>
         <module>etcddiscovery</module>
         <module>gamerules</module>

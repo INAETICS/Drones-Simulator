@@ -3,6 +3,7 @@ package org.inaetics.dronessimulator.pubsub.impl.rabbitmq;
 import com.rabbitmq.client.Connection;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.Publisher;
+import org.inaetics.dronessimulator.pubsub.api.Serializer;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
 
 import java.io.IOException;
@@ -12,11 +13,16 @@ public class RabbitPublisher extends RabbitConnection implements Publisher {
      * Instantiates a new RabbitMQ publisher for the given topic.
      * @param connection The RabbitMQ connection to use.
      * @param topic The topic this publisher publishes to.
+     * @param serializer The serializer to use.
      */
-    public RabbitPublisher(Connection connection, Topic topic) {
-        super(connection, topic);
+    public RabbitPublisher(Connection connection, Topic topic, Serializer serializer) {
+        super(connection, topic, serializer);
     }
 
+    /**
+     * Sends the given message to subscribers on the topic of this publisher.
+     * @param message The message to send.
+     */
     public void send(Message message) {
         try {
             // Automatically (re)connect if needed
@@ -25,7 +31,7 @@ public class RabbitPublisher extends RabbitConnection implements Publisher {
             }
 
             if (message != null) {
-                this.channel.basicPublish(this.exchangeName, "", null, null); // TODO Actually implement body
+                this.channel.basicPublish(this.exchangeName, "", null, serializer.serialize(message));
             }
         } catch (IOException ignore) {
             // Just drop the message if there is no good connection

@@ -1,10 +1,8 @@
 package org.inaetics.dronessimulator.pubsub.impl.rabbitmq;
 
 import com.rabbitmq.client.Connection;
-import org.inaetics.dronessimulator.pubsub.api.Message;
-import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
-import org.inaetics.dronessimulator.pubsub.api.Subscriber;
-import org.inaetics.dronessimulator.pubsub.api.Topic;
+import com.rabbitmq.client.Consumer;
+import org.inaetics.dronessimulator.pubsub.api.*;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -15,7 +13,7 @@ import java.util.Map;
 /**
  * A RabbitMQ implementation of a subscriber.
  */
-public class RabbitSubscriber extends RabbitConnection implements Subscriber { // TODO Implement run loop
+public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     /** The identifier of this subscriber. */
     private String identifier;
 
@@ -30,9 +28,10 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber { /
      * @param connection The RabbitMQ connection to use.
      * @param topic The topic this subscriber is interested in.
      * @param identifier The identifier for this subscriber. This is used as queue name.
+     * @param serializer The serializer to use.
      */
-    public RabbitSubscriber(Connection connection, Topic topic, String identifier) {
-        super(connection, topic);
+    public RabbitSubscriber(Connection connection, Topic topic, String identifier, Serializer serializer) {
+        super(connection, topic, serializer);
 
         assert identifier != null;
 
@@ -40,6 +39,23 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber { /
         this.handlers = new HashMap<Class<? extends Message>, Collection<MessageHandler>>();
 
         this.queueName = String.format("%s/%s", this.topic.getName(), this.identifier);
+    }
+
+    /**
+     * Starts processing messages.
+     * @throws IOException An error occured.
+     */
+    public void start() throws IOException {
+        Consumer callback = new RabbitMessageConsumer(this);
+        channel.basicConsume(this.queueName, true, this.queueName, callback);
+    }
+
+    /**
+     * Stops processing messages.
+     * @throws IOException An error occured.
+     */
+    public void stop() throws IOException {
+        channel.basicCancel(this.queueName);
     }
 
     /**

@@ -1,8 +1,8 @@
 package org.inaetics.dronessimulator.pubsub.impl.rabbitmq;
 
-import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
+import org.inaetics.dronessimulator.pubsub.api.Serializer;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
 
 import java.io.IOException;
@@ -15,9 +15,6 @@ import java.util.concurrent.TimeoutException;
  * related to the connection to the broker.
  */
 public abstract class RabbitConnection {
-    /** The number of milliseconds to wait to reconnect after the connection failed. */
-    protected static final int RECONNECT_TIMEOUT = 1000;
-
     /** The topic for this connection. */
     protected Topic topic;
 
@@ -30,17 +27,22 @@ public abstract class RabbitConnection {
     /** The name of the exchange this connection uses. */
     protected String exchangeName;
 
+    /** The serializer used in this connection. */
+    protected Serializer serializer;
+
     /**
      * Sets up the connection for use.
      * @param connection The RabbitMQ connection to use.
      * @param topic The topic for this connection.
      */
-    protected RabbitConnection(Connection connection, Topic topic) {
+    protected RabbitConnection(Connection connection, Topic topic, Serializer serializer) {
         assert connection != null;
         assert topic != null;
+        assert serializer != null;
 
         this.connection = connection;
         this.topic = topic;
+        this.serializer = serializer;
 
         this.exchangeName = this.topic.getName();
     }
@@ -55,10 +57,16 @@ public abstract class RabbitConnection {
             channel = connection.createChannel();
         }
 
-        // Declare AMQP exchange for the topic
-        //   durable: no, we do not need the exchange after a server restart
-        //   autoDelete: yes, this exchange is no longer needed when we disconnect
-        channel.exchangeDeclare(exchangeName, BuiltinExchangeType.FANOUT, false, true, null);
+        if (topic instanceof RabbitTopic) {
+            RabbitTopic rt = (RabbitTopic) topic;
+            // Declare AMQP exchange for the topic using the topics own settings
+            channel.exchangeDeclare(exchangeName, rt.getExchangeType(), rt.isPersistent(), !rt.isPersistent(), null);
+        } else {
+            // Declare AMQP exchange for the topic using sensible defaults
+            //   durable: no, we do not need the exchange after a server restart
+            //   autoDelete: yes, this exchange is no longer needed when we disconnect
+            channel.exchangeDeclare(exchangeName, RabbitTopic.DEFAULT_EXCHANGE_TYPE, false, true, null);
+        }
     }
 
     /**

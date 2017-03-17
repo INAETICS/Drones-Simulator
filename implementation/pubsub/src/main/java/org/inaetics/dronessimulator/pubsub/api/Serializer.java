@@ -18,7 +18,8 @@ public interface Serializer {
      * Deserializes the given byte array to a message.
      * @param bytes The serialized byte array.
      * @return The reconstructed message.
-     * @throws NoClassDefFoundError The class of the serialized object could not be found.
+     * @throws IOException The message could not be deserialized.
+     * @throws ClassNotFoundException The class of the serialized object could not be found.
      */
-    Message deserialize(byte[] bytes) throws NoClassDefFoundError;
+    Message deserialize(byte[] bytes) throws IOException, ClassNotFoundException;
 }

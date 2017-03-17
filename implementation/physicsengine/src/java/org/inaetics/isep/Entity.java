@@ -1,4 +1,4 @@
-package nl.utwente.isep;
+package org.inaetics.isep;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

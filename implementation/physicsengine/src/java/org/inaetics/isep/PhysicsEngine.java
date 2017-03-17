@@ -1,4 +1,5 @@
-package nl.utwente.isep;
+package org.inaetics.isep;
+
 
 public class PhysicsEngine {
     public static final D3Vector GRAVITY = new D3Vector(0, 0, -9.81);

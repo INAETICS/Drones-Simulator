@@ -2,19 +2,19 @@ package org.inaetics.dronessimulator.pubsub.impl.broker.rabbitmq;
 
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
 import org.inaetics.dronessimulator.pubsub.impl.serializer.java.JavaSerializer;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 /**
  * Test case for the RabbitMQ subscriber implementation.
  */
-class RabbitSubscriberTest {
+public class RabbitSubscriberTest {
     @Test
-    void receive() throws IOException, TimeoutException {
+    public void receive() throws IOException, TimeoutException {
         // Initialize subscriber
         String topicName = "testTopic";
         String queueName = "testQueue";

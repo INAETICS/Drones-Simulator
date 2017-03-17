@@ -1,16 +1,16 @@
 package org.inaetics.dronessimulator.pubsub.impl.serializer.java;
 
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
-import org.junit.jupiter.api.Test;
+import org.junit.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.Assert.*;
 
 /**
  * Test case for the Java serializer implementation.
  */
-class JavaSerializerTest {
+public class JavaSerializerTest {
     @Test
-    void serializeAndDeserialize() throws Exception {
+    public void serializeAndDeserialize() throws Exception {
         // Construct serializer instance
         Serializer serializer = new JavaSerializer();
 
@@ -23,9 +23,9 @@ class JavaSerializerTest {
         TestMessage output = (TestMessage) serializer.deserialize(serialized);
 
         // Make sure the message itself is restored
-        assertEquals(message, output.getMessage(), "The input message is different from the output message");
+        assertEquals("The input message is different from the output message", message, output.getMessage());
 
         // Make sure the non-serializable is empty
-        assertNull(output.getNotSerialized(), "The non-serializable field was serialized");
+        assertNull("The non-serializable field was serialized", output.getNotSerialized());
     }
 }

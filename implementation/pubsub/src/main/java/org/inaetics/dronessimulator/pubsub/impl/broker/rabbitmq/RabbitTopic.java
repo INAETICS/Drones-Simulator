@@ -1,4 +1,4 @@
-package org.inaetics.dronessimulator.pubsub.impl.rabbitmq;
+package org.inaetics.dronessimulator.pubsub.impl.broker.rabbitmq;
 
 import com.rabbitmq.client.BuiltinExchangeType;
 import org.inaetics.dronessimulator.pubsub.api.Topic;

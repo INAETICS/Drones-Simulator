@@ -1,7 +1,6 @@
-package org.inaetics.dronessimulator.pubsub.impl.rabbitmq;
+package org.inaetics.dronessimulator.pubsub.impl.broker.rabbitmq;
 
 import com.rabbitmq.client.AMQP;
-import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 
@@ -27,7 +26,7 @@ class RabbitMessageConsumer extends DefaultConsumer {
     public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
         try {
             subscriber.receive(subscriber.serializer.deserialize(body));
-        } catch (NoClassDefFoundError ignore) {
+        } catch (ClassNotFoundException ignore) {
             // Just drop the message if we cannot deserialize it
         }
         this.getChannel().basicAck(envelope.getDeliveryTag(), false);

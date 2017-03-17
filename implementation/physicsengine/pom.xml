@@ -17,75 +17,32 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>src/java</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok-maven-plugin</artifactId>
-                <version>1.16.10.0</version>
-                <configuration>
-                    <encoding>UTF-8</encoding>
-                </configuration>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>delombok</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.1</version>
-                <configuration>
-                    <compilerVersion>1.8</compilerVersion>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
             </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.0.0</version>
                 <executions>
                   <execution>
-                    <phase>package</phase>
                     <goals>
                       <goal>shade</goal>
                     </goals>
-                    <configuration>
+                    <configuration combine.self="append">
                         <transformers>
                             <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                <mainClass>nl.utwente.isep.PhysicsEngine</mainClass>
+                                <mainClass>org.inaetics.isep.PhysicsEngine</mainClass>
                             </transformer>
                         </transformers>
-                      <artifactSet>
-                        <excludes>
-                          <exclude>classworlds:classworlds</exclude>
-                          <exclude>junit:junit</exclude>
-                          <exclude>jmock:*</exclude>
-                          <exclude>*:xml-apis</exclude>
-                          <exclude>org.apache.maven:lib:tests</exclude>
-                          <exclude>log4j:log4j:jar:</exclude>
-                        </excludes>
-                      </artifactSet>
                     </configuration>
                   </execution>
                 </executions>
@@ -95,10 +52,14 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.inaetics</groupId>
+            <artifactId>common</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.16.10</version>
         </dependency>
     </dependencies>
-    
 </project>

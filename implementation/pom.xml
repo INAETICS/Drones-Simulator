@@ -8,18 +8,161 @@
     <artifactId>dronessimulator</artifactId>
     <packaging>pom</packaging>
     <version>0.1</version>
+
     <modules>
-        <module>enginewrapper</module>
-        <module>movementrules</module>
-        <module>collisionrules</module>
+        <module>common</module>
         <module>pubsub</module>
-        <module>drone</module>
-        <module>physicsengine</module>
-        <module>instancemanager</module>
         <module>etcddiscovery</module>
         <module>gamerules</module>
         <module>visualisation</module>
     </modules>
 
+    <profiles>
+        <profile>
+            <id>all</id>
+            <activation>
+                <property>
+                    <name>all</name>
+                </property>
+            </activation>
+            <modules>
+                <module>physicsengine</module>
+                <module>enginewrapper</module>
+                <module>movementrules</module>
+                <module>collisionrules</module>
+                <module>gamerules</module>
+                <module>drone</module>
+                <module>instancemanager</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>physicsengine</id>
+            <activation>
+                <property>
+                    <name>physicsengine</name>
+                </property>
+            </activation>
+            <modules>
+                <module>physicsengine</module>
+            </modules>
+        </profile>
 
+        <profile>
+            <id>engineservice</id>
+            <activation>
+                <property>
+                    <name>engineservice</name>
+                </property>
+            </activation>
+            <modules>
+                <module>physicsengine</module>
+                <module>enginewrapper</module>
+                <module>movementrules</module>
+                <module>collisionrules</module>
+                <module>gamerules</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>droneservice</id>
+            <activation>
+                <property>
+                    <name>droneservice</name>
+                </property>
+            </activation>
+            <modules>
+                <module>drone</module>
+            </modules>
+        </profile>
+
+        <profile>
+            <id>instancemanagerservice</id>
+            <activation>
+                <property>
+                    <name>instancemanagerservice</name>
+                </property>
+            </activation>
+            <modules>
+                <module>instancemanager</module>
+            </modules>
+        </profile>
+    </profiles>
+
+    <build>
+        <pluginManagement>
+              <plugins>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>build-helper-maven-plugin</artifactId>
+                    <executions>
+                        <execution>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>add-source</goal>
+                            </goals>
+                            <configuration>
+                                <sources>
+                                    <source>src/java</source>
+                                </sources>
+                            </configuration>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.projectlombok</groupId>
+                    <artifactId>lombok-maven-plugin</artifactId>
+                    <version>1.16.10.0</version>
+                    <configuration>
+                        <encoding>UTF-8</encoding>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <phase>generate-sources</phase>
+                            <goals>
+                                <goal>delombok</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.6.1</version>
+                    <configuration>
+                        <compilerVersion>1.8</compilerVersion>
+                        <source>1.8</source>
+                        <target>1.8</target>
+                    </configuration>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-shade-plugin</artifactId>
+                    <version>3.0.0</version>
+                    <executions>
+                      <execution>
+                        <phase>package</phase>
+                        <goals>
+                          <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                          <artifactSet>
+                            <excludes>
+                              <exclude>classworlds:classworlds</exclude>
+                              <exclude>junit:junit</exclude>
+                              <exclude>jmock:*</exclude>
+                              <exclude>*:xml-apis</exclude>
+                              <exclude>org.apache.maven:lib:tests</exclude>
+                              <exclude>log4j:log4j:jar:</exclude>
+                            </excludes>
+                          </artifactSet>
+                        </configuration>
+                      </execution>
+                    </executions>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
 </project>

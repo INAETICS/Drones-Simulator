@@ -3,6 +3,9 @@ package org.inaetics.dronessimulator.pubsub.impl.broker.rabbitmq;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.Consumer;
 import org.inaetics.dronessimulator.pubsub.api.*;
+import org.inaetics.dronessimulator.pubsub.api.broker.Subscriber;
+import org.inaetics.dronessimulator.pubsub.api.broker.Topic;
+import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
 
 import java.io.IOException;
 import java.util.Collection;

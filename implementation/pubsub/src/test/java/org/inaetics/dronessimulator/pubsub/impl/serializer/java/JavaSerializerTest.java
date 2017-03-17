@@ -1,6 +1,6 @@
 package org.inaetics.dronessimulator.pubsub.impl.serializer.java;
 
-import org.inaetics.dronessimulator.pubsub.api.Serializer;
+import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

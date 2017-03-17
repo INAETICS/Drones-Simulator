@@ -1,7 +1,7 @@
 package org.inaetics.dronessimulator.pubsub.impl.broker.rabbitmq;
 
 import com.rabbitmq.client.BuiltinExchangeType;
-import org.inaetics.dronessimulator.pubsub.api.Topic;
+import org.inaetics.dronessimulator.pubsub.api.broker.Topic;
 
 /**
  * A topic tailored for RabbitMQ publishers and subscribers.

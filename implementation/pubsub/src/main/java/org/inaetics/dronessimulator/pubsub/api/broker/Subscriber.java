@@ -1,4 +1,7 @@
-package org.inaetics.dronessimulator.pubsub.api;
+package org.inaetics.dronessimulator.pubsub.api.broker;
+
+import org.inaetics.dronessimulator.pubsub.api.Message;
+import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 
 /**
  * Interface for a subscriber.

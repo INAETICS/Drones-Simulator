@@ -2,8 +2,8 @@ package org.inaetics.dronessimulator.pubsub.impl.broker.rabbitmq;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
-import org.inaetics.dronessimulator.pubsub.api.Serializer;
-import org.inaetics.dronessimulator.pubsub.api.Topic;
+import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
+import org.inaetics.dronessimulator.pubsub.api.broker.Topic;
 
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;

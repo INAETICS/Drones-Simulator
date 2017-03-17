@@ -1,6 +1,6 @@
 package org.inaetics.dronessimulator.pubsub.impl.broker.rabbitmq;
 
-import org.inaetics.dronessimulator.pubsub.api.Serializer;
+import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
 import org.inaetics.dronessimulator.pubsub.impl.serializer.java.JavaSerializer;
 import org.junit.jupiter.api.Test;
 

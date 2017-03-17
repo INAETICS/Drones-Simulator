@@ -18,6 +18,7 @@
         <module>instancemanager</module>
         <module>etcddiscovery</module>
         <module>gamerules</module>
+        <module>visualisation</module>
     </modules>
 
 

@@ -1,10 +1,5 @@
 package nl.utwente.isep;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@AllArgsConstructor
-@Getter
 public class D3Vector {
     public static D3Vector UNIT = new D3Vector(1,1,1);
     private final double x;
@@ -12,9 +7,25 @@ public class D3Vector {
     private final double z;
 
     public D3Vector() {
-        this.x = 0;
-        this.y = 0;
-        this.z = 0;
+        this(0,0,0);
+    }
+
+    public D3Vector(double x, double y, double z) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
+    }
+
+    public double getX() {
+        return this.x;
+    }
+
+    public double getY() {
+        return this.y;
+    }
+
+    public double getZ() {
+        return this.z;
     }
 
     // Arrow from 0,0,0 to a + b
@@ -38,5 +49,9 @@ public class D3Vector {
 
     public double length() {
         return Math.sqrt(Math.pow(this.getX(), 2) + Math.pow(this.getY(), 2) + Math.pow(this.getZ(), 2));
+    }
+
+    public String toString() {
+        return "(" + x + ", " + y + ", " + z + ")";
     }
 }

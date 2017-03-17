@@ -34,17 +34,31 @@ public abstract class RabbitConnection {
      * Sets up the connection for use.
      * @param connection The RabbitMQ connection to use.
      * @param topic The topic for this connection.
+     * @param serializer The serializer to use.
      */
     protected RabbitConnection(Connection connection, Topic topic, Serializer serializer) {
+        this(topic, serializer);
+
         assert connection != null;
+
+        this.connection = connection;
+    }
+
+    /**
+     * Sets up the connection for testing. Since no actual connection will be present when using this constructor
+     * directly it can only be used for testing purposes.
+     * @param topic The topic for this connection.
+     * @param serializer The serializer to use.
+     */
+    protected RabbitConnection(Topic topic, Serializer serializer) {
         assert topic != null;
         assert serializer != null;
 
-        this.connection = connection;
         this.topic = topic;
         this.serializer = serializer;
 
         this.exchangeName = this.topic.getName();
+
     }
 
     /**

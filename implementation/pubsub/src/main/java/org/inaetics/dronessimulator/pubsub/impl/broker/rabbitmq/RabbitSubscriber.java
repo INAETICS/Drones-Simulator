@@ -42,6 +42,20 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     }
 
     /**
+     * Constructor without an actual connection, can only be used for testing purposes.
+     */
+    protected RabbitSubscriber(Topic topic, String identifier, Serializer serializer) {
+        super(topic, serializer);
+
+        assert identifier != null;
+
+        this.identifier = identifier;
+        this.handlers = new HashMap<Class<? extends Message>, Collection<MessageHandler>>();
+
+        this.queueName = String.format("%s/%s", this.topic.getName(), this.identifier);
+    }
+
+    /**
      * Starts processing messages.
      * @throws IOException An error occured.
      */

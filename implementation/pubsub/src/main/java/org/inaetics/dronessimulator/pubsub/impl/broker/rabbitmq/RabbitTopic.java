@@ -43,6 +43,14 @@ public class RabbitTopic implements Topic {
     }
 
     /**
+     * Instantiates a new RabbitMQ specific topic from an existing topic.
+     * @param topic The topic to copy.
+     */
+    public RabbitTopic(Topic topic) {
+        this(topic.getName());
+    }
+
+    /**
      * Returns the name of the topic. This name is used as name for a RabbitMQ exchange.
      * @return The topic name.
      */

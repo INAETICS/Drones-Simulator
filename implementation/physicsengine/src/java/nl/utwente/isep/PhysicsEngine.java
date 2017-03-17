@@ -22,7 +22,7 @@ public class PhysicsEngine {
     }
 
     private D3Vector collionForce(Entity subject, Entity collision) {
-
+        return null;
     }
 
     private void stageMove(double timestep_s) {

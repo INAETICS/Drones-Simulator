@@ -25,11 +25,10 @@ public class D3PoolCoordinate {
     }
 
     public D3Vector toVector() {
-        double x_y_length = Math.cos(this.angle2_x_z) * this.length;
-        double x_z_length = Math.cos(this.angle1_x_y) * this.length;
-        double x_length = Math.cos(this.angle1_x_y) * x_y_length;
-        double y_length = Math.sin(this.angle1_x_y) * x_y_length;
-        double z_length = Math.sin(this.angle2_x_z) * x_z_length;
+        double xy_length = Math.cos(this.angle2_x_z) * this.length;
+        double x_length = Math.cos(this.angle1_x_y) * xy_length;
+        double y_length = Math.sin(this.angle1_x_y) * xy_length;
+        double z_length = Math.sin(this.angle2_x_z) * this.length;
 
         return new D3Vector(x_length, y_length, z_length);
     }

@@ -68,8 +68,14 @@ public class D3Vector {
         double angle1_x_y;
 
         // atan relation only available if x != 0!
-        if(this.x != 0 && this.y != 0) {
-            angle1_x_y = Math.atan(Math.abs(this.y) / Math.abs(this.x));
+        if(this.x > 0 && this.y > 0) {
+            angle1_x_y = Math.atan(this.y / this.x);
+        } else if(this.x > 0 && this.y < 0) {
+            angle1_x_y = 2 * Math.PI - Math.atan(Math.abs(this.y) / this.x);
+        } else if(this.x < 0 && this.y > 0) {
+            angle1_x_y = Math.PI - Math.atan(this.y / Math.abs(this.x));
+        } else if  (this.x < 0 && this.y < 0) {
+            angle1_x_y = Math.PI + Math.atan(this.y / this.x);
         } else if(this.x == 0 && this.y != 0) {
             // x == 0, so look where y is
             if(this.y > 0) {
@@ -106,22 +112,7 @@ public class D3Vector {
             }
         }
 
-
-        double angle1_offset = 0;
-        double angle2_offset = 0; // angle 2 does not have an offset. Only a range of
-
-        // angle 1 can have an offset depening on which quadrant the vector is in
-        if(this.x > 0 && this.y > 0) {
-            angle1_offset = 0;
-        } else if(this.x > 0 && this.y < 0) {
-            angle1_offset = 1.5 * Math.PI;
-        } else if(this.x < 0 && this.y > 0) {
-            angle1_offset = 0.5 * Math.PI;
-        } else if(this.x < 0 && this.y < 0) {
-            angle1_offset = Math.PI;
-        }
-
-        return new D3PoolCoordinate(angle1_x_y + angle1_offset, angle2_x_z + angle2_offset, this.length());
+        return new D3PoolCoordinate(angle1_x_y, angle2_x_z, this.length());
     }
 
     // Angle is defined as the angle from this to angle_between

@@ -1,11 +1,11 @@
-package org.inaetics.dronessimulator.pubsub.impl.broker.rabbitmq;
+package org.inaetics.dronessimulator.pubsub.impl.subscriber.rabbitmq;
 
 import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.Consumer;
 import org.inaetics.dronessimulator.pubsub.api.*;
-import org.inaetics.dronessimulator.pubsub.api.broker.Subscriber;
-import org.inaetics.dronessimulator.pubsub.api.broker.Topic;
+import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
+import org.inaetics.dronessimulator.pubsub.api.Topic;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
+import org.inaetics.dronessimulator.pubsub.impl.broker.rabbitmq.RabbitConnection;
 
 import java.io.IOException;
 import java.util.Collection;
@@ -20,76 +20,56 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     /** The identifier of this subscriber. */
     private String identifier;
 
-    /** The name of the RabbitMQ queue this subscriber uses. */
-    private String queueName;
-
     /** The handlers for each message class this subscriber processes. */
     private Map<Class<? extends Message>, Collection<MessageHandler>> handlers;
+
+    /** The topics this subscriber is subscribed to. */
+    private Map<Topic, String> topics;
 
     /**
      * Instantiates a new RabbitMQ subscriber for the given topic.
      * @param connection The RabbitMQ connection to use.
-     * @param topic The topic this subscriber is interested in.
      * @param identifier The identifier for this subscriber. This is used as queue name.
      * @param serializer The serializer to use.
      */
-    public RabbitSubscriber(Connection connection, Topic topic, String identifier, Serializer serializer) {
-        super(connection, topic, serializer);
+    public RabbitSubscriber(Connection connection, String identifier, Serializer serializer) {
+        super(connection, serializer);
 
         assert identifier != null;
 
         this.identifier = identifier;
-        this.handlers = new HashMap<Class<? extends Message>, Collection<MessageHandler>>();
-
-        this.queueName = String.format("%s/%s", this.topic.getName(), this.identifier);
+        this.handlers = new HashMap<>();
+        this.topics = new HashMap<>();
     }
 
-    /**
-     * Constructor without an actual connection, can only be used for testing purposes.
-     */
-    protected RabbitSubscriber(Topic topic, String identifier, Serializer serializer) {
-        super(topic, serializer);
+    @Override
+    public void addTopic(Topic topic) throws IOException {
+        // Add topic to list if not present already
+        if (!this.topics.containsKey(topic)) {
+            this.topics.put(topic, topic.getName());
+        }
 
-        assert identifier != null;
+        // Make sure exchange exists
+        this.declareTopic(topic);
 
-        this.identifier = identifier;
-        this.handlers = new HashMap<Class<? extends Message>, Collection<MessageHandler>>();
-
-        this.queueName = String.format("%s/%s", this.topic.getName(), this.identifier);
+        // If connected, bind to queue
+        if (this.isConnected()) {
+            this.channel.queueBind(this.identifier, this.topics.get(topic), "");
+        }
     }
 
-    /**
-     * Starts processing messages.
-     * @throws IOException An error occured.
-     */
-    public void start() throws IOException {
-        Consumer callback = new RabbitMessageConsumer(this);
-        channel.basicConsume(this.queueName, true, this.queueName, callback);
-    }
+    @Override
+    public void removeTopic(Topic topic) throws IOException {
+        // Do nothing if we did not subscribe to this topic
+        if (this.topics.containsKey(topic)) {
+            // Remove from list
+            this.topics.remove(topic);
 
-    /**
-     * Stops processing messages.
-     * @throws IOException An error occured.
-     */
-    public void stop() throws IOException {
-        channel.basicCancel(this.queueName);
-    }
-
-    /**
-     * Connects to the RabbitMQ broker and sets up the exchange and queue used by this subscriber.
-     * @throws IOException Error while setting up the connection.
-     */
-    public void connect() throws IOException {
-        super.connect();
-
-        // Declare AMQP queue for the subscriber
-        //   durable: no, we do not need the queue after a server restart
-        //   exclusive: yes, only we are allowed to read from the queue
-        //   autoDelete: yes, this queue is no longer needed when we disconnect
-        this.channel.queueDeclare(this.queueName, false, true, true, null);
-
-        // Register the queue to receive messages for the set topic
-        this.channel.queueBind(this.queueName, this.exchangeName, "");
+            // Unbind if connected
+            if (this.isConnected()) {
+                this.channel.queueUnbind(this.identifier, topic.getName(), "");
+            }
+        }
     }
 
     /**
@@ -101,16 +81,14 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
      * @param messageClass The message class the handler is for.
      * @param handler The handler to process the messages.
      */
+    @Override
     public void addHandler(Class<? extends Message> messageClass, MessageHandler handler) {
         Collection<MessageHandler> handlers = this.handlers.get(messageClass);
 
         if (handlers == null) {
             // Create new set for this message class if needed
-            handlers = new HashSet<MessageHandler>();
+            handlers = new HashSet<>();
             this.handlers.put(messageClass, handlers);
-        } else {
-            // Otherwise set the handlers collection to the existing set
-            handlers = this.handlers.get(messageClass);
         }
 
         handlers.add(handler);
@@ -121,6 +99,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
      * @param messageClass The message class to remove the handler for.
      * @param handler The handler to remove.
      */
+    @Override
     public void removeHandler(Class<? extends Message> messageClass, MessageHandler handler) {
         Collection<MessageHandler> handlers = this.handlers.get(messageClass);
 
@@ -135,6 +114,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
      * message.
      * @param message The received message.
      */
+    @Override
     public void receive(Message message) {
         Collection<MessageHandler> handlers = this.handlers.get(message.getClass());
 
@@ -143,6 +123,16 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
             for (MessageHandler handler : handlers) {
                 handler.handleMessage(message);
             }
+        }
+    }
+
+    @Override
+    public void connect() throws IOException {
+        super.connect();
+
+        // Bind exchanges to queue
+        for (String topicName : this.topics.values()) {
+            this.channel.queueBind(this.identifier, topicName, "");
         }
     }
 }

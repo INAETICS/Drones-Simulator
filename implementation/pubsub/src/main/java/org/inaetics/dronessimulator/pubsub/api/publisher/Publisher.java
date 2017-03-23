@@ -1,6 +1,7 @@
-package org.inaetics.dronessimulator.pubsub.api.broker;
+package org.inaetics.dronessimulator.pubsub.api.publisher;
 
 import org.inaetics.dronessimulator.pubsub.api.Message;
+import org.inaetics.dronessimulator.pubsub.api.Topic;
 
 import java.io.IOException;
 
@@ -9,14 +10,9 @@ import java.io.IOException;
  */
 public interface Publisher {
     /**
-     * Returns the topic messages are published to.
-     * @return The topic of this publisher.
-     */
-    Topic getTopic();
-
-    /**
      * Send a message to the message broker.
+     * @param topic The topic to publish this message to.
      * @param message The message to send.
      */
-    void send(Message message) throws IOException;
+    void send(Topic topic, Message message) throws IOException;
 }

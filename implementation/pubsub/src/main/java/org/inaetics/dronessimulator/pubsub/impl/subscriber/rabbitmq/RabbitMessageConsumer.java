@@ -1,4 +1,4 @@
-package org.inaetics.dronessimulator.pubsub.impl.broker.rabbitmq;
+package org.inaetics.dronessimulator.pubsub.impl.subscriber.rabbitmq;
 
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.DefaultConsumer;

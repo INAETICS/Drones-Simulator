@@ -1,4 +1,4 @@
-package org.inaetics.dronessimulator.pubsub.api.broker;
+package org.inaetics.dronessimulator.pubsub.api;
 
 /**
  * Interface for a topic which categorizes messages.

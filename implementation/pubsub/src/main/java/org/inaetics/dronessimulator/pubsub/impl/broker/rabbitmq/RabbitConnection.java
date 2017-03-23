@@ -1,11 +1,14 @@
 package org.inaetics.dronessimulator.pubsub.impl.broker.rabbitmq;
 
+import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
-import org.inaetics.dronessimulator.pubsub.api.broker.Topic;
+import org.inaetics.dronessimulator.pubsub.api.Topic;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -15,50 +18,38 @@ import java.util.concurrent.TimeoutException;
  * related to the connection to the broker.
  */
 public abstract class RabbitConnection {
-    /** The topic for this connection. */
-    protected Topic topic;
-
     /** The RabbitMQ connection used by this subscriber. */
     protected Connection connection;
 
     /** The connection channel to use, created from the connection. */
     protected Channel channel;
 
-    /** The name of the exchange this connection uses. */
-    protected String exchangeName;
-
     /** The serializer used in this connection. */
     protected Serializer serializer;
+
+    /** Collection of topics for which an exchange has been declared. */
+    private Collection<Topic> declaredTopics;
 
     /**
      * Sets up the connection for use.
      * @param connection The RabbitMQ connection to use.
-     * @param topic The topic for this connection.
      * @param serializer The serializer to use.
      */
-    protected RabbitConnection(Connection connection, Topic topic, Serializer serializer) {
-        this(topic, serializer);
-
+    protected RabbitConnection(Connection connection, Serializer serializer) {
+        this(serializer);
         assert connection != null;
-
         this.connection = connection;
     }
 
     /**
      * Sets up the connection for testing. Since no actual connection will be present when using this constructor
      * directly it can only be used for testing purposes.
-     * @param topic The topic for this connection.
      * @param serializer The serializer to use.
      */
-    protected RabbitConnection(Topic topic, Serializer serializer) {
-        assert topic != null;
+    protected RabbitConnection(Serializer serializer) {
         assert serializer != null;
-
-        this.topic = topic;
         this.serializer = serializer;
-
-        this.exchangeName = this.topic.getName();
-
+        this.declaredTopics = new HashSet<>();
     }
 
     /**
@@ -69,17 +60,9 @@ public abstract class RabbitConnection {
         // Create a channel if not present
         if (!isConnected()) {
             channel = connection.createChannel();
-        }
 
-        if (topic instanceof RabbitTopic) {
-            RabbitTopic rt = (RabbitTopic) topic;
-            // Declare AMQP exchange for the topic using the topics own settings
-            channel.exchangeDeclare(exchangeName, rt.getExchangeType(), rt.isPersistent(), !rt.isPersistent(), null);
-        } else {
-            // Declare AMQP exchange for the topic using sensible defaults
-            //   durable: no, we do not need the exchange after a server restart
-            //   autoDelete: yes, this exchange is no longer needed when we disconnect
-            channel.exchangeDeclare(exchangeName, RabbitTopic.DEFAULT_EXCHANGE_TYPE, false, true, null);
+            // Clear declared topics cache
+            declaredTopics.clear();
         }
     }
 
@@ -104,10 +87,18 @@ public abstract class RabbitConnection {
     }
 
     /**
-     * Returns the topic for this connection.
-     * @return The topic for this connection.
+     * Declares the topic as RabbitMQ exchange using the default settings.
+     * @param topic The topic to declare.
      */
-    public Topic getTopic() {
-        return topic;
+    protected void declareTopic(Topic topic) throws IOException {
+        // Automatically (re)connect if needed
+        if (!isConnected()) {
+            this.connect();
+        }
+
+        if (!declaredTopics.contains(topic)) {
+            channel.exchangeDeclare(topic.getName(), BuiltinExchangeType.FANOUT, false);
+            declaredTopics.add(topic);
+        }
     }
 }

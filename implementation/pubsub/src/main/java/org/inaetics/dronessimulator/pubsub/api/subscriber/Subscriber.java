@@ -1,17 +1,26 @@
-package org.inaetics.dronessimulator.pubsub.api.broker;
+package org.inaetics.dronessimulator.pubsub.api.subscriber;
 
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
+import org.inaetics.dronessimulator.pubsub.api.Topic;
+
+import java.io.IOException;
 
 /**
  * Interface for a subscriber.
  */
 public interface Subscriber {
     /**
-     * Returns the topic this subscriber is interested in.
-     * @return The topic of this subscriber.
+     * Subscribes to the given topic.
+     * @param topic The topic to subscribe to.
      */
-    Topic getTopic();
+    void addTopic(Topic topic) throws IOException;
+
+    /**
+     * Unsubscribes from the given topic.
+     * @param topic The topic to unsubscribe from.
+     */
+    void removeTopic(Topic topic) throws IOException;
 
     /**
      * Adds a message handler to this subscriber. The message class specifies which kind of message this handler should

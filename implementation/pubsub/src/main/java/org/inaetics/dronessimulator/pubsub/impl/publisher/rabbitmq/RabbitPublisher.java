@@ -1,37 +1,45 @@
-package org.inaetics.dronessimulator.pubsub.impl.broker.rabbitmq;
+package org.inaetics.dronessimulator.pubsub.impl.publisher.rabbitmq;
 
 import com.rabbitmq.client.Connection;
 import org.inaetics.dronessimulator.pubsub.api.Message;
-import org.inaetics.dronessimulator.pubsub.api.broker.Publisher;
+import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
-import org.inaetics.dronessimulator.pubsub.api.broker.Topic;
+import org.inaetics.dronessimulator.pubsub.api.Topic;
+import org.inaetics.dronessimulator.pubsub.impl.broker.rabbitmq.RabbitConnection;
 
 import java.io.IOException;
 
+/**
+ * A RabbitMQ implementation of a publisher.
+ */
 public class RabbitPublisher extends RabbitConnection implements Publisher {
     /**
      * Instantiates a new RabbitMQ publisher for the given topic.
      * @param connection The RabbitMQ connection to use.
-     * @param topic The topic this publisher publishes to.
      * @param serializer The serializer to use.
      */
-    public RabbitPublisher(Connection connection, Topic topic, Serializer serializer) {
-        super(connection, topic, serializer);
+    public RabbitPublisher(Connection connection, Serializer serializer) {
+        super(connection, serializer);
     }
 
     /**
      * Sends the given message to subscribers on the topic of this publisher.
+     * @param topic The topic to publish the message to.
      * @param message The message to send.
      */
-    public void send(Message message) {
+    public void send(Topic topic, Message message) {
         try {
             // Automatically (re)connect if needed
             if (!this.isConnected()) {
                 this.connect();
             }
 
+            // Declare topic, declares exchange on message broker if needed
+            this.declareTopic(topic);
+
             if (message != null) {
-                this.channel.basicPublish(this.exchangeName, "", null, serializer.serialize(message));
+                byte[] serializedMessage = this.serializer.serialize(message);
+                this.channel.basicPublish(topic.getName(), "", null, serializedMessage);
             }
         } catch (IOException ignore) {
             // Just drop the message if there is no good connection

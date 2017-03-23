@@ -15,11 +15,15 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
-            <version>6.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
         <dependency>
             <groupId>com.rabbitmq</groupId>

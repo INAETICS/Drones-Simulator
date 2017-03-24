@@ -2,14 +2,75 @@ package org.inaetics.isep;
 
 public class D3PoolCoordinate {
     public static final D3PoolCoordinate UNIT = new D3PoolCoordinate(0,0, 1);
-    public final double angle1_x_y;
-    public final double angle2_x_z;
-    public final double length;
+    private final double angle1_x_y; // Between 0 and 2pi
+    private final double angle2_x_z; // Between -0.5 * pi and 0.5 * pi
+    private final double length;
 
     public D3PoolCoordinate(double angle1_x_y, double angle2_x_z, double length) {
-        this.angle1_x_y = angle1_x_y;
-        this.angle2_x_z = angle2_x_z;
+
+        if(length < 0) {
+            angle1_x_y = angle1_x_y + Math.PI;
+            angle2_x_z = -1 * angle2_x_z;
+            length = -1 * length;
+        }
+
+        Tuple<Double, Double> normalizedAngles = normalizeAngles(angle1_x_y, angle2_x_z);
+
+        this.angle1_x_y = normalizedAngles.getLeft();
+        this.angle2_x_z = normalizedAngles.getRight();
         this.length = length;
+    }
+
+    private static Tuple<Double, Double> normalizeAngles(double angle1_x_y, double angle2_x_z) {
+        double a1_ = angle1_x_y;
+        double a2_ = angle2_x_z % (2 * Math.PI);
+
+        if(angle2_x_z > 0.5 * Math.PI) {
+            if(angle2_x_z <= Math.PI) {
+                // 0.5 PI < angle2 <= PI
+                // Mirror a1_
+                // a2_ starts at the other side now
+                a2_ = Math.PI - a2_;
+                a1_ = a1_ + Math.PI;
+            } else if(angle2_x_z <= 1.5 * Math.PI) {
+                // PI < angle2 <= 1.5 PI
+                //Mirror a1_
+                // a2_ starts at the other side now
+
+                a2_ = -1 * (a2_ - Math.PI);
+                a1_ = a1_ + Math.PI;
+            } else {
+                // 1.5 PI < angle2 < 2 PI
+                a2_ = a2_ - 2 * Math.PI;
+            }
+        } else if(angle2_x_z < -0.5 * Math.PI) {
+            if(angle2_x_z >= -1 * Math.PI) {
+                // -0.5 PI < angle2 <= -PI
+                // Mirror a1_
+                // a2_ starts at the other side now
+
+                a2_ = -1 * Math.PI - a2_;
+                a1_ = a1_ + Math.PI;
+            } else if(angle2_x_z >= -1.5 * Math.PI) {
+                // -PI < angle2 <= -1.5 PI
+                //Mirror a1_
+                // a2_ starts at the other side now
+
+                a2_ = Math.abs(a2_) - Math.PI;
+                a1_ = a1_ + Math.PI;
+            } else {
+                // -1.5 PI < angle2 <-2 PI
+                a2_ = 2 * Math.PI + a2_;
+            }
+        }
+
+        if(a1_ < 0) {
+            a1_ = 2 * Math.PI + (a1_ % (2 * Math.PI));
+        } else {
+            a1_ = a1_ % (2 * Math.PI);
+        }
+
+        return new Tuple<>(a1_, a2_);
     }
 
     public double getAngle1() {
@@ -18,6 +79,14 @@ public class D3PoolCoordinate {
 
     public double getAngle2() {
         return angle2_x_z;
+    }
+
+    public D3PoolCoordinate rotate(double angle1_x_y, double angle2_x_z) {
+        return new D3PoolCoordinate(this.angle1_x_y + angle1_x_y, this.angle2_x_z + angle2_x_z, this.length);
+    }
+
+    public D3PoolCoordinate scale(double scalar) {
+        return new D3PoolCoordinate(this.angle1_x_y, this.angle2_x_z, this.length * scalar);
     }
 
     public double getLength() {

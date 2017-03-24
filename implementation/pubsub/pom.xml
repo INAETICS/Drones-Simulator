@@ -3,13 +3,21 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>dronessimulator</artifactId>
         <groupId>org.inaetics</groupId>
+        <artifactId>dronessimulator</artifactId>
         <version>0.1</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>org.inaetics.dronessimulator</groupId>
     <artifactId>pubsub</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>api</module>
+        <module>javaserializer</module>
+        <module>rabbitmq</module>
+    </modules>
 
     <dependencies>
         <dependency>
@@ -24,11 +32,6 @@
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.dependencymanager</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.rabbitmq</groupId>
-            <artifactId>amqp-client</artifactId>
-            <version>4.1.0</version>
         </dependency>
     </dependencies>
 </project>

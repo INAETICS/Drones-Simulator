@@ -4,6 +4,8 @@
 **.bbl
 **.blg
 **.aux
+**.toc
+**.pdf
 
 # Compiled class file
 *.class

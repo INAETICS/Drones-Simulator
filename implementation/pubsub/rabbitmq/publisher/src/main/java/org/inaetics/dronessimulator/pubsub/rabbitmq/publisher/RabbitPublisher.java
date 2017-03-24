@@ -8,18 +8,28 @@ import org.inaetics.dronessimulator.pubsub.api.Topic;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.common.RabbitConnection;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 /**
  * A RabbitMQ implementation of a publisher.
  */
 public class RabbitPublisher extends RabbitConnection implements Publisher {
     /**
-     * Instantiates a new RabbitMQ publisher for the given topic.
+     * Instantiates a new RabbitMQ publisher.
      * @param connection The RabbitMQ connection to use.
      * @param serializer The serializer to use.
      */
     public RabbitPublisher(Connection connection, Serializer serializer) {
         super(connection, serializer);
+    }
+
+    /**
+     * Instantiates a new RabbitMQ publisher for use with OSGi. This constructor assumes the serializer is injected
+     * later on.
+     * @param connection The connection to use.
+     */
+    public RabbitPublisher(Connection connection) {
+        super(connection);
     }
 
     /**
@@ -37,8 +47,11 @@ public class RabbitPublisher extends RabbitConnection implements Publisher {
             // Declare topic, declares exchange on message broker if needed
             this.declareTopic(topic);
 
-            if (message != null) {
-                byte[] serializedMessage = this.serializer.serialize(message);
+            // Drop null messages and when a serializer is absent
+            Serializer serializer = this.serializer;
+
+            if (message != null && serializer != null) {
+                byte[] serializedMessage = serializer.serialize(message);
                 this.channel.basicPublish(topic.getName(), "", null, serializedMessage);
             }
         } catch (IOException ignore) {

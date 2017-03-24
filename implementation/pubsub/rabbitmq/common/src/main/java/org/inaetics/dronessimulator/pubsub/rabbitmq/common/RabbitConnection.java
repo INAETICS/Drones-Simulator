@@ -25,7 +25,7 @@ public abstract class RabbitConnection {
     protected Channel channel;
 
     /** The serializer used in this connection. */
-    protected Serializer serializer;
+    protected volatile Serializer serializer;
 
     /** Collection of topics for which an exchange has been declared. */
     private Collection<Topic> declaredTopics;
@@ -36,19 +36,18 @@ public abstract class RabbitConnection {
      * @param serializer The serializer to use.
      */
     protected RabbitConnection(Connection connection, Serializer serializer) {
-        this(serializer);
-        assert connection != null;
-        this.connection = connection;
+        this(connection);
+        assert serializer != null;
+        this.serializer = serializer;
     }
 
     /**
-     * Sets up the connection for testing. Since no actual connection will be present when using this constructor
-     * directly it can only be used for testing purposes.
-     * @param serializer The serializer to use.
+     * Sets up the connection for use within OSGi. This constructor assumes that the serializer is injected later on.
+     * @param connection The RabbitMQ connection to use.
      */
-    protected RabbitConnection(Serializer serializer) {
-        assert serializer != null;
-        this.serializer = serializer;
+    protected RabbitConnection(Connection connection) {
+        assert connection != null;
+        this.connection = connection;
         this.declaredTopics = new HashSet<>();
     }
 

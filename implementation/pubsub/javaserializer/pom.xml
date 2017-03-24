@@ -31,6 +31,7 @@
                     <instructions>
                         <Export-Package>org.inaetics.dronessimulator.pubsub.javaserializer</Export-Package>
                         <Bundle-Activator>org.inaetics.dronessimulator.pubsub.javaserializer.Activator</Bundle-Activator>
+                        <Embed-Dependency>org.inaetics.dronessimulator.*;scope=compile|runtime</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

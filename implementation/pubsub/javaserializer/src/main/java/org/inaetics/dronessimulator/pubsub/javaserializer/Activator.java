@@ -1,20 +1,20 @@
 package org.inaetics.dronessimulator.pubsub.javaserializer;
 
-import org.apache.felix.dm.DependencyActivatorBase;
-import org.apache.felix.dm.DependencyManager;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
+import org.osgi.framework.BundleActivator;
 import org.osgi.framework.BundleContext;
 
 /**
  * Activator for the Java serializer implementation.
  */
-public class Activator extends DependencyActivatorBase {
+public class Activator implements BundleActivator {
     @Override
-    public void init(BundleContext context, DependencyManager manager) throws Exception {
-        // Register service
-        manager.add(createComponent()
-                .setInterface(Serializer.class.getName(), null)
-                .setImplementation(JavaSerializer.class)
-        );
+    public void start(BundleContext context) throws Exception {
+        context.registerService(Serializer.class, new JavaSerializer(), null);
+    }
+
+    @Override
+    public void stop(BundleContext context) throws Exception {
+        // We don't have to destruct anything here
     }
 }

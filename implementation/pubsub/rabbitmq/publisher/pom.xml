@@ -19,4 +19,21 @@
             <version>0.1</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>org.inaetics.dronessimulator.pubsub.rabbitmq.publisher</Export-Package>
+                        <Bundle-Activator>org.inaetics.dronessimulator.pubsub.rabbitmq.publisher.Activator</Bundle-Activator>
+                        <Embed-Dependency>org.inaetics.dronessimulator.*;scope=compile|runtime</Embed-Dependency>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

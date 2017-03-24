@@ -41,13 +41,13 @@ public class Game extends Application {
             public void handle(long now) {
 
                 // player input
-                drones.forEach(sprite -> sprite.processInput());
+                drones.forEach(drones -> drones.processInput());
 
                 // movement
-                drones.forEach(sprite -> sprite.move());
+                drones.forEach(drones -> drones.move());
 
                 // update sprites in scene
-                drones.forEach(sprite -> sprite.updateUI());
+                drones.forEach(drones -> drones.updateUI());
             }
 
         };
@@ -64,7 +64,7 @@ public class Game extends Application {
         input.addListeners(); // TODO: remove listeners on game over
 
         // create drone
-        BasicDrone drone = new BasicDrone(playfieldLayer, 0, 0, 0, 0, Settings.PLAYER_SHIP_HEALTH, 0, Settings.PLAYER_SHIP_SPEED, Settings.PLAY_SHIP_ROTATION_SPEED, input);
+        BasicDrone drone = new BasicDrone(playfieldLayer, input);
 
         // register drone
         drones.add(drone);

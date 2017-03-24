@@ -14,7 +14,7 @@
     <dependencies>
         <dependency>
             <groupId>org.inaetics</groupId>
-            <artifactId>dronessimulator</artifactId>
+            <artifactId>common</artifactId>
             <version>0.1</version>
         </dependency>
     </dependencies>

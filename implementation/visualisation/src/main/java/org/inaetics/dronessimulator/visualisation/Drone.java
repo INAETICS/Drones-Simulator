@@ -3,6 +3,7 @@ package org.inaetics.dronessimulator.visualisation;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import org.inaetics.isep.D3Vector;
 
 /**
  * Created by langstra on 10-3-17.
@@ -26,11 +27,11 @@ public abstract class Drone {
     private double w;
     private double h;
 
-    public Drone(Pane layer, Image image, Input input) {
+    public Drone(Pane layer, String image, Input input) {
         this.input = input;
 
         this.layer = layer;
-        this.image = image;
+        this.image = new Image(Object.class.getResource(image).toExternalForm());
         this.position = input.getPosition();
         this.direction = input.getDirection();
         this.velocity = input.getVelocity();
@@ -75,8 +76,8 @@ public abstract class Drone {
 
     public void updateUI() {
 
-        imageView.relocate(x, y);
-        imageView.setRotate(r);
+        imageView.relocate(position.getX(), position.getY());
+        imageView.setRotate(getRotation());
 
     }
 
@@ -89,11 +90,19 @@ public abstract class Drone {
     }
 
     public double getCenterX() {
-        return x + w * 0.5;
+        return position.getX() + w * 0.5;
     }
 
     public double getCenterY() {
-        return y + h * 0.5;
+        return position.getY() + h * 0.5;
+    }
+
+    public void processInput() {
+        input.processInput();
+        this.position = input.getPosition();
+        this.direction = input.getDirection();
+        this.velocity = input.getVelocity();
+        this.acceleration = input.getAcceleration();
     }
 
     /**
@@ -106,10 +115,11 @@ public abstract class Drone {
     public abstract void checkRemovability();
 
     private double getRotation() {
-        double rotation = Math.atan2(this.direction.getY(), this.direction.getX()); //1st qudrant
+        double rotation = Math.atan2(this.direction.getY(), this.direction.getX()) * 180 / Math.PI; //1st qudrant
         if (this.direction.getX() < 0 && this.direction.getY() < 0) rotation += 90; //2end quadrant
         else if (this.direction.getX() < 0 && this.direction.getY() > 0) rotation += 180; //3rd quadrant
         else if (this.direction.getX() > 0 && this.direction.getY() > 0) rotation += 270; //4rd quadrant
+//        System.out.println(rotation);
         return rotation;
     }
 

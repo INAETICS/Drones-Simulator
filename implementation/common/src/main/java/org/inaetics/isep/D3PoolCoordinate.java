@@ -77,8 +77,16 @@ public class D3PoolCoordinate {
         return angle1_x_y;
     }
 
+    public double getAngle1Degrees() {
+        return radianToDegrees(this.angle1_x_y);
+    }
+
     public double getAngle2() {
         return angle2_x_z;
+    }
+
+    public double getAngle2Degrees() {
+        return radianToDegrees(this.angle2_x_z);
     }
 
     public D3PoolCoordinate rotate(double angle1_x_y, double angle2_x_z) {
@@ -110,4 +118,11 @@ public class D3PoolCoordinate {
         return this.getAngle1() == other.getAngle1() && this.getAngle2() == other.getAngle2() && this.getLength() == other.getLength();
     }
 
+    public static double radianToDegrees(double radians) {
+        return (radians / Math.PI) * 180;
+    }
+
+    public static double degreesToRadian(double degrees) {
+        return (degrees / 180) * Math.PI;
+    }
 }

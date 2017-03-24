@@ -11,7 +11,7 @@ public class BasicDrone extends Drone {
     double speed;
     double rotationSpeed;
 
-    private static final String image = "/drones/basic-drone.png";
+    private static final String image = "/drones/drone_sprite.png";
 
     public BasicDrone(Pane layer, Input input) {
         super(layer, image, input);

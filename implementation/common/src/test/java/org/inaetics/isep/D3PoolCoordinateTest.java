@@ -6,6 +6,54 @@ import org.junit.Test;
 
 public class D3PoolCoordinateTest {
     @Test
+    public void testUnnormalizedConstruction() {
+        D3PoolCoordinate neg_length = new D3PoolCoordinate(0.20 * Math.PI, 0.4 * Math.PI, -5);
+        Assert.assertEquals("a1", 1.2 * Math.PI, neg_length.getAngle1() ,0.01);
+        Assert.assertEquals("a2", -0.4 * Math.PI, neg_length.getAngle2(),0.01);
+        Assert.assertEquals("l", 5, neg_length.getLength(),0.01);
+
+        D3PoolCoordinate neg_a1 = new D3PoolCoordinate(-0.20 * Math.PI, 0.4 * Math.PI, 5);
+        Assert.assertEquals("a1", 1.8 * Math.PI, neg_a1.getAngle1() ,0.01);
+        Assert.assertEquals("a2", 0.4 * Math.PI, neg_a1.getAngle2(),0.01);
+        Assert.assertEquals("l", 5, neg_a1.getLength(),0.01);
+
+        D3PoolCoordinate pos_a1 = new D3PoolCoordinate(2.20 * Math.PI, 0.4 * Math.PI, 5);
+        Assert.assertEquals("a1", 0.2 * Math.PI, pos_a1.getAngle1() ,0.01);
+        Assert.assertEquals("a2", 0.4 * Math.PI, pos_a1.getAngle2(),0.01);
+        Assert.assertEquals("l", 5, pos_a1.getLength(),0.01);
+
+        D3PoolCoordinate neg_a2 = new D3PoolCoordinate(0.2 * Math.PI, -0.6 * Math.PI, 5);
+        Assert.assertEquals("a1", 1.2 * Math.PI, neg_a2.getAngle1() ,0.01);
+        Assert.assertEquals("a2", -0.4 * Math.PI, neg_a2.getAngle2(),0.01);
+        Assert.assertEquals("l", 5, neg_a2.getLength(),0.01);
+
+        D3PoolCoordinate negger_a2 = new D3PoolCoordinate(0.2 * Math.PI, -1.2 * Math.PI, 5);
+        Assert.assertEquals("a1", 1.2 * Math.PI, negger_a2.getAngle1() ,0.01);
+        Assert.assertEquals("a2", 0.2 * Math.PI, negger_a2.getAngle2(),0.01);
+        Assert.assertEquals("l", 5, negger_a2.getLength(),0.01);
+
+        D3PoolCoordinate neggest_a2 = new D3PoolCoordinate(0.2 * Math.PI, -1.6 * Math.PI, 5);
+        Assert.assertEquals("a1", 0.2 * Math.PI, neggest_a2.getAngle1() ,0.01);
+        Assert.assertEquals("a2", 0.4 * Math.PI, neggest_a2.getAngle2(),0.01);
+        Assert.assertEquals("l", 5, neggest_a2.getLength(),0.01);
+
+        D3PoolCoordinate pos_a2 = new D3PoolCoordinate(0.6 * Math.PI, 0.6 * Math.PI, 5);
+        Assert.assertEquals("a1", 1.6 * Math.PI, pos_a2.getAngle1() ,0.01);
+        Assert.assertEquals("a2", 0.4 * Math.PI, pos_a2.getAngle2(),0.01);
+        Assert.assertEquals("l", 5, pos_a2.getLength(),0.01);
+
+        D3PoolCoordinate posser_a2 = new D3PoolCoordinate(0.2 * Math.PI, 1.2 * Math.PI, 5);
+        Assert.assertEquals("a1", 1.2 * Math.PI, posser_a2.getAngle1() ,0.01);
+        Assert.assertEquals("a2", -0.2 * Math.PI, posser_a2.getAngle2(),0.01);
+        Assert.assertEquals("l", 5, posser_a2.getLength(),0.01);
+
+        D3PoolCoordinate possest_a2 = new D3PoolCoordinate(0.2 * Math.PI, 1.6 * Math.PI, 5);
+        Assert.assertEquals("a1", 0.2 * Math.PI, possest_a2.getAngle1() ,0.01);
+        Assert.assertEquals("a2", -0.4 * Math.PI, possest_a2.getAngle2(),0.01);
+        Assert.assertEquals("l", 5, possest_a2.getLength(),0.01);
+    }
+
+    @Test
     public void testToVector() {
         // Based on D3Vector.toPoolCoordinate test but with a pass over toVector
         D3Vector v_zero_zero_zero = new D3Vector(0,0,0);

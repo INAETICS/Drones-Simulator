@@ -35,10 +35,13 @@ public class PhysicsEngine {
 
             Entity newEntity = new Entity(entity.getId(), entity.getSize(), nextPosition, nextVelocity, nextAcceleration);
             boolean collides = false;
+            Entity collidesWith;
 
             for(Entity otherEntity : entities) {
                 if(!entity.equals(otherEntity) && newEntity.collides(otherEntity)) {
                     collides = true;
+                    collidesWith = otherEntity;
+                    break;
                 }
             }
 
@@ -46,6 +49,8 @@ public class PhysicsEngine {
                 entity.setAcceleration(nextAcceleration);
                 entity.setVelocity(nextVelocity);
                 entity.setPosition(nextPosition);
+            } else {
+
             }
         }
     }

@@ -41,13 +41,10 @@ public class Game extends Application {
             public void handle(long now) {
 
                 // player input
-                drones.forEach(drones -> drones.processInput());
-
-                // movement
-                drones.forEach(drones -> drones.move());
+                drones.forEach(drone -> drone.processInput());
 
                 // update sprites in scene
-                drones.forEach(drones -> drones.updateUI());
+                drones.forEach(drone -> drone.updateUI());
             }
 
         };
@@ -61,7 +58,7 @@ public class Game extends Application {
         Input input = new Input(scene);
 
         // register input listeners
-        input.addListeners(); // TODO: remove listeners on game over
+        input.addListeners();
 
         // create drone
         BasicDrone drone = new BasicDrone(playfieldLayer, input);
@@ -70,23 +67,6 @@ public class Game extends Application {
         drones.add(drone);
 
     }
-
-    private void removeSprites(  List<? extends Drone> spriteList) {
-        Iterator<? extends Drone> iter = spriteList.iterator();
-        while( iter.hasNext()) {
-            Drone sprite = iter.next();
-
-            if( sprite.isRemovable()) {
-
-                // remove from layer
-                sprite.removeFromLayer();
-
-                // remove from list
-                iter.remove();
-            }
-        }
-    }
-
     public static void main(String[] args) {
         launch(args);
     }

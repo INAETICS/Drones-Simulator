@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.visualisation;
 
-import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 
 /**
@@ -21,11 +20,6 @@ public class BasicDrone extends Drone {
 
     private void init() {
 
-    }
-
-    @Override
-    public void checkRemovability() {
-        // TODO Auto-generated method stub
     }
 
 }

@@ -28,6 +28,8 @@ public class Input {
     private KeyCode downKey = KeyCode.DOWN;
     private KeyCode leftKey = KeyCode.LEFT;
     private KeyCode rightKey = KeyCode.RIGHT;
+    private KeyCode ascendKey = KeyCode.PAGE_UP;
+    private KeyCode descendKey = KeyCode.PAGE_DOWN;
     private KeyCode aKey = KeyCode.A;
     private KeyCode sKey = KeyCode.S;
     private KeyCode primaryWeaponKey = KeyCode.SPACE;
@@ -116,6 +118,14 @@ public class Input {
         return keyboardBitSet.get(sKey.ordinal()) && !keyboardBitSet.get(aKey.ordinal());
     }
 
+    public boolean isAscending() {
+        return keyboardBitSet.get(ascendKey.ordinal()) && !keyboardBitSet.get(descendKey.ordinal());
+    }
+
+    public boolean isDescending() {
+        return keyboardBitSet.get(descendKey.ordinal()) && !keyboardBitSet.get(ascendKey.ordinal());
+    }
+
     public boolean isFirePrimaryWeapon() {
         return keyboardBitSet.get(primaryWeaponKey.ordinal());
     }
@@ -143,32 +153,46 @@ public class Input {
             this.position = position.add(new D3Vector(-2, 0, 0));
         } else if (isMoveRight()) {
             this.position = position.add(new D3Vector(2, 0, 0));
-        } else {
         }
 
         if (isTurnLeft()) {
             this.direction = this.direction.rotate(-0.05, 0);
         } else if (isTurnRight()) {
             this.direction = this.direction.rotate(0.05, 0);
-        } else {
+        }
+
+        if (isAscending()) {
+            this.position = position.add(new D3Vector(0, 0, 1));
+        } else if (isDescending()) {
+            this.position = position.add(new D3Vector(0, 0, -1));
         }
 
     }
 
+    /**
+     * Returns the position of the object from the pubsub
+     * @return D3Vector position of the object
+     */
     public D3Vector getPosition() {
         return this.position;
     }
 
+    /**
+     * Returns the direction of the object from the pubsub
+     * @return D3PoolCoordinate direction of the object
+     */
     public D3PoolCoordinate getDirection() {
         return this.direction;
     }
 
-    public D3Vector getAcceleration() {
-        return this.acceleration;
-    }
+//    public D3Vector getAcceleration() {
+//        return this.acceleration;
+//    }
+//
+//    public D3Vector getVelocity() {
+//        return this.velocity;
+//    }
 
-    public D3Vector getVelocity() {
-        return this.velocity;
-    }
+    public boolean destroyDrone() { return false; }
 
 }

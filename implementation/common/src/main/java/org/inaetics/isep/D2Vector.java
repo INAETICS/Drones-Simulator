@@ -37,6 +37,10 @@ public class D2Vector {
         return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
     }
 
+    public D2Vector scale(double scalar) {
+        return new D2Vector(this.getX() * scalar, this.getY() * scalar);
+    }
+
     public double in_product(D3Vector other) {
         return this.getX() * other.getX() + this.getY() * other.getY();
     }

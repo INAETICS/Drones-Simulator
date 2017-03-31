@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 
 import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
@@ -10,7 +11,7 @@ import java.io.IOException;
 /**
  * A RabbitMQ consumer to work in conjunction with the RabbitMQ subscriber.
  */
-class RabbitMessageConsumer extends DefaultConsumer {
+class RabbitMessageConsumer extends DefaultConsumer implements Runnable {
     /** A RabbitMQ subscriber instance. */
     private RabbitSubscriber subscriber;
 
@@ -35,6 +36,19 @@ class RabbitMessageConsumer extends DefaultConsumer {
                 // Just drop the message if we cannot deserialize it
             }
             this.getChannel().basicAck(envelope.getDeliveryTag(), false);
+        }
+    }
+
+    @Override
+    public void run() {
+        Channel channel = this.subscriber.getChannel();
+
+        try {
+            while (!Thread.interrupted()) {
+                channel.basicConsume(this.subscriber.getIdentifier(), false, this);
+            }
+        } catch (IOException e) {
+            // Stop listening
         }
     }
 }

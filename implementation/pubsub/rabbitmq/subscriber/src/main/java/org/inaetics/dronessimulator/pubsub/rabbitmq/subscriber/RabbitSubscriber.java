@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 
 import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.Consumer;
 import org.inaetics.dronessimulator.pubsub.api.*;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
@@ -12,6 +13,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 /**
  * A RabbitMQ implementation of a subscriber.
@@ -25,6 +27,9 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
 
     /** The topics this subscriber is subscribed to. */
     private Map<Topic, String> topics;
+
+    /** The listener thread. */
+    private Thread listenerThread;
 
     /**
      * Instantiates a new RabbitMQ subscriber for the given topic.
@@ -147,9 +152,36 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     public void connect() throws IOException {
         super.connect();
 
+        // Define queue
+        this.channel.queueDeclare(this.identifier, false, false, true, null);
+
         // Bind exchanges to queue
         for (String topicName : this.topics.values()) {
             this.channel.queueBind(this.identifier, topicName, "");
         }
+
+        // Actually listen for messages
+        RabbitMessageConsumer consumer = new RabbitMessageConsumer(this);
+        this.listenerThread = new Thread(consumer);
+        this.listenerThread.start();
+    }
+
+    @Override
+    public void disconnect() throws IOException, TimeoutException {
+        // Stop listener thread
+        if (this.listenerThread != null) {
+            this.listenerThread.interrupt();
+        }
+
+        super.disconnect();
+    }
+
+    @Override
+    public boolean isConnected() {
+        return super.isConnected() && this.listenerThread != null && this.listenerThread.isAlive();
+    }
+
+    public String getIdentifier() {
+        return identifier;
     }
 }

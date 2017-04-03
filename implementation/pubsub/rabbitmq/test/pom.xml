@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
-    <artifactId>rabbitmq-test</artifactId>
+    <artifactId>test</artifactId>
     <dependencies>
         <dependency>
             <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>

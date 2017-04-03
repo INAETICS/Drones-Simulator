@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 
-import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;

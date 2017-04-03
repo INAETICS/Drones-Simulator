@@ -20,4 +20,16 @@ public class TestMessage implements Message {
     public boolean equals(Object obj) {
         return obj instanceof TestMessage && this.getMessage().equals(((TestMessage) obj).getMessage());
     }
+
+    @Override
+    public String toString() {
+        int size = 20;
+        String result = this.getMessage();
+
+        if (result.length() >= size) {
+            result = result.substring(0, size - 3) + "...";
+        }
+
+        return result;
+    }
 }

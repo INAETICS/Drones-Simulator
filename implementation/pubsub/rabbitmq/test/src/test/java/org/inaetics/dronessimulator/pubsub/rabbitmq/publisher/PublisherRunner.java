@@ -42,7 +42,7 @@ public class PublisherRunner implements Runnable {
             for (Message message : this.testMessages) {
                 Thread.sleep(SLEEP_TIME);
                 this.publisher.send(this.topic, message);
-                System.out.printf("Sent message %s at %d\n", message.toString(), System.currentTimeMillis());
+                System.out.printf("Publisher %s sent message %s at %d\n", this.topic.getName(), message.toString(), System.currentTimeMillis());
             }
 
             this.publisher.disconnect();

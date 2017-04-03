@@ -1,7 +1,6 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.Consumer;
+import com.rabbitmq.client.ConnectionFactory;
 import org.inaetics.dronessimulator.pubsub.api.*;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
@@ -13,7 +12,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.concurrent.TimeoutException;
 
 /**
  * A RabbitMQ implementation of a subscriber.
@@ -33,23 +31,23 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
 
     /**
      * Instantiates a new RabbitMQ subscriber for the given topic.
-     * @param connection The RabbitMQ connection to use.
+     * @param connectionFactory The RabbitMQ connection factory to use when starting a new connection.
      * @param identifier The identifier for this subscriber. This is used as queue name.
      * @param serializer The serializer to use.
      */
-    public RabbitSubscriber(Connection connection, String identifier, Serializer serializer) {
-        super(connection, serializer);
+    public RabbitSubscriber(ConnectionFactory connectionFactory, String identifier, Serializer serializer) {
+        super(connectionFactory, serializer);
         this.construct(identifier);
     }
 
     /**
      * Instantiates a new RabbitMQ subscriber for use with OSGi. This constructor assumes that the serializer will be
      * injected later on.
-     * @param connection The RabbitMQ connection to use.
+     * @param connectionFactory The RabbitMQ connection factory to use when starting a new connection.
      * @param identifier The identifier for this subscriber. This is used as queue name.
      */
-    public RabbitSubscriber(Connection connection, String identifier) {
-        super(connection);
+    public RabbitSubscriber(ConnectionFactory connectionFactory, String identifier) {
+        super(connectionFactory);
         this.construct(identifier);
     }
 
@@ -167,7 +165,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     }
 
     @Override
-    public void disconnect() throws IOException, TimeoutException {
+    public void disconnect() throws IOException {
         // Stop listener thread
         if (this.listenerThread != null) {
             this.listenerThread.interrupt();

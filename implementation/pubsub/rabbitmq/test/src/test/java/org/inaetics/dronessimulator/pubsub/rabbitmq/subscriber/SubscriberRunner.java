@@ -1,6 +1,6 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 
-import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
@@ -29,16 +29,16 @@ public class SubscriberRunner implements Runnable {
     private long timeout;
 
     /**
-     * @param connection The connection to use for tests.
+     * @param connectionFactory The connection settings to use for tests.
      * @param topic The topic to receive test messages from.
      * @param timeout The time to wait for incoming messages.
      */
-    public SubscriberRunner(Connection connection, Topic topic, String identifier, long timeout) {
+    public SubscriberRunner(ConnectionFactory connectionFactory, Topic topic, String identifier, long timeout) {
         this.identifier = identifier;
         this.topic = topic;
         this.testMessages = new ArrayList<>();
         this.timeout = timeout;
-        this.subscriber = new RabbitSubscriber(connection, identifier, new JavaSerializer());
+        this.subscriber = new RabbitSubscriber(connectionFactory, identifier, new JavaSerializer());
     }
 
     @Override
@@ -48,7 +48,11 @@ public class SubscriberRunner implements Runnable {
             this.subscriber.connect();
             this.subscriber.addTopic(this.topic);
 
+            System.out.printf("Subscriber %s is connected\n", identifier);
+
             Thread.sleep(timeout);
+
+            System.out.printf("Subscriber %s is done, disconnecting\n", identifier);
 
             this.subscriber.disconnect();
         } catch (Exception e) {

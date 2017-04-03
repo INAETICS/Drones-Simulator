@@ -32,10 +32,11 @@ class RabbitMessageConsumer extends DefaultConsumer implements Runnable {
         if (subscriber.getSerializer() != null) {
             try {
                 subscriber.receive(serializer.deserialize(body));
+                this.getChannel().basicAck(envelope.getDeliveryTag(), false);
             } catch (ClassNotFoundException ignore) {
-                // Just drop the message if we cannot deserialize it
+                // Reject the message since we cannot do anything useful with it
+                this.getChannel().basicNack(envelope.getDeliveryTag(), false, false);
             }
-            this.getChannel().basicAck(envelope.getDeliveryTag(), false);
         }
     }
 
@@ -45,10 +46,11 @@ class RabbitMessageConsumer extends DefaultConsumer implements Runnable {
 
         try {
             while (!Thread.interrupted()) {
+                // Breaks out of while loop with IOException in case the channel is closed
                 channel.basicConsume(this.subscriber.getIdentifier(), false, this);
             }
-        } catch (IOException e) {
-            // Stop listening
+        } catch (IOException ignored) {
+            // Connection is closed, maybe split this and ShutdownSignalException and log some stuff
         }
     }
 }

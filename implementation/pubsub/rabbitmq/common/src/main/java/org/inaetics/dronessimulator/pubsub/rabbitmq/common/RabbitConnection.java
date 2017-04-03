@@ -3,6 +3,7 @@ package org.inaetics.dronessimulator.pubsub.rabbitmq.common;
 import com.rabbitmq.client.BuiltinExchangeType;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
 
@@ -18,8 +19,11 @@ import java.util.concurrent.TimeoutException;
  * related to the connection to the broker.
  */
 public abstract class RabbitConnection {
+    /** The connection factory used for setting up a connection. */
+    private ConnectionFactory connectionFactory;
+
     /** The RabbitMQ connection used by this subscriber. */
-    protected Connection connection;
+    private Connection connection;
 
     /** The connection channel to use, created from the connection. */
     protected Channel channel;
@@ -32,22 +36,22 @@ public abstract class RabbitConnection {
 
     /**
      * Sets up the connection for use.
-     * @param connection The RabbitMQ connection to use.
+     * @param connectionFactory The RabbitMQ connection factory to use when starting a new connection.
      * @param serializer The serializer to use.
      */
-    protected RabbitConnection(Connection connection, Serializer serializer) {
-        this(connection);
+    protected RabbitConnection(ConnectionFactory connectionFactory, Serializer serializer) {
+        this(connectionFactory);
         assert serializer != null;
         this.serializer = serializer;
     }
 
     /**
      * Sets up the connection for use within OSGi. This constructor assumes that the serializer is injected later on.
-     * @param connection The RabbitMQ connection to use.
+     * @param connectionFactory The RabbitMQ connection factory to use when starting a new connection.
      */
-    protected RabbitConnection(Connection connection) {
-        assert connection != null;
-        this.connection = connection;
+    protected RabbitConnection(ConnectionFactory connectionFactory) {
+        assert connectionFactory != null;
+        this.connectionFactory = new ConnectionFactory();
         this.declaredTopics = new HashSet<>();
     }
 
@@ -58,6 +62,12 @@ public abstract class RabbitConnection {
     public void connect() throws IOException {
         // Create a channel if not present
         if (!isConnected()) {
+            try {
+                connection = connectionFactory.newConnection();
+            } catch (TimeoutException e) {
+                throw new IOException(e);
+            }
+
             channel = connection.createChannel();
 
             // Clear declared topics cache
@@ -67,14 +77,27 @@ public abstract class RabbitConnection {
 
     /**
      * Disconnects from the RabbitMQ broker.
-     * @throws IOException Error while gracefully closing the connection.
-     * @throws TimeoutException The connection timed out.
      */
-    public void disconnect() throws IOException, TimeoutException {
-        // Close the channel if necessary
-        if (isConnected()) {
-            channel.close();
+    public void disconnect() throws IOException {
+        try {
+            // Close the channel if necessary
+            if (isConnected()) {
+                channel.close();
+            }
+
+            connection.close();
+        } catch (TimeoutException e) {
+            throw new IOException(e);
         }
+    }
+
+    /**
+     * Reconnects to the RabbitMQ broker.
+     */
+    public void reconnect() throws IOException {
+        // First disconnect, then connect
+        this.disconnect();
+        this.connect();
     }
 
     /**
@@ -82,7 +105,7 @@ public abstract class RabbitConnection {
      * @return The connection status.
      */
     public boolean isConnected() {
-        return channel != null && channel.isOpen();
+        return connection != null && channel != null && channel.isOpen();
     }
 
     /**

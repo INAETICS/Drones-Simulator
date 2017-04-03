@@ -1,6 +1,6 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.publisher;
 
-import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
@@ -24,12 +24,12 @@ public class PublisherRunner implements Runnable {
     private ArrayList<Message> testMessages;
 
     /**
-     * @param connection The connection to use for tests.
+     * @param connectionFactory The connection settings to use for tests.
      * @param topic The topic to publish test messages to.
      * @param testMessages The messages to test.
      */
-    public PublisherRunner(Connection connection, Topic topic, ArrayList<Message> testMessages) {
-        this.publisher = new RabbitPublisher(connection, new JavaSerializer());
+    public PublisherRunner(ConnectionFactory connectionFactory, Topic topic, ArrayList<Message> testMessages) {
+        this.publisher = new RabbitPublisher(connectionFactory, new JavaSerializer());
         this.topic = topic;
         this.testMessages = (ArrayList<Message>) testMessages.clone();
     }
@@ -39,11 +39,15 @@ public class PublisherRunner implements Runnable {
         try {
             this.publisher.connect();
 
+            System.out.printf("Publisher %s connected\n", topic.getName());
+
             for (Message message : this.testMessages) {
                 Thread.sleep(SLEEP_TIME);
                 this.publisher.send(this.topic, message);
                 System.out.printf("Publisher %s sent message %s at %d\n", this.topic.getName(), message.toString(), System.currentTimeMillis());
             }
+
+            System.out.printf("Publisher %s is done, disconnecting\n", topic.getName());
 
             this.publisher.disconnect();
         } catch (Exception e) {

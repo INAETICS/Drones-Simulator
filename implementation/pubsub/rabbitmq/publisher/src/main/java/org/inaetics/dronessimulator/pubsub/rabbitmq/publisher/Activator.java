@@ -16,9 +16,8 @@ public class Activator extends DependencyActivatorBase {
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         // TODO: Set up proper connection instead of defaults
         ConnectionFactory connectionFactory = new ConnectionFactory();
-        Connection connection = connectionFactory.newConnection();
 
-        RabbitPublisher publisher = new RabbitPublisher(connection);
+        RabbitPublisher publisher = new RabbitPublisher(connectionFactory);
 
         manager.add(createComponent()
                 .setInterface(Publisher.class.getName(), null)

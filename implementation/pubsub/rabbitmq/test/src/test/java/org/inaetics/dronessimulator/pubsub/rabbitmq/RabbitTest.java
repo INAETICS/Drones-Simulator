@@ -1,7 +1,6 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq;
 
 
-import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
@@ -32,15 +31,11 @@ public class RabbitTest {
             "et maximus ex metus sed odio. Quisque at neque nec neque tempor porttitor vel ac libero.";
 
     ConnectionFactory connection;
-    Topic topic;
 
     @Before
     public void setUp() throws Exception {
         // Set up connection
         connection = new ConnectionFactory();
-
-        // Set up topic
-        topic = new TestTopic();
     }
 
     /**
@@ -50,6 +45,8 @@ public class RabbitTest {
      */
     @Test
     public void oneToOne() throws Exception {
+        Topic topic = new TestTopic("oneToOne");
+
         // Define some messages
         TestMessage message1 = new TestMessage("This is the first message.");
         TestMessage message2 = new TestMessage("This is the second message.");
@@ -62,8 +59,8 @@ public class RabbitTest {
 
         // Set up publisher and subscriber
         long timeout = PublisherRunner.SLEEP_TIME * (messages.size() + 3);
-        PublisherRunner pub = new PublisherRunner(this.connection.newConnection(), this.topic, messages);
-        SubscriberRunner sub = new SubscriberRunner(this.connection.newConnection(), this.topic, "testSubscriber", timeout);
+        PublisherRunner pub = new PublisherRunner(this.connection, topic, messages);
+        SubscriberRunner sub = new SubscriberRunner(this.connection, topic, "sub", timeout);
 
         // Run
         Thread pubT = new Thread(pub);
@@ -82,10 +79,12 @@ public class RabbitTest {
     }
 
     /**
-     * This test
+     * This test tests a setup with a single publisher and multiple subscribers.
      */
     @Test
     public void oneToMany() throws Exception {
+        Topic topic = new TestTopic("oneToMany");
+
         // Define some messages
         TestMessage message1 = new TestMessage("This is the first message.");
         TestMessage message2 = new TestMessage("This is the second message.");
@@ -102,10 +101,10 @@ public class RabbitTest {
 
         // Set up publisher and subscribers
         long timeout = PublisherRunner.SLEEP_TIME * (messages.size() + 3);
-        PublisherRunner pub = new PublisherRunner(this.connection.newConnection(), this.topic, messages);
-        SubscriberRunner sub1 = new SubscriberRunner(this.connection.newConnection(), this.topic, "sub1", timeout);
-        SubscriberRunner sub2 = new SubscriberRunner(this.connection.newConnection(), this.topic, "sub2", timeout);
-        SubscriberRunner sub3 = new SubscriberRunner(this.connection.newConnection(), this.topic, "sub3", timeout);
+        PublisherRunner pub = new PublisherRunner(this.connection, topic, messages);
+        SubscriberRunner sub1 = new SubscriberRunner(this.connection, topic, "sub1", timeout);
+        SubscriberRunner sub2 = new SubscriberRunner(this.connection, topic, "sub2", timeout);
+        SubscriberRunner sub3 = new SubscriberRunner(this.connection, topic, "sub3", timeout);
 
         // Run
         Thread pubT = new Thread(pub);

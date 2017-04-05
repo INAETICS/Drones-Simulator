@@ -9,28 +9,29 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-public class Entity {
+public class Entity implements Cloneable {
     // X == Width, y == depth, z == height
     private final int id;
     private final Size size;
+    private final boolean collideable;
     private D3Vector position; // m
     private D3Vector velocity; // m/s
     private D3Vector acceleration; // m/s^2
 
-    public Entity(int id, Size size) {
-        this(id, size, new D3Vector(), new D3Vector(), new D3Vector());
+    public Entity(int id, Size size, boolean collideable) {
+        this(id, size, collideable, new D3Vector(), new D3Vector(), new D3Vector());
     }
 
-    public Entity(int id, Size size, double x, double y, double z) {
-        this(id, size, new D3Vector(x, y, z), new D3Vector(), new D3Vector());
+    public Entity(int id, Size size, boolean collideable, double x, double y, double z) {
+        this(id, size, collideable, new D3Vector(x, y, z), new D3Vector(), new D3Vector());
     }
 
-    public Entity(int id, Size size, D3Vector position) {
-        this(id, size, position, new D3Vector(), new D3Vector());
+    public Entity(int id, Size size, boolean collideable, D3Vector position) {
+        this(id, size, collideable, position, new D3Vector(), new D3Vector());
     }
 
-    public Entity(int id, Size size, D3Vector position, D3Vector velocity) {
-        this(id, size, position, velocity, new D3Vector());
+    public Entity(int id, Size size, boolean collideable, D3Vector position, D3Vector velocity) {
+        this(id, size, collideable, position, velocity, new D3Vector());
     }
 
     public void move(double time_in_seconds) {
@@ -78,5 +79,10 @@ public class Entity {
 
     public boolean equals(Entity other) {
         return this.getId() == other.getId();
+    }
+
+
+    public static Entity copy(Entity entity) {
+        return new Entity(entity.getId(), entity.getSize(), entity.isCollideable(), entity.getPosition(), entity.getVelocity(), entity.getAcceleration());
     }
 }

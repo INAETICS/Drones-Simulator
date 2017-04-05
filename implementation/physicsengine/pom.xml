@@ -61,5 +61,9 @@
             <artifactId>lombok</artifactId>
             <version>1.16.10</version>
         </dependency>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
     </dependencies>
 </project>

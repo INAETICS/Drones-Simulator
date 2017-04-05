@@ -22,7 +22,7 @@ public class D2Line {
     }
 
     public D2Vector intersection(D2Line other) {
-
+        return null;
     }
 
     public boolean equals(D2Line other) {
@@ -85,10 +85,10 @@ public class D2Line {
             result = null;
         }
 
-        return result;
+        return null;
     }
 
-    private static double calc_alpha_
+    //private static double calc_alpha_
 
     private static double calc_alpha_intersection_divisor(D2Line v1, D2Line v2) {
         D2Vector d1 = v1.getDirection();

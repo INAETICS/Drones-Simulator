@@ -49,10 +49,30 @@ public class PhysicsEngineBundle implements BundleActivator {
 
         private void broadcastState(List<Entity> entities) {
             //TODO how to broadcast state
+            System.out.println(entities);
         }
 
         public void quit() {
             this.quit = quit;
         }
     }
+
+  public static void main(String[] args) {
+        PhysicsEngineBundle bundle = new PhysicsEngineBundle();
+
+        try {
+            bundle.start(null);
+
+            Thread.sleep(1000);
+
+            bundle.stop(null);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+  }
+
+
 }

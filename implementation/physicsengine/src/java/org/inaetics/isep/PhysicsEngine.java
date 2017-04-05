@@ -35,12 +35,6 @@ public class PhysicsEngine extends Thread {
         this.entityManager.addInserts(testInserts);
     }
 
-    public static void main(String[] args) {
-        new PhysicsEngine().start();
-    }
-
-
-
     private D3Vector environmentForces(Entity entity) {
         return GRAVITY;
     }

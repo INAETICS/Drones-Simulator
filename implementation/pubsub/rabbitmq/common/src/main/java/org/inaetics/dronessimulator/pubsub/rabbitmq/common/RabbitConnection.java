@@ -1,13 +1,11 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.common;
 
-import com.rabbitmq.client.BuiltinExchangeType;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.*;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.TimeoutException;
@@ -51,7 +49,7 @@ public abstract class RabbitConnection {
      */
     protected RabbitConnection(ConnectionFactory connectionFactory) {
         assert connectionFactory != null;
-        this.connectionFactory = new ConnectionFactory();
+        this.connectionFactory = connectionFactory;
         this.declaredTopics = new HashSet<>();
     }
 
@@ -64,13 +62,12 @@ public abstract class RabbitConnection {
         if (!isConnected()) {
             try {
                 connection = connectionFactory.newConnection();
-            } catch (TimeoutException e) {
+            } catch (ConnectException | TimeoutException e) {
                 throw new IOException(e);
             }
 
             channel = connection.createChannel();
 
-            // Clear declared topics cache
             declaredTopics.clear();
         }
     }
@@ -86,6 +83,8 @@ public abstract class RabbitConnection {
             }
 
             connection.close();
+        } catch (AlreadyClosedException ignored) {
+            // Good! We are already done.
         } catch (TimeoutException e) {
             throw new IOException(e);
         }
@@ -93,6 +92,8 @@ public abstract class RabbitConnection {
 
     /**
      * Reconnects to the RabbitMQ broker.
+     *
+     * Calls disconnect and connect in this order.
      */
     public void reconnect() throws IOException {
         // First disconnect, then connect

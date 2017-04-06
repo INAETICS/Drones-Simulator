@@ -28,8 +28,8 @@ class RabbitMessageConsumer extends DefaultConsumer implements Runnable {
     public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
         Serializer serializer = subscriber.getSerializer();
 
-        // Check if we have a serializer, otherwise just drop the message
-        if (subscriber.getSerializer() != null) {
+        // Check if we have a serializer, otherwise just ignore the message
+        if (serializer != null) {
             try {
                 subscriber.receive(serializer.deserialize(body));
                 this.getChannel().basicAck(envelope.getDeliveryTag(), false);

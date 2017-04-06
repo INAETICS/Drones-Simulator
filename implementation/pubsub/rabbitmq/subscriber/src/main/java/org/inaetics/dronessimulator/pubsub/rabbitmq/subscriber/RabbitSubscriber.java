@@ -69,11 +69,9 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
             this.topics.put(topic, topic.getName());
         }
 
-        // Make sure exchange exists
-        this.declareTopic(topic);
-
         // If connected, bind to queue
         if (this.isConnected()) {
+            this.declareTopic(topic); // Make sure exchange exists first
             this.channel.queueBind(this.identifier, this.topics.get(topic), "");
         }
     }
@@ -103,13 +101,8 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
      */
     @Override
     public void addHandler(Class<? extends Message> messageClass, MessageHandler handler) {
-        Collection<MessageHandler> handlers = this.handlers.get(messageClass);
-
-        if (handlers == null) {
-            // Create new set for this message class if needed
-            handlers = new HashSet<>();
-            this.handlers.put(messageClass, handlers);
-        }
+        // Create new set for this message class if needed
+        Collection<MessageHandler> handlers = this.handlers.computeIfAbsent(messageClass, k -> new HashSet<>());
 
         handlers.add(handler);
     }

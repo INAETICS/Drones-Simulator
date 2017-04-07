@@ -13,6 +13,7 @@
     <groupId>org.inaetics.dronessimulator.pubsub</groupId>
     <artifactId>javaserializer</artifactId>
     <packaging>bundle</packaging>
+    <name>Java serializer</name>
 
     <dependencies>
         <dependency>

@@ -1,9 +1,11 @@
-package org.inaetics.isep;
+package org.inaetics.dronesimulator.physicsengine;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+
+import org.inaetics.dronesimulator.common;
 
 @AllArgsConstructor
 @Getter

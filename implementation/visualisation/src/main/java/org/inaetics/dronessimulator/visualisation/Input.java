@@ -4,8 +4,8 @@ import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
-import org.inaetics.isep.D3PoolCoordinate;
-import org.inaetics.isep.D3Vector;
+import org.inaetics.dronesimulator.common.D3PoolCoordinate;
+import org.inaetics.dronesimulator.common.D3Vector;
 
 import java.util.BitSet;
 

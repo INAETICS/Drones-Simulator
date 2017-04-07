@@ -1,5 +1,6 @@
-package org.inaetics.isep;
+package org.inaetics.dronesimulator.physicsengine;
 
+import org.inaetics.dronesimulator.common.D3Vector;
 
 public class PhysicsEngine {
     public static final D3Vector GRAVITY = new D3Vector(0, 0, -9.81);

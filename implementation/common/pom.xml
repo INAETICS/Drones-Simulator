@@ -9,7 +9,9 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>org.inaetics.dronesimulator</groupId>
     <artifactId>common</artifactId>
+    <version>0.1</version>
 
     <build>
         <plugins>

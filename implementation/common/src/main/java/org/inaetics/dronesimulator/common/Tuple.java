@@ -1,4 +1,4 @@
-package org.inaetics.isep;
+package org.inaetics.dronesimulator.common;
 
 public class Tuple<Left, Right> { 
   private final Left left; 

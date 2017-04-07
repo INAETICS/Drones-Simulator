@@ -12,6 +12,8 @@
 
     <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
     <artifactId>publisher</artifactId>
+    <packaging>bundle</packaging>
+
     <dependencies>
         <dependency>
             <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
@@ -28,9 +30,11 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package>org.inaetics.dronessimulator.pubsub.rabbitmq.publisher</Export-Package>
+                        <Export-Package>org.inaetics.dronessimulator.pubsub.rabbitmq.publisher,org.inaetics.dronessimulator.pubsub.rabbitmq.common</Export-Package>
                         <Bundle-Activator>org.inaetics.dronessimulator.pubsub.rabbitmq.publisher.Activator</Bundle-Activator>
-                        <Embed-Dependency>org.inaetics.dronessimulator.*;scope=compile|runtime</Embed-Dependency>
+                        <Embed-Dependency>api;groupId=org.inaetics.dronessimulator.pubsub;scope=compile|runtime,amqp-client;scope=compile|runtime</Embed-Dependency>
+                        <Import-Package>!com.codahale.metrics,!org.slf4j,*</Import-Package>
+                        <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
                 </configuration>
             </plugin>

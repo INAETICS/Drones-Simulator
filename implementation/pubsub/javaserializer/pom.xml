@@ -12,6 +12,7 @@
 
     <groupId>org.inaetics.dronessimulator.pubsub</groupId>
     <artifactId>javaserializer</artifactId>
+    <packaging>bundle</packaging>
 
     <dependencies>
         <dependency>
@@ -31,7 +32,7 @@
                     <instructions>
                         <Export-Package>org.inaetics.dronessimulator.pubsub.javaserializer</Export-Package>
                         <Bundle-Activator>org.inaetics.dronessimulator.pubsub.javaserializer.Activator</Bundle-Activator>
-                        <Embed-Dependency>org.inaetics.dronessimulator.*;scope=compile|runtime</Embed-Dependency>
+                        <Embed-Dependency>api;groupId=org.inaetics.dronessimulator.pubsub;scope=compile|runtime</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

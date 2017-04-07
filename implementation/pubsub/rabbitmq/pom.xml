@@ -17,6 +17,7 @@
         <module>publisher</module>
         <module>subscriber</module>
         <module>common</module>
+        <module>test</module>
     </modules>
 
     <dependencies>

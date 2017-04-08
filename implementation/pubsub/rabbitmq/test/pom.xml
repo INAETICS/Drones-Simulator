@@ -10,21 +10,21 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
-    <artifactId>test</artifactId>
+    <artifactId>rabbitmq-test</artifactId>
     <dependencies>
         <dependency>
             <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
-            <artifactId>publisher</artifactId>
+            <artifactId>rabbitmq-publisher</artifactId>
             <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
-            <artifactId>subscriber</artifactId>
+            <artifactId>rabbitmq-subscriber</artifactId>
             <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.pubsub</groupId>
-            <artifactId>javaserializer</artifactId>
+            <artifactId>java-serializer</artifactId>
             <version>0.1</version>
         </dependency>
         <dependency>

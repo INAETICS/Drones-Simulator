@@ -11,14 +11,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
-    <artifactId>subscriber</artifactId>
+    <artifactId>rabbitmq-subscriber</artifactId>
+    <version>0.1</version>
     <packaging>bundle</packaging>
     <name>RabbitMQ subscriber</name>
 
     <dependencies>
         <dependency>
             <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>rabbitmq-common</artifactId>
             <version>0.1</version>
         </dependency>
         <dependency>

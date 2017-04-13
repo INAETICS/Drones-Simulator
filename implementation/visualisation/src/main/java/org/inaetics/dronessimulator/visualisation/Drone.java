@@ -61,7 +61,6 @@ abstract class Drone {
      * For position, direction, velocity and acceleration process the input given by the publisher
      */
     public void processInput() {
-        input.processInput();
         this.position = input.getPosition();
         this.direction = input.getDirection();
 //        this.velocity = input.getVelocity();

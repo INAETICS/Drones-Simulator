@@ -6,12 +6,22 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import org.inaetics.dronesimulator.common.protocol.MessageTopic;
+import org.inaetics.dronesimulator.common.protocol.StateMessage;
+import org.inaetics.dronessimulator.pubsub.api.Message;
+import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 public class Game extends Application {
+
+    public volatile Subscriber subscriber;
+
+    public Game() {
+    }
 
     private Pane playfieldLayer;
 
@@ -55,7 +65,13 @@ public class Game extends Application {
     private void createPlayers() {
 
         // drone input
-        Input input = new Input(scene);
+        Input input = new Input(scene, subscriber);
+        this.subscriber.addHandler(StateMessage.class, input);
+        try {
+            this.subscriber.addTopic(MessageTopic.STATEUPDATES);
+        } catch (IOException e) {
+
+        }
 
         // register input listeners
         input.addListeners();

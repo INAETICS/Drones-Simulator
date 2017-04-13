@@ -6,13 +6,17 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import org.inaetics.dronesimulator.common.D3PoolCoordinate;
 import org.inaetics.dronesimulator.common.D3Vector;
+import org.inaetics.dronesimulator.common.protocol.StateMessage;
+import org.inaetics.dronessimulator.pubsub.api.Message;
+import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
+import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.util.BitSet;
 
 /**
  * Created by langstra on 10-3-17.
  */
-public class Input {
+public class Input implements MessageHandler {
 
     /**
      * Bitset which registers if any {@link KeyCode} keeps being pressed or if it is released.
@@ -37,17 +41,13 @@ public class Input {
 
     private D3Vector position;
     private D3PoolCoordinate direction;
-    private D3Vector velocity;
-    private D3Vector acceleration;
 
     Scene scene;
 
-    public Input(Scene scene) {
+    public Input(Scene scene, Subscriber subscriber) {
         this.scene = scene;
         this.position = new D3Vector(0, 0, 0);
-        this.acceleration = new D3Vector(0, 0, 0);
         this.direction = new D3PoolCoordinate(0, 0, 1);
-        this.velocity = new D3Vector(0, 0, 0);
     }
 
     public void addListeners() {
@@ -62,6 +62,12 @@ public class Input {
         scene.removeEventFilter(KeyEvent.KEY_PRESSED, keyPressedEventHandler);
         scene.removeEventFilter(KeyEvent.KEY_RELEASED, keyReleasedEventHandler);
 
+    }
+
+    public synchronized void handleMessage(Message message) {
+        StateMessage stateMessage = (StateMessage) message;
+        if (stateMessage.getPosition().isPresent()) this.position = stateMessage.getPosition().get();
+        if (stateMessage.getDirection().isPresent()) this.direction = stateMessage.getDirection().get();
     }
 
     /**
@@ -166,11 +172,11 @@ public class Input {
         } else if (isDescending()) {
             this.position = position.add(new D3Vector(0, 0, -1));
         }
-
     }
 
     /**
      * Returns the position of the object from the pubsub
+     *
      * @return D3Vector position of the object
      */
     public D3Vector getPosition() {
@@ -179,6 +185,7 @@ public class Input {
 
     /**
      * Returns the direction of the object from the pubsub
+     *
      * @return D3PoolCoordinate direction of the object
      */
     public D3PoolCoordinate getDirection() {
@@ -193,6 +200,8 @@ public class Input {
 //        return this.velocity;
 //    }
 
-    public boolean destroyDrone() { return false; }
+    public boolean destroyDrone() {
+        return false;
+    }
 
 }

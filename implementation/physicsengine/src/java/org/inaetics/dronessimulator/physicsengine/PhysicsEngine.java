@@ -1,10 +1,7 @@
-package org.inaetics.dronesimulator.physicsengine;
+package org.inaetics.dronessimulator.physicsengine;
 
-import org.inaetics.dronesimulator.common.D3Vector;
-
-import org.inaetics.isep.entityupdate.AccelerationEntityUpdate;
-import org.inaetics.isep.entityupdate.EntityUpdate;
-import org.inaetics.isep.entityupdate.VelocityEntityUpdate;
+import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.physicsengine.entityupdate.EntityUpdate;
 
 import java.util.ArrayList;
 import java.util.Collection;

@@ -1,9 +1,10 @@
-package org.inaetics.isep.entityupdate;
+package org.inaetics.dronessimulator.physicsengine.entityupdate;
 
 
 import lombok.AllArgsConstructor;
-import org.inaetics.isep.D3Vector;
-import org.inaetics.isep.Entity;
+import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.physicsengine.Entity;
+
 
 @AllArgsConstructor
 public class PositionEntityUpdate extends EntityUpdate {

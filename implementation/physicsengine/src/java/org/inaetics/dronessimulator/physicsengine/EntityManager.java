@@ -1,7 +1,7 @@
-package org.inaetics.isep;
+package org.inaetics.dronessimulator.physicsengine;
 
 
-import org.inaetics.isep.entityupdate.EntityUpdate;
+import org.inaetics.dronessimulator.physicsengine.entityupdate.EntityUpdate;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;

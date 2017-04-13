@@ -1,31 +1,31 @@
-package org.inaetics.isep;
+package org.inaetics.dronessimulator.physicsengine;
 
-import org.osgi.framework.BundleActivator;
-import org.osgi.framework.BundleContext;
+import org.inaetics.dronessimulator.common.protocol.MessageTopic;
+import org.inaetics.dronessimulator.common.protocol.MovementMessage;
+import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 
+import java.io.IOException;
 import java.util.List;
 
-public class PhysicsEngineBundle implements BundleActivator {
+public class PhysicsEngineBundle {
+    private volatile Publisher m_publisher;
+
     private final PollThread pollThread;
     private final PhysicsEngine physicsEngine;
 
     public PhysicsEngineBundle() {
         this.physicsEngine = new PhysicsEngine();
         this.pollThread = new PollThread();
-    }
 
-    @Override
-    public void start(BundleContext bundleContext) throws Exception {
         physicsEngine.start();
         pollThread.start();
     }
 
-    @Override
-    public void stop(BundleContext bundleContext) throws Exception {
+    public void stop() throws Exception {
         pollThread.quit();
-        pollThread.join();
-
         physicsEngine.quit();
+
+        pollThread.join();
         physicsEngine.join();
     }
 
@@ -35,7 +35,6 @@ public class PhysicsEngineBundle implements BundleActivator {
 
         public void run() {
             while(!quit) {
-
                 List<Entity> entities = physicsEngine.getCurrentState();
 
                 broadcastState(entities);
@@ -48,24 +47,33 @@ public class PhysicsEngineBundle implements BundleActivator {
         }
 
         private void broadcastState(List<Entity> entities) {
-            //TODO how to broadcast state
-            System.out.println(entities);
+            for(Entity entity : entities) {
+                MovementMessage msg = new MovementMessage();
+                msg.setAcceleration(entity.getAcceleration());
+
+                try {
+                    m_publisher.send(MessageTopic.STATEUPDATES, msg);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
 
         public void quit() {
-            this.quit = quit;
+            this.quit = true;
+        }
+
+        public boolean hasQuit() {
+            return this.quit;
         }
     }
 
   public static void main(String[] args) {
-        PhysicsEngineBundle bundle = new PhysicsEngineBundle();
-
         try {
-            bundle.start(null);
-
+            PhysicsEngineBundle bundle = new PhysicsEngineBundle();
             Thread.sleep(1000);
 
-            bundle.stop(null);
+            bundle.stop();
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -73,6 +81,4 @@ public class PhysicsEngineBundle implements BundleActivator {
 
 
   }
-
-
 }

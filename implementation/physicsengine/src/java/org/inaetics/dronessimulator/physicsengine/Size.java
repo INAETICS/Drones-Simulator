@@ -1,4 +1,4 @@
-package org.inaetics.dronesimulator.physicsengine;
+package org.inaetics.dronessimulator.physicsengine;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

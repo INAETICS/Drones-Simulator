@@ -1,5 +1,6 @@
 package org.inaetics.isep;
 
+import org.inaetics.dronessimulator.common.D3BaseVector;
 import org.junit.Assert;
 import org.junit.Test;
 

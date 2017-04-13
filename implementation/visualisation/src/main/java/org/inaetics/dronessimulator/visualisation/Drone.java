@@ -6,8 +6,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import org.inaetics.dronesimulator.common.D3PoolCoordinate;
-import org.inaetics.dronesimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.D3PoolCoordinate;
+import org.inaetics.dronessimulator.common.D3Vector;
 
 import static org.inaetics.dronessimulator.visualisation.Settings.DRONE_SPRITE_COLUMNS;
 

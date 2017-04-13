@@ -1,4 +1,4 @@
-package org.inaetics.dronesimulator.common;
+package org.inaetics.dronessimulator.common;
 
 public class D3Vector {
     public static D3Vector UNIT = new D3Vector(1,1,1);

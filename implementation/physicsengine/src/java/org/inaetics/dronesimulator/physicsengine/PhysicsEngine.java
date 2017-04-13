@@ -1,5 +1,6 @@
-package org.inaetics.isep;
+package org.inaetics.dronesimulator.physicsengine;
 
+import org.inaetics.dronesimulator.common.D3Vector;
 
 import org.inaetics.isep.entityupdate.AccelerationEntityUpdate;
 import org.inaetics.isep.entityupdate.EntityUpdate;

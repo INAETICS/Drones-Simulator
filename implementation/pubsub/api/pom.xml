@@ -11,5 +11,6 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.inaetics.dronessimulator.pubsub</groupId>
-    <artifactId>api</artifactId>
+    <artifactId>pubsub-api</artifactId>
+    <version>0.1</version>
 </project>

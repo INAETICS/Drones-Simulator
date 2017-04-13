@@ -17,6 +17,7 @@
         <module>publisher</module>
         <module>subscriber</module>
         <module>common</module>
+        <module>test</module>
     </modules>
 
     <dependencies>
@@ -26,7 +27,7 @@
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.pubsub</groupId>
-            <artifactId>api</artifactId>
+            <artifactId>pubsub-api</artifactId>
         </dependency>
     </dependencies>
 
@@ -39,7 +40,7 @@
             </dependency>
             <dependency>
                 <groupId>org.inaetics.dronessimulator.pubsub</groupId>
-                <artifactId>api</artifactId>
+                <artifactId>pubsub-api</artifactId>
                 <version>0.1</version>
             </dependency>
         </dependencies>

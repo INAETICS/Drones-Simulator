@@ -11,12 +11,15 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.inaetics.dronessimulator.pubsub</groupId>
-    <artifactId>javaserializer</artifactId>
+    <artifactId>java-serializer</artifactId>
+    <version>0.1</version>
+    <packaging>bundle</packaging>
+    <name>Java serializer</name>
 
     <dependencies>
         <dependency>
             <groupId>org.inaetics.dronessimulator.pubsub</groupId>
-            <artifactId>api</artifactId>
+            <artifactId>pubsub-api</artifactId>
             <version>0.1</version>
         </dependency>
     </dependencies>
@@ -31,7 +34,7 @@
                     <instructions>
                         <Export-Package>org.inaetics.dronessimulator.pubsub.javaserializer</Export-Package>
                         <Bundle-Activator>org.inaetics.dronessimulator.pubsub.javaserializer.Activator</Bundle-Activator>
-                        <Embed-Dependency>org.inaetics.dronessimulator.*;scope=compile|runtime</Embed-Dependency>
+                        <Embed-Dependency>api;groupId=org.inaetics.dronessimulator.pubsub;scope=compile|runtime</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

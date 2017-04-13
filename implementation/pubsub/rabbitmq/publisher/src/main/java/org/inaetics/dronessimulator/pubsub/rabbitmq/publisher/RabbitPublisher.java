@@ -1,6 +1,6 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.publisher;
 
-import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
@@ -8,7 +8,6 @@ import org.inaetics.dronessimulator.pubsub.api.Topic;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.common.RabbitConnection;
 
 import java.io.IOException;
-import java.io.Serializable;
 
 /**
  * A RabbitMQ implementation of a publisher.
@@ -16,20 +15,20 @@ import java.io.Serializable;
 public class RabbitPublisher extends RabbitConnection implements Publisher {
     /**
      * Instantiates a new RabbitMQ publisher.
-     * @param connection The RabbitMQ connection to use.
+     * @param connectionFactory The RabbitMQ connection factory to use when starting a new connection.
      * @param serializer The serializer to use.
      */
-    public RabbitPublisher(Connection connection, Serializer serializer) {
-        super(connection, serializer);
+    public RabbitPublisher(ConnectionFactory connectionFactory, Serializer serializer) {
+        super(connectionFactory, serializer);
     }
 
     /**
      * Instantiates a new RabbitMQ publisher for use with OSGi. This constructor assumes the serializer is injected
      * later on.
-     * @param connection The connection to use.
+     * @param connectionFactory The RabbitMQ connection factory to use when starting a new connection.
      */
-    public RabbitPublisher(Connection connection) {
-        super(connection);
+    public RabbitPublisher(ConnectionFactory connectionFactory) {
+        super(connectionFactory);
     }
 
     /**

@@ -3,6 +3,7 @@
 ROOT="../implementation"
 TARGET="./"
 
+(cd $ROOT && mvn clean -P all)
 (cd $ROOT && mvn package -P all -Dmaven.test.skip=true)
 
 cp "$ROOT/visualisation/target/visualisation-0.1.jar" $TARGET

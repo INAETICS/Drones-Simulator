@@ -52,6 +52,7 @@ public class RabbitPublisher extends RabbitConnection implements Publisher {
             if (message != null && serializer != null) {
                 byte[] serializedMessage = serializer.serialize(message);
                 this.channel.basicPublish(topic.getName(), "", null, serializedMessage);
+                System.out.println("[Publisher] Send message");
             }
         } catch (IOException ignore) {
             ignore.printStackTrace();

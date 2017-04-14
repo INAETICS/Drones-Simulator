@@ -41,30 +41,37 @@ public class Input implements MessageHandler {
     private D3Vector position;
     private D3PoolCoordinate direction;
 
-    Scene scene;
+    private Scene scene;
 
-    public Input(Scene scene, Subscriber subscriber) {
+    Input(Scene scene, Subscriber subscriber) {
         this.scene = scene;
         this.position = new D3Vector(0, 0, 0);
         this.direction = new D3PoolCoordinate(0, 0, 1);
     }
 
-    public void addListeners() {
-
+    /**
+     * Add keyboard listeners
+     */
+    void addListeners() {
         scene.addEventFilter(KeyEvent.KEY_PRESSED, keyPressedEventHandler);
         scene.addEventFilter(KeyEvent.KEY_RELEASED, keyReleasedEventHandler);
-
     }
 
+    /**
+     * Remove keyboard listeners
+     * Not used yet
+     */
     public void removeListeners() {
-
         scene.removeEventFilter(KeyEvent.KEY_PRESSED, keyPressedEventHandler);
         scene.removeEventFilter(KeyEvent.KEY_RELEASED, keyReleasedEventHandler);
-
     }
 
+    /**
+     * Message handler for the pubsub
+     * Changes the position and direction based on the stateMessage
+     * @param message The received message.
+     */
     public synchronized void handleMessage(Message message) {
-
         StateMessage stateMessage = (StateMessage) message;
         if (stateMessage.getPosition().isPresent()) this.position = stateMessage.getPosition().get();
         if (stateMessage.getDirection().isPresent()) this.direction = stateMessage.getDirection().get();
@@ -100,47 +107,53 @@ public class Input implements MessageHandler {
     // If direction and its opposite direction are pressed simultaneously, then the direction isn't handled.
     // -------------------------------------------------
 
-    public boolean isMoveUp() {
+    private boolean isMoveUp() {
         return keyboardBitSet.get(upKey.ordinal()) && !keyboardBitSet.get(downKey.ordinal());
     }
 
-    public boolean isMoveDown() {
+    private boolean isMoveDown() {
         return keyboardBitSet.get(downKey.ordinal()) && !keyboardBitSet.get(upKey.ordinal());
     }
 
-    public boolean isMoveLeft() {
+    private boolean isMoveLeft() {
         return keyboardBitSet.get(leftKey.ordinal()) && !keyboardBitSet.get(rightKey.ordinal());
     }
 
-    public boolean isMoveRight() {
+    private boolean isMoveRight() {
         return keyboardBitSet.get(rightKey.ordinal()) && !keyboardBitSet.get(leftKey.ordinal());
     }
 
-    public boolean isTurnLeft() {
+    private boolean isTurnLeft() {
         return keyboardBitSet.get(aKey.ordinal()) && !keyboardBitSet.get(sKey.ordinal());
     }
 
-    public boolean isTurnRight() {
+    private boolean isTurnRight() {
         return keyboardBitSet.get(sKey.ordinal()) && !keyboardBitSet.get(aKey.ordinal());
     }
 
-    public boolean isAscending() {
+    private boolean isAscending() {
         return keyboardBitSet.get(ascendKey.ordinal()) && !keyboardBitSet.get(descendKey.ordinal());
     }
 
-    public boolean isDescending() {
+    private boolean isDescending() {
         return keyboardBitSet.get(descendKey.ordinal()) && !keyboardBitSet.get(ascendKey.ordinal());
     }
 
-    public boolean isFirePrimaryWeapon() {
+    private boolean isFirePrimaryWeapon() {
         return keyboardBitSet.get(primaryWeaponKey.ordinal());
     }
 
-    public boolean isFireSecondaryWeapon() {
+    private boolean isFireSecondaryWeapon() {
         return keyboardBitSet.get(secondaryWeaponKey.ordinal());
     }
 
-    public void processInput() {
+
+    /**
+     * Checks if keyboard provides input and changes the drones position
+     * This is only used for testing
+     * Currently it is not used. It is not removed to have the ability to test.
+     */
+    private void processInput() {
 
         // ------------------------------------
         // movement
@@ -179,7 +192,7 @@ public class Input implements MessageHandler {
      *
      * @return D3Vector position of the object
      */
-    public D3Vector getPosition() {
+    D3Vector getPosition() {
         return this.position;
     }
 
@@ -188,20 +201,8 @@ public class Input implements MessageHandler {
      *
      * @return D3PoolCoordinate direction of the object
      */
-    public D3PoolCoordinate getDirection() {
+    D3PoolCoordinate getDirection() {
         return this.direction;
-    }
-
-//    public D3Vector getAcceleration() {
-//        return this.acceleration;
-//    }
-//
-//    public D3Vector getVelocity() {
-//        return this.velocity;
-//    }
-
-    public boolean destroyDrone() {
-        return false;
     }
 
 }

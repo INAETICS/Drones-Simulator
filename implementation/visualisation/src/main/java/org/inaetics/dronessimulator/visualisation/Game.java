@@ -24,7 +24,7 @@ import java.util.List;
 public class Game extends Application {
     private RabbitMessageConsumer consumer;
     private Thread consumerThread;
-    public volatile RabbitSubscriber subscriber;
+    private volatile RabbitSubscriber subscriber;
 
 
     public Game() {

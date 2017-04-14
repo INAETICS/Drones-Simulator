@@ -51,7 +51,6 @@ abstract class Drone {
 
         imageView.relocate(position.getX(), position.getY());
         imageView.setRotate(getRotation());
-
         heightText.setText("Height: " + position.getZ());
         heightText.relocate(position.getX() + this.width, position.getY());
 

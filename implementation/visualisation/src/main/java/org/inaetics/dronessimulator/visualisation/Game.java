@@ -1,15 +1,20 @@
 package org.inaetics.dronessimulator.visualisation;
 
+import com.rabbitmq.client.ConnectionFactory;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
-import org.inaetics.dronesimulator.common.protocol.MessageTopic;
-import org.inaetics.dronesimulator.common.protocol.StateMessage;
+
+import org.inaetics.dronessimulator.common.protocol.MessageTopic;
+import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
+import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
+import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitMessageConsumer;
+import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitSubscriber;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,8 +22,10 @@ import java.util.Iterator;
 import java.util.List;
 
 public class Game extends Application {
+    private RabbitMessageConsumer consumer;
+    private Thread consumerThread;
+    public volatile RabbitSubscriber subscriber;
 
-    public volatile Subscriber subscriber;
 
     public Game() {
     }
@@ -31,6 +38,17 @@ public class Game extends Application {
 
     @Override
     public void start(Stage primaryStage) {
+
+        if(this.subscriber == null) {
+            this.subscriber = new RabbitSubscriber(new ConnectionFactory(), "visualisation", new JavaSerializer());
+            this.consumer = new RabbitMessageConsumer(this.subscriber);
+
+            try {
+                this.subscriber.connect();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
 
         Group root = new Group();
 
@@ -49,7 +67,6 @@ public class Game extends Application {
 
             @Override
             public void handle(long now) {
-
                 // player input
                 drones.forEach(drone -> drone.processInput());
 
@@ -59,11 +76,12 @@ public class Game extends Application {
 
         };
         gameLoop.start();
+        this.consumerThread = new Thread(this.consumer);
+        this.consumerThread.start();
 
     }
 
     private void createPlayers() {
-
         // drone input
         Input input = new Input(scene, subscriber);
         this.subscriber.addHandler(StateMessage.class, input);

@@ -1,12 +1,14 @@
 package org.inaetics.dronessimulator.common;
 
-public class D3Vector {
-    public static D3Vector UNIT = new D3Vector(1,1,1);
+import java.io.Serializable;
+
+public class D3Vector implements Serializable {
+    public transient static D3Vector UNIT = new D3Vector(1,1,1);
     private final double x;
     private final double y;
     private final double z;
 
-    private Double length = null;
+    private transient Double length = null;
 
     public D3Vector() {
         this(0,0,0);

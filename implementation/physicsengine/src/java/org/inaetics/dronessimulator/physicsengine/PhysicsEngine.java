@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class PhysicsEngine extends Thread {
-    public static final D3Vector GRAVITY = new D3Vector(0, 0, -9.81);
+    public static final D3Vector GRAVITY = new D3Vector(0, 0, 0);
 
     private long last_step_at;
     private volatile boolean quit;
@@ -28,7 +28,6 @@ public class PhysicsEngine extends Thread {
         //Test data
         Collection<EntityCreation> testInserts = new ArrayList<>();
         testInserts.add(new EntityCreation(new Entity(1, new Size(1, 1, 1), true, new D3Vector(0, 0, 0), new D3Vector(1, 0, 0), new D3Vector(0, 0, 0))));
-        testInserts.add(new EntityCreation(new Entity(2, new Size(1, 1, 1), true, new D3Vector(10, 0, 0), new D3Vector(0, 0, 0), new D3Vector(-1, 0, 0))));
 
         this.entityManager.addInserts(testInserts);
     }

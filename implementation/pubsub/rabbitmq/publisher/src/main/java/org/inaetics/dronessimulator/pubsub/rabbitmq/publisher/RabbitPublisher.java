@@ -54,6 +54,7 @@ public class RabbitPublisher extends RabbitConnection implements Publisher {
                 this.channel.basicPublish(topic.getName(), "", null, serializedMessage);
             }
         } catch (IOException ignore) {
+            ignore.printStackTrace();
             // Just drop the message if there is no good connection
         }
     }

@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * A RabbitMQ consumer to work in conjunction with the RabbitMQ subscriber.
  */
-class RabbitMessageConsumer extends DefaultConsumer implements Runnable {
+public class RabbitMessageConsumer extends DefaultConsumer implements Runnable {
     /** A RabbitMQ subscriber instance. */
     private RabbitSubscriber subscriber;
 
@@ -19,7 +19,7 @@ class RabbitMessageConsumer extends DefaultConsumer implements Runnable {
      * Instantiates a new RabbitMQ consumer based on the given subscriber.
      * @param subscriber The subscriber related to this consumer.
      */
-    RabbitMessageConsumer(RabbitSubscriber subscriber) {
+    public RabbitMessageConsumer(RabbitSubscriber subscriber) {
         super(subscriber.getChannel());
         this.subscriber = subscriber;
     }

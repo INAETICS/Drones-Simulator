@@ -64,6 +64,7 @@ public class Input implements MessageHandler {
     }
 
     public synchronized void handleMessage(Message message) {
+
         StateMessage stateMessage = (StateMessage) message;
         if (stateMessage.getPosition().isPresent()) this.position = stateMessage.getPosition().get();
         if (stateMessage.getDirection().isPresent()) this.direction = stateMessage.getDirection().get();

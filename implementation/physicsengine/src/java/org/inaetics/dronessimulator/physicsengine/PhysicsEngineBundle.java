@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.physicsengine;
 
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.MovementMessage;
+import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 
 import java.io.IOException;
@@ -30,7 +31,7 @@ public class PhysicsEngineBundle {
     }
 
     private class PollThread extends Thread {
-        private long POLLRATE = 100; // in ms
+        private long POLLRATE = 3000; // in ms
         private volatile boolean quit = false;
 
         public void run() {
@@ -48,8 +49,12 @@ public class PhysicsEngineBundle {
 
         private void broadcastState(List<Entity> entities) {
             for(Entity entity : entities) {
-                MovementMessage msg = new MovementMessage();
+                StateMessage msg = new StateMessage();
                 msg.setAcceleration(entity.getAcceleration());
+                msg.setVelocity(entity.getVelocity());
+                msg.setPosition(entity.getPosition());
+
+                System.out.println("New x: " + entity.getPosition().getX());
 
                 try {
                     m_publisher.send(MessageTopic.STATEUPDATES, msg);

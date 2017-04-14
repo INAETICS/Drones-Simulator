@@ -1,6 +1,9 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.DefaultConsumer;
+import com.rabbitmq.client.Envelope;
 import org.inaetics.dronessimulator.pubsub.api.*;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
@@ -26,8 +29,8 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     /** The topics this subscriber is subscribed to. */
     private Map<Topic, String> topics;
 
-    /** The listener thread. */
-    private Thread listenerThread;
+    /** The consumer that is in use. */
+    private RabbitMessageConsumer consumer;
 
     /**
      * Instantiates a new RabbitMQ subscriber for the given topic.
@@ -69,10 +72,11 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
             this.topics.put(topic, topic.getName());
         }
 
-        // If connected, bind to queue
+        // If connected, restart
         if (this.isConnected()) {
-            this.declareTopic(topic); // Make sure exchange exists first
-            this.channel.queueBind(this.identifier, this.topics.get(topic), "");
+            this.declareTopic(topic);
+            this.channel.queueBind(this.identifier, topic.getName(), "");
+            this.updateConsumer();
         }
     }
 
@@ -152,27 +156,21 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
         for (String topicName : this.topics.values()) {
             this.channel.queueBind(this.identifier, topicName, "");
         }
-        System.out.println("[Subscriber] Added channels/queues");
-        // Actually listen for messages
-        RabbitMessageConsumer consumer = new RabbitMessageConsumer(this);
-        this.listenerThread = new Thread(consumer);
-        this.listenerThread.start();
-        System.out.println("[Subscriber] listener thread started");
+
+        this.updateConsumer();
     }
 
-    @Override
-    public void disconnect() throws IOException {
-        // Stop listener thread
-        if (this.listenerThread != null) {
-            this.listenerThread.interrupt();
+    public void updateConsumer() throws IOException {
+        RabbitMessageConsumer old = this.consumer;
+
+        // Start new consumer
+        this.consumer = new RabbitMessageConsumer(this);
+        this.channel.basicConsume(this.identifier, false, this.consumer);
+
+        // Cancel old consumer if we have one
+        if (old != null) {
+            this.channel.basicCancel(old.getConsumerTag());
         }
-
-        super.disconnect();
-    }
-
-    @Override
-    public boolean isConnected() {
-        return super.isConnected() && this.listenerThread != null && this.listenerThread.isAlive();
     }
 
     public String getIdentifier() {

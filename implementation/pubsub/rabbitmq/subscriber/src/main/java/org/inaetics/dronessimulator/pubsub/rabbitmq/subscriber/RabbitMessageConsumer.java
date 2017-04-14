@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * A RabbitMQ consumer to work in conjunction with the RabbitMQ subscriber.
  */
-class RabbitMessageConsumer extends DefaultConsumer implements Runnable {
+class RabbitMessageConsumer extends DefaultConsumer {
     /** A RabbitMQ subscriber instance. */
     private RabbitSubscriber subscriber;
 
@@ -40,24 +40,6 @@ class RabbitMessageConsumer extends DefaultConsumer implements Runnable {
                 this.getChannel().basicNack(envelope.getDeliveryTag(), false, false);
                 System.out.println("Not-Acked");
             }
-        }
-    }
-
-    @Override
-    public void run() {
-        System.out.println("[subscriber] Starting rabbitmessageconsumer");
-        Channel channel = this.subscriber.getChannel();
-
-        try {
-            while (!Thread.interrupted()) {
-                // Breaks out of while loop with IOException in case the channel is closed
-                System.out.println("[Subscriber] before basic consume");
-                channel.basicConsume(this.subscriber.getIdentifier(), false, this);
-                System.out.println("[Subscriber] basic consume");
-            }
-        } catch (IOException ignored) {
-            ignored.printStackTrace();
-            // Connection is closed, maybe split this and ShutdownSignalException and log some stuff
         }
     }
 }

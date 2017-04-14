@@ -58,13 +58,18 @@ public abstract class RabbitConnection {
      * @throws IOException Error while setting up the connection.
      */
     public void connect() throws IOException {
+        System.out.println("CONNECTING");
         // Create a channel if not present
         if (!isConnected()) {
             try {
                 connection = connectionFactory.newConnection();
             } catch (ConnectException | TimeoutException e) {
+                System.out.println("Could not create connection");
+                e.printStackTrace();
                 throw new IOException(e);
             }
+
+            System.out.println("CONNECTED!");
 
             channel = connection.createChannel();
 
@@ -97,6 +102,7 @@ public abstract class RabbitConnection {
      */
     public void reconnect() throws IOException {
         // First disconnect, then connect
+        System.out.println("RECONNECTING");
         this.disconnect();
         this.connect();
     }

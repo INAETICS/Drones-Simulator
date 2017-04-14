@@ -13,6 +13,8 @@
     <groupId>org.inaetics.dronessimulator</groupId>
     <artifactId>physicsengine</artifactId>
 
+    <packaging>bundle</packaging>
+
     <build>
         <plugins>
             <plugin>
@@ -34,9 +36,7 @@
                         <Export-Package>org.inaetics.dronessimulator.physicsengine,
                                         org.inaetics.dronessimulator.common,
                                         org.inaetics.dronessimulator.common.protocol,
-                                        org.inaetics.dronessimulator.pubsub.api,
-                                        org.inaetics.dronessimulator.pubsub.api.publisher,
-                                        org.inaetics.dronessimulator.pubsub.api.subscriber</Export-Package>
+                                        org.inaetics.dronessimulator.pubsub.api.*</Export-Package>
                         <Bundle-Activator>org.inaetics.dronessimulator.physicsengine.Activator</Bundle-Activator>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>

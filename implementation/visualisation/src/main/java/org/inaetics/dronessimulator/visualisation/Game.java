@@ -22,8 +22,6 @@ import java.util.Iterator;
 import java.util.List;
 
 public class Game extends Application {
-    private RabbitMessageConsumer consumer;
-    private Thread consumerThread;
     private volatile RabbitSubscriber subscriber;
 
 
@@ -41,7 +39,6 @@ public class Game extends Application {
 
         if(this.subscriber == null) {
             this.subscriber = new RabbitSubscriber(new ConnectionFactory(), "visualisation", new JavaSerializer());
-            this.consumer = new RabbitMessageConsumer(this.subscriber);
 
             try {
                 this.subscriber.connect();
@@ -54,11 +51,11 @@ public class Game extends Application {
 
         // create layers
         playfieldLayer = new Pane();
-        root.getChildren().add( playfieldLayer);
+        root.getChildren().add(playfieldLayer);
 
         scene = new Scene( root, Settings.SCENE_WIDTH, Settings.SCENE_HEIGHT);
 
-        primaryStage.setScene( scene);
+        primaryStage.setScene(scene);
         primaryStage.show();
 
         createPlayers();
@@ -76,9 +73,6 @@ public class Game extends Application {
 
         };
         gameLoop.start();
-        this.consumerThread = new Thread(this.consumer);
-        this.consumerThread.start();
-
     }
 
     private void createPlayers() {

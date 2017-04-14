@@ -3,8 +3,7 @@
 ROOT="../implementation"
 TARGET="./"
 
-(cd $ROOT && mvn compile -P all)
-(cd $ROOT && mvn org.apache.felix:maven-bundle-plugin:bundle -P all)
+(cd $ROOT && mvn package -P all -Dmaven.test.skip=true)
 
 cp "$ROOT/visualisation/target/visualisation-0.1.jar" $TARGET
 cp "$ROOT/pubsub/javaserializer/target/java-serializer-0.1.jar" $TARGET

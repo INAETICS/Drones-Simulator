@@ -45,6 +45,7 @@ public class PhysicsEngineBundle {
                 } catch (InterruptedException e) {
                 }
             }
+            System.out.println("QUITTING POLLING");
         }
 
         private void broadcastState(List<Entity> entities) {
@@ -56,6 +57,7 @@ public class PhysicsEngineBundle {
 
                 try {
                     m_publisher.send(MessageTopic.STATEUPDATES, msg);
+                    System.out.println("[PhysicsEngine] New X: " + entity.getPosition().getX());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

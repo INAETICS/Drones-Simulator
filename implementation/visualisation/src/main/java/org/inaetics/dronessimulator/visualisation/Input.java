@@ -75,6 +75,7 @@ public class Input implements MessageHandler {
         StateMessage stateMessage = (StateMessage) message;
         if (stateMessage.getPosition().isPresent()) this.position = stateMessage.getPosition().get();
         if (stateMessage.getDirection().isPresent()) this.direction = stateMessage.getDirection().get();
+        System.out.println("[Visual] New X: " + this.position.getX());
     }
 
     /**

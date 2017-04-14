@@ -95,6 +95,8 @@ public class PhysicsEngine extends Thread {
 
                 }
             }
+
+            System.out.println("PHYSICSENGINE QUIT");
         }
     }
 

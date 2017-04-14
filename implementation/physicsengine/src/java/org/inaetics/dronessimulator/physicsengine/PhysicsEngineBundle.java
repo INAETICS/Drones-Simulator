@@ -54,8 +54,6 @@ public class PhysicsEngineBundle {
                 msg.setVelocity(entity.getVelocity());
                 msg.setPosition(entity.getPosition());
 
-                System.out.println("New x: " + entity.getPosition().getX());
-
                 try {
                     m_publisher.send(MessageTopic.STATEUPDATES, msg);
                 } catch (IOException e) {

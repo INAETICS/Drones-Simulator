@@ -15,6 +15,7 @@
         <module>etcddiscovery</module>
         <module>gamerules</module>
         <module>visualisation</module>
+        <module>discovery</module>
     </modules>
 
     <profiles>

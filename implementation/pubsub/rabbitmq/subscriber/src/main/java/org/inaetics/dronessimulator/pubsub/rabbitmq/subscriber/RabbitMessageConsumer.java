@@ -26,6 +26,7 @@ class RabbitMessageConsumer extends DefaultConsumer implements Runnable {
 
     @Override
     public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
+        System.out.println("[subscriber] Handle Delivery");
         Serializer serializer = subscriber.getSerializer();
 
         // Check if we have a serializer, otherwise just ignore the message
@@ -33,21 +34,26 @@ class RabbitMessageConsumer extends DefaultConsumer implements Runnable {
             try {
                 subscriber.receive(serializer.deserialize(body));
                 this.getChannel().basicAck(envelope.getDeliveryTag(), false);
+                System.out.println("Acked");
             } catch (ClassNotFoundException ignore) {
                 // Reject the message since we cannot do anything useful with it
                 this.getChannel().basicNack(envelope.getDeliveryTag(), false, false);
+                System.out.println("Not-Acked");
             }
         }
     }
 
     @Override
     public void run() {
+        System.out.println("[subscriber] Starting rabbitmessageconsumer");
         Channel channel = this.subscriber.getChannel();
 
         try {
             while (!Thread.interrupted()) {
                 // Breaks out of while loop with IOException in case the channel is closed
+                System.out.println("[Subscriber] before basic consume");
                 channel.basicConsume(this.subscriber.getIdentifier(), false, this);
+                System.out.println("[Subscriber] basic consume");
             }
         } catch (IOException ignored) {
             ignored.printStackTrace();

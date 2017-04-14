@@ -13,7 +13,6 @@ import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
-import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitMessageConsumer;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitSubscriber;
 
 import java.io.IOException;

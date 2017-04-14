@@ -141,7 +141,9 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
 
     @Override
     public void connect() throws IOException {
+        System.out.println("[Subscriber] Super.Connecting...");
         super.connect();
+        System.out.println("[Subscriber] Connecting...");
 
         // Define queue
         this.channel.queueDeclare(this.identifier, false, false, true, null);
@@ -150,11 +152,12 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
         for (String topicName : this.topics.values()) {
             this.channel.queueBind(this.identifier, topicName, "");
         }
-
+        System.out.println("[Subscriber] Added channels/queues");
         // Actually listen for messages
         RabbitMessageConsumer consumer = new RabbitMessageConsumer(this);
         this.listenerThread = new Thread(consumer);
         this.listenerThread.start();
+        System.out.println("[Subscriber] listener thread started");
     }
 
     @Override

@@ -49,7 +49,7 @@ public class PhysicsEngine extends Thread {
             D3Vector nextVelocity = entity.nextVelocity(environmentForces(entity).add(nextAcceleration), timestep_s);
             D3Vector nextPosition = entity.nextPosition(nextVelocity, timestep_s);
 
-            if(entity.isCollideable()) {
+            if(entity.isCollidable()) {
                 Entity newEntity = new Entity(entity.getId(), entity.getSize(), true, nextPosition, nextVelocity, nextAcceleration);
                 boolean collides = false;
                 Entity collidesWith;
@@ -57,7 +57,7 @@ public class PhysicsEngine extends Thread {
                 for(Map.Entry<Integer, Entity> e2 : entities.entrySet()) {
                     Entity otherEntity = e2.getValue();
 
-                    if(!entity.equals(otherEntity) && newEntity.collides(otherEntity) && entity.isCollideable() && otherEntity.isCollideable()) {
+                    if(!entity.equals(otherEntity) && newEntity.collides(otherEntity) && entity.isCollidable() && otherEntity.isCollidable()) {
                         collides = true;
                         collidesWith = otherEntity;
                         break;

@@ -1,4 +1,4 @@
-package org.inaetics.isep;
+package org.inaetics.dronessimulator.common;
 
 import org.inaetics.dronessimulator.common.D3BaseVector;
 import org.inaetics.dronessimulator.common.D3Vector;

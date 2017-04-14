@@ -29,4 +29,10 @@ public interface Instance {
      * @return The properties for this instance.
      */
     Map<String, String> getProperties();
+
+    /**
+     * Returns whether this instance should be registered as a discoverable configuration.
+     * @return Whether to register this instance as a discoverable configuration.
+     */
+    boolean isConfigDiscoverable();
 }

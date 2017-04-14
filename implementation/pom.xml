@@ -12,10 +12,9 @@
     <modules>
         <module>common</module>
         <module>pubsub</module>
-        <module>etcddiscovery</module>
+        <module>discovery</module>
         <module>gamerules</module>
         <module>visualisation</module>
-        <module>discovery</module>
     </modules>
 
     <profiles>

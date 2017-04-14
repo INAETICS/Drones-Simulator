@@ -1,7 +1,6 @@
 package org.inaetics.dronessimulator.physicsengine;
 
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
-import org.inaetics.dronessimulator.common.protocol.MovementMessage;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 
@@ -35,7 +34,10 @@ public class PhysicsEngineBundle {
         private volatile boolean quit = false;
 
         public void run() {
-            while(!quit) {
+            this.quit = false;
+            Thread t = Thread.currentThread();
+
+            while(!t.isInterrupted()) {
                 List<Entity> entities = physicsEngine.getCurrentState();
 
                 broadcastState(entities);
@@ -43,9 +45,10 @@ public class PhysicsEngineBundle {
                 try {
                     Thread.sleep(POLLRATE);
                 } catch (InterruptedException e) {
+                    t.interrupt();
                 }
             }
-            System.out.println("QUITTING POLLING");
+            this.quit = true;
         }
 
         private void broadcastState(List<Entity> entities) {
@@ -65,7 +68,7 @@ public class PhysicsEngineBundle {
         }
 
         public void quit() {
-            this.quit = true;
+            this.interrupt();
         }
 
         public boolean hasQuit() {

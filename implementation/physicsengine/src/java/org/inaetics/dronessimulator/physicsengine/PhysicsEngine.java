@@ -76,8 +76,12 @@ public class PhysicsEngine extends Thread {
     }
 
     private void runServer() {
+        Thread t = Thread.currentThread();
+
         if(started.compareAndSet(false, true)) {
-            while(!quit) {
+            quit = false;
+            
+            while(!t.isInterrupted()) {
                 synchronized(this.entityManager.entitiesLock()) {
                     long current_ms = System.currentTimeMillis();
                     long timestep_ms = current_ms - last_step_at;
@@ -92,11 +96,12 @@ public class PhysicsEngine extends Thread {
                 try {
                    Thread.sleep(100);
                 } catch(InterruptedException e) {
-
+                    t.interrupt();
                 }
             }
 
-            System.out.println("PHYSICSENGINE QUIT");
+            started.set(false);
+            quit = true;
         }
     }
 
@@ -133,7 +138,7 @@ public class PhysicsEngine extends Thread {
         @thread-safe
      */
     public void quit() {
-        this.quit = true;
+        this.interrupt();
     }
 
     /*

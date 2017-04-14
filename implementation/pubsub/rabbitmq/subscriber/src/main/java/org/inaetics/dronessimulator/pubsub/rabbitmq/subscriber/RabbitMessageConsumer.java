@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * A RabbitMQ consumer to work in conjunction with the RabbitMQ subscriber.
  */
-public class RabbitMessageConsumer extends DefaultConsumer implements Runnable {
+class RabbitMessageConsumer extends DefaultConsumer implements Runnable {
     /** A RabbitMQ subscriber instance. */
     private RabbitSubscriber subscriber;
 
@@ -19,7 +19,7 @@ public class RabbitMessageConsumer extends DefaultConsumer implements Runnable {
      * Instantiates a new RabbitMQ consumer based on the given subscriber.
      * @param subscriber The subscriber related to this consumer.
      */
-    public RabbitMessageConsumer(RabbitSubscriber subscriber) {
+    RabbitMessageConsumer(RabbitSubscriber subscriber) {
         super(subscriber.getChannel());
         this.subscriber = subscriber;
     }
@@ -50,6 +50,7 @@ public class RabbitMessageConsumer extends DefaultConsumer implements Runnable {
                 channel.basicConsume(this.subscriber.getIdentifier(), false, this);
             }
         } catch (IOException ignored) {
+            ignored.printStackTrace();
             // Connection is closed, maybe split this and ShutdownSignalException and log some stuff
         }
     }

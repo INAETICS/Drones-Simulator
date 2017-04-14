@@ -33,6 +33,9 @@ public class Game extends Application {
 
     private Scene scene;
 
+    private int i = 0;
+    private long lastLog = -1;
+
     @Override
     public void start(Stage primaryStage) {
 
@@ -57,12 +60,28 @@ public class Game extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
 
+
         createPlayers();
+
+        lastLog = System.currentTimeMillis();
 
         AnimationTimer gameLoop = new AnimationTimer() {
 
             @Override
             public void handle(long now) {
+                i++;
+                if(i == 100) {
+                    long current = System.currentTimeMillis();
+                    float durationAverageMs = ((float) (current - lastLog)) / 100f;
+                    float fps = 1000f / durationAverageMs;
+
+
+                    lastLog = current;
+                    System.out.println("Average: " + durationAverageMs);
+                    System.out.println("FPS: " + fps);
+                    i = 0;
+                }
+
                 // player input
                 drones.forEach(drone -> drone.processInput());
 

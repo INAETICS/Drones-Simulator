@@ -27,7 +27,7 @@ public class PhysicsEngine extends Thread {
 
         //Test data
         Collection<EntityCreation> testInserts = new ArrayList<>();
-        testInserts.add(new EntityCreation(new Entity(1, new Size(1, 1, 1), true, new D3Vector(0, 0, 0), new D3Vector(1, 0, 0), new D3Vector(0, 0, 0))));
+        testInserts.add(new EntityCreation(new Entity(1, new Size(1, 1, 1), true, new D3Vector(0, 0, 0), new D3Vector(100, 0, 0), new D3Vector(0, 0, 0))));
 
         this.entityManager.addInserts(testInserts);
     }

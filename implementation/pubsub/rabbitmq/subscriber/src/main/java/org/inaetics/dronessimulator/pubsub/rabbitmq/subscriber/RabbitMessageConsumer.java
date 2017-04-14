@@ -26,7 +26,6 @@ class RabbitMessageConsumer extends DefaultConsumer {
 
     @Override
     public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) throws IOException {
-        System.out.println("[subscriber] Handle Delivery");
         Serializer serializer = subscriber.getSerializer();
 
         // Check if we have a serializer, otherwise just ignore the message
@@ -34,11 +33,9 @@ class RabbitMessageConsumer extends DefaultConsumer {
             try {
                 subscriber.receive(serializer.deserialize(body));
                 this.getChannel().basicAck(envelope.getDeliveryTag(), false);
-                System.out.println("Acked");
             } catch (ClassNotFoundException ignore) {
                 // Reject the message since we cannot do anything useful with it
                 this.getChannel().basicNack(envelope.getDeliveryTag(), false, false);
-                System.out.println("Not-Acked");
             }
         }
     }

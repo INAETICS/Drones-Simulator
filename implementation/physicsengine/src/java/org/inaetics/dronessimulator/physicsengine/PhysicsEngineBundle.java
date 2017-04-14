@@ -30,7 +30,7 @@ public class PhysicsEngineBundle {
     }
 
     private class PollThread extends Thread {
-        private long POLLRATE = 3000; // in ms
+        private long POLLRATE = 10; // in ms
         private volatile boolean quit = false;
 
         public void run() {
@@ -60,7 +60,6 @@ public class PhysicsEngineBundle {
 
                 try {
                     m_publisher.send(MessageTopic.STATEUPDATES, msg);
-                    System.out.println("[PhysicsEngine] New X: " + entity.getPosition().getX());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

@@ -38,8 +38,8 @@ public class Input implements MessageHandler {
     private KeyCode primaryWeaponKey = KeyCode.SPACE;
     private KeyCode secondaryWeaponKey = KeyCode.CONTROL;
 
-    private D3Vector position;
-    private D3PoolCoordinate direction;
+    private volatile D3Vector position;
+    private volatile D3PoolCoordinate direction;
 
     private Scene scene;
 
@@ -71,11 +71,29 @@ public class Input implements MessageHandler {
      * Changes the position and direction based on the stateMessage
      * @param message The received message.
      */
+
+    private int i = 0;
+    private long lastLog = -1;
     public synchronized void handleMessage(Message message) {
+        i++;
+
+        if(lastLog == -1) {
+            lastLog = System.currentTimeMillis();
+        }
+
+        if(i == 100) {
+            long current = System.currentTimeMillis();
+            float averageDuractionMs = ((float) (current-lastLog)) / 100f;
+            System.out.println("Average per message: " + averageDuractionMs);
+            System.out.println("Messages per sec: " + (1000f / averageDuractionMs));
+
+            lastLog = current;
+            i = 0;
+        }
+
         StateMessage stateMessage = (StateMessage) message;
         if (stateMessage.getPosition().isPresent()) this.position = stateMessage.getPosition().get();
         if (stateMessage.getDirection().isPresent()) this.direction = stateMessage.getDirection().get();
-        System.out.println("[Visual] New X: " + this.position.getX());
     }
 
     /**

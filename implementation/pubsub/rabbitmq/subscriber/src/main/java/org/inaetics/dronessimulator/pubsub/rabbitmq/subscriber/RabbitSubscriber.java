@@ -145,9 +145,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
 
     @Override
     public void connect() throws IOException {
-        System.out.println("[Subscriber] Super.Connecting...");
         super.connect();
-        System.out.println("[Subscriber] Connecting...");
 
         // Define queue
         this.channel.queueDeclare(this.identifier, false, false, true, null);

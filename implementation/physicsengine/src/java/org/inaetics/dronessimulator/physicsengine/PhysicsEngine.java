@@ -88,15 +88,8 @@ public class PhysicsEngine extends Thread {
                     double timestep_s = ((float) timestep_ms) / 1000;
                     this.last_step_at = current_ms;
 
-
                     this.entityManager.processChanges();
                     this.stageMove(timestep_s);
-                }
-
-                try {
-                   Thread.sleep(100);
-                } catch(InterruptedException e) {
-                    t.interrupt();
                 }
             }
 

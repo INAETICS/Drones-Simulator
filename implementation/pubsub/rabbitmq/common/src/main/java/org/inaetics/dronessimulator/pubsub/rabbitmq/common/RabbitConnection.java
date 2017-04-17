@@ -1,8 +1,8 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.common;
 
 import com.rabbitmq.client.*;
-import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
+import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
 
 import java.io.IOException;
 import java.net.ConnectException;

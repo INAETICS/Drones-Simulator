@@ -134,7 +134,7 @@ public class Input {
         return keyboardBitSet.get(secondaryWeaponKey.ordinal());
     }
 
-    public void processInput() {
+    private void processInput() {
 
         // ------------------------------------
         // movement

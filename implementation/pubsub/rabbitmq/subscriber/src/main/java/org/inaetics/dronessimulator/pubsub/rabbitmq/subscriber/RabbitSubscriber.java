@@ -1,6 +1,9 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 
-import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.AMQP;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.DefaultConsumer;
+import com.rabbitmq.client.Envelope;
 import org.inaetics.dronessimulator.pubsub.api.*;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
@@ -26,25 +29,28 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     /** The topics this subscriber is subscribed to. */
     private Map<Topic, String> topics;
 
+    /** The consumer that is in use. */
+    private RabbitMessageConsumer consumer;
+
     /**
      * Instantiates a new RabbitMQ subscriber for the given topic.
-     * @param connection The RabbitMQ connection to use.
+     * @param connectionFactory The RabbitMQ connection factory to use when starting a new connection.
      * @param identifier The identifier for this subscriber. This is used as queue name.
      * @param serializer The serializer to use.
      */
-    public RabbitSubscriber(Connection connection, String identifier, Serializer serializer) {
-        super(connection, serializer);
+    public RabbitSubscriber(ConnectionFactory connectionFactory, String identifier, Serializer serializer) {
+        super(connectionFactory, serializer);
         this.construct(identifier);
     }
 
     /**
      * Instantiates a new RabbitMQ subscriber for use with OSGi. This constructor assumes that the serializer will be
      * injected later on.
-     * @param connection The RabbitMQ connection to use.
+     * @param connectionFactory The RabbitMQ connection factory to use when starting a new connection.
      * @param identifier The identifier for this subscriber. This is used as queue name.
      */
-    public RabbitSubscriber(Connection connection, String identifier) {
-        super(connection);
+    public RabbitSubscriber(ConnectionFactory connectionFactory, String identifier) {
+        super(connectionFactory);
         this.construct(identifier);
     }
 
@@ -66,12 +72,11 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
             this.topics.put(topic, topic.getName());
         }
 
-        // Make sure exchange exists
-        this.declareTopic(topic);
-
-        // If connected, bind to queue
+        // If connected, restart
         if (this.isConnected()) {
-            this.channel.queueBind(this.identifier, this.topics.get(topic), "");
+            this.declareTopic(topic);
+            this.channel.queueBind(this.identifier, topic.getName(), "");
+            this.updateConsumer();
         }
     }
 
@@ -100,13 +105,8 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
      */
     @Override
     public void addHandler(Class<? extends Message> messageClass, MessageHandler handler) {
-        Collection<MessageHandler> handlers = this.handlers.get(messageClass);
-
-        if (handlers == null) {
-            // Create new set for this message class if needed
-            handlers = new HashSet<>();
-            this.handlers.put(messageClass, handlers);
-        }
+        // Create new set for this message class if needed
+        Collection<MessageHandler> handlers = this.handlers.computeIfAbsent(messageClass, k -> new HashSet<>());
 
         handlers.add(handler);
     }
@@ -147,9 +147,31 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     public void connect() throws IOException {
         super.connect();
 
+        // Define queue
+        this.channel.queueDeclare(this.identifier, false, false, true, null);
+
         // Bind exchanges to queue
         for (String topicName : this.topics.values()) {
             this.channel.queueBind(this.identifier, topicName, "");
         }
+
+        this.updateConsumer();
+    }
+
+    public void updateConsumer() throws IOException {
+        RabbitMessageConsumer old = this.consumer;
+
+        // Start new consumer
+        this.consumer = new RabbitMessageConsumer(this);
+        this.channel.basicConsume(this.identifier, false, this.consumer);
+
+        // Cancel old consumer if we have one
+        if (old != null) {
+            this.channel.basicCancel(old.getConsumerTag());
+        }
+    }
+
+    public String getIdentifier() {
+        return identifier;
     }
 }

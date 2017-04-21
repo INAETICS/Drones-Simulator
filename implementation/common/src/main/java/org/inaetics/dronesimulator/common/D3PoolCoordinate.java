@@ -1,4 +1,4 @@
-package org.inaetics.isep;
+package org.inaetics.dronesimulator.common;
 
 public class D3PoolCoordinate {
     public static final D3PoolCoordinate UNIT = new D3PoolCoordinate(0,0, 1);

@@ -11,12 +11,22 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
-    <artifactId>subscriber</artifactId>
+    <artifactId>rabbitmq-subscriber</artifactId>
+    <version>0.1</version>
+    <packaging>bundle</packaging>
+    <name>RabbitMQ subscriber</name>
+
     <dependencies>
         <dependency>
             <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
-            <artifactId>common</artifactId>
+            <artifactId>rabbitmq-common</artifactId>
             <version>0.1</version>
+        </dependency>
+        <dependency>
+            <!-- This should fix some issues with the RabbitMQ client in OSGI -->
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.21</version>
         </dependency>
     </dependencies>
 
@@ -28,9 +38,11 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package>org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber</Export-Package>
+                        <Export-Package>org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber,org.inaetics.dronessimulator.pubsub.rabbitmq.common</Export-Package>
                         <Bundle-Activator>org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.Activator</Bundle-Activator>
-                        <Embed-Dependency>org.inaetics.dronessimulator.*;scope=compile|runtime</Embed-Dependency>
+                        <Embed-Dependency>api;groupId=org.inaetics.dronessimulator.pubsub;scope=compile|runtime,amqp-client;scope=compile|runtime,slf4j-api;scope=compile|runtime</Embed-Dependency>
+                        <Embed-Transitive>true</Embed-Transitive>
+                        <Import-Package>!com.codahale.metrics,!org.slf4j.impl,*</Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

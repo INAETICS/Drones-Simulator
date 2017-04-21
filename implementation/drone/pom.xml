@@ -9,7 +9,39 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <groupId>org.inaetics.dronessimulator</groupId>
     <artifactId>drone</artifactId>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>org.inaetics.dronessimulator.drone,
+                            org.inaetics.dronessimulator.common,
+                            org.inaetics.dronessimulator.common.protocol,
+                            org.inaetics.dronessimulator.pubsub.api.*
+                        </Export-Package>
+                        <Bundle-Activator>org.inaetics.dronessimulator.drone.Activator</Bundle-Activator>
+                        <Embed-Transitive>true</Embed-Transitive>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronesimulator.pubsub</groupId>
+            <artifactId>pubsub-api</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

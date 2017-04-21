@@ -2,10 +2,10 @@ package org.inaetics.dronessimulator.discovery.etcd;
 
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.promises.EtcdResponsePromise;
+import mousio.etcd4j.requests.EtcdKeyGetRequest;
 import mousio.etcd4j.responses.EtcdErrorCode;
 import mousio.etcd4j.responses.EtcdException;
 import mousio.etcd4j.responses.EtcdKeysResponse;
-import org.inaetics.dronessimulator.discovery.api.DiscoveredConfig;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
@@ -28,10 +28,12 @@ public class EtcdDiscoverer implements Discoverer {
     private static final String DISCOVERABLE_CONFIG_DIR = "discoverable_config";
 
     /** The instances registered through this discoverer. */
-    Map<Instance, String> myInstances;
+    private Map<Instance, String> myInstances;
 
     /** The etcd client instance. */
-    EtcdClient client;
+    private EtcdClient client;
+
+    private Long discoverableConfigModifiedIndex;
 
     /**
      * Instantiates a new etcd discoverer and connects to etcd using the given URI.
@@ -40,6 +42,9 @@ public class EtcdDiscoverer implements Discoverer {
     public EtcdDiscoverer(URI uri) {
         this.myInstances = new HashMap<>();
         this.client = new EtcdClient(uri);
+
+        // Initialize variables
+        this.discoverableConfigModifiedIndex = null;
 
         // Create discoverable config directory
         this.client.putDir(buildPath(DISCOVERABLE_CONFIG_DIR));
@@ -77,7 +82,7 @@ public class EtcdDiscoverer implements Discoverer {
      * Registers the instance as a discoverable config. Places a reference to the instance in a special etcd directory.
      * @param instance The instance to register.
      * @return The path to the key.
-     * @throws IOException An error occured.
+     * @throws IOException An error occurred.
      */
     private String registerDiscoverableConfig(Instance instance) throws IOException {
         if (!this.myInstances.containsKey(instance)) {
@@ -173,11 +178,43 @@ public class EtcdDiscoverer implements Discoverer {
     }
 
     /**
+     * Returns a collection of type, group, name triples of instances registered as discoverable configurations.
+     * Waits for changes to be made before returning.
+     * @return A collection of triples for the registered instances.
+     */
+    Collection<String> getDiscoverableConfigs() {
+        Collection<String> instances = new HashSet<>();
+
+        String path = buildPath(DISCOVERABLE_CONFIG_DIR);
+
+        try {
+            EtcdKeyGetRequest request = this.client.getDir(path);
+
+            // Wait for change if needed
+            if (this.discoverableConfigModifiedIndex != null) {
+                request = request.waitForChange(this.discoverableConfigModifiedIndex);
+            }
+
+            EtcdResponsePromise<EtcdKeysResponse> promise = request.send();
+            EtcdKeysResponse keys = promise.getNow();
+
+            if (keys != null) {
+                keys.node.nodes.forEach(node -> instances.add(node.value));
+                this.discoverableConfigModifiedIndex = keys.node.modifiedIndex;
+            }
+        } catch (IOException ignored) {
+            // Just return an empty set
+        }
+
+        return instances;
+    }
+
+    /**
      * Builds an etcd path from a number of strings.
      * @param segments The segments of the path.
      * @return The constructed path.
      */
-    private static String buildPath(String ... segments) {
+    static String buildPath(String... segments) {
         return PATH_PREFIX + String.join("/", segments);
     }
 
@@ -186,7 +223,7 @@ public class EtcdDiscoverer implements Discoverer {
      * @param instance The instance to build the path for.
      * @return The path for the instance.
      */
-    private static String buildInstancePath(Instance instance) {
+    static String buildInstancePath(Instance instance) {
         return buildPath(instance.getType(), instance.getGroup(), instance.getName());
     }
 
@@ -196,7 +233,22 @@ public class EtcdDiscoverer implements Discoverer {
      * @param path The full path.
      * @return The last segment in the path.
      */
-    private static String getDirName(String path) {
+    static String getDirName(String path) {
         return path.substring(Math.max(0, path.lastIndexOf("/")));
+    }
+
+    /**
+     * Splits the given path into three segments. Always returns an array of length 3 where the elements represent
+     * (in-order) the type, group and name of the instance.
+     *
+     * Assumes a valid instance path is given as input.
+     * @param path The instance path to split.
+     * @return The type, group and name of the instance.
+     */
+    static String[] splitInstancePath(String path) {
+        String[] segments = path.replaceFirst(PATH_PREFIX, "").split("/");
+        String[] triple = new String[]{"", "", ""};
+        System.arraycopy(segments, 0, triple, 0, Math.min(segments.length, triple.length));
+        return triple;
     }
 }

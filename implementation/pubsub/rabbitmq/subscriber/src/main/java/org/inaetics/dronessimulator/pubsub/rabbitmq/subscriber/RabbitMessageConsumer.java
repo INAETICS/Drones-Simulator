@@ -3,6 +3,7 @@ package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
+import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
 
 import java.io.IOException;
@@ -30,11 +31,13 @@ class RabbitMessageConsumer extends DefaultConsumer {
         // Check if we have a serializer, otherwise just ignore the message
         if (serializer != null) {
             try {
-                subscriber.receive(serializer.deserialize(body));
+                Message message = serializer.deserialize(body);
                 this.getChannel().basicAck(envelope.getDeliveryTag(), false);
+                subscriber.receive(message);
             } catch (ClassNotFoundException ignore) {
                 // Reject the message since we cannot do anything useful with it
                 this.getChannel().basicNack(envelope.getDeliveryTag(), false, false);
+                subscriber.getLogger().warn("Received message of unknown type, message dropped");
             }
         }
     }

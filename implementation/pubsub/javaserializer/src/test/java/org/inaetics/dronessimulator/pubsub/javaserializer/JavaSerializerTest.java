@@ -3,7 +3,8 @@ package org.inaetics.dronessimulator.pubsub.javaserializer;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Test case for the Java serializer implementation.

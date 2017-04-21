@@ -9,13 +9,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 /*
     Only thread-safe when entities is locked
  */
-public class EntityManager {
+class EntityManager {
     private final Map<Integer, ConcurrentLinkedQueue<EntityUpdate>> updateMap;
     private final ConcurrentLinkedQueue<EntityCreation> creationList;
     private final ConcurrentLinkedQueue<Integer> removalList;
 
     private final Map<Integer, Entity> entities;
-    private final Object entitiesLock;
 
     public EntityManager() {
         this.creationList = new ConcurrentLinkedQueue<>();
@@ -23,11 +22,6 @@ public class EntityManager {
         this.removalList = new ConcurrentLinkedQueue<>();
 
         this.entities = new HashMap<>(100);
-        this.entitiesLock = new Object();
-    }
-
-    public Object entitiesLock() {
-        return this.entitiesLock;
     }
 
     public void addInserts(Collection<EntityCreation> creations) {

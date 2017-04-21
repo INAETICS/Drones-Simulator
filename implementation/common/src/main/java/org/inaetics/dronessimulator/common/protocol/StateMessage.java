@@ -1,7 +1,7 @@
-package org.inaetics.dronesimulator.common.protocol;
+package org.inaetics.dronessimulator.common.protocol;
 
-import org.inaetics.dronesimulator.common.D3PoolCoordinate;
-import org.inaetics.dronesimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.D3PoolCoordinate;
+import org.inaetics.dronessimulator.common.D3Vector;
 
 import java.util.Optional;
 

@@ -6,8 +6,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-import org.inaetics.dronesimulator.common.D3PoolCoordinate;
-import org.inaetics.dronesimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.D3PoolCoordinate;
+import org.inaetics.dronessimulator.common.D3Vector;
 
 import static org.inaetics.dronessimulator.visualisation.Settings.DRONE_SPRITE_COLUMNS;
 
@@ -27,7 +27,7 @@ abstract class Drone {
 
     private int width;
 
-    public Drone(Pane layer, String image, Input input) {
+    Drone(Pane layer, String image, Input input) {
         this.input = input;
 
         this.layer = layer;
@@ -42,16 +42,15 @@ abstract class Drone {
         addToLayer();
     }
 
-    public void addToLayer() {
+    private void addToLayer() {
         this.layer.getChildren().addAll(this.imageView);
         this.layer.getChildren().addAll(this.heightText);
     }
 
-    public void updateUI() {
+    void updateUI() {
 
         imageView.relocate(position.getX(), position.getY());
         imageView.setRotate(getRotation());
-
         heightText.setText("Height: " + position.getZ());
         heightText.relocate(position.getX() + this.width, position.getY());
 
@@ -60,15 +59,12 @@ abstract class Drone {
     /**
      * For position, direction, velocity and acceleration process the input given by the publisher
      */
-    public void processInput() {
-        input.processInput();
+    void processInput() {
         this.position = input.getPosition();
         this.direction = input.getDirection();
 //        this.velocity = input.getVelocity();
 //        this.acceleration = input.getAcceleration();
-        if (input.destroyDrone()) {
-            //todo: remove drone
-        }
+
     }
 
     private double getRotation() {

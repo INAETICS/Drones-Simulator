@@ -1,38 +1,38 @@
-package org.inaetics.dronesimulator.physicsengine;
+package org.inaetics.dronessimulator.physicsengine;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-
-import org.inaetics.dronesimulator.common;
+import org.inaetics.dronessimulator.common.D3Vector;
 
 @AllArgsConstructor
 @Getter
 @Setter
 @ToString
-public class Entity {
+public class Entity implements Cloneable {
     // X == Width, y == depth, z == height
     private final int id;
     private final Size size;
+    private final boolean collidable;
     private D3Vector position; // m
     private D3Vector velocity; // m/s
     private D3Vector acceleration; // m/s^2
 
-    public Entity(int id, Size size) {
-        this(id, size, new D3Vector(), new D3Vector(), new D3Vector());
+    public Entity(int id, Size size, boolean collidable) {
+        this(id, size, collidable, new D3Vector(), new D3Vector(), new D3Vector());
     }
 
-    public Entity(int id, Size size, double x, double y, double z) {
-        this(id, size, new D3Vector(x, y, z), new D3Vector(), new D3Vector());
+    public Entity(int id, Size size, boolean collidable, double x, double y, double z) {
+        this(id, size, collidable, new D3Vector(x, y, z), new D3Vector(), new D3Vector());
     }
 
-    public Entity(int id, Size size, D3Vector position) {
-        this(id, size, position, new D3Vector(), new D3Vector());
+    public Entity(int id, Size size, boolean collidable, D3Vector position) {
+        this(id, size, collidable, position, new D3Vector(), new D3Vector());
     }
 
-    public Entity(int id, Size size, D3Vector position, D3Vector velocity) {
-        this(id, size, position, velocity, new D3Vector());
+    public Entity(int id, Size size, boolean collidable, D3Vector position, D3Vector velocity) {
+        this(id, size, collidable, position, velocity, new D3Vector());
     }
 
     public void move(double time_in_seconds) {
@@ -80,5 +80,10 @@ public class Entity {
 
     public boolean equals(Entity other) {
         return this.getId() == other.getId();
+    }
+
+
+    public static Entity copy(Entity entity) {
+        return new Entity(entity.getId(), entity.getSize(), entity.isCollidable(), entity.getPosition(), entity.getVelocity(), entity.getAcceleration());
     }
 }

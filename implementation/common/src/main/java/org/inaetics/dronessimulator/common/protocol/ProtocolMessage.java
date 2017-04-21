@@ -1,4 +1,4 @@
-package org.inaetics.dronesimulator.common.protocol;
+package org.inaetics.dronessimulator.common.protocol;
 
 import org.inaetics.dronessimulator.pubsub.api.Message;
 

@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 
 import com.rabbitmq.client.ConnectionFactory;
+import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
@@ -18,6 +19,8 @@ import java.util.Map;
  * A RabbitMQ implementation of a subscriber.
  */
 public class RabbitSubscriber extends RabbitConnection implements Subscriber {
+    private static final Logger logger = Logger.getLogger(RabbitSubscriber.class);
+
     /** The identifier of this subscriber. */
     private String identifier;
 
@@ -61,6 +64,8 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
         this.identifier = identifier;
         this.handlers = new HashMap<>();
         this.topics = new HashMap<>();
+
+        logger.debug("Initialized RabbitMQ subscriber with identifier {}", identifier);
     }
 
     @Override
@@ -74,6 +79,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
         if (this.isConnected()) {
             this.declareTopic(topic);
             this.channel.queueBind(this.identifier, topic.getName(), "");
+            logger.debug("RabbitMQ queue {} bound to exchange {}", this.identifier, topic.getName());
             this.updateConsumer();
         }
     }
@@ -88,6 +94,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
             // Unbind if connected
             if (this.isConnected()) {
                 this.channel.queueUnbind(this.identifier, topic.getName(), "");
+                logger.debug("RabbitMQ queue {} unbound from exchange {}", this.identifier, topic.getName());
             }
         }
     }
@@ -131,6 +138,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
      */
     @Override
     public void receive(Message message) {
+        logger.debug("Message {} received by queue {}", message.toString(), this.identifier);
         Collection<MessageHandler> handlers = this.handlers.get(message.getClass());
 
         // Pass the message to every defined handler
@@ -138,6 +146,8 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
             for (MessageHandler handler : handlers) {
                 handler.handleMessage(message);
             }
+        } else {
+            logger.warn("Message {} was received but is unroutable", message.toString());
         }
     }
 
@@ -147,29 +157,40 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
 
         // Define queue
         this.channel.queueDeclare(this.identifier, false, false, true, null);
+        logger.debug("RabbitMQ queue {} declared", this.identifier);
 
         // Bind exchanges to queue
         for (String topicName : this.topics.values()) {
             this.channel.queueBind(this.identifier, topicName, "");
+            logger.debug("RabbitMQ queue {} bound to exchange {}", this.identifier, topicName);
         }
 
         this.updateConsumer();
     }
 
     public void updateConsumer() throws IOException {
+        logger.debug("RabbitMQ consumer update requested");
         RabbitMessageConsumer old = this.consumer;
 
         // Start new consumer
         this.consumer = new RabbitMessageConsumer(this);
         this.channel.basicConsume(this.identifier, false, this.consumer);
+        logger.debug("New RabbitMQ consumer started");
 
         // Cancel old consumer if we have one
         if (old != null) {
             this.channel.basicCancel(old.getConsumerTag());
+            logger.debug("Old RabbitMQ consumer cancelled");
         }
+        logger.debug("Consumer update requested");
     }
 
     public String getIdentifier() {
         return identifier;
+    }
+
+    @Override
+    protected Logger getLogger() {
+        return logger;
     }
 }

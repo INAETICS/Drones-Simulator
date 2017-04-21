@@ -11,6 +11,7 @@
 
     <groupId>org.inaetics.dronessimulator</groupId>
     <artifactId>drone</artifactId>
+    <version>0.1</version>
 
     <build>
         <plugins>
@@ -37,10 +38,12 @@
         <dependency>
             <groupId>org.inaetics.dronessimulator</groupId>
             <artifactId>common</artifactId>
+            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronesimulator.pubsub</groupId>
             <artifactId>pubsub-api</artifactId>
+            <version>0.1</version>
         </dependency>
     </dependencies>
 

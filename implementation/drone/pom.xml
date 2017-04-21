@@ -41,7 +41,7 @@
             <version>0.1</version>
         </dependency>
         <dependency>
-            <groupId>org.inaetics.dronesimulator.pubsub</groupId>
+            <groupId>org.inaetics.dronessimulator.pubsub</groupId>
             <artifactId>pubsub-api</artifactId>
             <version>0.1</version>
         </dependency>

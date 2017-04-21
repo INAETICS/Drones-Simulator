@@ -15,7 +15,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.inaetics.dronesimulator</groupId>
+            <groupId>org.inaetics.dronessimulator</groupId>
             <artifactId>common</artifactId>
             <version>0.1</version>
         </dependency>

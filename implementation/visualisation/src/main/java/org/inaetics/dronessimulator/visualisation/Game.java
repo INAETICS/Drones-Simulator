@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.visualisation;
 
+import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -36,7 +37,9 @@ public class Game extends Application {
     public void start(Stage primaryStage) {
 
         if(this.subscriber == null) {
-            this.subscriber = new RabbitSubscriber(new ConnectionFactory(), "visualisation", new JavaSerializer());
+            ConnectionFactory connectionFactory = new ConnectionFactory();
+//            connectionFactory.setHost("rabbitmq");
+            this.subscriber = new RabbitSubscriber(connectionFactory, "visualisation", new JavaSerializer());
 
             try {
                 this.subscriber.connect();

@@ -1,0 +1,5 @@
+version: '3'
+services:
+    game-engine:
+        build: ./docker_images/game_engine
+    # Specify more docker images

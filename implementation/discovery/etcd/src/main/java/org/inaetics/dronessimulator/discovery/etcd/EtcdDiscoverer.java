@@ -33,6 +33,7 @@ public class EtcdDiscoverer implements Discoverer {
     /** The etcd client instance. */
     private EtcdClient client;
 
+    /** Index of the last received update. */
     private Long discoverableConfigModifiedIndex;
 
     /**

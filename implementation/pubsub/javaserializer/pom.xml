@@ -22,6 +22,10 @@
             <artifactId>pubsub-api</artifactId>
             <version>0.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -34,7 +38,6 @@
                     <instructions>
                         <Export-Package>org.inaetics.dronessimulator.pubsub.javaserializer</Export-Package>
                         <Bundle-Activator>org.inaetics.dronessimulator.pubsub.javaserializer.Activator</Bundle-Activator>
-                        <Embed-Dependency>api;groupId=org.inaetics.dronessimulator.pubsub;scope=compile|runtime</Embed-Dependency>
                     </instructions>
                 </configuration>
             </plugin>

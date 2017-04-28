@@ -13,7 +13,6 @@
         <module>common</module>
         <module>pubsub</module>
         <module>discovery</module>
-        <module>gamerules</module>
         <module>visualisation</module>
     </modules>
 
@@ -27,10 +26,7 @@
             </activation>
             <modules>
                 <module>physicsengine</module>
-                <module>enginewrapper</module>
-                <module>movementrules</module>
-                <module>collisionrules</module>
-                <module>gamerules</module>
+                <module>physicsenginewrapper</module>
                 <module>drone</module>
                 <module>instancemanager</module>
             </modules>
@@ -56,10 +52,7 @@
             </activation>
             <modules>
                 <module>physicsengine</module>
-                <module>enginewrapper</module>
-                <module>movementrules</module>
-                <module>collisionrules</module>
-                <module>gamerules</module>
+                <module>physicsenginewrapper</module>
             </modules>
         </profile>
 

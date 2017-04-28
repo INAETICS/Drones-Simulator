@@ -15,7 +15,7 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.inaetics.dronesimulator</groupId>
+            <groupId>org.inaetics.dronessimulator</groupId>
             <artifactId>common</artifactId>
             <version>0.1</version>
         </dependency>
@@ -39,7 +39,10 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

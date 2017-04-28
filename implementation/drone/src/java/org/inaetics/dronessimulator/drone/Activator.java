@@ -10,7 +10,6 @@ import org.osgi.framework.BundleContext;
 public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
-        System.out.println("Drone: Activator Started");
         dependencyManager.add(createComponent()
                 .setInterface(Drone.class.getName(), null)
                 .setImplementation(SimpleDrone.class)

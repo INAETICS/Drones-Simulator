@@ -1,14 +1,17 @@
 package org.inaetics.dronessimulator.drone;
-import org.inaetics.dronessimulator.common.protocol.StateMessage;
-import org.inaetics.dronessimulator.common.protocol.MovementMessage;
+import org.inaetics.dronessimulator.common.protocol.*;
+import org.inaetics.dronessimulator.common.*;
+import org.inaetics.dronessimulator.pubsub.api.Message;
+import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
+import org.inaetics.dronessimulator.pubsub.api.publisher.*;
+import org.inaetics.dronessimulator.pubsub.api.subscriber.*;
 
+import java.io.IOException;
 
-
-import org.inaetics.dronessimulator.common;
 /**
  * Represents a drone in the system.
  */
-abstract class Drone implements MessageHandler{
+public abstract class Drone{
     private volatile Publisher m_publisher;
     private volatile Subscriber m_subscriber;
 
@@ -16,30 +19,43 @@ abstract class Drone implements MessageHandler{
     private D3Vector velocity;
     private D3Vector acceleration;
 
+
+    private static final int MAX_DEVIATION_POSTION = 1000;
+    private static final int MAX_VELOCITY = 100;
+    private static final int MAX_ACCELERATION = 10;
+    private static final double RANGE_FACTOR = 0.2;
+
+
     /** --- CONSTRUCTOR */
     public Drone() {
         this(new D3Vector());
     }
 
-    public Drone(D3Vector postion){
-        this.position = position;
+    public Drone(D3Vector p){
+        System.out.println("Drone is CREATED");
+        this.position = p;
         this.velocity = new D3Vector();
         this.acceleration = new D3Vector();
     }
 
-
-    public init(){
-        this.m_subscriber.addHandler(StateMessage.class, this);
+    public void init() {
+        System.out.println("Start INIT");
+        this.m_subscriber.addHandler(StateMessage.class, new StateMessageHandler());
         try {
             this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
+            System.out.println("IO Exception add Topic");
         }
+        System.out.println("End INIT");
+        //this.calculateTactics();
     }
+
+
 
     /**
     * -- GETTERS
      */
-    public D3Vector getPostion(){
+    public D3Vector getPosition(){
         return position;
     }
 
@@ -62,38 +78,35 @@ abstract class Drone implements MessageHandler{
             velocity = new_velocity;
     }
 
-    private void setAcceleration(D3Vector new_acceleration){
+    protected void setAcceleration(D3Vector new_acceleration){
             acceleration = new_acceleration;
     }
 
     /**
      * -- FUNCTIONS
      * */
-    private abstract recalculatAcceleration();
+    abstract void recalculatAcceleration();
 
 
     private void calculateTactics(){
         this.recalculatAcceleration();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+        }
         this.sendTactics();
     }
 
     private synchronized void sendTactics(){
+        System.out.println("Prepare Tactics message." + this.getAcceleration());
         MovementMessage msg = new MovementMessage();
-        //msg.setDirection();
         msg.setAcceleration(this.getAcceleration());
-
         try {
             m_publisher.send(MessageTopic.MOVEMENTS, msg);
         } catch (IOException e) {
+            System.out.println("Exception");
         }
-    }
-
-    public synchronized void handleMessage(Message message) {
-        StateMessage stateMessage = (StateMessage) message;
-        if (stateMessage.getPosition().isPresent()) this.setPosition(stateMessage.getPosition().get());
-        if (stateMessage.getDirection().isPresent()) this.setDirection(stateMessage.getDirection().get());
-        if (stateMessage.getAcceleration().isPresent()) this.setAcceleration(stateMessage.getAcceleration().get());
-        this.calculateTactics();
+        System.out.println("Tactics are send.");
     }
 
 

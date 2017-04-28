@@ -10,6 +10,7 @@ import org.osgi.framework.BundleContext;
 public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
+        System.out.println("Drone: Activator Started");
         dependencyManager.add(createComponent()
                 .setInterface(Drone.class.getName(), null)
                 .setImplementation(SimpleDrone.class)
@@ -20,8 +21,7 @@ public class Activator extends DependencyActivatorBase {
                 .add(createServiceDependency()
                         .setService(Subscriber.class)
                         .setRequired(true)
-                )
-                .setCallbacks("init", "connect", "disconnect", "destroy") // Init and destroy do not actually exist
+                ).setCallbacks("init", "start", "stop", "destroy")
         );
     }
 }

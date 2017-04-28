@@ -14,6 +14,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * A RabbitMQ implementation of a subscriber.
@@ -73,6 +74,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
         // Add topic to list if not present already
         if (!this.topics.containsKey(topic)) {
             this.topics.put(topic, topic.getName());
+            logger.debug("Topic {} added", topic.getName());
         }
 
         // If connected, restart
@@ -90,6 +92,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
         if (this.topics.containsKey(topic)) {
             // Remove from list
             this.topics.remove(topic);
+            logger.debug("Topic {} removed", topic.getName());
 
             // Unbind if connected
             if (this.isConnected()) {
@@ -112,8 +115,8 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     public void addHandler(Class<? extends Message> messageClass, MessageHandler handler) {
         // Create new set for this message class if needed
         Collection<MessageHandler> handlers = this.handlers.computeIfAbsent(messageClass, k -> new HashSet<>());
-
         handlers.add(handler);
+        logger.debug("Handler {} set for message class {}", handler, messageClass);
     }
 
     /**
@@ -128,6 +131,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
         // Remove the handler for the class if any handler set is defined
         if (handlers != null) {
             handlers.remove(handler);
+            logger.debug("Handler {} removed for message class {}", handler, messageClass);
         }
     }
 
@@ -147,7 +151,9 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
                 handler.handleMessage(message);
             }
         } else {
+            Collection<String> messageTypes = this.handlers.keySet().stream().map(Class::toString).collect(Collectors.toSet());
             logger.warn("Message {} was received but is unroutable", message.toString());
+            logger.debug("Handlers available for messages types {}", String.join(",", messageTypes));
         }
     }
 

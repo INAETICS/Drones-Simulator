@@ -13,20 +13,27 @@
     <groupId>org.inaetics.dronessimulator</groupId>
     <artifactId>physicsengine</artifactId>
 
-        <!-- Skip creation of jar -->
-    <properties>
-        <maven.deploy.skip>true</maven.deploy.skip>
-        <jar.skipIfEmpty>true</jar.skipIfEmpty>
-        <maven.install.skip>true</maven.install.skip>
-    </properties>
-
     <build>
         <plugins>
             <plugin>
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok-maven-plugin</artifactId>
             </plugin>
+
+            <!-- Skip creation of jar -->
+            <plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.3.1</version>
+                <executions>
+                    <execution>
+                        <id>default-jar</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
+
+
     </build>
 
     <dependencies>

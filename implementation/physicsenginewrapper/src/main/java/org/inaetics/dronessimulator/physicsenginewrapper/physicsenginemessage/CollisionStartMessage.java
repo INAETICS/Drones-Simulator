@@ -6,7 +6,7 @@ import lombok.Getter;
 import org.inaetics.dronessimulator.common.protocol.CollisionMessage;
 import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
 import org.inaetics.dronessimulator.physicsengine.Entity;
-import org.inaetics.dronessimulator.physicsenginewrapper.state.PhysicsEngineStateManager;
+import org.inaetics.dronessimulator.physicsenginewrapper.state.GameStateManager;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +18,7 @@ public class CollisionStartMessage extends PhysicsEngineMessage {
     private final Entity e2;
 
     @Override
-    public List<ProtocolMessage> getProtocolMessage(PhysicsEngineStateManager stateManager) {
+    public List<ProtocolMessage> getProtocolMessage(GameStateManager stateManager) {
         CollisionMessage msg = new CollisionMessage();
 
         msg.setE1Id(this.e1.getId());

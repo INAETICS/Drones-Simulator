@@ -6,7 +6,7 @@ import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
 import org.inaetics.dronessimulator.physicsenginewrapper.physicsenginemessage.PhysicsEngineMessage;
 import org.inaetics.dronessimulator.physicsenginewrapper.ruleprocessors.message.RuleMessage;
-import org.inaetics.dronessimulator.physicsenginewrapper.state.PhysicsEngineStateManager;
+import org.inaetics.dronessimulator.physicsenginewrapper.state.GameStateManager;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 
 import java.io.IOException;
@@ -29,7 +29,7 @@ public class SendMessages extends Processor {
     }
 
     @Override
-    public void process(PhysicsEngineStateManager stateManager, PhysicsEngineMessage msg, List<RuleMessage> results) {
+    public void process(GameStateManager stateManager, PhysicsEngineMessage msg, List<RuleMessage> results) {
         // Send physics engine msg
         trace(msg.getProtocolMessage(stateManager)).forEach(this::sendProtocolMessage);
         // Send messages resulting from ruleset

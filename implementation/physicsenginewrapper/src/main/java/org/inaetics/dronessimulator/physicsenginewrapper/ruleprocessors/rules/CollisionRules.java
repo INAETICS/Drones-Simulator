@@ -9,19 +9,19 @@ import org.inaetics.dronessimulator.physicsenginewrapper.ruleprocessors.message.
 import org.inaetics.dronessimulator.physicsenginewrapper.ruleprocessors.message.RuleMessage;
 import org.inaetics.dronessimulator.physicsenginewrapper.state.Bullet;
 import org.inaetics.dronessimulator.physicsenginewrapper.state.Drone;
-import org.inaetics.dronessimulator.physicsenginewrapper.state.PhysicsEngineEntity;
-import org.inaetics.dronessimulator.physicsenginewrapper.state.PhysicsEngineStateManager;
+import org.inaetics.dronessimulator.physicsenginewrapper.state.GameEntity;
+import org.inaetics.dronessimulator.physicsenginewrapper.state.GameStateManager;
 
 import java.util.List;
 
 public class CollisionRules extends Processor {
     public static final int collisionDmg = 20;
 
-    public void process(PhysicsEngineStateManager stateManager, PhysicsEngineMessage msg, List<RuleMessage> results) {
+    public void process(GameStateManager stateManager, PhysicsEngineMessage msg, List<RuleMessage> results) {
         if(msg instanceof CollisionStartMessage) {
             CollisionStartMessage collision = (CollisionStartMessage) msg;
-            PhysicsEngineEntity e1 = stateManager.getById(collision.getE1().getId());
-            PhysicsEngineEntity e2 = stateManager.getById(collision.getE2().getId());
+            GameEntity e1 = stateManager.getById(collision.getE1().getId());
+            GameEntity e2 = stateManager.getById(collision.getE2().getId());
             EntityType e1Type = e1.getType();
             EntityType e2Type = e2.getType();
 

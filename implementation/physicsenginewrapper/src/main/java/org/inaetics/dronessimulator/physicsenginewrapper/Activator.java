@@ -37,3 +37,12 @@ public class Activator extends DependencyActivatorBase {
         }
     }
 }
+
+/**
+ * TODO: Refactor all driver code to seperate physicsengine driver module
+ *       Make sure physicsenginemessage do not use any physicsengine imports (maybe even rename to GameMessages?)
+ *       Refactor all ruleprocessors to seperate module
+ *       Make GameStateManager update physicsengine upon adding, changing or removing GameEntity (watch concurrency!)
+ *       Documentation
+ *       Tests
+ */

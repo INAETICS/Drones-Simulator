@@ -7,9 +7,8 @@ import org.inaetics.dronessimulator.physicsenginewrapper.ruleprocessors.message.
 import org.inaetics.dronessimulator.physicsenginewrapper.ruleprocessors.rules.CollisionRules;
 import org.inaetics.dronessimulator.physicsenginewrapper.ruleprocessors.rules.SendMessages;
 import org.inaetics.dronessimulator.physicsenginewrapper.ruleprocessors.rules.UpdateState;
-import org.inaetics.dronessimulator.physicsenginewrapper.state.PhysicsEngineStateManager;
+import org.inaetics.dronessimulator.physicsenginewrapper.state.GameStateManager;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
-import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,14 +16,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 public class RuleProcessors extends Thread {
     private final LinkedBlockingQueue<PhysicsEngineMessage> incomingMessages;
-    private final PhysicsEngineStateManager stateManager;
+    private final GameStateManager stateManager;
     private final Publisher publisher;
 
     private final UpdateState updateState;
     private final CollisionRules collisionRules;
     private final SendMessages sendMessages;
 
-    public RuleProcessors(LinkedBlockingQueue<PhysicsEngineMessage> incomingMessages, PhysicsEngineStateManager stateManager, Publisher publisher) {
+    public RuleProcessors(LinkedBlockingQueue<PhysicsEngineMessage> incomingMessages, GameStateManager stateManager, Publisher publisher) {
         this.incomingMessages = incomingMessages;
         this.stateManager = stateManager;
         this.publisher = publisher;

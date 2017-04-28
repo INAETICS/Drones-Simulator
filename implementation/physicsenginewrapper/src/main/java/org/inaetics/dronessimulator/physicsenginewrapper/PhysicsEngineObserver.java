@@ -11,29 +11,49 @@ import org.inaetics.dronessimulator.physicsenginewrapper.physicsenginemessage.Ph
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
+/**
+ * An observer for the {@link org.inaetics.dronessimulator.physicsengine.PhysicsEngine}.
+ * Wraps any events into a {@link org.inaetics.dronessimulator.physicsenginewrapper.physicsenginemessage} message
+ * and puts it into the outgoingQueue for further processing.
+ */
 @Getter
 public class PhysicsEngineObserver implements PhysicsEngineEventObserver {
     private final LinkedBlockingQueue<PhysicsEngineMessage> outgoingQueue;
 
-    public PhysicsEngineObserver() {
-        this.outgoingQueue = new LinkedBlockingQueue<>();
+    /**
+     * Create an observer and send all events to the outgoingQueue
+     * @param outgoingQueue Send all events to this queue
+     */
+    public PhysicsEngineObserver(LinkedBlockingQueue<PhysicsEngineMessage> outgoingQueue) {
+        this.outgoingQueue = outgoingQueue;
     }
 
+    /**
+     * How to handle a collision start event. Send to outgoingqueue.
+     * @param e1 First entity in the collision
+     * @param e2 Second entity in the collision
+     */
     @Override
     public void collisionStartHandler(Entity e1, Entity e2) {
-        System.out.println("COLLISION START");
         this.outgoingQueue.add(new CollisionStartMessage(e1, e2));
     }
 
+    /**
+     * How to handle a collision stop event. Send to outgoingqueue.
+     * @param e1 First entity in the ended collision
+     * @param e2 Second entity in the ended collision
+     */
     @Override
     public void collisionStopHandler(Entity e1, Entity e2) {
-        System.out.println("COLLISION STOP");
         this.outgoingQueue.add(new CollisionEndMessage(e1, e2));
     }
 
+    /**
+     * How to handle a broadcast state event. Send to outgoingqueue
+     * @param currentState All information about all entities. Deepcopy so no link to state in physicsengine.
+     */
     @Override
     public void broadcastStateHandler(List<Entity> currentState) {
-        System.out.println("BROADCAST STATE");
         this.outgoingQueue.add(new CurrentStateMessage(currentState));
     }
 }

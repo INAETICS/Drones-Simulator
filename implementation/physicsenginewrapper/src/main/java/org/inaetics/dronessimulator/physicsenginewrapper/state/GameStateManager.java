@@ -12,16 +12,16 @@ import java.util.stream.Collectors;
 import org.apache.log4j.Logger;
 
 @Getter
-public class PhysicsEngineStateManager {
-    private final HashMap<Integer, PhysicsEngineEntity> state;
+public class GameStateManager {
+    private final HashMap<Integer, GameEntity> state;
 
 
-    public PhysicsEngineStateManager() {
+    public GameStateManager() {
         this.state = new HashMap<>();
     }
 
 
-    public void addEntityState(PhysicsEngineEntity entity) {
+    public void addEntityState(GameEntity entity) {
         int id = entity.getEntityId();
 
         this.state.put(id, entity);
@@ -35,11 +35,11 @@ public class PhysicsEngineStateManager {
         return this.state.get(id).getType();
     }
 
-    public PhysicsEngineEntity getById(Integer id) {
+    public GameEntity getById(Integer id) {
         return this.state.get(id);
     }
 
-    public List<PhysicsEngineEntity> getWithType(EntityType type) {
+    public List<GameEntity> getWithType(EntityType type) {
         return this.state.entrySet()
                          .stream()
                          .map(Map.Entry::getValue)
@@ -50,12 +50,12 @@ public class PhysicsEngineStateManager {
     public void updateState(List<Entity> entities) {
         for(Entity entity : entities) {
             int id = entity.getId();
-            PhysicsEngineEntity stateEntity = this.state.get(id);
+            GameEntity stateEntity = this.state.get(id);
 
             if(stateEntity != null) {
                 stateEntity.updateFromEngine(entity);
             } else {
-                Logger.getLogger(PhysicsEngineStateManager.class).fatal("Tried to update complete state. Found entity in engine which is not in state. Engine id: " + id);
+                Logger.getLogger(GameStateManager.class).fatal("Tried to update complete state. Found entity in engine which is not in state. Engine id: " + id);
             }
 
         }

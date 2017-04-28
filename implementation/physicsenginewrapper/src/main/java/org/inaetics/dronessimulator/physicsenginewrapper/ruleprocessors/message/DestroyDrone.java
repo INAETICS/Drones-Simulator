@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.ToString;
 import org.inaetics.dronessimulator.common.protocol.KillMessage;
 import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
-import org.inaetics.dronessimulator.physicsenginewrapper.state.PhysicsEngineStateManager;
+import org.inaetics.dronessimulator.physicsenginewrapper.state.GameStateManager;
 
 import java.util.Collections;
 import java.util.List;
@@ -18,7 +18,7 @@ public class DestroyDrone extends RuleMessage {
     private final int id;
 
     @Override
-    public List<ProtocolMessage> getProtocolMessage(PhysicsEngineStateManager stateManager) {
+    public List<ProtocolMessage> getProtocolMessage(GameStateManager stateManager) {
         KillMessage msg = new KillMessage();
 
         msg.setEntityId(this.id);

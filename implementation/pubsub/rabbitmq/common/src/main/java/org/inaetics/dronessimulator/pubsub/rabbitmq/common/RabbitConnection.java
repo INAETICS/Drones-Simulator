@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.common;
 
 import com.rabbitmq.client.*;
+import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
 
@@ -62,14 +63,17 @@ public abstract class RabbitConnection {
         if (!isConnected()) {
             try {
                 connection = connectionFactory.newConnection();
+                getLogger().info("Connected to RabbitMQ");
             } catch (ConnectException | TimeoutException e) {
-                e.printStackTrace();
+                getLogger().error("Could not connect to RabbitMQ: {}", e.getMessage());
                 throw new IOException(e);
             }
 
             channel = connection.createChannel();
 
             declaredTopics.clear();
+        } else {
+            getLogger().debug("Attempted to connect to RabbitMQ while already connected");
         }
     }
 
@@ -81,12 +85,16 @@ public abstract class RabbitConnection {
             // Close the channel if necessary
             if (isConnected()) {
                 channel.close();
+                getLogger().debug("RabbitMQ channel closed");
             }
 
             connection.close();
+            getLogger().info("RabbitMQ connection closed");
         } catch (AlreadyClosedException ignored) {
             // Good! We are already done.
+            getLogger().debug("Attempted to disconnect from RabbitMQ while already disconnected.");
         } catch (TimeoutException e) {
+            getLogger().debug("Error while disconnecting from RabbitMQ: {}", e.getMessage());
             throw new IOException(e);
         }
     }
@@ -97,6 +105,7 @@ public abstract class RabbitConnection {
      * Calls disconnect and connect in this order.
      */
     public void reconnect() throws IOException {
+        getLogger().info("Reconnecting to RabbitMQ");
         // First disconnect, then connect
         this.disconnect();
         this.connect();
@@ -123,6 +132,7 @@ public abstract class RabbitConnection {
         if (!declaredTopics.contains(topic)) {
             channel.exchangeDeclare(topic.getName(), BuiltinExchangeType.FANOUT, false);
             declaredTopics.add(topic);
+            getLogger().debug("RabbitMQ exchange {} declared", topic.getName());
         }
     }
 
@@ -141,4 +151,9 @@ public abstract class RabbitConnection {
     public Serializer getSerializer() {
         return serializer;
     }
+
+    /**
+     * @return The logger for this class.
+     */
+    protected abstract Logger getLogger();
 }

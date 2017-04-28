@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.discovery.etcd;
 
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyManager;
+import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.discovery.api.DiscoveredConfig;
 
 import java.util.*;
@@ -10,6 +11,8 @@ import java.util.*;
  * Discovers configurations and publishes these as services.
  */
 public class EtcdConfigDiscoverer implements Runnable {
+    private static final Logger logger = Logger.getLogger(EtcdConfigDiscoverer.class);
+
     /** The discoverer used to find configs. */
     private EtcdDiscoverer discoverer;
 
@@ -38,6 +41,8 @@ public class EtcdConfigDiscoverer implements Runnable {
 
     @Override
     public void run() {
+        logger.info("Started etcd config discoverer");
+
         Collection<String> currentPaths = this.configs.keySet();
 
         while(!Thread.interrupted()) {
@@ -61,6 +66,8 @@ public class EtcdConfigDiscoverer implements Runnable {
             // Update paths
             currentPaths = this.configs.keySet();
         }
+
+        logger.info("Stopping etcd config discoverer");
     }
 
     /**
@@ -68,6 +75,8 @@ public class EtcdConfigDiscoverer implements Runnable {
      * @param instancePath The instance path for the config.
      */
     private void registerInstance(String instancePath) {
+        logger.debug("Registering {} as a discovered config", instancePath);
+
         // Split path
         String[] pathSegments = EtcdDiscoverer.splitInstancePath(instancePath);
         String type = pathSegments[0];
@@ -91,6 +100,7 @@ public class EtcdConfigDiscoverer implements Runnable {
                 .setImplementation(config);
         this.components.put(config, component);
         this.dependencyManager.add(component);
+        logger.info("Discovered config {} {} has become available", name, String.format("(type=%s group=%s)", type, group));
     }
 
     /**
@@ -98,11 +108,14 @@ public class EtcdConfigDiscoverer implements Runnable {
      * @param instancePath The instance path for the config.
      */
     private void unregisterInstance(String instancePath) {
+        logger.debug("Unregistering {} as a discovered config", instancePath);
+
         DiscoveredConfig config = this.configs.get(instancePath);
         Component component = this.components.get(config);
 
         // Remove component from dependency manager
         this.dependencyManager.remove(component);
+        logger.info("Discovered config for {} has been removed", instancePath);
 
         // Clean up in case the instance comes back
         this.components.remove(config);

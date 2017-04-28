@@ -8,6 +8,7 @@ import mousio.etcd4j.responses.EtcdAuthenticationException;
 import mousio.etcd4j.responses.EtcdErrorCode;
 import mousio.etcd4j.responses.EtcdException;
 import mousio.etcd4j.responses.EtcdKeysResponse;
+import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
@@ -24,6 +25,8 @@ import java.util.concurrent.TimeoutException;
  * Discoverer implementation which uses etcd.
  */
 public class EtcdDiscoverer implements Discoverer {
+    private static final Logger logger = Logger.getLogger(EtcdDiscoverer.class);
+
     /** Prefix for all etcd paths. */
     private static final String PATH_PREFIX = "/";
 
@@ -47,6 +50,10 @@ public class EtcdDiscoverer implements Discoverer {
         this.myInstances = new HashMap<>();
         this.client = new EtcdClient(uri);
 
+        // Log server version
+        String serverVersion = this.client.version().getServer();
+        logger.info("Discoverer connected with etcd at {}, server version {}", uri.toString(), serverVersion);
+
         // Do not retry too many times or wait too long
         this.client.setRetryHandler(new RetryOnce(1000));
 
@@ -60,6 +67,7 @@ public class EtcdDiscoverer implements Discoverer {
     @Override
     public void register(Instance instance) throws DuplicateName, IOException {
         String path = buildInstancePath(instance);
+        logger.debug("Registering instance {} at path {}", instance, path);
 
         try {
             // Send request and wait for a response
@@ -101,6 +109,7 @@ public class EtcdDiscoverer implements Discoverer {
 
         for (Map.Entry<String, String> entry : instance.getProperties().entrySet()) {
             try {
+                logger.debug("Setting property for instance {}: {}", instance, String.format("%s = %s", entry.getKey(), entry.getValue()));
                 promise = this.client.put(buildPath(path, entry.getKey()), entry.getValue()).send();
                 promise.get();
             } catch (EtcdException | TimeoutException | EtcdAuthenticationException e) {
@@ -116,29 +125,34 @@ public class EtcdDiscoverer implements Discoverer {
      * @throws IOException An error occurred.
      */
     private String registerDiscoverableConfig(Instance instance) throws IOException {
+        String path;
+
         if (!this.myInstances.containsKey(instance)) {
             String instancePath = buildInstancePath(instance);
             String dirPath = buildPath(DISCOVERABLE_CONFIG_DIR);
 
-            String path = null;
+            logger.debug("Registering discoverable configuration for instance {} at {}", instance, instancePath);
 
             try {
                 EtcdResponsePromise<EtcdKeysResponse> promise = this.client.post(dirPath, instancePath).send();
                 EtcdKeysResponse keys = promise.get();
                 path = keys.node.key;
+                logger.debug("Registered instance {} as discoverable at {}", instance, path);
             } catch (EtcdException | EtcdAuthenticationException | TimeoutException e) {
                 throw new IOException(e);
             }
-
-            return path;
         } else {
-            return this.myInstances.get(instance);
+            path = this.myInstances.get(instance);
         }
+
+        return path;
     }
 
     @Override
     public void unregister(Instance instance) throws IOException {
         String path = buildInstancePath(instance);
+
+        logger.debug("Unregistering instance {} from {}", instance, path);
 
         String discoverablePath = this.myInstances.getOrDefault(instance, null);
 
@@ -147,6 +161,7 @@ public class EtcdDiscoverer implements Discoverer {
             try {
                 EtcdResponsePromise promise = this.client.delete(discoverablePath).send();
                 promise.get();
+                logger.debug("Unregistered instance {} as discoverable", instance);
             } catch (EtcdException | TimeoutException | EtcdAuthenticationException e) {
                 throw new IOException(e);
             }
@@ -160,12 +175,16 @@ public class EtcdDiscoverer implements Discoverer {
         }
 
         this.myInstances.remove(instance);
+
+        logger.debug("Unregistered instance {}", instance);
     }
 
     /**
      * (Re)registers all instances that were previously registered.
      */
     public void registerAll() throws IOException {
+        logger.info("Reregistering all {} known instances", this.myInstances.size());
+
         for (Instance instance : this.myInstances.keySet()) {
             try {
                 this.register(instance);
@@ -180,6 +199,7 @@ public class EtcdDiscoverer implements Discoverer {
      * Unregisters all previously registered instances.
      */
     public void unregisterAll() throws IOException {
+        logger.info("Unregistering all {} known instances", this.myInstances.size());
         for (Instance instance : this.myInstances.keySet()) {
                 this.unregister(instance);
         }
@@ -206,6 +226,7 @@ public class EtcdDiscoverer implements Discoverer {
             }
         } catch (IOException | EtcdException | EtcdAuthenticationException | TimeoutException ignored) {
             // Just return an empty map
+            logger.error("No data could be retrieved from etcd, returning an empty map for type {}", type);
         }
 
         return forType;
@@ -226,6 +247,7 @@ public class EtcdDiscoverer implements Discoverer {
             }
         } catch (IOException | EtcdException | EtcdAuthenticationException | TimeoutException ignored) {
             // Just return an empty collection
+            logger.error("No data could be retrieved from etcd, returning an empty collection for type {} and group {}", type, group);
         }
 
         return forGroup;
@@ -246,6 +268,7 @@ public class EtcdDiscoverer implements Discoverer {
             }
         } catch (IOException | EtcdException | EtcdAuthenticationException | TimeoutException ignored) {
             // Just return an empty map
+            logger.error("No data could be retrieved from etcd, returning an empty map for instance with path {}", path);
         }
 
         return properties;
@@ -267,6 +290,7 @@ public class EtcdDiscoverer implements Discoverer {
 
             // Wait for change if needed
             if (wait && this.discoverableConfigModifiedIndex != null) {
+                logger.debug("Waiting for changes in discoverable configs at {}", path);
                 request = request.waitForChange(this.discoverableConfigModifiedIndex);
             }
 
@@ -278,10 +302,12 @@ public class EtcdDiscoverer implements Discoverer {
 
                 if (wait) {
                     this.discoverableConfigModifiedIndex = keys.node.modifiedIndex;
+                    logger.info("Updated last seen change to {}", this.discoverableConfigModifiedIndex);
                 }
             }
         } catch (IOException | EtcdException | EtcdAuthenticationException | TimeoutException ignored) {
             // Just return an empty set
+            logger.error("No data could be retrieved from etcd, returning an empty collection of discoverble configurations");
         }
 
         return instances;

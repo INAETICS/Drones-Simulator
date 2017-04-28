@@ -39,10 +39,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <!-- This should fix some issues with the etcd client in OSGI -->
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-            <version>1.7.21</version>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
         </dependency>
     </dependencies>
 

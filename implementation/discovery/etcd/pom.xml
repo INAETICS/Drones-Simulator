@@ -33,6 +33,17 @@
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.dependencymanager</artifactId>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <!-- This should fix some issues with the etcd client in OSGI -->
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.21</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -45,7 +56,7 @@
                     <instructions>
                         <Export-Package>org.inaetics.dronessimulator.discovery.etcd</Export-Package>
                         <Bundle-Activator>org.inaetics.dronessimulator.discovery.etcd.Activator</Bundle-Activator>
-                        <Embed-Dependency>api;groupId=org.inaetics.dronessimulator.discovery;scope=compile|runtime</Embed-Dependency>
+                        <Embed-Dependency>api;groupId=org.inaetics.dronessimulator.discovery;scope=compile|runtime,etcd4j;scope=compile|runtime</Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
                 </configuration>

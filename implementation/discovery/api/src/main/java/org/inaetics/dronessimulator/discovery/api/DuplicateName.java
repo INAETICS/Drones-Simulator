@@ -7,4 +7,8 @@ public class DuplicateName extends Exception {
     public DuplicateName(Throwable t) {
         super(t);
     }
+
+    public DuplicateName(String s) {
+        super(s);
+    }
 }

@@ -42,7 +42,7 @@ public class EtcdConfigDiscoverer implements Runnable {
 
         while(!Thread.interrupted()) {
             // Wait for update in directory
-            Collection<String> collectedPaths = this.discoverer.getDiscoverableConfigs();
+            Collection<String> collectedPaths = this.discoverer.getDiscoverableConfigs(true);
             Collection<String> newPaths = new HashSet<>();
             Collection<String> stalePaths = new HashSet<>(currentPaths);
 

@@ -17,12 +17,13 @@ public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         // TODO: Make this URI dynamic
-        EtcdDiscoverer discoverer = new EtcdDiscoverer(new URI("http://localhost:2379/"));
+        EtcdDiscoverer discoverer = new EtcdDiscoverer(URI.create("http://localhost:2379/"));
 
         // Register discoverer service
         manager.add(createComponent()
                 .setInterface(Discoverer.class.getName(), null)
                 .setImplementation(discoverer)
+                .setCallbacks("init", "registerAll", "unregisterAll", "destroy")
         );
 
         // Run config discoverer

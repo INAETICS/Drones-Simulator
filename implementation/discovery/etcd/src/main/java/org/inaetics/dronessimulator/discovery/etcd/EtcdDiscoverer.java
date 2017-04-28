@@ -1,8 +1,10 @@
 package org.inaetics.dronessimulator.discovery.etcd;
 
+import mousio.client.retry.RetryOnce;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.promises.EtcdResponsePromise;
 import mousio.etcd4j.requests.EtcdKeyGetRequest;
+import mousio.etcd4j.responses.EtcdAuthenticationException;
 import mousio.etcd4j.responses.EtcdErrorCode;
 import mousio.etcd4j.responses.EtcdException;
 import mousio.etcd4j.responses.EtcdKeysResponse;
@@ -16,6 +18,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Discoverer implementation which uses etcd.
@@ -44,6 +47,9 @@ public class EtcdDiscoverer implements Discoverer {
         this.myInstances = new HashMap<>();
         this.client = new EtcdClient(uri);
 
+        // Do not retry too many times or wait too long
+        this.client.setRetryHandler(new RetryOnce(1000));
+
         // Initialize variables
         this.discoverableConfigModifiedIndex = null;
 
@@ -55,27 +61,51 @@ public class EtcdDiscoverer implements Discoverer {
     public void register(Instance instance) throws DuplicateName, IOException {
         String path = buildInstancePath(instance);
 
-        EtcdResponsePromise<EtcdKeysResponse> promise = this.client.putDir(path).prevExist(false).send();
-        Throwable exception = promise.getException();
-
-        // Check if this instance already exists
-        if (exception instanceof EtcdException && ((EtcdException) exception).isErrorCode(EtcdErrorCode.NodeExist)) {
-            throw new DuplicateName(exception);
-        } else if (exception != null) {
-            throw new IOException(exception);
-        } else {
-            // Set properties
-            instance.getProperties().forEach((key, value) -> this.client.put(buildPath(path, key), value));
-
-            // Set discoverable config if needed
-            String discoverablePath = null;
-
-            if (instance.isConfigDiscoverable()) {
-                discoverablePath = this.registerDiscoverableConfig(instance);
+        try {
+            // Send request and wait for a response
+            EtcdResponsePromise<EtcdKeysResponse> promise = this.client.putDir(path).prevExist(false).send();
+            promise.get();
+        } catch (EtcdException e) {
+            if (e.isErrorCode(EtcdErrorCode.NodeExist)) {
+                throw new DuplicateName(String.format("The name %s is already in use.", path));
+            } else {
+                throw new IOException(e);
             }
+        } catch (EtcdAuthenticationException | TimeoutException e) {
+            throw new IOException(e);
+        }
 
-            // Register instance
-            this.myInstances.put(instance, discoverablePath);
+        // Set properties
+        this.registerProperties(instance);
+
+        // Set discoverable config if needed
+        String discoverablePath = null;
+
+        if (instance.isConfigDiscoverable()) {
+            discoverablePath = this.registerDiscoverableConfig(instance);
+        }
+
+        // Register instance
+        this.myInstances.put(instance, discoverablePath);
+    }
+
+    /**
+     * Registers the properties for an instance. Assumes the instance itself already exists.
+     * @param instance The instance to register the properties of.
+     * @throws IOException An error occurred.
+     */
+    public void registerProperties(Instance instance) throws IOException {
+        String path = buildInstancePath(instance);
+
+        EtcdResponsePromise promise;
+
+        for (Map.Entry<String, String> entry : instance.getProperties().entrySet()) {
+            try {
+                promise = this.client.put(buildPath(path, entry.getKey()), entry.getValue()).send();
+                promise.get();
+            } catch (EtcdException | TimeoutException | EtcdAuthenticationException e) {
+                throw new IOException(e);
+            }
         }
     }
 
@@ -88,11 +118,19 @@ public class EtcdDiscoverer implements Discoverer {
     private String registerDiscoverableConfig(Instance instance) throws IOException {
         if (!this.myInstances.containsKey(instance)) {
             String instancePath = buildInstancePath(instance);
-            String path = buildPath(DISCOVERABLE_CONFIG_DIR);
+            String dirPath = buildPath(DISCOVERABLE_CONFIG_DIR);
 
-            EtcdResponsePromise<EtcdKeysResponse> promise = this.client.post(path, instancePath).send();
-            EtcdKeysResponse keys = promise.getNow();
-            return keys.node.key;
+            String path = null;
+
+            try {
+                EtcdResponsePromise<EtcdKeysResponse> promise = this.client.post(dirPath, instancePath).send();
+                EtcdKeysResponse keys = promise.get();
+                path = keys.node.key;
+            } catch (EtcdException | EtcdAuthenticationException | TimeoutException e) {
+                throw new IOException(e);
+            }
+
+            return path;
         } else {
             return this.myInstances.get(instance);
         }
@@ -104,12 +142,47 @@ public class EtcdDiscoverer implements Discoverer {
 
         String discoverablePath = this.myInstances.getOrDefault(instance, null);
 
+        // Unregister discoverable config
         if (instance.isConfigDiscoverable() && discoverablePath != null) {
-            this.client.delete(discoverablePath).send();
+            try {
+                EtcdResponsePromise promise = this.client.delete(discoverablePath).send();
+                promise.get();
+            } catch (EtcdException | TimeoutException | EtcdAuthenticationException e) {
+                throw new IOException(e);
+            }
         }
 
-        this.client.deleteDir(path).recursive().send();
+        try {
+            EtcdResponsePromise promise = this.client.deleteDir(path).recursive().send();
+            promise.get();
+        } catch (EtcdException | TimeoutException | EtcdAuthenticationException e) {
+            throw new IOException(e);
+        }
+
         this.myInstances.remove(instance);
+    }
+
+    /**
+     * (Re)registers all instances that were previously registered.
+     */
+    public void registerAll() throws IOException {
+        for (Instance instance : this.myInstances.keySet()) {
+            try {
+                this.register(instance);
+            } catch (DuplicateName ignored) {
+                // Already exists, but update the properties
+                this.registerProperties(instance);
+            }
+        }
+    }
+
+    /**
+     * Unregisters all previously registered instances.
+     */
+    public void unregisterAll() throws IOException {
+        for (Instance instance : this.myInstances.keySet()) {
+                this.unregister(instance);
+        }
     }
 
     @Override
@@ -120,7 +193,7 @@ public class EtcdDiscoverer implements Discoverer {
 
         try {
             EtcdResponsePromise<EtcdKeysResponse> promise = this.client.getDir(path).recursive().send();
-            EtcdKeysResponse keys = promise.getNow();
+            EtcdKeysResponse keys = promise.get();
 
             if (keys != null) {
                 keys.node.nodes.forEach(groupNode -> {
@@ -131,7 +204,7 @@ public class EtcdDiscoverer implements Discoverer {
                     });
                 });
             }
-        } catch (IOException ignored) {
+        } catch (IOException | EtcdException | EtcdAuthenticationException | TimeoutException ignored) {
             // Just return an empty map
         }
 
@@ -146,12 +219,12 @@ public class EtcdDiscoverer implements Discoverer {
 
         try {
             EtcdResponsePromise<EtcdKeysResponse> promise = this.client.getDir(path).recursive().send();
-            EtcdKeysResponse keys = promise.getNow();
+            EtcdKeysResponse keys = promise.get();
 
             if (keys != null) {
                 keys.node.nodes.forEach(node -> forGroup.add(getDirName(node.key)));
             }
-        } catch (IOException ignored) {
+        } catch (IOException | EtcdException | EtcdAuthenticationException | TimeoutException ignored) {
             // Just return an empty collection
         }
 
@@ -166,12 +239,12 @@ public class EtcdDiscoverer implements Discoverer {
 
         try {
             EtcdResponsePromise<EtcdKeysResponse> promise = this.client.getDir(path).send();
-            EtcdKeysResponse keys = promise.getNow();
+            EtcdKeysResponse keys = promise.get();
 
             if (keys != null) {
-                keys.node.nodes.forEach(node -> properties.put(node.key, node.value));
+                keys.node.nodes.forEach(node -> properties.put(getDirName(node.key), node.value));
             }
-        } catch (IOException ignored) {
+        } catch (IOException | EtcdException | EtcdAuthenticationException | TimeoutException ignored) {
             // Just return an empty map
         }
 
@@ -180,10 +253,11 @@ public class EtcdDiscoverer implements Discoverer {
 
     /**
      * Returns a collection of type, group, name triples of instances registered as discoverable configurations.
-     * Waits for changes to be made before returning.
+     * Waits for changes to be made before returning if the wait parameter is set to true.
+     * @param wait Whether to wait for changes.
      * @return A collection of triples for the registered instances.
      */
-    Collection<String> getDiscoverableConfigs() {
+    Collection<String> getDiscoverableConfigs(boolean wait) {
         Collection<String> instances = new HashSet<>();
 
         String path = buildPath(DISCOVERABLE_CONFIG_DIR);
@@ -192,18 +266,21 @@ public class EtcdDiscoverer implements Discoverer {
             EtcdKeyGetRequest request = this.client.getDir(path);
 
             // Wait for change if needed
-            if (this.discoverableConfigModifiedIndex != null) {
+            if (wait && this.discoverableConfigModifiedIndex != null) {
                 request = request.waitForChange(this.discoverableConfigModifiedIndex);
             }
 
             EtcdResponsePromise<EtcdKeysResponse> promise = request.send();
-            EtcdKeysResponse keys = promise.getNow();
+            EtcdKeysResponse keys = promise.get();
 
             if (keys != null) {
                 keys.node.nodes.forEach(node -> instances.add(node.value));
-                this.discoverableConfigModifiedIndex = keys.node.modifiedIndex;
+
+                if (wait) {
+                    this.discoverableConfigModifiedIndex = keys.node.modifiedIndex;
+                }
             }
-        } catch (IOException ignored) {
+        } catch (IOException | EtcdException | EtcdAuthenticationException | TimeoutException ignored) {
             // Just return an empty set
         }
 
@@ -235,7 +312,7 @@ public class EtcdDiscoverer implements Discoverer {
      * @return The last segment in the path.
      */
     static String getDirName(String path) {
-        return path.substring(Math.max(0, path.lastIndexOf("/")));
+        return path.substring(Math.max(0, path.lastIndexOf("/") + 1));
     }
 
     /**

@@ -9,9 +9,11 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.inaetics.dronesimulator</groupId>
+    <groupId>org.inaetics.dronessimulator</groupId>
     <artifactId>common</artifactId>
     <version>0.1</version>
+
+    <packaging>bundle</packaging>
 
     <build>
         <plugins>
@@ -23,6 +25,11 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
             </plugin>
         </plugins>
     </build>

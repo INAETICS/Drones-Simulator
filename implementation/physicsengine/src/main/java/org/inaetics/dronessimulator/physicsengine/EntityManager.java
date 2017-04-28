@@ -1,21 +1,19 @@
 package org.inaetics.dronessimulator.physicsengine;
 
 
+import lombok.Getter;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.EntityUpdate;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-/*
-    Only thread-safe when entities is locked
- */
-public class EntityManager {
+@Getter
+class EntityManager {
     private final Map<Integer, ConcurrentLinkedQueue<EntityUpdate>> updateMap;
     private final ConcurrentLinkedQueue<EntityCreation> creationList;
     private final ConcurrentLinkedQueue<Integer> removalList;
 
     private final Map<Integer, Entity> entities;
-    private final Object entitiesLock;
 
     public EntityManager() {
         this.creationList = new ConcurrentLinkedQueue<>();
@@ -23,29 +21,38 @@ public class EntityManager {
         this.removalList = new ConcurrentLinkedQueue<>();
 
         this.entities = new HashMap<>(100);
-        this.entitiesLock = new Object();
-    }
-
-    public Object entitiesLock() {
-        return this.entitiesLock;
     }
 
     public void addInserts(Collection<EntityCreation> creations) {
         this.creationList.addAll(creations);
     }
 
+    public void addInsert(EntityCreation creation) {
+        this.creationList.add(creation);
+    }
+
     public void addUpdates(Integer entityId, Collection<EntityUpdate> updates) {
+        this.updateMap.putIfAbsent(entityId, new ConcurrentLinkedQueue<>());
         this.updateMap.get(entityId).addAll(updates);
+    }
+
+    public void addUpdate(Integer entityId, EntityUpdate update) {
+        this.updateMap.putIfAbsent(entityId, new ConcurrentLinkedQueue<>());
+        this.updateMap.get(entityId).add(update);
     }
 
     public void addRemovals(Collection<Integer> removals) {
         this.removalList.addAll(removals);
-     }
+    }
+
+    public void addRemoval(Integer removal) {
+        this.removalList.add(removal);
+    }
 
     private void processInsertNew() {
         while(!creationList.isEmpty()) {
             Entity entity = creationList.poll().getNewEntity();
-            updateMap.put(entity.getId(), new ConcurrentLinkedQueue<>());
+            updateMap.putIfAbsent(entity.getId(), new ConcurrentLinkedQueue<>());
             entities.put(entity.getId(), entity);
         }
     }
@@ -67,10 +74,6 @@ public class EntityManager {
             updateMap.remove(removeEntityId);
             entities.remove(removeEntityId);
         }
-    }
-
-    public Map<Integer, Entity> getEntitiesUnsafe() {
-        return this.entities;
     }
 
     public List<Entity> copyState() {

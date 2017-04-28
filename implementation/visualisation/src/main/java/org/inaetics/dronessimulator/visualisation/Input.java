@@ -4,6 +4,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.D3PoolCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
@@ -73,6 +74,7 @@ public class Input implements MessageHandler {
     private int i = 0;
     private long lastLog = -1;
     public synchronized void handleMessage(Message message) {
+        System.out.println("Received msg: " + message);
         i++;
 
         if(lastLog == -1) {
@@ -89,9 +91,21 @@ public class Input implements MessageHandler {
             i = 0;
         }
 
-        StateMessage stateMessage = (StateMessage) message;
-        if (stateMessage.getPosition().isPresent()) this.position = stateMessage.getPosition().get();
-        if (stateMessage.getDirection().isPresent()) this.direction = stateMessage.getDirection().get();
+        if(message instanceof StateMessage) {
+            StateMessage stateMessage = (StateMessage) message;
+
+            if (stateMessage.getPosition().isPresent()) {
+
+                this.position = stateMessage.getPosition().get();
+                System.out.println("New position: " + this.position);
+            }
+            if (stateMessage.getDirection().isPresent()) {
+                this.direction = stateMessage.getDirection().get();
+                System.out.println("New direction: " + this.direction);
+            }
+        } else {
+            Logger.getLogger(Input.class).info("Received non-state msg: " + message);
+        }
     }
 
     /**

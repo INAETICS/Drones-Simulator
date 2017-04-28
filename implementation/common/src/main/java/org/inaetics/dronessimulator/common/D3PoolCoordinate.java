@@ -1,10 +1,16 @@
 package org.inaetics.dronessimulator.common;
 
-public class D3PoolCoordinate {
+import java.io.Serializable;
+
+public class D3PoolCoordinate implements Serializable {
     public static final D3PoolCoordinate UNIT = new D3PoolCoordinate(0,0, 1);
     private final double angle1_x_y; // Between 0 and 2pi
     private final double angle2_x_z; // Between -0.5 * pi and 0.5 * pi
     private final double length;
+
+    public D3PoolCoordinate() {
+        this(0,0,1);
+    }
 
     public D3PoolCoordinate(double angle1_x_y, double angle2_x_z, double length) {
 

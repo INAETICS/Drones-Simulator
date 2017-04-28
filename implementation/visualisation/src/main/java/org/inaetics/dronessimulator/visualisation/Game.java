@@ -96,7 +96,7 @@ public class Game extends Application {
         try {
             this.subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
-
+            e.printStackTrace();
         }
 
         // register input listeners

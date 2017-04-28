@@ -2,7 +2,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-
     <parent>
         <artifactId>dronessimulator</artifactId>
         <groupId>org.inaetics</groupId>
@@ -11,7 +10,10 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.inaetics.dronessimulator</groupId>
-    <artifactId>physicsengine</artifactId>
+    <artifactId>physicsenginewrapper</artifactId>
+    <version>0.1</version>
+
+    <packaging>bundle</packaging>
 
     <build>
         <plugins>
@@ -19,27 +21,35 @@
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok-maven-plugin</artifactId>
             </plugin>
-
-            <!-- Skip creation of jar -->
             <plugin>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.3.1</version>
-                <executions>
-                    <execution>
-                        <id>default-jar</id>
-                        <phase>none</phase>
-                    </execution>
-                </executions>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>org.inaetics.dronessimulator.physicsenginewrapper.*</Export-Package>
+                        <Private-Package>org.inaetics.dronessimulator.physicsengine.*</Private-Package>
+                        <Bundle-Activator>org.inaetics.dronessimulator.physicsenginewrapper.Activator</Bundle-Activator>
+                    </instructions>
+                </configuration>
             </plugin>
         </plugins>
-
-
     </build>
 
     <dependencies>
         <dependency>
             <groupId>org.inaetics.dronessimulator</groupId>
             <artifactId>common</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator</groupId>
+            <artifactId>physicsengine</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.pubsub</groupId>
+            <artifactId>pubsub-api</artifactId>
             <version>0.1</version>
         </dependency>
         <dependency>

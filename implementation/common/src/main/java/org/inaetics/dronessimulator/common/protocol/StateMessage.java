@@ -3,6 +3,8 @@ package org.inaetics.dronessimulator.common.protocol;
 import org.inaetics.dronessimulator.common.D3PoolCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -51,5 +53,19 @@ public class StateMessage extends ProtocolMessage {
 
     public void setAcceleration(D3Vector acceleration) {
         this.acceleration = acceleration;
+    }
+
+    @Override
+    public List<MessageTopic> getTopics() {
+        List<MessageTopic> topics = new ArrayList<>();
+
+        topics.add(MessageTopic.STATEUPDATES);
+
+        return topics;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("(StateMessage %s, %s, %s, %s)", this.position, this.direction, this.velocity, this.acceleration);
     }
 }

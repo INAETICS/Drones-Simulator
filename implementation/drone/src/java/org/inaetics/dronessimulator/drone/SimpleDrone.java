@@ -13,11 +13,19 @@ public class SimpleDrone extends Drone {
     /**
      *  -- FUNCTIONS
      */
-    void recalculatAcceleration(){
+    void recalculateAcceleration(){
         D3Vector current_acceleration =  this.getAcceleration();
         D3Vector current_velocity = this.getVelocity();
         D3Vector output_acceleration = this.getAcceleration();
         D3Vector current_position = this.getPosition();
+
+        //
+        if (current_acceleration.length() == 0 && current_velocity.length() == 0 && current_position.length() == 0){
+            double x = ThreadLocalRandom.current().nextDouble(-MAX_ACCELERATION, MAX_ACCELERATION);
+            double y = ThreadLocalRandom.current().nextDouble(-MAX_ACCELERATION, MAX_ACCELERATION);
+            double z = ThreadLocalRandom.current().nextDouble(-MAX_ACCELERATION, MAX_ACCELERATION);
+            output_acceleration = new D3Vector(x, y, z);
+        }
 
         // Check velocity
         if (current_velocity.length() >= MAX_VELOCITY){
@@ -29,21 +37,8 @@ public class SimpleDrone extends Drone {
             double factor = 0.25;
             output_acceleration = current_acceleration.scale(factor);
         }
-        
-        // Speed up acceleration if position is far from 'wall' and velocity is towards wall
-            // only if movement is towards wall
 
-        // Slow down acceleration if position is close to 'wall' and velocity is towards wall
-        //if(abs(current_position.getX()) == MAX_DEVIATION_POSTION ||
-         //       abs(current_position.getY()) == MAX_DEVIATION_POSTION ||
-         //       abs(current_position.getZ() == MAX_DEVIATION_POSTION)){
-         //   if(/** Move towards wall*/){
-         //       // Slow down acceleration + how to determine factor?
-         //   }
-        //}
-            // only if movements is towards wall
-
-        // Check postions | if maximum deviation is archieved then change acceleration in opposite direction
+        // Check positions | if maximum deviation is archieved then change acceleration in opposite direction
         if (Math.abs(current_position.getX()) >= MAX_DEVIATION_POSTION){
             double x = (- current_velocity.getX()) * ThreadLocalRandom.current().nextDouble(-RANGE_FACTOR, RANGE_FACTOR);
             output_acceleration = new D3Vector(x, current_acceleration.getY(),current_acceleration.getZ());

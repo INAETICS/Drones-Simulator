@@ -1,12 +1,12 @@
 package org.inaetics.dronessimulator.drone;
 import org.inaetics.dronessimulator.common.protocol.*;
 import org.inaetics.dronessimulator.common.*;
-import org.inaetics.dronessimulator.pubsub.api.Message;
-import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
+import org.inaetics.dronessimulator.drone.handlers.StateMessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.publisher.*;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.*;
 
 import java.io.IOException;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Represents a drone in the system.
@@ -19,12 +19,7 @@ public abstract class Drone{
     private D3Vector velocity;
     private D3Vector acceleration;
 
-
-    private static final int MAX_DEVIATION_POSTION = 1000;
-    private static final int MAX_VELOCITY = 100;
-    private static final int MAX_ACCELERATION = 10;
-    private static final double RANGE_FACTOR = 0.2;
-
+    private StateMessage state_message;
 
     /** --- CONSTRUCTOR */
     public Drone() {
@@ -32,21 +27,18 @@ public abstract class Drone{
     }
 
     public Drone(D3Vector p){
-        System.out.println("Drone is CREATED");
         this.position = p;
         this.velocity = new D3Vector();
         this.acceleration = new D3Vector();
     }
 
     public void init() {
-        System.out.println("Start INIT");
-        this.m_subscriber.addHandler(StateMessage.class, new StateMessageHandler());
         try {
             this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
             System.out.println("IO Exception add Topic");
         }
-        System.out.println("End INIT");
+        this.m_subscriber.addHandler(StateMessage.class, new StateMessageHandler());
         //this.calculateTactics();
     }
 
@@ -67,6 +59,8 @@ public abstract class Drone{
         return acceleration;
     }
 
+    public StateMessage getStateMessage(){ return state_message; }
+
     /**
      * -- SETTERS
      */
@@ -82,23 +76,20 @@ public abstract class Drone{
             acceleration = new_acceleration;
     }
 
+    public void setStateMessage(StateMessage new_state_message){ state_message = new_state_message; }
+
     /**
      * -- FUNCTIONS
      * */
-    abstract void recalculatAcceleration();
+    abstract void recalculateAcceleration();
 
 
     private void calculateTactics(){
-        this.recalculatAcceleration();
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-        }
+        this.recalculateAcceleration();
         this.sendTactics();
     }
 
     private synchronized void sendTactics(){
-        System.out.println("Prepare Tactics message." + this.getAcceleration());
         MovementMessage msg = new MovementMessage();
         msg.setAcceleration(this.getAcceleration());
         try {
@@ -106,7 +97,6 @@ public abstract class Drone{
         } catch (IOException e) {
             System.out.println("Exception");
         }
-        System.out.println("Tactics are send.");
     }
 
 

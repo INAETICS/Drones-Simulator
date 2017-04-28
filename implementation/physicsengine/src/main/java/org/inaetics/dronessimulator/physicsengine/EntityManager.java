@@ -1,14 +1,13 @@
 package org.inaetics.dronessimulator.physicsengine;
 
 
+import lombok.Getter;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.EntityUpdate;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-/*
-    Only thread-safe when entities is locked
- */
+@Getter
 class EntityManager {
     private final Map<Integer, ConcurrentLinkedQueue<EntityUpdate>> updateMap;
     private final ConcurrentLinkedQueue<EntityCreation> creationList;
@@ -28,18 +27,32 @@ class EntityManager {
         this.creationList.addAll(creations);
     }
 
+    public void addInsert(EntityCreation creation) {
+        this.creationList.add(creation);
+    }
+
     public void addUpdates(Integer entityId, Collection<EntityUpdate> updates) {
+        this.updateMap.putIfAbsent(entityId, new ConcurrentLinkedQueue<>());
         this.updateMap.get(entityId).addAll(updates);
+    }
+
+    public void addUpdate(Integer entityId, EntityUpdate update) {
+        this.updateMap.putIfAbsent(entityId, new ConcurrentLinkedQueue<>());
+        this.updateMap.get(entityId).add(update);
     }
 
     public void addRemovals(Collection<Integer> removals) {
         this.removalList.addAll(removals);
-     }
+    }
+
+    public void addRemoval(Integer removal) {
+        this.removalList.add(removal);
+    }
 
     private void processInsertNew() {
         while(!creationList.isEmpty()) {
             Entity entity = creationList.poll().getNewEntity();
-            updateMap.put(entity.getId(), new ConcurrentLinkedQueue<>());
+            updateMap.putIfAbsent(entity.getId(), new ConcurrentLinkedQueue<>());
             entities.put(entity.getId(), entity);
         }
     }
@@ -61,10 +74,6 @@ class EntityManager {
             updateMap.remove(removeEntityId);
             entities.remove(removeEntityId);
         }
-    }
-
-    public Map<Integer, Entity> getEntitiesUnsafe() {
-        return this.entities;
     }
 
     public List<Entity> copyState() {

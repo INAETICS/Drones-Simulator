@@ -59,7 +59,7 @@ public class PhysicsEngine extends Thread {
     }
 
     private void stageMove(double timestep_s) {
-        Map<Integer, Entity> entities = this.entityManager.getEntitiesUnsafe();
+        Map<Integer, Entity> entities = this.entityManager.getEntities();
 
         for(Map.Entry<Integer, Entity> e1 : entities.entrySet()) {
             Entity entity = e1.getValue();
@@ -110,6 +110,7 @@ public class PhysicsEngine extends Thread {
         long last_broadcast_ms = this.current_step_started_at_ms - this.last_state_broadcast_at_ms;
 
         if(this.broadcast_state_every_ms >= 0 && last_broadcast_ms >= this.broadcast_state_every_ms) {
+            System.out.println("PHYSICS ENGINE SHOULD BROADCAST");
             observer.broadcastStateHandler(this.entityManager.copyState());
             this.last_state_broadcast_at_ms = this.current_step_started_at_ms;
         }
@@ -154,8 +155,22 @@ public class PhysicsEngine extends Thread {
     /*
         @thread-safe
      */
+    public void addInsert(EntityCreation creation) {
+        this.entityManager.addInsert(creation);
+    }
+
+    /*
+        @thread-safe
+     */
     public void addUpdates(Integer entityId, Collection<EntityUpdate> updates) {
         this.entityManager.addUpdates(entityId, updates);
+    }
+
+    /*
+        @thread-safe
+     */
+    public void addUpdate(Integer entityId, EntityUpdate update) {
+       this.entityManager.addUpdate(entityId, update);
     }
 
     /*
@@ -164,6 +179,13 @@ public class PhysicsEngine extends Thread {
     public void addRemovals(Collection<Integer> removals) {
         this.entityManager.addRemovals(removals);
      }
+
+    /*
+        @thread-safe
+    */
+    public void addRemoval(Integer removal) {
+        this.entityManager.addRemoval(removal);
+    }
 
     /*
         @thread-safe

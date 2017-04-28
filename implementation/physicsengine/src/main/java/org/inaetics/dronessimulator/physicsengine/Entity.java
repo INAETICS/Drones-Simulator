@@ -12,7 +12,7 @@ import java.util.HashMap;
 @Getter
 @Setter
 @ToString
-class Entity implements Cloneable {
+public class Entity implements Cloneable {
     // X == Width, y == depth, z == height
     private final int id;
     private final Size size;

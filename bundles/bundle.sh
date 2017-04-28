@@ -14,4 +14,5 @@ cp "$ROOT/pubsub/rabbitmq/publisher/target/rabbitmq-publisher-0.1.jar" $TARGET
 cp "$ROOT/pubsub/api/target/pubsub-api-0.1.jar" $TARGET
 cp "$ROOT/physicsenginewrapper/target/physicsenginewrapper-0.1.jar" $TARGET
 cp "$ROOT/common/target/common-0.1.jar" $TARGET
+cp "$ROOT/drone/target/drone-0.1.jar" $TARGET
 

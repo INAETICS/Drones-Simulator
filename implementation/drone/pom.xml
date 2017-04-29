@@ -31,10 +31,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package>org.inaetics.dronessimulator.drone,
-                            org.inaetics.dronessimulator.common,
-                            org.inaetics.dronessimulator.common.protocol,
-                            org.inaetics.dronessimulator.pubsub.api.*
+                        <Export-Package>org.inaetics.dronessimulator.drone.*
                         </Export-Package>
                         <Bundle-Activator>org.inaetics.dronessimulator.drone.Activator</Bundle-Activator>
                         <Embed-Transitive>true</Embed-Transitive>

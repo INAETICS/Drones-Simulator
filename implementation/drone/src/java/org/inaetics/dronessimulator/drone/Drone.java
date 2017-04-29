@@ -38,7 +38,7 @@ public abstract class Drone{
         } catch (IOException e) {
             System.out.println("IO Exception add Topic");
         }
-        this.m_subscriber.addHandler(StateMessage.class, new StateMessageHandler());
+        this.m_subscriber.addHandler(StateMessage.class, new StateMessageHandler(this));
         //this.calculateTactics();
     }
 
@@ -83,8 +83,16 @@ public abstract class Drone{
      * */
     abstract void recalculateAcceleration();
 
-
-    private void calculateTactics(){
+    public void calculateTactics(){
+        if (state_message.getPosition().isPresent()) {
+            this.setPosition(state_message.getPosition().get());
+        }
+        if (state_message.getAcceleration().isPresent()) {
+            this.setAcceleration(state_message.getAcceleration().get());
+        }
+        if (state_message.getVelocity().isPresent()) {
+            this.setVelocity(state_message.getVelocity().get());
+        }
         this.recalculateAcceleration();
         this.sendTactics();
     }

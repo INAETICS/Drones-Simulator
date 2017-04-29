@@ -8,11 +8,15 @@ import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 public class StateMessageHandler implements MessageHandler{
     private volatile Drone drone;
 
+    public StateMessageHandler(Drone d){
+        this.drone = d;
+    }
+
     public void handleMessage(Message message) {
-        System.out.println("Position retrieved.");
         if (message instanceof StateMessage){
             StateMessage stateMessage = (StateMessage) message;
             drone.setStateMessage(stateMessage);
+            drone.calculateTactics();
         }
     }
 

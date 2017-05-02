@@ -5,9 +5,9 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class SimpleDrone extends Drone {
 
-    private static final int MAX_DEVIATION_POSTION = 500;
-    private static final int MAX_VELOCITY = 100;
-    private static final int MAX_ACCELERATION = 20;
+    private static final int MAX_DEVIATION_POSTION = 400;
+    private static final int MAX_VELOCITY = 20;
+    private static final int MAX_ACCELERATION = 10;
     private static final double RANGE_FACTOR = 5;
 
     /**
@@ -67,12 +67,12 @@ public class SimpleDrone extends Drone {
 
         }
 
-        output_acceleration = limit_acceleration(output_acceleration.scale(MAX_ACCELERATION));
+        //output_acceleration = limit_acceleration(output_acceleration.scale(MAX_ACCELERATION));
 
 
         double aantal_seconden_tot_nul = current_velocity.length() / MAX_ACCELERATION;
         D3Vector berekende_vertraging = limit_acceleration(current_velocity.scale(-1));
-        D3Vector berekende_position = current_velocity.scale(Math.pow(berekende_vertraging.length() * aantal_seconden_tot_nul, 2) / 2).add(current_position);
+        D3Vector berekende_position = current_velocity.scale((1/2) * berekende_vertraging.length() * Math.pow(aantal_seconden_tot_nul, 2)).add(current_position);
 
         if (Math.abs(berekende_position.getX()-MAX_DEVIATION_POSTION) >= MAX_DEVIATION_POSTION
                 || Math.abs(berekende_position.getY()-MAX_DEVIATION_POSTION) >= MAX_DEVIATION_POSTION

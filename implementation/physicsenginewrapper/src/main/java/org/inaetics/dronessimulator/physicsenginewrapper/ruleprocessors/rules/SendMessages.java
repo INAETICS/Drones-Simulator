@@ -17,10 +17,10 @@ public class SendMessages extends Processor {
     private final Publisher publisher;
 
     private void sendProtocolMessage(ProtocolMessage msg) {
-        System.out.println("Sending message over topics " + msg.getTopics());
+        //System.out.println("Sending message over topics " + msg.getTopics());
         for(MessageTopic topic : msg.getTopics()) {
             try {
-                System.out.println("Sending message. Topic: " + topic + ", msg: " + msg);
+                //System.out.println("Sending message. Topic: " + topic + ", msg: " + msg);
                 publisher.send(topic, msg);
             } catch(IOException e) {
                 Logger.getLogger(SendMessages.class).fatal("Could not broadcast a message from SendMessages ruleset.", e);

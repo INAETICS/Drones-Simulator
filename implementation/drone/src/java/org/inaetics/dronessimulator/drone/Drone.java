@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.drone;
 import org.inaetics.dronessimulator.common.protocol.*;
 import org.inaetics.dronessimulator.common.*;
 import org.inaetics.dronessimulator.drone.handlers.StateMessageHandler;
+import org.inaetics.dronessimulator.drone.handlers.DroneHandler;
 import org.inaetics.dronessimulator.pubsub.api.publisher.*;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.*;
 
@@ -14,12 +15,15 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public abstract class Drone{
     private volatile Publisher m_publisher;
     private volatile Subscriber m_subscriber;
+    private volatile DroneHandler drone_handler;
 
     private D3Vector position;
     private D3Vector velocity;
     private D3Vector acceleration;
 
     private StateMessage state_message;
+    private static final int CALCULATE_MS = 50;
+
 
     /** --- CONSTRUCTOR */
     public Drone() {
@@ -30,6 +34,8 @@ public abstract class Drone{
         this.position = p;
         this.velocity = new D3Vector();
         this.acceleration = new D3Vector();
+        this.drone_handler = new DroneHandler(this);
+        this.state_message = new StateMessage();
     }
 
     public void init() {
@@ -39,10 +45,8 @@ public abstract class Drone{
             System.out.println("IO Exception add Topic");
         }
         this.m_subscriber.addHandler(StateMessage.class, new StateMessageHandler(this));
-        //this.calculateTactics();
+        this.drone_handler.start();
     }
-
-
 
     /**
     * -- GETTERS
@@ -59,7 +63,7 @@ public abstract class Drone{
         return acceleration;
     }
 
-    public StateMessage getStateMessage(){ return state_message; }
+    public synchronized StateMessage  getStateMessage(){ return state_message; }
 
     /**
      * -- SETTERS
@@ -76,30 +80,43 @@ public abstract class Drone{
             acceleration = new_acceleration;
     }
 
-    public void setStateMessage(StateMessage new_state_message){ state_message = new_state_message; }
+    public synchronized void setStateMessage(StateMessage new_state_message){
+        synchronized(state_message){
+            state_message = new_state_message;
+        }
+    }
 
     /**
      * -- FUNCTIONS
      * */
-    abstract void recalculateAcceleration();
+    abstract D3Vector recalculateAcceleration();
 
-    public void calculateTactics(){
-        if (state_message.getPosition().isPresent()) {
-            this.setPosition(state_message.getPosition().get());
+    public void processStateMessage(){
+        synchronized (state_message) {
+            if (getStateMessage().getPosition().isPresent()) {
+                this.setPosition(getStateMessage().getPosition().get());
+            }
+            if (getStateMessage().getAcceleration().isPresent()) {
+                this.setAcceleration(getStateMessage().getAcceleration().get());
+            }
+            if (getStateMessage().getVelocity().isPresent()) {
+                this.setVelocity(getStateMessage().getVelocity().get());
+            }
         }
-        if (state_message.getAcceleration().isPresent()) {
-            this.setAcceleration(state_message.getAcceleration().get());
-        }
-        if (state_message.getVelocity().isPresent()) {
-            this.setVelocity(state_message.getVelocity().get());
-        }
-        this.recalculateAcceleration();
-        this.sendTactics();
     }
 
-    private synchronized void sendTactics(){
+
+    public void calculateTactics(){
+        if (this.getStateMessage() != null){
+            this.processStateMessage();
+            D3Vector new_accelartion = this.recalculateAcceleration();
+            this.sendTactics(new_accelartion);
+        }
+    }
+
+    private synchronized void sendTactics(D3Vector acceleration){
         MovementMessage msg = new MovementMessage();
-        msg.setAcceleration(this.getAcceleration());
+        msg.setAcceleration(acceleration);
         try {
             m_publisher.send(MessageTopic.MOVEMENTS, msg);
         } catch (IOException e) {

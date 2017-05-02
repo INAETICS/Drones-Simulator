@@ -6,8 +6,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public class SimpleDrone extends Drone {
 
     private static final int MAX_DEVIATION_POSTION = 500;
-    private static final int MAX_VELOCITY = 50;
-    private static final int MAX_ACCELERATION = 10;
+    private static final int MAX_VELOCITY = 100;
+    private static final int MAX_ACCELERATION = 20;
     private static final double RANGE_FACTOR = 5;
 
     /**
@@ -16,8 +16,18 @@ public class SimpleDrone extends Drone {
     D3Vector limit_acceleration(D3Vector input){
         D3Vector output = input;
         // Prevent that the acceleration exteeds te maximum acceleration
-        if(input.length() >= MAX_ACCELERATION){
+        if(input.length() > MAX_ACCELERATION){
             double correctionFactor = MAX_ACCELERATION / input.length();
+            output = input.scale(correctionFactor);
+        }
+        return output;
+    }
+
+    D3Vector maximize_acceleration(D3Vector input){
+        D3Vector output = input;
+        // Prevent that the acceleration exteeds te maximum acceleration
+        if(input.length() < MAX_ACCELERATION){
+            double correctionFactor =  input.length() / MAX_ACCELERATION;
             output = input.scale(correctionFactor);
         }
         return output;
@@ -25,11 +35,13 @@ public class SimpleDrone extends Drone {
 
 
 
-    void recalculateAcceleration(){
+    D3Vector recalculateAcceleration(){
         D3Vector current_acceleration =  this.getAcceleration();
         D3Vector current_velocity = this.getVelocity();
         D3Vector output_acceleration = this.getAcceleration();
         D3Vector current_position = this.getPosition();
+
+        output_acceleration = this.maximize_acceleration(current_acceleration);
 
         //
         if (current_acceleration.length() == 0 && current_velocity.length() == 0){
@@ -50,16 +62,17 @@ public class SimpleDrone extends Drone {
             output_acceleration = current_acceleration.scale(factor);
         }
 
+        if(current_velocity.add(output_acceleration).length() <= current_velocity.length()){
+            // drone is aan het afremmen
+
+        }
+
+        output_acceleration = limit_acceleration(output_acceleration.scale(MAX_ACCELERATION));
+
 
         double aantal_seconden_tot_nul = current_velocity.length() / MAX_ACCELERATION;
-        D3Vector berekende_position = current_position;
-        D3Vector berekende_snelheid = current_velocity;
-        D3Vector berekende_vertraging = limit_acceleration(new D3Vector(-1 * berekende_snelheid.getX(), -1 * berekende_snelheid.getY(), -1 * berekende_snelheid.getZ()));
-
-        for (int i = 0; i < aantal_seconden_tot_nul; i++){
-            berekende_position = berekende_position.add(berekende_snelheid);
-            berekende_snelheid = berekende_snelheid.add(berekende_vertraging);
-        }
+        D3Vector berekende_vertraging = limit_acceleration(current_velocity.scale(-1));
+        D3Vector berekende_position = current_velocity.scale(Math.pow(berekende_vertraging.length() * aantal_seconden_tot_nul, 2) / 2).add(current_position);
 
         if (Math.abs(berekende_position.getX()-MAX_DEVIATION_POSTION) >= MAX_DEVIATION_POSTION
                 || Math.abs(berekende_position.getY()-MAX_DEVIATION_POSTION) >= MAX_DEVIATION_POSTION
@@ -69,16 +82,16 @@ public class SimpleDrone extends Drone {
 
 
         // Check positions | if maximum deviation is archieved then change acceleration in opposite direction
-        if (Math.abs(current_position.getX()-MAX_DEVIATION_POSTION) >= MAX_DEVIATION_POSTION-20
-                || Math.abs(current_position.getY()-MAX_DEVIATION_POSTION) >= MAX_DEVIATION_POSTION-20
-                || Math.abs(current_position.getZ()-MAX_DEVIATION_POSTION) >= MAX_DEVIATION_POSTION-20){
+        if (Math.abs(current_position.getX()-MAX_DEVIATION_POSTION) >= MAX_DEVIATION_POSTION
+                || Math.abs(current_position.getY()-MAX_DEVIATION_POSTION) >= MAX_DEVIATION_POSTION
+                || Math.abs(current_position.getZ()-MAX_DEVIATION_POSTION) >= MAX_DEVIATION_POSTION){
 
 
             double x = ThreadLocalRandom.current().nextDouble(-MAX_ACCELERATION, MAX_ACCELERATION);//current_acceleration.getX();
             double y = ThreadLocalRandom.current().nextDouble(-MAX_ACCELERATION, MAX_ACCELERATION);//current_acceleration.getY();
             double z = ThreadLocalRandom.current().nextDouble(-MAX_ACCELERATION, MAX_ACCELERATION);//current_acceleration.getZ();
 
-            if( current_position.getX() >= MAX_DEVIATION_POSTION-20){
+            if( current_position.getX() >= MAX_DEVIATION_POSTION){
                 D3Vector next_postion = current_position.add(current_velocity);
                 D3Vector next_position_accelerated = current_position.add(current_velocity.add(current_acceleration));
                 if(next_postion.getX() <= next_position_accelerated.getX()){
@@ -87,7 +100,7 @@ public class SimpleDrone extends Drone {
                 }
             }
 
-            if( (current_position.getX()-MAX_DEVIATION_POSTION) <= -MAX_DEVIATION_POSTION-20){
+            if( (current_position.getX()-MAX_DEVIATION_POSTION) <= -MAX_DEVIATION_POSTION){
                 D3Vector next_postion = current_position.add(current_velocity);
                 D3Vector next_position_accelerated = current_position.add(current_velocity.add(current_acceleration));
                 if(next_postion.getX() >= next_position_accelerated.getX()){
@@ -95,7 +108,7 @@ public class SimpleDrone extends Drone {
                     x = MAX_ACCELERATION;//ThreadLocalRandom.current().nextDouble(0, MAX_ACCELERATION);
                 }
             }
-            if( current_position.getY() >= MAX_DEVIATION_POSTION-20){
+            if( current_position.getY() >= MAX_DEVIATION_POSTION){
                 D3Vector next_postion = current_position.add(current_velocity);
                 D3Vector next_position_accelerated = current_position.add(current_velocity.add(current_acceleration));
                 if(next_postion.getY() <= next_position_accelerated.getY()){
@@ -104,7 +117,7 @@ public class SimpleDrone extends Drone {
                 }
             }
 
-            if( (current_position.getY()-MAX_DEVIATION_POSTION) <= -MAX_DEVIATION_POSTION-20){
+            if( (current_position.getY()-MAX_DEVIATION_POSTION) <= -MAX_DEVIATION_POSTION){
                 D3Vector next_postion = current_position.add(current_velocity);
                 D3Vector next_position_accelerated = current_position.add(current_velocity.add(current_acceleration));
                 if(next_postion.getY() >= next_position_accelerated.getY()){
@@ -115,7 +128,7 @@ public class SimpleDrone extends Drone {
 
 
 
-            if( current_position.getZ() >= MAX_DEVIATION_POSTION-20){
+            if( current_position.getZ() >= MAX_DEVIATION_POSTION){
                 D3Vector next_postion = current_position.add(current_velocity);
                 D3Vector next_position_accelerated = current_position.add(current_velocity.add(current_acceleration));
                 if(next_postion.getZ() <= next_position_accelerated.getZ()){
@@ -124,7 +137,7 @@ public class SimpleDrone extends Drone {
                 }
             }
 
-            if( (current_position.getZ()-MAX_DEVIATION_POSTION) <= -MAX_DEVIATION_POSTION-20){
+            if( (current_position.getZ()-MAX_DEVIATION_POSTION) <= -MAX_DEVIATION_POSTION){
                 D3Vector next_postion = current_position.add(current_velocity);
                 D3Vector next_position_accelerated = current_position.add(current_velocity.add(current_acceleration));
                 if(next_postion.getZ() >= next_position_accelerated.getZ()){
@@ -139,12 +152,7 @@ public class SimpleDrone extends Drone {
 
         }
 
-        // Prevent that the acceleration exteeds te maximum acceleration
-        if(output_acceleration.length() >= MAX_ACCELERATION){
-            double correctionFactor = MAX_ACCELERATION / output_acceleration.length();
-            output_acceleration = output_acceleration.scale(correctionFactor);
-        }
-
-        this.setAcceleration(output_acceleration);
+        output_acceleration = this.limit_acceleration(output_acceleration);
+        return output_acceleration;
     }
 }

@@ -16,7 +16,6 @@ public class StateMessageHandler implements MessageHandler{
         if (message instanceof StateMessage){
             StateMessage stateMessage = (StateMessage) message;
             drone.setStateMessage(stateMessage);
-            drone.calculateTactics();
         }
     }
 

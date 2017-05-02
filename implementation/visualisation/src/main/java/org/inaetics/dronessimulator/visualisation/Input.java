@@ -74,7 +74,7 @@ public class Input implements MessageHandler {
     private int i = 0;
     private long lastLog = -1;
     public synchronized void handleMessage(Message message) {
-        System.out.println("Received msg: " + message);
+        //System.out.println("Received msg: " + message);
         i++;
 
         if(lastLog == -1) {
@@ -97,11 +97,11 @@ public class Input implements MessageHandler {
             if (stateMessage.getPosition().isPresent()) {
 
                 this.position = stateMessage.getPosition().get();
-                System.out.println("New position: " + this.position);
+                //System.out.println("New position: " + this.position);
             }
             if (stateMessage.getDirection().isPresent()) {
                 this.direction = stateMessage.getDirection().get();
-                System.out.println("New direction: " + this.direction);
+                //System.out.println("New direction: " + this.direction);
             }
         } else {
             Logger.getLogger(Input.class).info("Received non-state msg: " + message);

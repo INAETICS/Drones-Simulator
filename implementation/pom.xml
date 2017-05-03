@@ -14,6 +14,7 @@
         <module>pubsub</module>
         <module>etcddiscovery</module>
         <module>visualisation</module>
+        <module>gameengine</module>
     </modules>
 
     <profiles>
@@ -23,36 +24,12 @@
                 <property>
                     <name>all</name>
                 </property>
+                <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
-                <module>physicsengine</module>
-                <module>physicsenginewrapper</module>
                 <module>drone</module>
                 <module>instancemanager</module>
-            </modules>
-        </profile>
-        <profile>
-            <id>physicsengine</id>
-            <activation>
-                <property>
-                    <name>physicsengine</name>
-                </property>
-            </activation>
-            <modules>
-                <module>physicsengine</module>
-            </modules>
-        </profile>
 
-        <profile>
-            <id>engineservice</id>
-            <activation>
-                <property>
-                    <name>engineservice</name>
-                </property>
-            </activation>
-            <modules>
-                <module>physicsengine</module>
-                <module>physicsenginewrapper</module>
             </modules>
         </profile>
 

@@ -19,7 +19,7 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
     /**
      * Gravityforce in meters / seconds^2
      */
-    public static final D3Vector GRAVITY = new D3Vector(0, 0, -9.81);
+    public static final D3Vector GRAVITY = new D3Vector(0, 0, 0); //-9.81);
 
     /**
      * At what time the current timestep started. Used as timestep to move all entities.

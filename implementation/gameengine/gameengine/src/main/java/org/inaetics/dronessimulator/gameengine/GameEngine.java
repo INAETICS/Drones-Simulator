@@ -102,7 +102,6 @@ public class GameEngine {
 
         //INSERT TEST DATA
         this.discoveryHandler.newDrone(1, new D3Vector());
-        this.m_physicsEngineDriver.addUpdate(1, new VelocityUpdate(new D3Vector(50,0,0)));
 
         Logger.getLogger(GameEngine.class).info("Started Game Engine!");
     }

@@ -71,3 +71,6 @@ fabric.properties
 
 # Felix runtime
 **/felix/
+
+# Docker images
+docker_images/files/bundles

@@ -6,12 +6,15 @@
         <artifactId>discovery</artifactId>
         <groupId>org.inaetics.dronessimulator</groupId>
         <version>0.1</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.inaetics.dronessimulator.discovery</groupId>
     <artifactId>etcd</artifactId>
+    <version>0.1</version>
     <name>etcd discovery</name>
+
     <packaging>bundle</packaging>
 
     <dependencies>
@@ -54,7 +57,7 @@
                     <instructions>
                         <Export-Package>org.inaetics.dronessimulator.discovery.etcd</Export-Package>
                         <Bundle-Activator>org.inaetics.dronessimulator.discovery.etcd.Activator</Bundle-Activator>
-                        <Embed-Dependency>discovery-api;groupId=org.inaetics.dronessimulator.discovery;scope=compile|runtime,etcd4j;scope=compile|runtime</Embed-Dependency>
+                        <Embed-Dependency>etcd4j;scope=compile|runtime</Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
                 </configuration>

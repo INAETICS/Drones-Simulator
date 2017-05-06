@@ -3,6 +3,7 @@ package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 import com.rabbitmq.client.ConnectionFactory;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
+import org.inaetics.dronessimulator.discovery.api.DiscoveredConfig;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.osgi.framework.BundleContext;
@@ -24,8 +25,11 @@ public class Activator extends DependencyActivatorBase {
                 .setImplementation(subscriber)
                 .add(createServiceDependency()
                         .setService(Serializer.class)
-                        .setRequired(true)
-                ).setCallbacks("init", "connect", "disconnect", "destroy") // Init and destroy do not actually exist
+                        .setRequired(true))
+                .add(createServiceDependency()
+                        .setService(DiscoveredConfig.class, "(type=rabbitmq,group=broker)")
+                        .setRequired(true))
+                .setCallbacks("init", "connect", "disconnect", "destroy") // Init and destroy do not actually exist
         );
     }
 }

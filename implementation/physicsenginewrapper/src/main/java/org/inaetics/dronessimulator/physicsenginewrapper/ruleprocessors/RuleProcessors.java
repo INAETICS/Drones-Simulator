@@ -39,7 +39,7 @@ public class RuleProcessors extends Thread {
             PhysicsEngineMessage msg = null;
             try {
                 msg = incomingMessages.take();
-                System.out.println("RECEIVED MESSAGE FOR RULEPROCESSORS " + msg);
+                //System.out.println("RECEIVED MESSAGE FOR RULEPROCESSORS " + msg);
             } catch (InterruptedException e) {
                 Logger.getLogger(RuleProcessors.class).error("Interrupted while waiting for incoming message");
                 this.interrupt();

@@ -36,7 +36,7 @@ public class PhysicsEngineWrapper {
         this.stateManager = new PhysicsEngineStateManager();
         this.outgoingHandler = new PhysicsEngineObserver();
         this.physicsEngine = new PhysicsEngine();
-        this.physicsEngine.setTimeBetweenBroadcastms(2000);
+        this.physicsEngine.setTimeBetweenBroadcastms(20);
         this.physicsEngine.setObserver(this.outgoingHandler);
         this.incomingHandler = new DroneCommandMessageHandler(this.physicsEngine);
         this.discoveryHandler = new DiscoveryHandler(this.physicsEngine, this.stateManager);
@@ -44,7 +44,7 @@ public class PhysicsEngineWrapper {
 
         //INSERT TEST DATA
         this.discoveryHandler.newDrone(1, new D3Vector());
-        this.physicsEngine.addUpdate(1, new VelocityEntityUpdate(new D3Vector(1,0,0)));
+        this.physicsEngine.addUpdate(1, new VelocityEntityUpdate(new D3Vector(5,0,0)));
 
         this.ruleProcessors = new RuleProcessors( this.outgoingHandler.getOutgoingQueue()
                                                 , this.stateManager

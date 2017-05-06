@@ -12,7 +12,7 @@ import java.net.URI;
  */
 public class Activator extends DependencyActivatorBase {
     /** Config discoverer thread. */
-    Thread configDiscoverer;
+    private Thread configDiscoverer;
 
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {

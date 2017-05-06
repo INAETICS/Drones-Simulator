@@ -30,8 +30,11 @@ public class EtcdDiscoverer implements Discoverer {
     /** Prefix for all etcd paths. */
     private static final String PATH_PREFIX = "/";
 
+    /** Prefix/location for instance references. */
+    private static final String INSTANCE_DIR = "instances";
+
     /** Location where discoverable configs can be found. */
-    private static final String DISCOVERABLE_CONFIG_DIR = "discoverable_config";
+    private static final String DISCOVERABLE_CONFIG_DIR = "configs";
 
     /** The instances registered through this discoverer. */
     private Map<Instance, String> myInstances;
@@ -328,7 +331,7 @@ public class EtcdDiscoverer implements Discoverer {
      * @return The path for the instance.
      */
     static String buildInstancePath(Instance instance) {
-        return buildPath(instance.getType(), instance.getGroup(), instance.getName());
+        return buildPath(INSTANCE_DIR, instance.getType(), instance.getGroup(), instance.getName());
     }
 
     /**
@@ -350,7 +353,7 @@ public class EtcdDiscoverer implements Discoverer {
      * @return The type, group and name of the instance.
      */
     static String[] splitInstancePath(String path) {
-        String[] segments = path.replaceFirst(PATH_PREFIX, "").split("/");
+        String[] segments = path.replaceFirst(PATH_PREFIX, "").replaceFirst(INSTANCE_DIR + "/", "").split("/");
         String[] triple = new String[]{"", "", ""};
         System.arraycopy(segments, 0, triple, 0, Math.min(segments.length, triple.length));
         return triple;

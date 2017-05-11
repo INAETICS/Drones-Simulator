@@ -6,6 +6,8 @@ TARGET="./"
 (cd $ROOT && mvn clean -P all)
 (cd $ROOT && mvn package -P all -Dmaven.test.skip=true)
 
+cp "$ROOT/discovery/api/target/discovery-api-0.1.jar" $TARGET
+cp "$ROOT/discovery/etcd/target/etcd-0.1.jar" $TARGET
 cp "$ROOT/visualisation/target/visualisation-0.1.jar" $TARGET
 cp "$ROOT/pubsub/javaserializer/target/java-serializer-0.1.jar" $TARGET
 cp "$ROOT/pubsub/rabbitmq/common/target/rabbitmq-common-0.1.jar" $TARGET

@@ -57,8 +57,6 @@
                     <instructions>
                         <Export-Package>org.inaetics.dronessimulator.discovery.etcd</Export-Package>
                         <Bundle-Activator>org.inaetics.dronessimulator.discovery.etcd.Activator</Bundle-Activator>
-                        <Embed-Dependency>etcd4j;scope=compile|runtime</Embed-Dependency>
-                        <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
                 </configuration>
             </plugin>

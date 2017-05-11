@@ -1,15 +1,15 @@
 FROM dockmob/java
 
 # Install Felix
-ENV felix_version 5.6.0
-ENV felix_package=org.apache.felix.main.distribution-${felix_version}.tar.gz
-ENV felix_base http://repo1.maven.org/maven2/org/apache/felix
+ENV FELIX_VERSION 5.6.0
+ENV FELIX_PACKAGE=org.apache.felix.main.distribution-${FELIX_VERSION}.tar.gz
+ENV FELIX_BASE http://repo1.maven.org/maven2/org/apache/felix
 
-ADD ${felix_base}/org.apache.felix.main.distribution/${felix_version}/${felix_package} /tmp/
+ADD ${FELIX_BASE}/org.apache.felix.main.distribution/${FELIX_VERSION}/${FELIX_PACKAGE} /tmp/
 RUN mkdir -p /opt/felix && \
     cd /opt/felix && \
-    tar xvzf /tmp/${felix_package} && \
-    ln -s /opt/felix/felix-framework-${felix_version} /opt/felix/current
+    tar xvzf /tmp/${FELIX_PACKAGE} && \
+    ln -s /opt/felix/felix-framework-${FELIX_VERSION} /opt/felix/current
 
 # We set up configuration here so that our obr installs go nicely
 ADD files/config.properties /opt/felix/current/conf/

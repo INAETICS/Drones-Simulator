@@ -3,10 +3,7 @@ package org.inaetics.dronessimulator.visualisation;
 import com.rabbitmq.client.ConnectionFactory;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -39,18 +36,13 @@ public class Game extends Application implements MessageHandler {
 
     /**
      * Main entry point for a JavaFX application
+     *
      * @param primaryStage - the primary stage for this application
      */
     @Override
     public void start(Stage primaryStage) {
-
         setupRabbit();
         setupInterface(primaryStage);
-
-
-        // For testing
-        // todo: REMOVE!!!!
-        createPlayer("createRandomDrone");
 
         lastLog = System.currentTimeMillis();
 
@@ -110,6 +102,7 @@ public class Game extends Application implements MessageHandler {
 
     /**
      * Creates a new drone and returns it
+     *
      * @param id String - Identifier of the new drone
      * @return drone Drone - The newly created drone
      */
@@ -157,21 +150,6 @@ public class Game extends Application implements MessageHandler {
 
         Scene scene = new Scene(root, Settings.SCENE_WIDTH, Settings.SCENE_HEIGHT);
         scene.getStylesheets().addAll(this.getClass().getResource("/style.css").toExternalForm());
-
-
-        //todo: Remove button
-        Button btn = new Button();
-        btn.setText("Say 'Hello World'");
-        btn.setLayoutX(750);
-        btn.setLayoutY(50);
-        btn.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                createPlayer("someRandomString");
-            }
-        });
-
-        root.getChildren().add(btn);
 
         primaryStage.setScene(scene);
         primaryStage.show();

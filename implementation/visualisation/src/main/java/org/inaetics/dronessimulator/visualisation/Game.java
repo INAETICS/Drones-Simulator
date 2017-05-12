@@ -7,6 +7,8 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
+import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
@@ -34,9 +36,10 @@ public class Game extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-
         if(this.subscriber == null) {
-            this.subscriber = new RabbitSubscriber(new ConnectionFactory(), "visualisation", new JavaSerializer());
+            ConnectionFactory connectionFactory = new ConnectionFactory();
+            // We can connect to localhost, since the visualization does not run within Docker
+            this.subscriber = new RabbitSubscriber(connectionFactory, "visualisation", new JavaSerializer());
 
             try {
                 this.subscriber.connect();

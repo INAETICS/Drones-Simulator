@@ -15,6 +15,7 @@ public class Activator extends DependencyActivatorBase {
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         // TODO: Set up proper connection instead of defaults
         ConnectionFactory connectionFactory = new ConnectionFactory();
+        connectionFactory.setHost("rabbitmq");
 
         // TODO: Make name configurable
         RabbitSubscriber subscriber = new RabbitSubscriber(connectionFactory, "defaultSubscriber");

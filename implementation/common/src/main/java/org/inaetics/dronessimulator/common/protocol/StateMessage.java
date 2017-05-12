@@ -14,6 +14,9 @@ public class StateMessage extends ProtocolMessage {
     /** Indentifier of object */
     private String identifier = null;
 
+    /** Type of the object */
+    private EntityType type;
+
     /** The position of the object. */
     private D3Vector position = null;
 
@@ -61,6 +64,14 @@ public class StateMessage extends ProtocolMessage {
     public Optional<String> getIdentifier(){ return Optional.ofNullable(identifier); }
 
     public void setIdentifier(String identifier){ this.identifier = identifier; }
+
+    public EntityType getType() {
+        return type;
+    }
+
+    public void setType(EntityType type) {
+        this.type = type;
+    }
 
     @Override
     public List<MessageTopic> getTopics() {

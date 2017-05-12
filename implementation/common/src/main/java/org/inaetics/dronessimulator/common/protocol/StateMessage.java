@@ -11,6 +11,12 @@ import java.util.Optional;
  * Message used by the game state to communicate state changes to other nodes.
  */
 public class StateMessage extends ProtocolMessage {
+    /** Indentifier of object */
+    private String identifier = null;
+
+    /** Type of the object */
+    private EntityType type;
+
     /** The position of the object. */
     private D3Vector position = null;
 
@@ -53,6 +59,18 @@ public class StateMessage extends ProtocolMessage {
 
     public void setAcceleration(D3Vector acceleration) {
         this.acceleration = acceleration;
+    }
+
+    public Optional<String> getIdentifier(){ return Optional.ofNullable(identifier); }
+
+    public void setIdentifier(String identifier){ this.identifier = identifier; }
+
+    public EntityType getType() {
+        return type;
+    }
+
+    public void setType(EntityType type) {
+        this.type = type;
     }
 
     @Override

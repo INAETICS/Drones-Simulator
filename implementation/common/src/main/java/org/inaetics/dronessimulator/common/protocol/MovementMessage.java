@@ -11,6 +11,9 @@ import java.util.Optional;
  * Message used to tell the game state about movements.
  */
 public class MovementMessage extends ProtocolMessage {
+    /** Indentifier of object */
+    private String indentifier = null;
+
     /** The direction the object is in. */
     private D3PoolCoordinate direction = null;
 
@@ -32,6 +35,10 @@ public class MovementMessage extends ProtocolMessage {
     public void setAcceleration(D3Vector acceleration) {
         this.acceleration = acceleration;
     }
+
+    public Optional<String> getIndentifier(){ return Optional.ofNullable(indentifier); }
+
+    public void setIndentifier(String indentifier){ this.indentifier = indentifier; }
 
     @Override
     public List<MessageTopic> getTopics() {

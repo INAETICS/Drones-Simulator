@@ -17,20 +17,14 @@ abstract class Drone {
     private ImageView imageView;
     private Text heightText;
 
-    private Input input;
-
     private D3Vector position;
     private D3PoolCoordinate direction;
-    private D3Vector velocity;
-    private D3Vector acceleration;
 
     private Pane layer;
 
     private int width;
 
-    Drone(Pane layer, String image, Input input) {
-        this.input = input;
-
+    Drone(Pane layer, String image) {
         this.layer = layer;
 
         this.width = Settings.DRONE_WIDTH;
@@ -40,7 +34,7 @@ abstract class Drone {
         this.imageView.setFitHeight(Settings.DRONE_HEIGTH);
         this.imageView.setViewport(new Rectangle2D(0, 0, Settings.SPRITE_WIDTH, Settings.SPRITE_HEIGTH));
         new SpriteAnimation(imageView, Duration.millis(200), DRONE_SPRITE_COLUMNS, DRONE_SPRITE_COLUMNS, 0, 0, Settings.SPRITE_WIDTH, Settings.SPRITE_HEIGTH).play();
-        heightText = new Text(0, 20, "Heigth: 0");
+        heightText = new Text(0, 20, "Height: 0");
         heightText.setFill(Color.WHITE);
         addToLayer();
     }
@@ -51,7 +45,6 @@ abstract class Drone {
     }
 
     void updateUI() {
-
         imageView.relocate(position.getX(), position.getY());
         imageView.setRotate(getRotation());
         heightText.setText("Height: " + position.getZ());
@@ -59,15 +52,12 @@ abstract class Drone {
 
     }
 
-    /**
-     * For position, direction, velocity and acceleration process the input given by the publisher
-     */
-    void processInput() {
-        this.position = input.getPosition();
-        this.direction = input.getDirection();
-//        this.velocity = input.getVelocity();
-//        this.acceleration = input.getAcceleration();
+    void setPosition(D3Vector position) {
+        this.position = position;
+    }
 
+    void setDirection(D3PoolCoordinate direction) {
+        this.direction = direction;
     }
 
     private double getRotation() {

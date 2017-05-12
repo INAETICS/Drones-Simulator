@@ -12,7 +12,7 @@ import java.util.Optional;
  */
 public class StateMessage extends ProtocolMessage {
     /** Indentifier of object */
-    private String indentifier = null;
+    private String identifier = null;
 
     /** The position of the object. */
     private D3Vector position = null;
@@ -58,9 +58,9 @@ public class StateMessage extends ProtocolMessage {
         this.acceleration = acceleration;
     }
 
-    public Optional<String> getIndentifier(){ return Optional.ofNullable(indentifier); }
+    public Optional<String> getIdentifier(){ return Optional.ofNullable(identifier); }
 
-    public void setIndentifier(String indentifier){ this.indentifier = indentifier; }
+    public void setIdentifier(String identifier){ this.identifier = identifier; }
 
     @Override
     public List<MessageTopic> getTopics() {

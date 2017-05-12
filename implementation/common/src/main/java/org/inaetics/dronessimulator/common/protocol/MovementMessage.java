@@ -12,7 +12,7 @@ import java.util.Optional;
  */
 public class MovementMessage extends ProtocolMessage {
     /** Indentifier of object */
-    private String indentifier = null;
+    private String identifier = null;
 
     /** The direction the object is in. */
     private D3PoolCoordinate direction = null;
@@ -36,9 +36,9 @@ public class MovementMessage extends ProtocolMessage {
         this.acceleration = acceleration;
     }
 
-    public Optional<String> getIndentifier(){ return Optional.ofNullable(indentifier); }
+    public Optional<String> getIdentifier(){ return Optional.ofNullable(identifier); }
 
-    public void setIndentifier(String indentifier){ this.indentifier = indentifier; }
+    public void setIdentifier(String identifier){ this.identifier = identifier; }
 
     @Override
     public List<MessageTopic> getTopics() {

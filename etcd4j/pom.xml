@@ -47,8 +47,8 @@
                 <configuration>
                     <instructions>
                         <Export-Package>mousio.*</Export-Package>
-                        <Import-Package>!javassist.*,sun.misc</Import-Package>
-                        <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency>
+                        <Import-Package>!javassist.*,org.slf4j</Import-Package>
+                        <Embed-Dependency>*;scope=compile|runtime;artifactId=!slf4j-api</Embed-Dependency>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
                 </configuration>

@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.visualisation;
 
-import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
@@ -36,7 +35,7 @@ public class Game extends Application {
     @Override
     public void start(Stage primaryStage) {
 
-        if(this.subscriber == null) {
+        if (this.subscriber == null) {
             ConnectionFactory connectionFactory = new ConnectionFactory();
             // We can connect to localhost, since the visualization does not run within Docker
             this.subscriber = new RabbitSubscriber(connectionFactory, "visualisation", new JavaSerializer());
@@ -54,8 +53,8 @@ public class Game extends Application {
         playfieldLayer = new Pane();
         root.getChildren().add(playfieldLayer);
 
-        scene = new Scene( root, Settings.SCENE_WIDTH, Settings.SCENE_HEIGHT);
-
+        scene = new Scene(root, Settings.SCENE_WIDTH, Settings.SCENE_HEIGHT);
+        scene.getStylesheets().addAll(this.getClass().getResource("style.css").toExternalForm())
         primaryStage.setScene(scene);
         primaryStage.show();
 
@@ -69,7 +68,7 @@ public class Game extends Application {
             @Override
             public void handle(long now) {
                 i++;
-                if(i == 100) {
+                if (i == 100) {
                     long current = System.currentTimeMillis();
                     float durationAverageMs = ((float) (current - lastLog)) / 100f;
                     float fps = 1000f / durationAverageMs;
@@ -112,6 +111,7 @@ public class Game extends Application {
         drones.add(drone);
 
     }
+
     public static void main(String[] args) {
         launch(args);
     }

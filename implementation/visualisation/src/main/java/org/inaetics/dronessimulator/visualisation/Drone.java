@@ -4,6 +4,7 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 import org.inaetics.dronessimulator.common.D3PoolCoordinate;
@@ -34,11 +35,13 @@ abstract class Drone {
 
         this.width = Settings.DRONE_WIDTH;
         this.imageView = new ImageView(new Image(getClass().getResourceAsStream(image)));
+        this.imageView.setId("drone");
         this.imageView.setPreserveRatio(true);
         this.imageView.setFitHeight(Settings.DRONE_HEIGTH);
         this.imageView.setViewport(new Rectangle2D(0, 0, Settings.SPRITE_WIDTH, Settings.SPRITE_HEIGTH));
         new SpriteAnimation(imageView, Duration.millis(200), DRONE_SPRITE_COLUMNS, DRONE_SPRITE_COLUMNS, 0, 0, Settings.SPRITE_WIDTH, Settings.SPRITE_HEIGTH).play();
-        heightText = new Text(0, 20, "This is a text sample");
+        heightText = new Text(0, 20, "Heigth: 0");
+        heightText.setFill(Color.WHITE);
         addToLayer();
     }
 

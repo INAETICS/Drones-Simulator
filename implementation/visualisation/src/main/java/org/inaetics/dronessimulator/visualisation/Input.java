@@ -14,7 +14,7 @@ import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.util.BitSet;
 
-public class Input implements MessageHandler {
+public class Input {
 
     /**
      * Bitset which registers if any {@link KeyCode} keeps being pressed or if it is released.
@@ -63,49 +63,6 @@ public class Input implements MessageHandler {
     public void removeListeners() {
         scene.removeEventFilter(KeyEvent.KEY_PRESSED, keyPressedEventHandler);
         scene.removeEventFilter(KeyEvent.KEY_RELEASED, keyReleasedEventHandler);
-    }
-
-    /**
-     * Message handler for the pubsub
-     * Changes the position and direction based on the stateMessage
-     * @param message The received message.
-     */
-
-    private int i = 0;
-    private long lastLog = -1;
-    public synchronized void handleMessage(Message message) {
-        //System.out.println("Received msg: " + message);
-        i++;
-
-        if(lastLog == -1) {
-            lastLog = System.currentTimeMillis();
-        }
-
-        if(i == 100) {
-            long current = System.currentTimeMillis();
-            float averageDuractionMs = ((float) (current-lastLog)) / 100f;
-            System.out.println("Average per message: " + averageDuractionMs);
-            System.out.println("Messages per sec: " + (1000f / averageDuractionMs));
-
-            lastLog = current;
-            i = 0;
-        }
-
-        if(message instanceof StateMessage) {
-            StateMessage stateMessage = (StateMessage) message;
-
-            if (stateMessage.getPosition().isPresent()) {
-
-                this.position = stateMessage.getPosition().get();
-                //System.out.println("New position: " + this.position);
-            }
-            if (stateMessage.getDirection().isPresent()) {
-                this.direction = stateMessage.getDirection().get();
-                //System.out.println("New direction: " + this.direction);
-            }
-        } else {
-            Logger.getLogger(Input.class).info("Received non-state msg: " + message);
-        }
     }
 
     /**

@@ -17,7 +17,7 @@ public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         // TODO: Make this URI dynamic
-        EtcdDiscoverer discoverer = new EtcdDiscoverer(URI.create("http://localhost:2379/"));
+        EtcdDiscoverer discoverer = new EtcdDiscoverer(URI.create("http://localhost:4001/"));
 
         // Register discoverer service
         manager.add(createComponent()

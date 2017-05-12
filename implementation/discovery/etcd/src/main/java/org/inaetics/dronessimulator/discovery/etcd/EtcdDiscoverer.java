@@ -4,10 +4,7 @@ import mousio.client.retry.RetryOnce;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.promises.EtcdResponsePromise;
 import mousio.etcd4j.requests.EtcdKeyGetRequest;
-import mousio.etcd4j.responses.EtcdAuthenticationException;
-import mousio.etcd4j.responses.EtcdErrorCode;
-import mousio.etcd4j.responses.EtcdException;
-import mousio.etcd4j.responses.EtcdKeysResponse;
+import mousio.etcd4j.responses.*;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
@@ -53,12 +50,19 @@ public class EtcdDiscoverer implements Discoverer {
         this.myInstances = new HashMap<>();
         this.client = new EtcdClient(uri);
 
-        // Log server version
-        String serverVersion = this.client.version().getServer();
-        logger.info("Discoverer connected with etcd at {}, server version {}", uri.toString(), serverVersion);
-
         // Do not retry too many times or wait too long
-        this.client.setRetryHandler(new RetryOnce(1000));
+        this.client.setRetryHandler(new RetryOnce(1));
+
+        System.out.println(this.client);
+
+        // Log server version
+        EtcdVersionResponse versionResponse = this.client.version();
+
+        if (versionResponse != null) {
+            logger.info("Discoverer connected with etcd at {}, server version {}", uri.toString(), versionResponse.getServer());
+        } else {
+            logger.warn("Discoverer started, but could not connect to etcd");
+        }
 
         // Initialize variables
         this.discoverableConfigModifiedIndex = null;

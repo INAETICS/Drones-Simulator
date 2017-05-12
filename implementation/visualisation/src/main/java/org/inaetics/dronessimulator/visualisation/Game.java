@@ -36,8 +36,6 @@ public class Game extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        System.out.println(LogManager.getContext());
-//        System.out.println(LogManager.getContext());
         if(this.subscriber == null) {
             ConnectionFactory connectionFactory = new ConnectionFactory();
             // We can connect to localhost, since the visualization does not run within Docker

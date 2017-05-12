@@ -111,7 +111,7 @@ public class PhysicsEngine extends Thread {
 
         if(this.broadcast_state_every_ms >= 0 && last_broadcast_ms >= this.broadcast_state_every_ms) {
             //System.oudependencies
-bundlest.println("PHYSICS ENGINE SHOULD BROADCAST");
+            bundlest.println("PHYSICS ENGINE SHOULD BROADCAST");
             observer.broadcastStateHandler(this.entityManager.copyState());
             this.last_state_broadcast_at_ms = this.current_step_started_at_ms;
         }

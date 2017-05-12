@@ -73,4 +73,7 @@ fabric.properties
 **/felix/
 
 # Docker images
-docker_images/files/bundles
+docker_images/game_engine/files/bundles
+docker_images/game_engine/files/dependencies
+docker_images/drone/files/bundles
+docker_images/drone/files/dependencies

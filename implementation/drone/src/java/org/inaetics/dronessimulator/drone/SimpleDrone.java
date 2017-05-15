@@ -1,13 +1,14 @@
 package org.inaetics.dronessimulator.drone;
-import org.inaetics.dronessimulator.common.*;
+
+import org.inaetics.dronessimulator.common.D3Vector;
 
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SimpleDrone extends Drone {
 
-    private static final int MAX_DEVIATION_POSTION = 400;
-    private static final int MAX_VELOCITY = 20;
-    private static final int MAX_ACCELERATION = 10;
+    private static final int MAX_DEVIATION_POSTION = 200;
+    private static final int MAX_VELOCITY = 100;
+    private static final int MAX_ACCELERATION = 20;
     private static final double RANGE_FACTOR = 5;
 
     /**

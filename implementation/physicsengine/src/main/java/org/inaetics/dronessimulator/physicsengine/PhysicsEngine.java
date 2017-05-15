@@ -5,6 +5,7 @@ import org.inaetics.dronessimulator.physicsengine.entityupdate.EntityUpdate;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.log4j.Logger;
 
 public class PhysicsEngine extends Thread {
     public static final D3Vector GRAVITY = new D3Vector(0, 0, 0);
@@ -111,7 +112,7 @@ public class PhysicsEngine extends Thread {
 
         if(this.broadcast_state_every_ms >= 0 && last_broadcast_ms >= this.broadcast_state_every_ms) {
             //System.oudependencies
-            bundlest.println("PHYSICS ENGINE SHOULD BROADCAST");
+            Logger.getLogger(PhysicsEngine.class).info("PHYSICS ENGINE SHOULD BROADCAST");
             observer.broadcastStateHandler(this.entityManager.copyState());
             this.last_state_broadcast_at_ms = this.current_step_started_at_ms;
         }

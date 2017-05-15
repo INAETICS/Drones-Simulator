@@ -4,6 +4,11 @@ services:
     image: rabbitmq:alpine
     ports:
       - "5672:5672"
+  etcd:
+    image: appcelerator/etcd
+    ports:
+      - "2379:2379"
+      - "2380:2380"
   game-engine:
     build: ./docker_images/game_engine
     depends_on:

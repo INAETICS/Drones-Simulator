@@ -1,4 +1,4 @@
-package org.inaetics.dronessimulator.gameengine.ruleprocessors.rules;
+package org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch;
 
 
 import org.apache.log4j.Logger;
@@ -9,11 +9,12 @@ import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.common.state.Bullet;
 import org.inaetics.dronessimulator.gameengine.common.state.Drone;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
+import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.Processor;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class CollisionRules extends Processor {
+public class CollisionRule extends Processor {
     public static final int collisionDmg = 20;
 
     public List<GameEngineEvent> process(GameEngineEvent msg) {
@@ -22,8 +23,7 @@ public class CollisionRules extends Processor {
         if(msg instanceof CollisionStartEvent) {
             CollisionStartEvent collision = (CollisionStartEvent) msg;
             GameEntity e1 = collision.getE1();
-            GameEntity e2 = collision.getE2()
-            ;
+            GameEntity e2 = collision.getE2();
             EntityType e1Type = e1.getType();
             EntityType e2Type = e2.getType();
 
@@ -51,7 +51,7 @@ public class CollisionRules extends Processor {
                 drone.damage(bullet.getDmg());
 
             } else {
-                Logger.getLogger(CollisionRules.class).error("Found a collision with unknown rules. Collision between: {} & {} ", e1Type, e2Type);
+                Logger.getLogger(CollisionRule.class).error("Found a collision with unknown rules. Collision between: {} & {} ", e1Type, e2Type);
             }
         }
 

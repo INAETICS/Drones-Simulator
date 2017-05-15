@@ -4,9 +4,10 @@ package org.inaetics.dronessimulator.gameengine.ruleprocessors;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
-import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.CollisionRules;
+import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch.CollisionRule;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.Processor;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.SendMessages;
+import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch.KillEntitiesRule;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 
 import java.util.ArrayList;
@@ -30,7 +31,8 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
 
         this.incomingEvents = this.m_driver.getOutgoingQueue();
 
-        this.rules = new Processor[]{ new CollisionRules()
+        this.rules = new Processor[]{ new CollisionRule()
+                                    , new KillEntitiesRule()
                                     , new SendMessages(this.m_publisher)
                                     };
         super.start();

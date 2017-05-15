@@ -13,6 +13,8 @@ public class Bullet extends GameEntity<Bullet> {
      */
     private final int dmg;
 
+    private final GameEntity firedBy;
+
     /**
      * Construction of a bullet entity
      * @param id The id of the bullet entity
@@ -21,9 +23,10 @@ public class Bullet extends GameEntity<Bullet> {
      * @param velocity The velocity of the bullet
      * @param acceleration The acceleration of the bullet
      */
-    public Bullet(int id, int dmg, D3Vector position, D3Vector velocity, D3Vector acceleration) {
+    public Bullet(int id, int dmg, GameEntity firedBy, D3Vector position, D3Vector velocity, D3Vector acceleration) {
         super(id, position, velocity, acceleration);
 
+        this.firedBy = firedBy;
         this.dmg = dmg;
     }
 
@@ -38,10 +41,14 @@ public class Bullet extends GameEntity<Bullet> {
 
     @Override
     public Bullet deepCopy() {
-        return new Bullet(this.getEntityId(), this.getDmg(), this.getPosition(), this.getVelocity(), this.getAcceleration());
+        return new Bullet(this.getEntityId(), this.getDmg(), this.getFiredBy(), this.getPosition(), this.getVelocity(), this.getAcceleration());
     }
 
     public int getDmg() {
         return dmg;
+    }
+
+    public GameEntity getFiredBy() {
+        return this.firedBy;
     }
 }

@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.common.state;
 
-import lombok.Getter;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 

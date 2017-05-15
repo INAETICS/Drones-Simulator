@@ -6,8 +6,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.inaetics.dronessimulator.common.D3Vector;
 
-import java.util.HashMap;
-
 @AllArgsConstructor
 @Getter
 @Setter

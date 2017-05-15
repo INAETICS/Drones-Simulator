@@ -7,7 +7,6 @@ import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.EntityUpdate;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.PositionEntityUpdate;
-import org.inaetics.dronessimulator.physicsengine.entityupdate.VelocityEntityUpdate;
 
 @AllArgsConstructor
 @ToString

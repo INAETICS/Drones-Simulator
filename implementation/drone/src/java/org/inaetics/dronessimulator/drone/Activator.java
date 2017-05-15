@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.drone;
 
-import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;

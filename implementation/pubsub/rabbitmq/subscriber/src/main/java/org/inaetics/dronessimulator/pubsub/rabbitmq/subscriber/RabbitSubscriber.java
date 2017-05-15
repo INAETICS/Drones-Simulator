@@ -66,6 +66,11 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
         this.construct(identifier);
     }
 
+    public RabbitSubscriber() {
+        this("defaultSubscriber");
+        System.out.println("SUBSCRIBER ONLINE!");
+    }
+
     /**
      * Performs some initialization for the constructors.
      */

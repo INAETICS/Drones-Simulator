@@ -25,6 +25,10 @@ public class Activator extends DependencyActivatorBase {
                         .setService(Serializer.class)
                         .setRequired(true)
                 ).setCallbacks("init", "connect", "disconnect", "destroy") // Init and destroy do not actually exist
+                .add(createConfigurationDependency()
+                        .setPid("rabbitmq.broker.default")
+                        .setRequired(true)
+                )
         );
     }
 }

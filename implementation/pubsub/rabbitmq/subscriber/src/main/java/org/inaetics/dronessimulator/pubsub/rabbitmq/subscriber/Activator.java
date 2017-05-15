@@ -13,11 +13,10 @@ public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
         // TODO: Make name configurable
-        RabbitSubscriber subscriber = new RabbitSubscriber("defaultSubscriber");
 
         manager.add(createComponent()
                 .setInterface(Subscriber.class.getName(), null)
-                .setImplementation(subscriber)
+                .setImplementation(RabbitSubscriber.class)
                 .add(createServiceDependency()
                         .setService(Serializer.class)
                         .setRequired(true))

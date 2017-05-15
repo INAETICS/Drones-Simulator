@@ -1,16 +1,14 @@
 package org.inaetics.dronessimulator.gameengine.gamestatemanager;
 
 import lombok.Getter;
+import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
+import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-
-import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 
 @Getter
 public class GameStateManager implements IGameStateManager {

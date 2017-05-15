@@ -1,19 +1,17 @@
 package org.inaetics.dronessimulator.gameengine.physicsenginedriver;
 
+import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.gameentityupdate.GameEntityUpdate;
-import org.inaetics.dronessimulator.gameengine.gamestatemanager.GameStateManager;
 import org.inaetics.dronessimulator.physicsengine.Entity;
 import org.inaetics.dronessimulator.physicsengine.IPhysicsEngine;
-import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
+import org.inaetics.dronessimulator.physicsengine.Size;
 
 import java.util.Collection;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
-
-import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.physicsengine.Size;
 
 public class PhysicsEngineDriver implements IPhysicsEngineDriver {
     private transient volatile IPhysicsEngine m_physicsEngine;

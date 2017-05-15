@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.drone;
-import org.inaetics.dronessimulator.common.*;
+
+import org.inaetics.dronessimulator.common.D3Vector;
 
 import java.util.concurrent.ThreadLocalRandom;
 

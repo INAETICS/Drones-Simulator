@@ -3,7 +3,6 @@ package org.inaetics.dronessimulator.physicsengine;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.EntityUpdate;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * Created by sebastiaan on 3-5-17.

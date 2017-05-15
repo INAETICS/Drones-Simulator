@@ -2,10 +2,8 @@ package org.inaetics.dronessimulator.gameengine;
 
 import lombok.AllArgsConstructor;
 import org.inaetics.dronessimulator.common.D3Vector;
-import org.inaetics.dronessimulator.gameengine.gamestatemanager.GameStateManager;
-import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
-import org.inaetics.dronessimulator.gameengine.physicsenginedriver.PhysicsEngineDriver;
 import org.inaetics.dronessimulator.gameengine.common.state.Drone;
+import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 
 /**
  * Dummy discovery handler to insert test entity

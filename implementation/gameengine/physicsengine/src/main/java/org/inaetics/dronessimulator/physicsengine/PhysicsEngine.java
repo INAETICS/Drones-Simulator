@@ -66,7 +66,6 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
      * Before you start the engine, you MUST set an observer using setObserver
      */
     public PhysicsEngine() {
-        System.out.println("CREATED PHYSICS ENGINE");
         this.current_step_started_at_ms = System.currentTimeMillis();
         this.last_state_broadcast_at_ms = this.current_step_started_at_ms;
         this.broadcast_state_every_ms = -1;

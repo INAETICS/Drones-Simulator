@@ -11,9 +11,9 @@ CONFIG_ID=1
 RABBITMQ_PATH="amqp://localhost:5672"
 
 # Actually set values
-etcdctl set $INSTANCE_DIR/path $RABBITMQ_PATH > /dev/null
+etcdctl set $INSTANCE_DIR/uri $RABBITMQ_PATH > /dev/null
 etcdctl set $CONFIG_DIR/$CONFIG_ID $INSTANCE_DIR > /dev/null
 
 # Confirmation
-echo "RabbitMQ registered with path $RABBITMQ_PATH"
+echo "RabbitMQ registered with URI $RABBITMQ_PATH"
 

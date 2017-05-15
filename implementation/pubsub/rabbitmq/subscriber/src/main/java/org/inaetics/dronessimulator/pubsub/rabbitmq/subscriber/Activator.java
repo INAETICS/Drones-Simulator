@@ -1,9 +1,7 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 
-import com.rabbitmq.client.ConnectionFactory;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
-import org.inaetics.dronessimulator.discovery.api.DiscoveredConfig;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.osgi.framework.BundleContext;
@@ -14,11 +12,8 @@ import org.osgi.framework.BundleContext;
 public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
-        // TODO: Set up proper connection instead of defaults
-        ConnectionFactory connectionFactory = new ConnectionFactory();
-
         // TODO: Make name configurable
-        RabbitSubscriber subscriber = new RabbitSubscriber(connectionFactory, "defaultSubscriber");
+        RabbitSubscriber subscriber = new RabbitSubscriber("defaultSubscriber");
 
         manager.add(createComponent()
                 .setInterface(Subscriber.class.getName(), null)
@@ -26,9 +21,10 @@ public class Activator extends DependencyActivatorBase {
                 .add(createServiceDependency()
                         .setService(Serializer.class)
                         .setRequired(true))
-                .add(createServiceDependency()
-                        .setService(DiscoveredConfig.class, "(type=rabbitmq,group=broker)")
-                        .setRequired(true))
+                .add(createConfigurationDependency()
+                        .setPid("rabbitmq.broker.default")
+                        .setRequired(true)
+                        .setCallback("updateConfig"))
                 .setCallbacks("init", "connect", "disconnect", "destroy") // Init and destroy do not actually exist
         );
     }

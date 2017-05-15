@@ -214,7 +214,7 @@ public class EtcdDiscoverer implements Discoverer {
     public Map<String, Collection<String>> find(String type) {
         Map<String, Collection<String>> forType = new HashMap<>();
 
-        String path = buildPath(type);
+        String path = buildInstancePath(type);
 
         try {
             EtcdResponsePromise<EtcdKeysResponse> promise = this.client.getDir(path).recursive().send();
@@ -241,7 +241,7 @@ public class EtcdDiscoverer implements Discoverer {
     public Collection<String> find(String type, String group) {
         Collection<String> forGroup = new HashSet<>();
 
-        String path = buildPath(type, group);
+        String path = buildInstancePath(type, group);
 
         try {
             EtcdResponsePromise<EtcdKeysResponse> promise = this.client.getDir(path).recursive().send();
@@ -262,7 +262,7 @@ public class EtcdDiscoverer implements Discoverer {
     public Map<String, String> getProperties(String type, String group, String name) {
         Map<String, String> properties = new HashMap<>();
 
-        String path = buildPath(type, group, name);
+        String path = buildInstancePath(type, group, name);
 
         try {
             EtcdResponsePromise<EtcdKeysResponse> promise = this.client.getDir(path).send();
@@ -333,7 +333,37 @@ public class EtcdDiscoverer implements Discoverer {
      * @return The path for the instance.
      */
     static String buildInstancePath(Instance instance) {
-        return buildPath(INSTANCE_DIR, instance.getType(), instance.getGroup(), instance.getName());
+        return buildInstancePath(instance.getType(), instance.getGroup(), instance.getName());
+    }
+
+    /**
+     * Builds an etcd path for the given parameters.
+     * @param type The type of the instance.
+     * @param group The group of the instance.
+     * @param name The name of the instance.
+     * @return The path for the instance.
+     */
+    static String buildInstancePath(String type, String group, String name) {
+        return buildPath(INSTANCE_DIR, type, group, name);
+    }
+
+    /**
+     * Builds an etcd path for the given parameters.
+     * @param type The type of the instance.
+     * @param group The group of the instance.
+     * @return The path for the instance.
+     */
+    static String buildInstancePath(String type, String group) {
+        return buildPath(INSTANCE_DIR, type, group);
+    }
+
+    /**
+     * Builds an etcd path for the given parameters.
+     * @param type The type of the instance.
+     * @return The path for the instance.
+     */
+    static String buildInstancePath(String type) {
+        return buildPath(INSTANCE_DIR, type);
     }
 
     /**

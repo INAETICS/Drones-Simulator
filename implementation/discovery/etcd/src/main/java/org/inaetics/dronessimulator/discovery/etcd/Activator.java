@@ -4,6 +4,8 @@ import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
+import org.osgi.service.cm.ConfigurationAdmin;
 
 import java.net.URI;
 
@@ -24,12 +26,24 @@ public class Activator extends DependencyActivatorBase {
                 .setInterface(Discoverer.class.getName(), null)
                 .setImplementation(discoverer)
                 .setCallbacks("init", "registerAll", "unregisterAll", "destroy")
+                .add(createServiceDependency()
+                        .setService(ConfigurationAdmin.class)
+                        .setRequired(true)
+                        .setAutoConfig(false)
+                )
         );
 
-        // Run config discoverer
-        EtcdConfigDiscoverer configDiscoverer = new EtcdConfigDiscoverer(discoverer, manager);
-        this.configDiscoverer = new Thread(configDiscoverer);
-        this.configDiscoverer.start();
+        // Get configuration admin
+        ServiceReference<ConfigurationAdmin> configurationAdminReference = context.getServiceReference(ConfigurationAdmin.class);
+
+        if (configurationAdminReference != null) {
+            ConfigurationAdmin configurationAdmin = context.getService(configurationAdminReference);
+
+            // Run config discoverer
+            EtcdConfigDiscoverer configDiscoverer = new EtcdConfigDiscoverer(discoverer, configurationAdmin);
+            this.configDiscoverer = new Thread(configDiscoverer);
+            this.configDiscoverer.start();
+        }
     }
 
     @Override

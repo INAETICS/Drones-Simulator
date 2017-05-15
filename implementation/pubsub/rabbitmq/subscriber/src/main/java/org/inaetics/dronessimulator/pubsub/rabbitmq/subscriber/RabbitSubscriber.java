@@ -57,6 +57,16 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     }
 
     /**
+     * Instantiates a new RabbitMQ subscriber for use with OSGi. This constructor assumes that the serializer will be
+     * injected later on and the connection factory will be built from a discoverable config.
+     * @param identifier  The identifier for this subscriber. This is used as queue name.
+     */
+    public RabbitSubscriber(String identifier) {
+        super();
+        this.construct(identifier);
+    }
+
+    /**
      * Performs some initialization for the constructors.
      */
     private void construct(String identifier) {

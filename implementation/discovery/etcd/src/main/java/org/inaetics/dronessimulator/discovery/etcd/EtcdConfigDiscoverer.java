@@ -1,10 +1,10 @@
 package org.inaetics.dronessimulator.discovery.etcd;
 
-import org.apache.felix.dm.Component;
-import org.apache.felix.dm.DependencyManager;
 import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.discovery.api.DiscoveredConfig;
+import org.osgi.service.cm.Configuration;
+import org.osgi.service.cm.ConfigurationAdmin;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -16,27 +16,21 @@ public class EtcdConfigDiscoverer implements Runnable {
     /** The discoverer used to find configs. */
     private EtcdDiscoverer discoverer;
 
-    /** The dependency manager used to register config services. */
-    private DependencyManager dependencyManager;
+    /** The configuration admin used to register config services. */
+    private ConfigurationAdmin configurationAdmin;
 
-    /** Cache of registered configs. */
-    private Map<String, DiscoveredConfig> configs;
-
-    /** Mapping of Felix component per config. */
-    private Map<DiscoveredConfig, Component> components;
+    private HashMap<String, String> configs = new HashMap<>();
 
     /**
      * Instantiates a new config discoverer.
      * @param discoverer The etcd discoverer to use to find configs.
-     * @param dependencyManager The dependency manager to use to register config services.
      */
-    public EtcdConfigDiscoverer(EtcdDiscoverer discoverer, DependencyManager dependencyManager) {
+    public EtcdConfigDiscoverer(EtcdDiscoverer discoverer, ConfigurationAdmin configurationAdmin) {
         this.discoverer = discoverer;
-        this.dependencyManager = dependencyManager;
+        this.configurationAdmin = configurationAdmin;
 
         // Initialize some fields
         this.configs = new HashMap<>();
-        this.components = new HashMap<>();
     }
 
     @Override
@@ -83,24 +77,23 @@ public class EtcdConfigDiscoverer implements Runnable {
         String group = pathSegments[1];
         String name = pathSegments[2];
 
+        // Build and register pid
+        String pid = String.join(".", pathSegments);
+        this.configs.put(instancePath, pid);
+
         // Get properties
         Map<String, String> properties = this.discoverer.getProperties(type, group, name);
+        Dictionary<String, String> configurationProperties = new Hashtable<>(properties);
 
-        // Build discovered config object
-        DiscoveredConfig config = new EtcdDiscoveredConfig(type, group, name, properties);
-        this.configs.put(instancePath, config);
+        // Register properties
+        try {
+            Configuration configuration = this.configurationAdmin.getConfiguration(pid);
+            configuration.update(configurationProperties);
+        } catch (IOException e) {
+            logger.error("Error when accessing the configuration admin: {}", e.getMessage());
+        }
 
-        // Build service component
-        Dictionary<String, String> componentProperties = new Hashtable<>();
-        componentProperties.put("type", type);
-        componentProperties.put("group", group);
-
-        Component component = this.dependencyManager.createComponent()
-                .setInterface(DiscoveredConfig.class.getName(), componentProperties)
-                .setImplementation(config);
-        this.components.put(config, component);
-        this.dependencyManager.add(component);
-        logger.info("Discovered config {} {} has become available", name, String.format("(type=%s group=%s)", type, group));
+        logger.info("Discovered config {} has become available", pid);
     }
 
     /**
@@ -110,15 +103,17 @@ public class EtcdConfigDiscoverer implements Runnable {
     private void unregisterInstance(String instancePath) {
         logger.debug("Unregistering {} as a discovered config", instancePath);
 
-        DiscoveredConfig config = this.configs.get(instancePath);
-        Component component = this.components.get(config);
+        String pid = this.configs.get(instancePath);
 
-        // Remove component from dependency manager
-        this.dependencyManager.remove(component);
-        logger.info("Discovered config for {} has been removed", instancePath);
+        // Remove component from configuration admin
+        try {
+            this.configurationAdmin.getConfiguration(pid).delete();
+        } catch (IOException e) {
+            logger.error("Error when accessing the configuration admin: {}", e.getMessage());
+        }
+        logger.info("Discovered config {} has been removed", pid);
 
         // Clean up in case the instance comes back
-        this.components.remove(config);
         this.configs.remove(instancePath);
     }
 }

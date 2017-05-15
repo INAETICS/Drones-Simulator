@@ -53,8 +53,6 @@ public class EtcdDiscoverer implements Discoverer {
         // Do not retry too many times or wait too long
         this.client.setRetryHandler(new RetryOnce(1));
 
-        System.out.println(this.client);
-
         // Log server version
         EtcdVersionResponse versionResponse = this.client.version();
 

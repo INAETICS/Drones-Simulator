@@ -1,12 +1,6 @@
 #!/bin/bash
 
-CWD="$PWD"
-BUNDLE_DIR="$CWD/bundles"
-BUNDLE_SCRIPT="$BUNDLE_DIR/bundle.sh"
-FELIX_DIR="$CWD/felix"
-FELIX_CACHE="${FELIX_DIR}/felix-cache/"
-FELIX_BUNDLE_DIR="${FELIX_DIR}/bundle/"
-DEPENDENT_BUNDLE_DIR="$CWD/dependent-bundles"
+source ./deploy_bundles_to_felix.config
 
 # Stop on error
 set -e
@@ -31,8 +25,12 @@ source "$BUNDLE_SCRIPT"
 mv *.jar "$FELIX_BUNDLE_DIR"
 cd "$CWD"
 
-#cp dependent bundles
+# cp dependent bundles
 echo "Copy dependent bundles in $DEPENDENT_BUNDLE_DIR to $FELIX_BUNDLE_DIR"
 cd "$DEPENDENT_BUNDLE_DIR"
 cp *.jar "$FELIX_BUNDLE_DIR/"
 cd "$CWD"
+
+# cp felix config to felix local
+echo "Copy config $FELIX_CONFIG to $FELIX_FELIX_CONFIG"
+cp "$FELIX_CONFIG" "$FELIX_FELIX_CONFIG"

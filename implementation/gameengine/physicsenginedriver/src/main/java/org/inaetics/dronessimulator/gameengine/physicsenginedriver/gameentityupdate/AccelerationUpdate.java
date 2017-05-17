@@ -10,7 +10,7 @@ import org.inaetics.dronessimulator.physicsengine.entityupdate.EntityUpdate;
 
 @AllArgsConstructor
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper=true)
 public class AccelerationUpdate extends GameEntityUpdate {
     private final D3Vector newAcceleration;
 

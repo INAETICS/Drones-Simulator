@@ -1,9 +1,11 @@
 package org.inaetics.dronessimulator.gameengine.physicsenginedriver.gameentityupdate;
 
 
+import lombok.EqualsAndHashCode;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.EntityUpdate;
 
+@EqualsAndHashCode(callSuper=false)
 public abstract class GameEntityUpdate {
     /**
      * How to update an entity. Applies the update directly to entity.

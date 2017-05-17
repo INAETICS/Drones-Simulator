@@ -10,7 +10,7 @@ import org.inaetics.dronessimulator.physicsengine.entityupdate.PositionEntityUpd
 
 @AllArgsConstructor
 @ToString
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper=true)
 public class PositionUpdate extends GameEntityUpdate {
     private final D3Vector newPosition;
 

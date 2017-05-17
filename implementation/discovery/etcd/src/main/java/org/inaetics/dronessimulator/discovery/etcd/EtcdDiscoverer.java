@@ -291,22 +291,29 @@ public class EtcdDiscoverer implements Discoverer {
         String path = buildPath(DISCOVERABLE_CONFIG_DIR);
 
         try {
-            EtcdKeyGetRequest request = this.client.getDir(path);
+            EtcdKeyGetRequest request = this.client.getDir(path).recursive();
 
             // Wait for change if needed
             if (wait && this.discoverableConfigModifiedIndex != null) {
                 logger.debug("Waiting for changes in discoverable configs at {}", path);
-                request = request.waitForChange(this.discoverableConfigModifiedIndex);
+                request = request.waitForChange(this.discoverableConfigModifiedIndex + 1);
             }
 
             EtcdResponsePromise<EtcdKeysResponse> promise = request.send();
             EtcdKeysResponse keys = promise.get();
 
             if (keys != null) {
-                keys.node.nodes.forEach(node -> instances.add(node.value));
+                long modifiedIndex = 0L;
+
+                for (EtcdKeysResponse.EtcdNode node : keys.getNode().getNodes()) {
+                    if (node.modifiedIndex > modifiedIndex) {
+                        modifiedIndex = node.modifiedIndex;
+                    }
+                    instances.add(node.value);
+                }
 
                 if (wait) {
-                    this.discoverableConfigModifiedIndex = keys.node.modifiedIndex;
+                    this.discoverableConfigModifiedIndex = modifiedIndex;
                     logger.info("Updated last seen change to {}", this.discoverableConfigModifiedIndex);
                 }
             }

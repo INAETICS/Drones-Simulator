@@ -45,11 +45,15 @@ public class EtcdConfigDiscoverer implements Runnable {
             Collection<String> newPaths = new HashSet<>();
             Collection<String> stalePaths = new HashSet<>(currentPaths);
 
+            logger.debug("Found {} configs in etcd", collectedPaths.size());
+
             // Process paths
             for (String path : collectedPaths) {
                 if (this.configs.containsKey(path)) {
+                    logger.debug("Config path {} is still there", path);
                     stalePaths.remove(path);
                 } else {
+                    logger.debug("Config path {} is new", path);
                     newPaths.add(path);
                 }
             }

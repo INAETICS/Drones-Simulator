@@ -1,34 +1,44 @@
 package org.inaetics.dronessimulator.gameengine.test;
 
 
-import org.inaetics.dronessimulator.test.concurrent.ConcurrentExecute;
+import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.protocol.EntityType;
+import org.inaetics.dronessimulator.gameengine.common.state.Bullet;
+import org.inaetics.dronessimulator.gameengine.common.state.Drone;
+import org.inaetics.dronessimulator.gameengine.gamestatemanager.GameStateManager;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 
 public class TestGameStateManager {
+    private GameStateManager gameStateManager;
 
-    @Test
-    @Category(value = GameEngineTests.class)
-    public void testAdd() {
-        int test = 0;
-        ConcurrentExecute execute = new ConcurrentExecute(10);
-
-        execute.addJob(10, 100, () -> System.out.println(test + 1));
-        execute.addJob(10, 100, () -> System.out.println(test + 2));
-        execute.addJob(10, 100, () -> System.out.println("3"));
-        execute.addJob(10, 100, () -> System.out.println("4"));
-        execute.addJob(10, 100, () -> System.out.println("5"));
-        execute.addJob(10, 50, () -> {
-            try {
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-
-        execute.start();
-
-
+    @Before
+    public void init() {
+        this.gameStateManager = new GameStateManager();
     }
 
+    @Test
+    public void testAdd() {
+        Drone drone = new Drone(1, new D3Vector(), new D3Vector(), new D3Vector());
+        this.gameStateManager.addEntityState(drone);
+        this.gameStateManager.addEntityState(new Bullet(2, 100, drone, new D3Vector(), new D3Vector(), new D3Vector()));
+
+        Assert.assertEquals(EntityType.DRONE, this.gameStateManager.getTypeFor(1));
+        Assert.assertEquals(EntityType.BULLET, this.gameStateManager.getTypeFor(2));
+
+        Assert.assertEquals(drone, this.gameStateManager.getById(1));
+    }
+
+    @Test
+    public void testRemove() {
+        Drone drone = new Drone(1, new D3Vector(), new D3Vector(), new D3Vector());
+        this.gameStateManager.addEntityState(drone);
+
+        Assert.assertEquals(drone, this.gameStateManager.getById(1));
+
+        this.gameStateManager.removeState(1);
+        Assert.assertEquals(null, this.gameStateManager.getById(1));
+        Assert.assertEquals(null, this.gameStateManager.getById(2));
+    }
 }

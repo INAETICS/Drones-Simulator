@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.gameengine.common.state;
 
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 
@@ -9,6 +10,7 @@ import org.inaetics.dronessimulator.common.protocol.EntityType;
  * An entity in the physicsengine with some added game state
  */
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper=false)
 public abstract class GameEntity<C extends GameEntity<C>> {
     /**
      * Id of the game entity. Should match with an entity id in the engine

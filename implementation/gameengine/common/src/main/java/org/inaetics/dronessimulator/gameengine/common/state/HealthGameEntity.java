@@ -1,8 +1,10 @@
 package org.inaetics.dronessimulator.gameengine.common.state;
 
+import lombok.EqualsAndHashCode;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 
+@EqualsAndHashCode(callSuper=true)
 public abstract class HealthGameEntity<C extends GameEntity<C>> extends GameEntity<C> {
     /**
      * How much hp this entity has left

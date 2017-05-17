@@ -1,11 +1,13 @@
 package org.inaetics.dronessimulator.gameengine.common.state;
 
+import lombok.EqualsAndHashCode;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 
 /**
  * A Drone game entity
  */
+@EqualsAndHashCode(callSuper = true)
 public class Drone extends HealthGameEntity<Drone> {
     public static final int DRONE_MAX_HEALTH = 100;
 

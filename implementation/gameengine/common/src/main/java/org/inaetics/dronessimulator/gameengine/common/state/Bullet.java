@@ -1,11 +1,13 @@
 package org.inaetics.dronessimulator.gameengine.common.state;
 
+import lombok.EqualsAndHashCode;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 
 /**
  * A bullet game entity
  */
+ @EqualsAndHashCode(callSuper=true)
 public class Bullet extends GameEntity<Bullet> {
     /**
      * How much damage this bullet will do upon impact

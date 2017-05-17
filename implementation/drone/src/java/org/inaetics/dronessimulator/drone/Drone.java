@@ -1,13 +1,17 @@
 package org.inaetics.dronessimulator.drone;
 import org.inaetics.dronessimulator.common.protocol.*;
 import org.inaetics.dronessimulator.common.*;
-import org.inaetics.dronessimulator.drone.handlers.StateMessageHandler;
+import org.inaetics.dronessimulator.drone.components.gps.handlers.StateMessageHandler;
 import org.inaetics.dronessimulator.drone.handlers.DroneHandler;
 import org.inaetics.dronessimulator.pubsub.api.publisher.*;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.*;
+import org.inaetics.dronessimulator.drone.components.radar.*;
+import org.inaetics.dronessimulator.drone.components.Component;
+import java.util.ArrayList;
 
 import java.io.IOException;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Represents a drone in the system.
@@ -15,13 +19,19 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public abstract class Drone{
     private volatile Publisher m_publisher;
     private volatile Subscriber m_subscriber;
+    private volatile Radar m_radar;
+    private ArrayList m_components = new ArrayList();
     private volatile DroneHandler drone_handler;
+
 
     private D3Vector position;
     private D3Vector velocity;
     private D3Vector acceleration;
 
     private StateMessage state_message;
+    private String drone_identifier;
+
+    private final ConcurrentHashMap<String, StateMessage> surrounding_drones;
     private static final int CALCULATE_MS = 50;
 
 
@@ -36,6 +46,8 @@ public abstract class Drone{
         this.acceleration = new D3Vector();
         this.drone_handler = new DroneHandler(this);
         this.state_message = new StateMessage();
+        this.drone_identifier = UUID.randomUUID().toString();
+        this.surrounding_drones = new ConcurrentHashMap<>();
     }
 
     public void init() {
@@ -65,6 +77,10 @@ public abstract class Drone{
 
     public synchronized StateMessage  getStateMessage(){ return state_message; }
 
+    public String getDroneId() { return drone_identifier; }
+
+    public Radar getRadar() { return m_radar; }
+
     /**
      * -- SETTERS
      */
@@ -84,6 +100,18 @@ public abstract class Drone{
         synchronized(state_message){
             state_message = new_state_message;
         }
+    }
+
+
+    /**
+     * -- FELIX CALLBACKS
+     */
+    public void addComponent(Component newComponent){
+
+    }
+
+    public void removeComponent(Component oldComponent){
+
     }
 
     /**
@@ -117,6 +145,7 @@ public abstract class Drone{
     private synchronized void sendTactics(D3Vector acceleration){
         MovementMessage msg = new MovementMessage();
         msg.setAcceleration(acceleration);
+        msg.setIdentifier(this.drone_id);
         try {
             m_publisher.send(MessageTopic.MOVEMENTS, msg);
         } catch (IOException e) {

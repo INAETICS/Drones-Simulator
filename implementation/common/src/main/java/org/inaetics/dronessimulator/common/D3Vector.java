@@ -66,6 +66,10 @@ public class D3Vector implements Serializable {
         return this.getX() * other.getX() + this.getY() * other.getY() + this.getZ() * other.getZ();
     }
 
+    public double distance_between(D3Vector other) {
+        return this.sub(other).length();
+    }
+
     public D3PoolCoordinate toPoolCoordinate() {
         double angle1_x_y;
 

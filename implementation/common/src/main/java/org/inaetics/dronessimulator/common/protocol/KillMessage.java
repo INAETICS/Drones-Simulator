@@ -3,18 +3,16 @@ package org.inaetics.dronessimulator.common.protocol;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class KillMessage extends ProtocolMessage {
-    private int entityId;
+    /** Indentifier of object */
+    private String identifier = null;
     private EntityType entityType;
 
-    public int getEntityId() {
-        return entityId;
-    }
+    public Optional<String> getIdentifier(){ return Optional.ofNullable(identifier); }
 
-    public void setEntityId(int entityId) {
-        this.entityId = entityId;
-    }
+    public void setIdentifier(String identifier){ this.identifier = identifier; }
 
     public EntityType getEntityType() {
         return entityType;

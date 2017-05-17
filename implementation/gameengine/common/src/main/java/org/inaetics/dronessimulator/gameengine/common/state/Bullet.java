@@ -35,7 +35,7 @@ public class Bullet extends GameEntity<Bullet> {
      */
     @Override
     public EntityType getType() {
-        return EntityType.DRONE;
+        return EntityType.BULLET;
     }
 
     @Override

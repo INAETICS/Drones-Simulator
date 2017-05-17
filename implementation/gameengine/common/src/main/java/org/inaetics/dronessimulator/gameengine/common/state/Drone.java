@@ -38,7 +38,7 @@ public class Drone extends HealthGameEntity<Drone> {
      */
     @Override
     public EntityType getType() {
-        return EntityType.BULLET;
+        return EntityType.DRONE;
     }
 
     public synchronized Drone deepCopy() {

@@ -1,8 +1,5 @@
 package org.inaetics.dronessimulator.test.concurrent;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 import java.util.concurrent.PriorityBlockingQueue;
 
 public class TimeoutHandler extends Thread {
@@ -72,11 +69,22 @@ public class TimeoutHandler extends Thread {
         this.interrupt();
     }
 
-    @Getter
-    @AllArgsConstructor
     private class TimeoutEntry implements Comparable<TimeoutEntry> {
         private final Long timeoutAt;
         private final ConcurrentJobEntry.ConcurrentJob job;
+
+        public TimeoutEntry(Long timeoutAt, ConcurrentJobEntry.ConcurrentJob job) {
+            this.timeoutAt = timeoutAt;
+            this.job = job;
+        }
+
+        public Long getTimeoutAt() {
+            return this.timeoutAt;
+        }
+
+        public ConcurrentJobEntry.ConcurrentJob getJob() {
+            return this.job;
+        }
 
         @Override
         public int compareTo(TimeoutEntry o) {

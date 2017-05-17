@@ -29,6 +29,11 @@
             <version>0.1</version>
         </dependency>
         <dependency>
+            <groupId>org.inaetics.dronessimulator</groupId>
+            <artifactId>common-test</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>1.16.10</version>

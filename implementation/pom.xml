@@ -17,6 +17,7 @@
         <module>gameengine</module>
         <module>drone</module>
         <module>instancemanager</module>
+        <module>commontest</module>
     </modules>
 
     <dependencyManagement>

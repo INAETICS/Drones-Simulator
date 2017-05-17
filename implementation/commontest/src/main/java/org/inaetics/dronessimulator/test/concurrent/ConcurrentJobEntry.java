@@ -1,13 +1,11 @@
 package org.inaetics.dronessimulator.test.concurrent;
 
-import lombok.Getter;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-@Getter
 public class ConcurrentJobEntry {
     private final long id;
     private final int amount;
@@ -23,6 +21,26 @@ public class ConcurrentJobEntry {
         this.job = job;
     }
 
+    public long getId() {
+        return this.id;
+    }
+
+    public int getAmount() {
+        return this.amount;
+    }
+
+    public int getTimeoutMs() {
+        return this.timeoutMs;
+    }
+
+    public TimeoutHandler getTimeoutHandler() {
+        return this.timeoutHandler;
+    }
+
+    public Runnable getJob() {
+        return this.job;
+    }
+
     Collection<ConcurrentJob> getJobs() {
         List<ConcurrentJob> result = new ArrayList<>(this.amount);
 
@@ -33,8 +51,7 @@ public class ConcurrentJobEntry {
         return result;
     }
 
-    @Getter
-    public class ConcurrentJob implements Callable<Object> {
+    public class ConcurrentJob implements Runnable {
         private final int subid;
         private boolean hasRun;
         private boolean success;
@@ -53,6 +70,14 @@ public class ConcurrentJobEntry {
             return id + "." + subid;
         }
 
+        public boolean isHasRun() {
+            return this.hasRun;
+        }
+
+        public boolean isSuccess() {
+            return this.success;
+        }
+
         public void run() {
             this.executingThread = Thread.currentThread();
             timeoutHandler.addTimeoutFromNow(timeoutMs, this);
@@ -69,12 +94,6 @@ public class ConcurrentJobEntry {
             if(this.executingThread != null) {
                 this.executingThread.interrupt();
             }
-        }
-
-        @Override
-        public Object call() throws Exception {
-            this.run();
-            return null;
         }
 
         @Override

@@ -1,7 +1,6 @@
-package org.inaetics.dronessimulator.drone.handlers;
+package org.inaetics.dronessimulator.drone.old;
 
 import org.inaetics.dronessimulator.common.protocol.*;
-import org.inaetics.dronessimulator.drone.Drone;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 

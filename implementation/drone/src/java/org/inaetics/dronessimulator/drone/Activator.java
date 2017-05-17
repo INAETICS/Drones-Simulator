@@ -2,9 +2,7 @@ package org.inaetics.dronessimulator.drone;
 
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
-import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
-import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
-import org.inaetics.dronessimulator.drone.components.Component;
+import org.inaetics.dronessimulator.drone.old.Drone;
 import org.osgi.framework.BundleContext;
 
 public class Activator extends DependencyActivatorBase {
@@ -12,19 +10,8 @@ public class Activator extends DependencyActivatorBase {
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
         dependencyManager.add(createComponent()
                 .setInterface(Drone.class.getName(), null)
-                .setImplementation(SimpleDrone.class)
-                .add(createServiceDependency()
-                        .setService(Publisher.class)
-                        .setRequired(true)
-                )
-                .add(createServiceDependency()
-                        .setService(Subscriber.class)
-                        .setRequired(true)
-                ).add(createServiceDependency()
-                        .setService(Component.class)
-                        .setRequired(false)
-                        .setCallbacks("addComponent", "removeComponent")
-                ).setCallbacks("init", "start", "stop", "destroy")
+                .setImplementation(DroneInit.class)
+                .setCallbacks("init", "start", "stop", "destroy")
         );
     }
 }

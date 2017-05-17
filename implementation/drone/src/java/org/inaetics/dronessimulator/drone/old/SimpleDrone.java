@@ -1,5 +1,6 @@
-package org.inaetics.dronessimulator.drone;
+package org.inaetics.dronessimulator.drone.old;
 import org.inaetics.dronessimulator.common.*;
+import org.inaetics.dronessimulator.drone.old.Drone;
 
 import java.util.concurrent.ThreadLocalRandom;
 

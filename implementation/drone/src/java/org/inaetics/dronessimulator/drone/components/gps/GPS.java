@@ -1,15 +1,15 @@
 package org.inaetics.dronessimulator.drone.components.gps;
 
 import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.drone.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
-/**
- * Created by mart on 17-5-17.
- */
+import java.io.IOException;
+
 public class GPS implements MessageHandler {
     private volatile Subscriber m_subscriber;
     private volatile DroneInit m_drone;
@@ -17,6 +17,20 @@ public class GPS implements MessageHandler {
     private volatile D3Vector position;
     private volatile D3Vector velocity;
     private volatile D3Vector acceleration;
+
+
+    /**
+     * FELIX CALLBACKS
+     */
+    public void start() {
+        try {
+            this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
+        } catch (IOException e) {
+            System.out.println("IO Exception add Topic"); // todo logging
+        }
+        this.m_subscriber.addHandler(StateMessage.class, this);
+    }
+
 
     /**
      * -- GETTERS
@@ -32,9 +46,6 @@ public class GPS implements MessageHandler {
     public D3Vector getAcceleration(){
         return acceleration;
     }
-
-    public DroneInit getDrone() { return m_drone; }
-
 
     /**
      * -- SETTERS
@@ -57,7 +68,7 @@ public class GPS implements MessageHandler {
     public void handleMessage(Message message) {
         if (message instanceof StateMessage){
             StateMessage stateMessage = (StateMessage) message;
-            if (stateMessage.getIdentifier().equals(getDrone().getIdentifier())){
+            if (stateMessage.getIdentifier().get().equals(this.m_drone.getIdentifier())){
                 if (stateMessage.getPosition().isPresent()) {
                     this.setPosition(stateMessage.getPosition().get());
                 }

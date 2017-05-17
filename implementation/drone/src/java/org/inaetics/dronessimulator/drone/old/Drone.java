@@ -1,12 +1,11 @@
-package org.inaetics.dronessimulator.drone;
+package org.inaetics.dronessimulator.drone.old;
 import org.inaetics.dronessimulator.common.protocol.*;
 import org.inaetics.dronessimulator.common.*;
 import org.inaetics.dronessimulator.drone.components.gps.handlers.StateMessageHandler;
-import org.inaetics.dronessimulator.drone.handlers.DroneHandler;
 import org.inaetics.dronessimulator.pubsub.api.publisher.*;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.*;
 import org.inaetics.dronessimulator.drone.components.radar.*;
-import org.inaetics.dronessimulator.drone.components.Component;
+
 import java.util.ArrayList;
 
 import java.io.IOException;

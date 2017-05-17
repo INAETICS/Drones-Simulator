@@ -1,13 +1,15 @@
 package org.inaetics.dronessimulator.drone;
-import org.inaetics.dronessimulator.common.protocol.*;
-import org.inaetics.dronessimulator.common.*;
-import org.inaetics.dronessimulator.drone.handlers.StateMessageHandler;
+
+import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.protocol.MessageTopic;
+import org.inaetics.dronessimulator.common.protocol.MovementMessage;
+import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.drone.handlers.DroneHandler;
-import org.inaetics.dronessimulator.pubsub.api.publisher.*;
-import org.inaetics.dronessimulator.pubsub.api.subscriber.*;
+import org.inaetics.dronessimulator.drone.handlers.StateMessageHandler;
+import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
+import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.io.IOException;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Represents a drone in the system.

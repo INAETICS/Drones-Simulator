@@ -12,8 +12,6 @@ import org.osgi.framework.BundleContext;
 public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
-        // TODO: Make name configurable
-
         manager.add(createComponent()
                 .setInterface(Subscriber.class.getName(), null)
                 .setImplementation(RabbitSubscriber.class)

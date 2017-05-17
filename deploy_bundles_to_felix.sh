@@ -1,14 +1,6 @@
 #!/bin/bash
 
-CWD="$PWD"
-BUNDLE_DIR="$CWD/bundles"
-BUNDLE_SCRIPT="$BUNDLE_DIR/bundle.sh"
-FELIX_CONFIG="$CWD/felix-config.properties"
-FELIX_DIR="$CWD/felix"
-FELIX_CACHE="${FELIX_DIR}/felix-cache/"
-FELIX_BUNDLE_DIR="${FELIX_DIR}/bundle/"
-FELIX_FELIX_CONFIG="${FELIX_DIR}/conf/config.properties"
-DEPENDENT_BUNDLE_DIR="$CWD/dependent-bundles"
+source ./deploy_bundles_to_felix.config
 
 # Stop on error
 set -e

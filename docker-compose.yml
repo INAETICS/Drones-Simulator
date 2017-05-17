@@ -1,0 +1,21 @@
+version: '3'
+services:
+  rabbitmq:
+    image: rabbitmq:alpine
+    ports:
+      - "5672:5672"
+  game-engine:
+    build: ./docker_images/game_engine
+    depends_on:
+      - rabbitmq
+    links:
+      - "rabbitmq:rabbitmq"
+    tty: true
+  drone:
+    build: ./docker_images/drone
+    depends_on:
+      - game-engine
+    links:
+      - "rabbitmq:rabbitmq"
+
+    # Specify more docker images

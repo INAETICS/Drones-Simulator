@@ -3,62 +3,47 @@ package org.inaetics.dronessimulator.visualisation;
 import com.rabbitmq.client.ConnectionFactory;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
-import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
+import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.common.D3PoolCoordinate;
+import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.protocol.KillMessage;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
+import org.inaetics.dronessimulator.pubsub.api.Message;
+import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitSubscriber;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
-public class Game extends Application {
+public class Game extends Application implements MessageHandler {
     private volatile RabbitSubscriber subscriber;
-
 
     public Game() {
     }
 
     private Pane playfieldLayer;
 
-    private List<BasicDrone> drones = new ArrayList<>();
-
-    private Scene scene;
+    private Map<String, Drone> drones = new HashMap<>();
 
     private int i = 0;
     private long lastLog = -1;
 
+    /**
+     * Main entry point for a JavaFX application
+     *
+     * @param primaryStage - the primary stage for this application
+     */
     @Override
     public void start(Stage primaryStage) {
-        if(this.subscriber == null) {
-            ConnectionFactory connectionFactory = new ConnectionFactory();
-            // We can connect to localhost, since the visualization does not run within Docker
-            this.subscriber = new RabbitSubscriber(connectionFactory, "visualisation", new JavaSerializer());
-
-            try {
-                this.subscriber.connect();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        Group root = new Group();
-
-        // create layers
-        playfieldLayer = new Pane();
-        root.getChildren().add(playfieldLayer);
-
-        scene = new Scene( root, Settings.SCENE_WIDTH, Settings.SCENE_HEIGHT);
-
-        primaryStage.setScene(scene);
-        primaryStage.show();
-
-
-        createPlayers();
+        setupRabbit();
+        setupInterface(primaryStage);
 
         lastLog = System.currentTimeMillis();
 
@@ -67,7 +52,7 @@ public class Game extends Application {
             @Override
             public void handle(long now) {
                 i++;
-                if(i == 100) {
+                if (i == 100) {
                     long current = System.currentTimeMillis();
                     float durationAverageMs = ((float) (current - lastLog)) / 100f;
                     float fps = 1000f / durationAverageMs;
@@ -79,37 +64,105 @@ public class Game extends Application {
                     i = 0;
                 }
 
-                // player input
-                drones.forEach(drone -> drone.processInput());
-
                 // update sprites in scene
-                drones.forEach(drone -> drone.updateUI());
+                drones.forEach((id, drone) -> drone.updateUI());
             }
 
         };
         gameLoop.start();
     }
 
-    private void createPlayers() {
-        // drone input
-        Input input = new Input(scene, subscriber);
-        this.subscriber.addHandler(StateMessage.class, input);
+    /**
+     * Message handler for the pubsub
+     * Changes the position and direction based on the stateMessage
+     *
+     * @param message The received message.
+     */
+    public synchronized void handleMessage(Message message) {
+
+        if (message instanceof StateMessage) {
+            StateMessage stateMessage = (StateMessage) message;
+
+            if (!stateMessage.getIdentifier().isPresent()) {
+                return;
+            }
+            Drone currentDrone = drones.computeIfAbsent(stateMessage.getIdentifier().get(), k -> createPlayer(stateMessage.getIdentifier().get()));
+
+            if (stateMessage.getPosition().isPresent()) {
+                currentDrone.setPosition(stateMessage.getPosition().get());
+            }
+
+            if (stateMessage.getDirection().isPresent()) {
+                currentDrone.setDirection(stateMessage.getDirection().get());
+            }
+        } else if (message instanceof KillMessage) {
+            KillMessage killMessage = (KillMessage) message;
+
+            if (!killMessage.getIdentifier().isPresent()) {
+                return;
+            }
+            // todo: add boolean remove to drone. When this boolean is set, then do explosion animation and remove drone.
+            drones.remove(killMessage.getIdentifier().get());
+        } else {
+            Logger.getLogger(this.getClass()).info("Received non-state msg: " + message);
+        }
+    }
+
+    /**
+     * Creates a new drone and returns it
+     *
+     * @param id String - Identifier of the new drone
+     * @return drone Drone - The newly created drone
+     */
+    private Drone createPlayer(String id) {
+        // create drone
+        BasicDrone drone = new BasicDrone(playfieldLayer);
+
+        drone.setPosition(new D3Vector(0, 0, 0));
+        drone.setDirection(new D3PoolCoordinate(0, 0, 0));
+
+        // register drone
+        drones.put(id, drone);
+
+        return drone;
+    }
+
+    private void setupRabbit() {
+        if (this.subscriber == null) {
+            ConnectionFactory connectionFactory = new ConnectionFactory();
+            // We can connect to localhost, since the visualization does not run within Docker
+            this.subscriber = new RabbitSubscriber(connectionFactory, "visualisation", new JavaSerializer());
+
+            try {
+                this.subscriber.connect();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        this.subscriber.addHandler(StateMessage.class, this);
+        this.subscriber.addHandler(KillMessage.class, this);
         try {
             this.subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        // register input listeners
-        input.addListeners();
-
-        // create drone
-        BasicDrone drone = new BasicDrone(playfieldLayer, input);
-
-        // register drone
-        drones.add(drone);
-
     }
+
+    private void setupInterface(Stage primaryStage) {
+        StackPane root = new StackPane();
+
+        // create layers
+        playfieldLayer = new Pane();
+        root.getChildren().add(playfieldLayer);
+        root.setId("pane");
+
+        Scene scene = new Scene(root, Settings.SCENE_WIDTH, Settings.SCENE_HEIGHT);
+        scene.getStylesheets().addAll(this.getClass().getResource("/style.css").toExternalForm());
+
+        primaryStage.setScene(scene);
+        primaryStage.show();
+    }
+
     public static void main(String[] args) {
         launch(args);
     }

@@ -4,16 +4,15 @@ package org.inaetics.dronessimulator.test.concurrent;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.Callable;
 
 public class ConcurrentJobEntry {
     private final long id;
     private final int amount;
     private final int timeoutMs;
     private final TimeoutHandler timeoutHandler;
-    private final Runnable job;
+    private final IConcurrentJob job;
 
-    public ConcurrentJobEntry(long id, int amount, int timeoutMs, TimeoutHandler timeoutHandler, Runnable job) {
+    public ConcurrentJobEntry(long id, int amount, int timeoutMs, TimeoutHandler timeoutHandler, IConcurrentJob job) {
         this.id = id;
         this.amount = amount;
         this.timeoutMs = timeoutMs;
@@ -37,7 +36,7 @@ public class ConcurrentJobEntry {
         return this.timeoutHandler;
     }
 
-    public Runnable getJob() {
+    public IConcurrentJob getJob() {
         return this.job;
     }
 
@@ -82,7 +81,7 @@ public class ConcurrentJobEntry {
             this.executingThread = Thread.currentThread();
             timeoutHandler.addTimeoutFromNow(timeoutMs, this);
 
-            job.run();
+            job.run(subid);
             this.hasRun = true;
             this.success = true;
         }

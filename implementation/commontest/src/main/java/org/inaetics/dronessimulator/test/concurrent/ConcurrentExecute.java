@@ -21,7 +21,7 @@ public class ConcurrentExecute {
         this.timeoutHandler = new TimeoutHandler();
     }
 
-    public void addJob(int amount, int timeoutMs, Runnable job) {
+    public void addJob(int amount, int timeoutMs, IConcurrentJob job) {
         long id = nextId.incrementAndGet();
         synchronized (this) {
             this.jobEntries.add(new ConcurrentJobEntry(id, amount, timeoutMs, this.timeoutHandler, job));

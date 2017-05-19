@@ -4,16 +4,16 @@ import java.util.Collections;
 import java.util.List;
 
 public class DamageMessage extends ProtocolMessage {
-    private int entityId;
+    private String entityId;
     private EntityType entityType;
 
     private int damage;
 
-    public int getEntityId() {
+    public String getEntityId() {
         return entityId;
     }
 
-    public void setEntityId(int entityId) {
+    public void setEntityId(String entityId) {
         this.entityId = entityId;
     }
 

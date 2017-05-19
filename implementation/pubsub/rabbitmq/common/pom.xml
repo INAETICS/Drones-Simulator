@@ -12,6 +12,13 @@
     <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
     <artifactId>rabbitmq-common</artifactId>
     <version>0.1</version>
+    <dependencies>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.discovery</groupId>
+            <artifactId>discovery-api</artifactId>
+            <version>0.1</version>
+        </dependency>
+    </dependencies>
 
     <packaging>bundle</packaging>
 

@@ -35,6 +35,14 @@ public class RabbitPublisher extends RabbitConnection implements Publisher {
     }
 
     /**
+     * Instantiates a new RabbitMQ publisher for use with OSGi. This constructor assumes the serializer is injected
+     * later on and the connection factory will be built from a discoverable config.
+     */
+    public RabbitPublisher() {
+        super();
+    }
+
+    /**
      * Sends the given message to subscribers on the topic of this publisher.
      * @param topic The topic to publish the message to.
      * @param message The message to send.

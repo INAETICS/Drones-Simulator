@@ -24,7 +24,7 @@ public abstract class HealthGameEntity<C extends GameEntity<C>> extends GameEnti
     public abstract C deepCopy();
 
 
-    public synchronized int getHP() {
+    public int getHP() {
         return hp;
     }
 
@@ -32,7 +32,7 @@ public abstract class HealthGameEntity<C extends GameEntity<C>> extends GameEnti
      * Damage this entity with dmg damage.
      * @param dmg Amount of damage to the entity
      */
-    public synchronized void damage(int dmg) {
+    public void damage(int dmg) {
         this.hp -= dmg;
     }
 }

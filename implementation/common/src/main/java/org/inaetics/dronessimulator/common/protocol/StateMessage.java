@@ -61,7 +61,9 @@ public class StateMessage extends ProtocolMessage {
         this.acceleration = acceleration;
     }
 
-    public Optional<String> getIdentifier(){ return Optional.ofNullable(identifier); }
+    public String getIdentifier() {
+        return identifier;
+    }
 
     public void setIdentifier(String identifier){ this.identifier = identifier; }
 

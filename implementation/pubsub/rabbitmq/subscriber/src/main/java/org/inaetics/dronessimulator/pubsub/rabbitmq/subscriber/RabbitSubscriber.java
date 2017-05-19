@@ -10,10 +10,7 @@ import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.common.RabbitConnection;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -54,6 +51,25 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     public RabbitSubscriber(ConnectionFactory connectionFactory, String identifier) {
         super(connectionFactory);
         this.construct(identifier);
+    }
+
+    /**
+     * Instantiates a new RabbitMQ subscriber for use with OSGi. This constructor assumes that the serializer will be
+     * injected later on and the connection factory will be built from a discoverable config.
+     * @param identifier  The identifier for this subscriber. This is used as queue name.
+     */
+    public RabbitSubscriber(String identifier) {
+        super();
+        this.construct(identifier);
+    }
+
+    /**
+     * Instantiates a new RabbitMQ subscriber for use with OSGi. This constructor assumes that the serializer will be
+     * injected later on and the connection factory will be built from a discoverable config. The identifier will be
+     * set to a generated UUID.
+     */
+    public RabbitSubscriber() {
+        this(UUID.randomUUID().toString());
     }
 
     /**

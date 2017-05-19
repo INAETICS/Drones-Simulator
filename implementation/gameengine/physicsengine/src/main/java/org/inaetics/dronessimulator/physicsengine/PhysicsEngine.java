@@ -6,6 +6,7 @@ import org.inaetics.dronessimulator.physicsengine.entityupdate.EntityUpdate;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.log4j.Logger;
 
 /**
  * A very simple physicsengine where gravity holds, all entites are 1kg and without other

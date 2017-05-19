@@ -8,7 +8,7 @@ set -e
 # Remove existing bundles in felix
 cd "$FELIX_BUNDLE_DIR"
 echo "Removing all felix bundles in $FELIX_BUNDLE_DIR"
-if [ "$(ls -A $FELIX_BUNDLE_DIR)" ]; then
+if [ "$(ls -A $FELIX_BUNDLE_DIR | grep *.jar)" ]; then
   rm *.jar
 fi
 cd "$CWD"

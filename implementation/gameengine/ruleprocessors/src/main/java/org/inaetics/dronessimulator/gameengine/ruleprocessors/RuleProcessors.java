@@ -5,9 +5,9 @@ import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IIdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
-import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch.CollisionRule;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.Processor;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.SendMessages;
+import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch.CollisionRule;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch.KillEntitiesRule;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 

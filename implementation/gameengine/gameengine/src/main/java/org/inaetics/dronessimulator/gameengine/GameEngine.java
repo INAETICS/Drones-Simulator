@@ -3,19 +3,14 @@ package org.inaetics.dronessimulator.gameengine;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
-import org.inaetics.dronessimulator.common.protocol.MovementMessage;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IIdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.IRuleProcessors;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
 
 import java.io.IOException;
-import java.util.Dictionary;
-import java.util.Hashtable;
 
 /**
  * Wrapper around PhysicsEngine. Sets up and connects all handlers with each other.

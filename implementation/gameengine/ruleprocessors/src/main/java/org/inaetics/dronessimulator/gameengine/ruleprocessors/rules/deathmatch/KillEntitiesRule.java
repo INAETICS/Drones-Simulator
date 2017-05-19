@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch;
 
-import org.inaetics.dronessimulator.common.protocol.KillMessage;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.CurrentStateEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.DestroyHealthEntityEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;

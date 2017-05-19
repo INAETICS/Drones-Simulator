@@ -6,10 +6,11 @@ import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
+import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 
 import java.io.IOException;
 
-public class DroneInit {
+public class DroneInit implements MessageHandler {
     private String identifier;
     private Subscriber m_subscriber;
     public String getIdentifier(){
@@ -25,7 +26,7 @@ public class DroneInit {
         } catch (IOException e) {
             System.out.println("IO Exception add Topic");
         }
-        this.m_subscriber.addHandler(KillMessage.class, this);
+        this.m_subscriber.addHandler(StateMessage.class, this);
     }
     
     /**
@@ -38,10 +39,8 @@ public class DroneInit {
     }
 
     public void handleKillMessage(KillMessage killMessage){
-        if(killMessage.getIdentifier().isPresent()){
-            if(killMessage.getIdentifier().get().equals(this.getIdentifier())){
-                // todo kill droneinit bundle.
-            }
+        if(killMessage.getIdentifier().equals(this.getIdentifier())){
+            // todo kill droneinit bundle
         }
     }
 

@@ -30,7 +30,7 @@ public class TestGameSubscriberMessageHandler {
         msgHandler.handleMessage(msg);
 
         Assert.assertEquals(new AccelerationUpdate(new D3Vector()), mockDriver.getIncomingUpdateQueue().poll());
-
+        // TODO Add other message types
         MovementMessage msgNoAccell = new MovementMessage();
         msg.setIdentifier("1");
         msg.setDirection(new D3PoolCoordinate());

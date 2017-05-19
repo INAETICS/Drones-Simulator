@@ -235,6 +235,11 @@ public class EtcdDiscoverer implements Discoverer {
             EtcdResponsePromise<EtcdKeysResponse> promise = request.send();
             EtcdKeysResponse keys = promise.get();
 
+            // If waited for changes, we have to get the actual data due to etcd quirks
+            if (wait) {
+                keys = this.client.getDir(path).recursive().send().get();
+            }
+
             if (keys != null) {
                 keys.node.nodes.forEach(groupNode -> {
                     Collection<String> forGroup = new HashSet<>();
@@ -284,6 +289,11 @@ public class EtcdDiscoverer implements Discoverer {
 
             EtcdResponsePromise<EtcdKeysResponse> promise = request.send();
             EtcdKeysResponse keys = promise.get();
+
+            // If waited for changes, we have to get the actual data due to etcd quirks
+            if (wait) {
+                keys = this.client.getDir(path).recursive().send().get();
+            }
 
             if (keys != null) {
                 keys.node.nodes.forEach(node -> forGroup.add(getDirName(node.key)));

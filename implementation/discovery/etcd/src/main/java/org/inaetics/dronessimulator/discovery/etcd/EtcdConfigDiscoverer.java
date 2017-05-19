@@ -19,6 +19,7 @@ public class EtcdConfigDiscoverer implements Runnable {
     /** The configuration admin used to register config services. */
     private ConfigurationAdmin configurationAdmin;
 
+    /** Map of the already discovered configurations. */
     private HashMap<String, String> configs = new HashMap<>();
 
     /**
@@ -77,27 +78,32 @@ public class EtcdConfigDiscoverer implements Runnable {
 
         // Split path
         String[] pathSegments = EtcdDiscoverer.splitInstancePath(instancePath);
-        String type = pathSegments[0];
-        String group = pathSegments[1];
-        String name = pathSegments[2];
 
-        // Build and register pid
-        String pid = String.join(".", pathSegments);
-        this.configs.put(instancePath, pid);
+        if (pathSegments.length == 3) {
+            String type = pathSegments[0];
+            String group = pathSegments[1];
+            String name = pathSegments[2];
 
-        // Get properties
-        Map<String, String> properties = this.discoverer.getProperties(type, group, name);
-        Dictionary<String, String> configurationProperties = new Hashtable<>(properties);
+            // Build and register pid
+            String pid = String.join(".", pathSegments);
+            this.configs.put(instancePath, pid);
 
-        // Register properties
-        try {
-            Configuration configuration = this.configurationAdmin.getConfiguration(pid);
-            configuration.update(configurationProperties);
-        } catch (IOException e) {
-            logger.error("Error when accessing the configuration admin: {}", e.getMessage());
+            // Get properties
+            Map<String, String> properties = this.discoverer.getProperties(type, group, name);
+            Dictionary<String, String> configurationProperties = new Hashtable<>(properties);
+
+            // Register properties
+            try {
+                Configuration configuration = this.configurationAdmin.getConfiguration(pid);
+                configuration.update(configurationProperties);
+            } catch (IOException e) {
+                logger.error("Error when accessing the configuration admin: {}", e.getMessage());
+            }
+
+            logger.info("Discovered config {} has become available", pid);
+        } else {
+            logger.warn("Invalid config {} detected", instancePath);
         }
-
-        logger.info("Discovered config {} has become available", pid);
     }
 
     /**

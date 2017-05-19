@@ -3,6 +3,7 @@ package org.inaetics.dronessimulator.gameengine.physicsenginedriver;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
+import org.inaetics.dronessimulator.gameengine.identifiermapper.IIdentifierMapper;
 import org.inaetics.dronessimulator.physicsengine.IPhysicsEngine;
 import org.osgi.framework.BundleContext;
 
@@ -18,6 +19,10 @@ public class Activator extends DependencyActivatorBase {
             )
             .add(createServiceDependency()
                 .setService(IGameStateManager.class)
+                .setRequired(true)
+            )
+            .add(createServiceDependency()
+                .setService(IIdentifierMapper.class)
                 .setRequired(true)
             )
         );

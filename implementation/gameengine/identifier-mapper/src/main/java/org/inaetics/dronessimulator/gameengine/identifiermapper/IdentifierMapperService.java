@@ -24,5 +24,15 @@ public class IdentifierMapperService extends AbstractIdentifierMapper<Integer, S
         return fromOneToTwo(id);
     }
 
+    @Override
+    public void removeMapping(Integer gameengineId) {
+        this.removeMapping(gameengineId, this.fromGameEngineToProtocolId(gameengineId));
+    }
+
+    @Override
+    public void removeMapping(String protocolId) {
+        this.removeMapping(this.fromProtocolToGameEngineId(protocolId), protocolId);
+    }
+
 
 }

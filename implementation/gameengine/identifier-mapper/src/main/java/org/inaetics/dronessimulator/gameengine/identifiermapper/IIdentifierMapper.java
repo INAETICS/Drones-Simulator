@@ -7,4 +7,7 @@ public interface IIdentifierMapper {
     String fromGameEngineToProtocolId(Integer id);
 
     void setMapping(Integer id1, String id2);
+
+    void removeMapping(Integer gameengineId);
+    void removeMapping(String protocolId);
 }

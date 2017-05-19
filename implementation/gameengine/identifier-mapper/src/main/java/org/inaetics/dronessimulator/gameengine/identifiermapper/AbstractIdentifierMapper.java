@@ -27,4 +27,10 @@ public class AbstractIdentifierMapper<I1, I2> implements IAbstractIdentifierMapp
         this.oneToTwo.put(id1, id2);
         this.twoToOne.put(id2, id1);
     }
+
+    @Override
+    public synchronized void removeMapping(I1 id1, I2 id2) {
+        this.oneToTwo.remove(id1);
+        this.twoToOne.remove(id2);
+    }
 }

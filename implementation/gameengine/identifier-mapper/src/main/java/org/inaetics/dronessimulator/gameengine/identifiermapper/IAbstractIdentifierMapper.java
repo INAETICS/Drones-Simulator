@@ -5,4 +5,6 @@ public interface IAbstractIdentifierMapper<I1, I2> {
     I1 fromTwoToOne(I2 id);
 
     void setMapping(I1 id1, I2 id2);
+
+    void removeMapping(I1 id1, I2 id2);
 }

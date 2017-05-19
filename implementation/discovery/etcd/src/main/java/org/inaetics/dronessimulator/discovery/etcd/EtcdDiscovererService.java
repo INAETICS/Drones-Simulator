@@ -58,8 +58,18 @@ public class EtcdDiscovererService implements Discoverer {
     }
 
     @Override
+    public Map<String, Collection<String>> waitFor(String type) {
+        return this.discoverer.waitFor(type);
+    }
+
+    @Override
     public Collection<String> find(String type, String group) {
         return this.discoverer.find(type, group);
+    }
+
+    @Override
+    public Collection<String> waitFor(String type, String group) {
+        return this.discoverer.waitFor(type, group);
     }
 
     @Override

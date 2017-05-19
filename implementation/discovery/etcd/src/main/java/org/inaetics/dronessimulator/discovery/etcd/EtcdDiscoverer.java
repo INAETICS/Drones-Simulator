@@ -212,12 +212,22 @@ public class EtcdDiscoverer implements Discoverer {
 
     @Override
     public Map<String, Collection<String>> find(String type) {
+        return this.find(type, false);
+    }
+
+    private Map<String, Collection<String>> find(String type, boolean wait) {
         Map<String, Collection<String>> forType = new HashMap<>();
 
         String path = buildInstancePath(type);
 
         try {
-            EtcdResponsePromise<EtcdKeysResponse> promise = this.client.getDir(path).recursive().send();
+            EtcdKeyGetRequest request = this.client.getDir(path).recursive();
+
+            if (wait) {
+                request = request.waitForChange();
+            }
+
+            EtcdResponsePromise<EtcdKeysResponse> promise = request.send();
             EtcdKeysResponse keys = promise.get();
 
             if (keys != null) {
@@ -238,13 +248,28 @@ public class EtcdDiscoverer implements Discoverer {
     }
 
     @Override
+    public Map<String, Collection<String>> waitFor(String type) {
+        return this.find(type, true);
+    }
+
+    @Override
     public Collection<String> find(String type, String group) {
+        return this.find(type, group, false);
+    }
+
+    private Collection<String> find(String type, String group, boolean wait) {
         Collection<String> forGroup = new HashSet<>();
 
         String path = buildInstancePath(type, group);
 
         try {
-            EtcdResponsePromise<EtcdKeysResponse> promise = this.client.getDir(path).recursive().send();
+            EtcdKeyGetRequest request = this.client.getDir(path).recursive();
+
+            if (wait) {
+                request = request.waitForChange();
+            }
+
+            EtcdResponsePromise<EtcdKeysResponse> promise = request.send();
             EtcdKeysResponse keys = promise.get();
 
             if (keys != null) {
@@ -256,6 +281,11 @@ public class EtcdDiscoverer implements Discoverer {
         }
 
         return forGroup;
+    }
+
+    @Override
+    public Collection<String> waitFor(String type, String group) {
+        return this.find(type, group, true);
     }
 
     @Override

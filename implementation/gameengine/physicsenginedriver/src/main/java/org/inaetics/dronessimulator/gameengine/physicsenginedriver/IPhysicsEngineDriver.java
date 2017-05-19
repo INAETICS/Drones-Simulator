@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.gameengine.physicsenginedriver;
 
 
+import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.gameentityupdate.GameEntityUpdate;
@@ -12,5 +13,9 @@ public interface IPhysicsEngineDriver {
 
     void addNewEntity(GameEntity entity);
 
-    void addUpdate(int entityId, GameEntityUpdate update);
+    void removeEntity(int entityId);
+
+    void damageEntity(int entityId, int damage);
+
+    void changeAccelerationEntity(int entityId, D3Vector newAcceleration);
 }

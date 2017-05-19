@@ -86,7 +86,7 @@ public class Game extends Application implements MessageHandler {
             if (!stateMessage.getIdentifier().isPresent()) {
                 return;
             }
-            Drone currentDrone = drones.getOrDefault(stateMessage.getIdentifier().get(), createPlayer(stateMessage.getIdentifier().get()));
+            Drone currentDrone = drones.computeIfAbsent(stateMessage.getIdentifier().get(), k -> createPlayer(stateMessage.getIdentifier().get()));
 
             if (stateMessage.getPosition().isPresent()) {
                 currentDrone.setPosition(stateMessage.getPosition().get());

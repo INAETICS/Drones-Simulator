@@ -16,6 +16,30 @@ public class Engine {
     private volatile Publisher m_publisher;
     private volatile DroneInit m_drone;
 
+    public static final int MAX_VELOCITY = 20;
+    public static final int MAX_ACCELERATION = 10;
+
+    D3Vector limit_acceleration(D3Vector input){
+        D3Vector output = input;
+        // Prevent that the acceleration exteeds te maximum acceleration
+        if(input.length() > MAX_ACCELERATION){
+            double correctionFactor = MAX_ACCELERATION / input.length();
+            output = input.scale(correctionFactor);
+        }
+        return output;
+    }
+
+    D3Vector maximize_acceleration(D3Vector input){
+        D3Vector output = input;
+        // Prevent that the acceleration exteeds te maximum acceleration
+        if(input.length() < MAX_ACCELERATION){
+            double correctionFactor =  input.length() / MAX_ACCELERATION;
+            output = input.scale(correctionFactor);
+        }
+        return output;
+    }
+
+
     public void sendAcceleration(D3Vector acceleration){
         MovementMessage msg = new MovementMessage();
         msg.setAcceleration(acceleration);

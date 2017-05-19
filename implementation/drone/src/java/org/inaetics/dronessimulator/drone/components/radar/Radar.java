@@ -12,8 +12,11 @@ import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import javax.swing.text.Position;
 import java.io.IOException;
+import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 
 /**
  * Created by mart on 15-5-17.
@@ -45,6 +48,21 @@ public class Radar implements MessageHandler {
         return position;
     }
 
+    public List<D3Vector> getRadar(){
+        return all_positions.entrySet()
+                .stream()
+                .map(e -> e.getValue())
+                .filter(object_position -> position.distance_between(object_position) <= RADAR_RANGE)
+                .collect(Collectors.toList());
+    }
+
+    public Optional<D3Vector> getNearestTarget(){
+        return getRadar()
+                .stream()
+                .sorted((e1, e2) -> Double.compare(e1.distance_between(position), e2.distance_between(position)))
+                .findFirst();
+    }
+
     /**
      * -- SETTERS
      */
@@ -53,11 +71,13 @@ public class Radar implements MessageHandler {
     }
 
     /**
-     * -- MESSAGEHANDLER
+     * -- MESSAGEHANDLERS
      */
     public void handleMessage(Message message) {
         if (message instanceof StateMessage){
-            StateMessage stateMessage = (StateMessage) message;
+            handleStateMessage((StateMessage) message);
+        } else if (message instanceof KillMessage){
+            handleKillMessage((KillMessage) message);
         }
     }
 
@@ -74,8 +94,8 @@ public class Radar implements MessageHandler {
     }
 
     public void handleKillMessage(KillMessage killMessage){
-        if (killMessage.get)
-
+        //if (killMessa)
+        //todo implement handleKillMessage
     }
 
 }

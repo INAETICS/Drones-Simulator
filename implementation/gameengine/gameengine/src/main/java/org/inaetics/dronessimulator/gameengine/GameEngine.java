@@ -5,6 +5,7 @@ import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.MovementMessage;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
+import org.inaetics.dronessimulator.gameengine.identifiermapper.IIdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.IRuleProcessors;
 import org.inaetics.dronessimulator.pubsub.api.Message;
@@ -39,6 +40,8 @@ public class GameEngine {
 
     private volatile Subscriber m_subscriber;
 
+    private volatile IIdentifierMapper m_id_mapper;
+
     /**
      * Message handler to handle any newly discovered or removed drones
      */
@@ -54,8 +57,8 @@ public class GameEngine {
      */
     public void start() {
         Logger.getLogger(GameEngine.class).info("Starting Game Engine...");
-        this.incomingHandler = new SubscriberMessageHandler(this.m_physicsEngineDriver);
-        this.discoveryHandler = new DiscoveryHandler(this.m_physicsEngineDriver);
+        this.incomingHandler = new SubscriberMessageHandler(this.m_physicsEngineDriver, this.m_id_mapper, this.m_stateManager);
+        this.discoveryHandler = new DiscoveryHandler(this.m_physicsEngineDriver, this.m_id_mapper);
 
         try {
             this.m_subscriber.addTopic(MessageTopic.MOVEMENTS);
@@ -67,7 +70,7 @@ public class GameEngine {
         this.m_subscriber.addHandler(Message.class, this.incomingHandler);
 
         //INSERT TEST DATA
-        this.discoveryHandler.newDrone(1, new D3Vector());
+        this.discoveryHandler.newDrone("DRONE1", new D3Vector());
 
         Logger.getLogger(GameEngine.class).info("Started Game Engine!");
     }

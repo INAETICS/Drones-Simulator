@@ -20,6 +20,7 @@
         <module>ruleprocessors</module>
         <module>gameengine</module>
         <module>gamestate-manager</module>
+        <module>identifier-mapper</module>
     </modules>
 
     <dependencies>

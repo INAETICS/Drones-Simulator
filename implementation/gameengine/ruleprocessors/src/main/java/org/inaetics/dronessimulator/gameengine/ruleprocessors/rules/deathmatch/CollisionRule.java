@@ -4,6 +4,7 @@ package org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.CollisionStartEvent;
+import org.inaetics.dronessimulator.gameengine.common.gameevent.DamageEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.DestroyBulletEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.common.state.Bullet;
@@ -29,8 +30,8 @@ public class CollisionRule extends Processor {
 
             if(e1Type.equals(EntityType.DRONE) && e2Type.equals(EntityType.DRONE)) {
                 // Drone vs. Drone collision. Damage both
-                ((Drone) e1).damage(collisionDmg);
-                ((Drone) e2).damage(collisionDmg);
+                results.add(new DamageEvent(e1, collisionDmg));
+                results.add(new DamageEvent(e2, collisionDmg));
             } else if(e1Type.equals(EntityType.BULLET) && e2Type.equals(EntityType.BULLET)) {
                 // Bullet vs. bullet. Destroy both
                 results.add(new DestroyBulletEvent(e1.getEntityId()));
@@ -41,15 +42,14 @@ public class CollisionRule extends Processor {
                 Drone drone = (Drone) e1;
 
                 results.add(new DestroyBulletEvent(bullet.getEntityId()));
-                drone.damage(bullet.getDmg());
+                results.add(new DamageEvent(drone, bullet.getDmg()));
             } else if(e1Type.equals(EntityType.BULLET) && e2Type.equals(EntityType.DRONE)) {
                 // Drone vs. bullet. Damage drone
                 Bullet bullet = (Bullet) e1;
                 Drone drone = (Drone) e2;
 
                 results.add(new DestroyBulletEvent(bullet.getEntityId()));
-                drone.damage(bullet.getDmg());
-
+                results.add(new DamageEvent(drone, bullet.getDmg()));
             } else {
                 Logger.getLogger(CollisionRule.class).error("Found a collision with unknown rules. Collision between: {} & {} ", e1Type, e2Type);
             }

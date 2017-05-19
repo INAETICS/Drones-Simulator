@@ -7,6 +7,7 @@ import org.inaetics.dronessimulator.common.protocol.MovementMessage;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.IRuleProcessors;
+import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
@@ -58,11 +59,12 @@ public class GameEngine {
 
         try {
             this.m_subscriber.addTopic(MessageTopic.MOVEMENTS);
+            this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch(IOException e) {
             Logger.getLogger(GameEngine.class).fatal("Could not subscribe to topic " + MessageTopic.MOVEMENTS + ".");
         }
 
-        this.m_subscriber.addHandler(MovementMessage.class, this.incomingHandler);
+        this.m_subscriber.addHandler(Message.class, this.incomingHandler);
 
         //INSERT TEST DATA
         this.discoveryHandler.newDrone(1, new D3Vector());

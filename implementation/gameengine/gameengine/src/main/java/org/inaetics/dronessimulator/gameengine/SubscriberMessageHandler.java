@@ -4,9 +4,8 @@ package org.inaetics.dronessimulator.gameengine;
 import lombok.AllArgsConstructor;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.D3Vector;
-import org.inaetics.dronessimulator.common.protocol.MovementMessage;
+import org.inaetics.dronessimulator.common.protocol.*;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
-import org.inaetics.dronessimulator.gameengine.physicsenginedriver.gameentityupdate.AccelerationUpdate;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 
@@ -31,18 +30,32 @@ public class SubscriberMessageHandler implements MessageHandler {
     @Override
     public void handleMessage(Message message) {
         if(message instanceof MovementMessage) {
+            // Change acceleration
             int entityId = 1;
             MovementMessage movementMessage = (MovementMessage) message;
             Optional<D3Vector> maybeAcceleration = movementMessage.getAcceleration();
 
             if(maybeAcceleration.isPresent()) {
-                physicsEngineDriver.addUpdate(entityId, new AccelerationUpdate(maybeAcceleration.get()));
+                physicsEngineDriver.changeAccelerationEntity(entityId, maybeAcceleration.get());
             } else {
                 Logger.getLogger(SubscriberMessageHandler.class).error("Received movement message without acceleration for drone " + entityId + ". Received: " + message);
             }
 
+        } else if(message instanceof CollisionMessage) {
+            // Do nothing
+
+        } else if(message instanceof DamageMessage) {
+            DamageMessage damageMessage = (DamageMessage) message;
+
+            physicsEngineDriver.damageEntity(damageMessage.getEntityId(), damageMessage.getDamage());
+        } else if(message instanceof KillMessage) {
+            // Kill the entity
+            KillMessage killMessage = (KillMessage) message;
+
+            physicsEngineDriver.removeEntity(killMessage.getEntityId());
+
         } else {
-            Logger.getLogger(SubscriberMessageHandler.class).error("Received a message which is not a movement message. Do not know what to do with it. Received: " + message);
+            Logger.getLogger(SubscriberMessageHandler.class).error("Received a message which is not a movement message. Do not know what to do with it. Received: " + message.getClass().getName() + " " + message);
         }
     }
 }

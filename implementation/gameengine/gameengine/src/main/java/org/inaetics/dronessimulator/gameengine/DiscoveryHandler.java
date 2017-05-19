@@ -16,8 +16,7 @@ public class DiscoveryHandler {
 
     public void newDrone(String protocolId, D3Vector position) {
         int gameengineId = id_mapper.getNewGameEngineId();
-        id_mapper.setMapping(gameengineId, protocolId);
 
-        this.driver.addNewEntity(new Drone(gameengineId, Drone.DRONE_MAX_HEALTH, position, new D3Vector(), new D3Vector()));
+        this.driver.addNewEntity(new Drone(gameengineId, Drone.DRONE_MAX_HEALTH, position, new D3Vector(), new D3Vector()), protocolId);
     }
 }

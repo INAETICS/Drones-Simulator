@@ -78,8 +78,9 @@ public class EtcdConfigDiscoverer implements Runnable {
 
         // Split path
         String[] pathSegments = EtcdDiscoverer.splitInstancePath(instancePath);
+        List<String> pathSegmentCollection = Arrays.asList(pathSegments);
 
-        if (pathSegments.length == 3) {
+        if (pathSegments.length == 3 && !pathSegmentCollection.contains("")) {
             String type = pathSegments[0];
             String group = pathSegments[1];
             String name = pathSegments[2];

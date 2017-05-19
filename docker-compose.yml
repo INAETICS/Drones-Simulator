@@ -9,12 +9,14 @@ services:
     ports:
       - "2379:2379"
       - "2380:2380"
+      - "4001:4001"
   game-engine:
     build: ./docker_images/game_engine
     depends_on:
       - rabbitmq
     links:
       - "rabbitmq:rabbitmq"
+    env_file: docker.env
     tty: true
   drone:
     build: ./docker_images/drone
@@ -22,5 +24,6 @@ services:
       - game-engine
     links:
       - "rabbitmq:rabbitmq"
+    env_file: docker.env
 
     # Specify more docker images

@@ -11,5 +11,11 @@ services:
     links:
       - "rabbitmq:rabbitmq"
     tty: true
+  drone:
+    build: ./docker_images/drone
+    depends_on:
+      - game-engine
+    links:
+      - "rabbitmq:rabbitmq"
 
     # Specify more docker images

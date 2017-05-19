@@ -1,13 +1,14 @@
 package org.inaetics.dronessimulator.drone;
-import org.inaetics.dronessimulator.common.*;
+
+import org.inaetics.dronessimulator.common.D3Vector;
 
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SimpleDrone extends Drone {
 
-    private static final int MAX_DEVIATION_POSTION = 400;
-    private static final int MAX_VELOCITY = 20;
-    private static final int MAX_ACCELERATION = 10;
+    private static final int MAX_DEVIATION_POSTION = 200;
+    private static final int MAX_VELOCITY = 100;
+    private static final int MAX_ACCELERATION = 20;
     private static final double RANGE_FACTOR = 5;
 
     /**
@@ -71,7 +72,7 @@ public class SimpleDrone extends Drone {
 
 
         double aantal_seconden_tot_nul = current_velocity.length() / MAX_ACCELERATION;
-        D3Vector berekende_vertraging = limit_acceleration(current_velocity.scale(-1));
+        D3Vector berekende_vertraging = maximize_acceleration(limit_acceleration(current_velocity.scale(-1)));
         D3Vector berekende_position = current_velocity.scale((1/2) * berekende_vertraging.length() * Math.pow(aantal_seconden_tot_nul, 2)).add(current_position);
 
         if (Math.abs(berekende_position.getX()-MAX_DEVIATION_POSTION) >= MAX_DEVIATION_POSTION
@@ -97,7 +98,10 @@ public class SimpleDrone extends Drone {
                 if(next_postion.getX() <= next_position_accelerated.getX()){
                     // Er wordt nog niet afgeremd. Vertragen.
                     x = -MAX_ACCELERATION; //ThreadLocalRandom.current().nextDouble(-MAX_ACCELERATION, 0);
+                } else{
+                    x = current_acceleration.getX();
                 }
+                x = - MAX_ACCELERATION;
             }
 
             if( (current_position.getX()-MAX_DEVIATION_POSTION) <= -MAX_DEVIATION_POSTION){
@@ -106,7 +110,10 @@ public class SimpleDrone extends Drone {
                 if(next_postion.getX() >= next_position_accelerated.getX()){
                     // Er wordt nog niet afgeremd. Vertragen.
                     x = MAX_ACCELERATION;//ThreadLocalRandom.current().nextDouble(0, MAX_ACCELERATION);
+                } else{
+                    x = current_acceleration.getX();
                 }
+                x = MAX_ACCELERATION;
             }
             if( current_position.getY() >= MAX_DEVIATION_POSTION){
                 D3Vector next_postion = current_position.add(current_velocity);
@@ -114,7 +121,10 @@ public class SimpleDrone extends Drone {
                 if(next_postion.getY() <= next_position_accelerated.getY()){
                     // Er wordt nog niet afgeremd. Vertragen.
                     y = -MAX_ACCELERATION; //ThreadLocalRandom.current().nextDouble(-MAX_ACCELERATION, 0);
+                } else{
+                    y = current_acceleration.getY();
                 }
+                y = -MAX_ACCELERATION;
             }
 
             if( (current_position.getY()-MAX_DEVIATION_POSTION) <= -MAX_DEVIATION_POSTION){
@@ -123,10 +133,11 @@ public class SimpleDrone extends Drone {
                 if(next_postion.getY() >= next_position_accelerated.getY()){
                     // Er wordt nog niet afgeremd. Vertragen.
                     y = MAX_ACCELERATION;//ThreadLocalRandom.current().nextDouble(0, MAX_ACCELERATION);
+                } else{
+                    y = current_acceleration.getY();
                 }
+                y = MAX_ACCELERATION;
             }
-
-
 
             if( current_position.getZ() >= MAX_DEVIATION_POSTION){
                 D3Vector next_postion = current_position.add(current_velocity);
@@ -134,7 +145,10 @@ public class SimpleDrone extends Drone {
                 if(next_postion.getZ() <= next_position_accelerated.getZ()){
                     // Er wordt nog niet afgeremd. Vertragen.
                     z = -MAX_ACCELERATION; //ThreadLocalRandom.current().nextDouble(-MAX_ACCELERATION, 0);
+                } else{
+                    z = current_acceleration.getZ();
                 }
+                z = -MAX_ACCELERATION;
             }
 
             if( (current_position.getZ()-MAX_DEVIATION_POSTION) <= -MAX_DEVIATION_POSTION){
@@ -143,7 +157,10 @@ public class SimpleDrone extends Drone {
                 if(next_postion.getZ() >= next_position_accelerated.getZ()){
                     // Er wordt nog niet afgeremd. Vertragen.
                     z = MAX_ACCELERATION; //ThreadLocalRandom.current().nextDouble(0, MAX_ACCELERATION);
+                } else{
+                    z = current_acceleration.getZ();
                 }
+                z = MAX_ACCELERATION;
             }
 
             output_acceleration = new D3Vector(x, y, z);

@@ -10,6 +10,7 @@ import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.D3PoolCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.protocol.KillMessage;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.pubsub.api.Message;
@@ -81,12 +82,11 @@ public class Game extends Application implements MessageHandler {
 
         if (message instanceof StateMessage) {
             StateMessage stateMessage = (StateMessage) message;
-            Drone currentDrone;
 
             if (!stateMessage.getIdentifier().isPresent()) {
                 return;
             }
-            currentDrone = drones.getOrDefault(stateMessage.getIdentifier().get(), createPlayer(stateMessage.getIdentifier().get()));
+            Drone currentDrone = drones.getOrDefault(stateMessage.getIdentifier().get(), createPlayer(stateMessage.getIdentifier().get()));
 
             if (stateMessage.getPosition().isPresent()) {
                 currentDrone.setPosition(stateMessage.getPosition().get());
@@ -95,6 +95,14 @@ public class Game extends Application implements MessageHandler {
             if (stateMessage.getDirection().isPresent()) {
                 currentDrone.setDirection(stateMessage.getDirection().get());
             }
+        } else if (message instanceof KillMessage) {
+            KillMessage killMessage = (KillMessage) message;
+
+            if (!killMessage.getIdentifier().isPresent()) {
+                return;
+            }
+            // todo: add boolean remove to drone. When this boolean is set, then do explosion animation and remove drone.
+            drones.remove(killMessage.getIdentifier().get());
         } else {
             Logger.getLogger(this.getClass()).info("Received non-state msg: " + message);
         }
@@ -107,13 +115,6 @@ public class Game extends Application implements MessageHandler {
      * @return drone Drone - The newly created drone
      */
     private Drone createPlayer(String id) {
-        this.subscriber.addHandler(StateMessage.class, this);
-        try {
-            this.subscriber.addTopic(MessageTopic.STATEUPDATES);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
         // create drone
         BasicDrone drone = new BasicDrone(playfieldLayer);
 
@@ -137,6 +138,13 @@ public class Game extends Application implements MessageHandler {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+        this.subscriber.addHandler(StateMessage.class, this);
+        this.subscriber.addHandler(KillMessage.class, this);
+        try {
+            this.subscriber.addTopic(MessageTopic.STATEUPDATES);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

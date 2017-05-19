@@ -16,11 +16,11 @@ public class VelocityUpdate extends GameEntityUpdate {
 
     @Override
     public void update(GameEntity entity) {
-        entity.setVelocity(newVelocity);
+        // No update, physicsengine should do the velocity update
     }
 
     @Override
-    public EntityUpdate toEntityUpdate() {
+    public EntityUpdate toPhysicsEngineEntityUpdate() {
         return new VelocityEntityUpdate(this.newVelocity);
     }
 }

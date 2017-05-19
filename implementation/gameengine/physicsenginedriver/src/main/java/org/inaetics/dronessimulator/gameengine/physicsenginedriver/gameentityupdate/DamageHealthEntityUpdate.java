@@ -3,24 +3,26 @@ package org.inaetics.dronessimulator.gameengine.physicsenginedriver.gameentityup
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
-import org.inaetics.dronessimulator.physicsengine.entityupdate.AccelerationEntityUpdate;
+import org.inaetics.dronessimulator.gameengine.common.state.HealthGameEntity;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.EntityUpdate;
 
 @AllArgsConstructor
-@ToString
-@EqualsAndHashCode(callSuper=true)
-public class AccelerationUpdate extends GameEntityUpdate {
-    private final D3Vector newAcceleration;
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class DamageHealthEntityUpdate extends GameEntityUpdate {
+    private final int dmg;
 
     @Override
     public void update(GameEntity entity) {
-        // Acceleration should be updated by physicsengine
+        if(entity instanceof HealthGameEntity) {
+            ((HealthGameEntity) entity).damage(this.dmg);
+        }
     }
 
     @Override
     public EntityUpdate toPhysicsEngineEntityUpdate() {
-        return new AccelerationEntityUpdate(this.newAcceleration);
+        // No need to push anything to physicsengine
+        return null;
     }
 }

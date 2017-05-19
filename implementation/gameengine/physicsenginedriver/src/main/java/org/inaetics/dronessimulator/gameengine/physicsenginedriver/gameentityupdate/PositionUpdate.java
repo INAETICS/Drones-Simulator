@@ -16,11 +16,11 @@ public class PositionUpdate extends GameEntityUpdate {
 
     @Override
     public void update(GameEntity entity) {
-        entity.setPosition(newPosition);
+        // Position should be updated by physicsengine
     }
 
     @Override
-    public EntityUpdate toEntityUpdate() {
+    public EntityUpdate toPhysicsEngineEntityUpdate() {
         return new PositionEntityUpdate(this.newPosition);
     }
 }

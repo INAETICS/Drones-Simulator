@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -63,7 +64,7 @@ public class EtcdDiscoverer implements Discoverer {
         }
 
         // Initialize variables
-        this.pathModifiedIndex = new HashMap<>();
+        this.pathModifiedIndex = new ConcurrentHashMap<>();
 
         // Create discoverable config directory
         this.client.putDir(buildPath(DISCOVERABLE_CONFIG_DIR));

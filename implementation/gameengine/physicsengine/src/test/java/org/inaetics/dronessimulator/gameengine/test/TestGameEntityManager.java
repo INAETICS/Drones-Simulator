@@ -29,21 +29,21 @@ public class TestGameEntityManager {
 
         for(int i = 0; i < 300; i++) {
             final int i_ = i;
-            concurrentExecuteAdd.addJob(1, 100, () -> {
+            concurrentExecuteAdd.addJob(1, 100, (j) -> {
                 this.manager.addInsert(new Entity(i_, new Size(0,0,0)));
             });
         }
 
         for(int i = 0; i < 300; i++) {
             final int i_ = i;
-            concurrentExecuteUpdate.addJob(1, 100, () -> {
+            concurrentExecuteUpdate.addJob(1, 100, (j) -> {
                 this.manager.addUpdate(i_, new AccelerationEntityUpdate(new D3Vector(1, 3, 2)));
                 this.manager.addUpdate(i_, new VelocityEntityUpdate(new D3Vector(3, 2, 1)));
                 this.manager.addUpdate(i_, new PositionEntityUpdate(new D3Vector(1, 2, 3)));
             });
         }
 
-        concurrentExecuteProcess.addJob(600, 100, () -> {
+        concurrentExecuteProcess.addJob(600, 100, (j) -> {
             this.manager.processChanges();
             try {
                 Thread.sleep(1);

@@ -10,7 +10,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertEquals;
 
 public class EtcdDiscovererTest {
     private static final String ETCD_URI = "http://localhost:4001/";

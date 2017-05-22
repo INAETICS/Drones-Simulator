@@ -36,7 +36,9 @@ public class MovementMessage extends ProtocolMessage {
         this.acceleration = acceleration;
     }
 
-    public Optional<String> getIdentifier(){ return Optional.ofNullable(identifier); }
+    public String getIdentifier() {
+        return this.identifier;
+    }
 
     public void setIdentifier(String identifier){ this.identifier = identifier; }
 

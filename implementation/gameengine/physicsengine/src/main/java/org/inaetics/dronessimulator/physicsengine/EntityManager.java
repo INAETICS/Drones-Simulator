@@ -5,7 +5,9 @@ import lombok.Getter;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.EntityUpdate;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 
 @Getter
 /**
@@ -13,11 +15,11 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * their characteristics. Is partially threadsafe. All requested changes are buffered and processed
  * when any or all of the process'stage' are called.
  */
-class EntityManager {
+public class EntityManager {
     /**
      * Any updates to process later to the entity identified by the key as id
      */
-    private final Map<Integer, ConcurrentLinkedQueue<EntityUpdate>> updateMap;
+    private final ConcurrentMap<Integer, ConcurrentLinkedQueue<EntityUpdate>> updateMap;
     /**
      * Which entities to add later as changes are processed
      */
@@ -34,7 +36,7 @@ class EntityManager {
 
     public EntityManager() {
         this.creationList = new ConcurrentLinkedQueue<>();
-        this.updateMap = new HashMap<>(100);
+        this.updateMap = new ConcurrentHashMap<>(100);
         this.removalList = new ConcurrentLinkedQueue<>();
 
         this.entities = new HashMap<>(100);

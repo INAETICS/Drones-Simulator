@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.gameengine.common.state;
 
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 
@@ -9,6 +10,7 @@ import org.inaetics.dronessimulator.common.protocol.EntityType;
  * An entity in the physicsengine with some added game state
  */
 @AllArgsConstructor
+@EqualsAndHashCode(callSuper=false)
 public abstract class GameEntity<C extends GameEntity<C>> {
     /**
      * Id of the game entity. Should match with an entity id in the engine
@@ -37,27 +39,27 @@ public abstract class GameEntity<C extends GameEntity<C>> {
         return entityId;
     }
 
-    public synchronized D3Vector getPosition() {
+    public D3Vector getPosition() {
         return position;
     }
 
-    public synchronized void setPosition(D3Vector position) {
+    public void setPosition(D3Vector position) {
         this.position = position;
     }
 
-    public synchronized D3Vector getVelocity() {
+    public D3Vector getVelocity() {
         return velocity;
     }
 
-    public synchronized void setVelocity(D3Vector velocity) {
+    public void setVelocity(D3Vector velocity) {
         this.velocity = velocity;
     }
 
-    public synchronized D3Vector getAcceleration() {
+    public D3Vector getAcceleration() {
         return acceleration;
     }
 
-    public synchronized void setAcceleration(D3Vector acceleration) {
+    public void setAcceleration(D3Vector acceleration) {
         this.acceleration = acceleration;
     }
 

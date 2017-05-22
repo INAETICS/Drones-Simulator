@@ -20,12 +20,18 @@
         <module>ruleprocessors</module>
         <module>gameengine</module>
         <module>gamestate-manager</module>
+        <module>identifier-mapper</module>
     </modules>
 
     <dependencies>
         <dependency>
             <groupId>org.inaetics.dronessimulator</groupId>
             <artifactId>common</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator</groupId>
+            <artifactId>common-test</artifactId>
             <version>0.1</version>
         </dependency>
         <dependency>
@@ -36,6 +42,10 @@
         <dependency>
             <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
         </dependency>
     </dependencies>
 </project>

@@ -4,11 +4,8 @@ import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.EntityUpdate;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
-import org.apache.log4j.Logger;
 
 /**
  * A very simple physicsengine where gravity holds, all entites are 1kg and without other
@@ -55,7 +52,7 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
     /**
      * A map containing all collisions between entity ids which have started
      */
-    private final HashMap<Integer, Integer> currentCollisions;
+    private final HashMap<Integer, Set<Integer>> currentCollisions;
 
     /**
      * The observer to which any events are send.
@@ -67,7 +64,6 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
      * Before you start the engine, you MUST set an observer using setObserver
      */
     public PhysicsEngine() {
-        System.out.println("CREATED PHYSICS ENGINE");
         this.current_step_started_at_ms = System.currentTimeMillis();
         this.last_state_broadcast_at_ms = this.current_step_started_at_ms;
         this.broadcast_state_every_ms = -1;
@@ -80,6 +76,10 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
         this.currentCollisions = new HashMap<>();
 
         this.observer = null;
+    }
+
+    public EntityManager getEntityManager() {
+        return this.entityManager;
     }
 
     /**
@@ -146,25 +146,40 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
                 Entity otherEntity = e2.getValue();
                 int e2Id = otherEntity.getId();
 
-                // If the entity is colliding with another entity
-                if(!entity.equals(otherEntity) && entity.collides(otherEntity)) {
-                    // Only add to hashmap if the collision was not present yet
-                    Integer e1CollidedWithe2 = currentCollisions.putIfAbsent(e1Id, e2Id);
-                    Integer e2CollidedWithe1 = currentCollisions.putIfAbsent(e2Id, e1Id);
+                if(entity.getId() != otherEntity.getId()) {
+                    // If the entity is colliding with another entity
+                    Set<Integer> collisionsE1 = currentCollisions.get(e1Id);
+                    Set<Integer> collisionsE2 = currentCollisions.get(e2Id);
 
-                    // If the collision wasn't happening yet
-                    if(observer != null && (e1CollidedWithe2 == null || e2CollidedWithe1 == null)) {
-                        //This collision is new and has just started
-                        observer.collisionStartHandler(Entity.deepcopy(entity), Entity.deepcopy(otherEntity));
-                    }
-                } else {
-                    //These entities are not colliding, so remove any collisions if there were any
-                    Integer e1CollidedWithe2 = currentCollisions.remove(e1Id);
-                    Integer e2CollidedWithe1 = currentCollisions.remove(e2Id);
+                    if(entity.collides(otherEntity)) {
+                        boolean startedE1WithE2 = false;
+                        boolean startedE2WithE1 = false;
 
-                    if(e1CollidedWithe2 != null || e2CollidedWithe1 != null) {
-                        //This collision has just ended
-                        observer.collisionStopHandler(Entity.deepcopy(entity), Entity.deepcopy(otherEntity));
+                        // Only add to hashmap if the collision was not present yet
+                        if(!collisionsE1.contains(e2Id)) {
+                            collisionsE1.add(e2Id);
+                            startedE1WithE2 = true;
+                        }
+
+                        if(!collisionsE2.contains(e1Id)) {
+                            collisionsE2.add(e1Id);
+                            startedE2WithE1 = true;
+                        }
+
+                        // If the collision wasn't happening yet
+                        if(observer != null && (startedE1WithE2 || startedE2WithE1)) {
+                            //This collision is new and has just started
+                            observer.collisionStartHandler(Entity.deepcopy(entity), Entity.deepcopy(otherEntity));
+                        }
+                    } else {
+                        //These entities are not colliding, so remove any collisions if there were any
+                        boolean e1CollidedWithe2 = collisionsE1.remove(e2Id);
+                        boolean e2CollidedWithe1 = collisionsE2.remove(e1Id);
+
+                        if(observer != null && (e1CollidedWithe2 || e2CollidedWithe1)) {
+                            //This collision has just ended
+                            observer.collisionStopHandler(Entity.deepcopy(entity), Entity.deepcopy(otherEntity));
+                        }
                     }
                 }
             }
@@ -239,6 +254,10 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
      */
     public void addInserts(Collection<Entity> creations) {
         this.entityManager.addInserts(creations);
+
+        for(Entity e : creations) {
+            this.currentCollisions.put(e.getId(), new HashSet<>());
+        }
     }
 
     /**
@@ -248,6 +267,7 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
      */
     public void addInsert(Entity creation) {
         this.entityManager.addInsert(creation);
+        this.currentCollisions.put(creation.getId(), new HashSet<>());
     }
 
     /**
@@ -277,6 +297,10 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
      */
     public void addRemovals(Collection<Integer> removals) {
         this.entityManager.addRemovals(removals);
+
+        for(Integer removal : removals) {
+            this.currentCollisions.remove(removal);
+        }
      }
 
     /**
@@ -286,6 +310,7 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
      */
     public void addRemoval(Integer removal) {
         this.entityManager.addRemoval(removal);
+        this.currentCollisions.remove(removal);
     }
 
     /**

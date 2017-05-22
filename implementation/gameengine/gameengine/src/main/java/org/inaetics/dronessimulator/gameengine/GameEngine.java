@@ -3,17 +3,14 @@ package org.inaetics.dronessimulator.gameengine;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
-import org.inaetics.dronessimulator.common.protocol.MovementMessage;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
+import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.IRuleProcessors;
+import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
 
 import java.io.IOException;
-import java.util.Dictionary;
-import java.util.Hashtable;
 
 /**
  * Wrapper around PhysicsEngine. Sets up and connects all handlers with each other.
@@ -38,6 +35,8 @@ public class GameEngine {
 
     private volatile Subscriber m_subscriber;
 
+    private volatile IdentifierMapper m_id_mapper;
+
     /**
      * Message handler to handle any newly discovered or removed drones
      */
@@ -53,19 +52,20 @@ public class GameEngine {
      */
     public void start() {
         Logger.getLogger(GameEngine.class).info("Starting Game Engine...");
-        this.incomingHandler = new SubscriberMessageHandler(this.m_physicsEngineDriver);
-        this.discoveryHandler = new DiscoveryHandler(this.m_physicsEngineDriver);
+        this.incomingHandler = new SubscriberMessageHandler(this.m_physicsEngineDriver, this.m_id_mapper, this.m_stateManager);
+        this.discoveryHandler = new DiscoveryHandler(this.m_physicsEngineDriver, this.m_id_mapper);
 
         try {
             this.m_subscriber.addTopic(MessageTopic.MOVEMENTS);
+            this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch(IOException e) {
             Logger.getLogger(GameEngine.class).fatal("Could not subscribe to topic " + MessageTopic.MOVEMENTS + ".");
         }
 
-        this.m_subscriber.addHandler(MovementMessage.class, this.incomingHandler);
+        this.m_subscriber.addHandler(Message.class, this.incomingHandler);
 
         //INSERT TEST DATA
-        this.discoveryHandler.newDrone(1, new D3Vector());
+        this.discoveryHandler.newDrone("DRONE1", new D3Vector());
 
         Logger.getLogger(GameEngine.class).info("Started Game Engine!");
     }

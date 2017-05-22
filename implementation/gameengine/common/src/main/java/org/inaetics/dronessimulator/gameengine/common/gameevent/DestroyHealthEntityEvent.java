@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.common.gameevent;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.ToString;

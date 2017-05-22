@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class TestDiscoveryEtcdChangeHandler {
     private EtcdDiscoverer discoverer;
@@ -30,47 +31,44 @@ public class TestDiscoveryEtcdChangeHandler {
     }
 
     @Test
-    public void testChanges() {
+    public void testChanges() throws DuplicateName, IOException {
         try {
-            boolean[] catchupAdded = {false};
-            boolean[] catchprop1Added = {false};
-            boolean[] catchprop1Set = {false};
+            AtomicBoolean catchupAdded = new AtomicBoolean(false);
+            AtomicBoolean catchprop1Added = new AtomicBoolean(false);
+            AtomicBoolean catchprop1Set = new AtomicBoolean(false);
+            AtomicBoolean removedDiscoverValue = new AtomicBoolean(false);
+            AtomicBoolean removedDiscoverDir = new AtomicBoolean(false);
 
             this.changeHandler.start();
 
             // REGISTER INSTANCE THAT NEEDS TO BE REPLAYED
             Map<String, String> catchupProperties = new HashMap<>();
             catchupProperties.put("catchprop1", "catchupval1");
-            try {
-                this.discoverer.register(new Instance("catchup", "group", "hello!", catchupProperties, false));
-            } catch (DuplicateName | IOException duplicateName) {
-                duplicateName.printStackTrace();
-            }
+
+            this.discoverer.register(new Instance("catchup", "group", "hello!", catchupProperties, false));
 
             List<DiscoveryHandler<AddedNode>> addHandlers = new ArrayList<>();
             List<DiscoveryHandler<ChangedValue<String>>> changedValueHandlers = new ArrayList<>();
             List<DiscoveryHandler<RemovedNode<String>>> removedHandlers = new ArrayList<>();
 
             addHandlers.add((AddedNode addedNode) -> {
-                System.out.println(" Added: " + addedNode.getKey());
                 switch(addedNode.getKey()) {
                     case "/instances/catchup":
-                        Assert.assertFalse(catchupAdded[0]);
-                        catchupAdded[0] = true;
+                        Assert.assertFalse(catchupAdded.get());
+                        catchupAdded.set(true);
                         break;
                     case "/instances/catchup/group/hello!/catchprop1":
-                        Assert.assertFalse(catchprop1Added[0]);
-                        catchprop1Added[0] = true;
+                        Assert.assertFalse(catchprop1Added.get());
+                        catchprop1Added.set(true);
                         break;
                 }
             });
 
             changedValueHandlers.add((ChangedValue<String> changedValue) -> {
-                System.out.println(" Changed: " + changedValue.getKey() + " " + changedValue.getOldValue() + " " + changedValue.getNewValue());
                 switch(changedValue.getKey()) {
                     case "/instances/catchup/group/hello!/catchprop1":
-                        Assert.assertFalse(catchprop1Set[0]);
-                        catchprop1Set[0] = true;
+                        Assert.assertFalse(catchprop1Set.get());
+                        catchprop1Set.set(true);
 
                         Assert.assertEquals(null, changedValue.getOldValue());
                         Assert.assertEquals("catchupval1", changedValue.getNewValue());
@@ -79,21 +77,53 @@ public class TestDiscoveryEtcdChangeHandler {
             });
 
             removedHandlers.add((RemovedNode<String> removedNode) -> {
-                Assert.assertEquals("/newNode", removedNode.getKey());
-                Assert.assertEquals("newvalue!", removedNode.getValue());
+                switch(removedNode.getKey()) {
+                    case "/instances/catchup/discover/name/discover":
+                        Assert.assertEquals("discoverValue", removedNode.getValue());
+                        Assert.assertFalse(removedDiscoverValue.get());
+                        removedDiscoverValue.set(true);
+                        break;
+                    case "/instances/catchup/discover/name":
+                        Assert.assertEquals(null, removedNode.getValue());
+                        Assert.assertFalse(removedDiscoverDir.get());
+                        removedDiscoverDir.set(true);
+                        break;
+                }
             });
 
             this.changeHandler.addHandlers(true, addHandlers, changedValueHandlers, removedHandlers);
 
             try {
-                Thread.sleep(1000);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
-            Assert.assertTrue(catchupAdded[0]);
-            Assert.assertTrue(catchprop1Added[0]);
-            Assert.assertTrue(catchprop1Set[0]);
+            Map<String, String> discoverProperties = new HashMap<>();
+            discoverProperties.put("discover", "discoverValue");
+
+            Instance discoverInstance = new Instance("catchup", "discover", "name", discoverProperties, false);
+            this.discoverer.register(discoverInstance);
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            this.discoverer.unregister(discoverInstance);
+
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            Assert.assertTrue(catchupAdded.get());
+            Assert.assertTrue(catchprop1Added.get());
+            Assert.assertTrue(catchprop1Set.get());
+            Assert.assertTrue(removedDiscoverValue.get());
+            Assert.assertTrue(removedDiscoverDir.get());
         } finally {
             this.changeHandler.quit();
             try {
@@ -106,10 +136,10 @@ public class TestDiscoveryEtcdChangeHandler {
 
     @After
     public void teardown() {
-        /*try {
+        try {
             this.discoverer.unregisterAll();
         } catch (IOException e) {
             e.printStackTrace();
-        }*/
+        }
     }
 }

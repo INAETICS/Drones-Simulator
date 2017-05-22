@@ -25,24 +25,13 @@ public class EtcdChangeHandler extends Thread {
         // Run once to get currentstate
         EtcdKeysResponse.EtcdNode etcdNode = discoverer.getFromRoot(false);
         DiscoveryStoredNode storedRoot = new DiscoveryStoredEtcdNode(etcdNode);
-        cachedRoot.updateTree(storedRoot);
+        synchronized (this) {
+            cachedRoot.updateTree(storedRoot);
+        }
 
         while(!this.isInterrupted()) {
-            System.out.println(" BEFORE");
             etcdNode = discoverer.getFromRoot(true);
             storedRoot = new DiscoveryStoredEtcdNode(etcdNode);
-
-            EtcdKeysResponse.EtcdNode currentTop = etcdNode;
-            System.out.println("Found: ");
-            while(currentTop != null) {
-                System.out.println("  " + currentTop.getKey());
-
-                if(currentTop.getNodes().size() > 0) {
-                currentTop = currentTop.getNodes().get(0);
-                } else {
-                    currentTop = null;
-                }
-            }
 
             synchronized (this) {
                 cachedRoot.updateTree(storedRoot);

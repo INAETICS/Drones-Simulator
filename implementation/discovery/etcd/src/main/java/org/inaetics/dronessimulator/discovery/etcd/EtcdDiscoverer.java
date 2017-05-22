@@ -218,25 +218,25 @@ public class EtcdDiscoverer {
 
             if (wait) {
                 if (this.pathModifiedIndex.containsKey(path)) {
-                    request = request.waitForChange(this.pathModifiedIndex.get(path) + 1);
+                    Long modifiedIndex = this.pathModifiedIndex.get(path) + 1;
+                    request = request.waitForChange(modifiedIndex);
                 } else {
                     request = request.waitForChange();
                 }
-            }
 
-            EtcdResponsePromise<EtcdKeysResponse> promise = request.send();
-            EtcdKeysResponse keys = promise.get();
+                EtcdResponsePromise<EtcdKeysResponse> waitPromise = request.send();
+                waitPromise.get();
 
-            // If waited for changes, we have to get the actual data due to etcd quirks
-            if(wait) {
-                keys = this.client.getDir(path).recursive().send().get();
-            }
+                // If waited for changes, we have to get the actual data due to etcd quirks
+                EtcdKeysResponse getResponse = this.client.getDir(path).recursive().send().get();
+                root = getResponse.getNode();
 
-            if (keys != null) {
-                root = keys.getNode();
-                if(wait) {
-                    this.setModifiedIndex(path, keys);
-                }
+                this.pathModifiedIndex.put(path, getResponse.etcdIndex);
+            } else {
+                EtcdKeysResponse getResponse = request.send().get();
+
+                root = getResponse.getNode();
+                this.pathModifiedIndex.put(path, getResponse.etcdIndex);
             }
         } catch (IOException | EtcdException | EtcdAuthenticationException | TimeoutException ignored) {
             // Just return an empty map

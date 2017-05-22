@@ -59,8 +59,8 @@ public class EventTreeNode<V, N extends EventTreeNode<V, N>> extends TreeNode<V,
         ChangedValue<V> result = null;
         V oldValue = this.getValue();
 
-        super.setValue(newValue);
-        if((oldValue != null && !oldValue.equals(newValue)) || (oldValue != newValue)) {
+        if((oldValue != null && !oldValue.equals(newValue)) || (oldValue == null && newValue != null)) {
+            super.setValue(newValue);
             ChangedValue<V> changedValue = new ChangedValue<>(this.getId(), oldValue, newValue);
             result = changedValue;
             this.bubbleValueChangeEvent(changedValue);
@@ -94,14 +94,22 @@ public class EventTreeNode<V, N extends EventTreeNode<V, N>> extends TreeNode<V,
         }
     }
 
-    public RemovedNode<V> removeChildWithEvent(String id) {
-        EventTreeNode<V, N> child = this.getChild(id);
-        this.removeChild(id);
+    public List<RemovedNode<V>> removeChildWithEvent(String id) {
+        List<RemovedNode<V>> removeEvents = new ArrayList<>();
 
+        EventTreeNode<V, N> child = this.getChild(id);
+
+        // First remove children's children if any
+        for(EventTreeNode<V, N> grandChild : child.getChildren().values()) {
+            removeEvents.addAll(child.removeChildWithEvent(grandChild.getId()));
+        }
+
+        this.removeChild(id);
         RemovedNode<V> result = new RemovedNode<>(id, child.getValue());
+        removeEvents.add(result);
         this.bubbleRemoveEvent(result);
 
-        return result;
+        return removeEvents;
     }
 
     protected void bubbleRemoveEvent(RemovedNode<V> removedNode) {

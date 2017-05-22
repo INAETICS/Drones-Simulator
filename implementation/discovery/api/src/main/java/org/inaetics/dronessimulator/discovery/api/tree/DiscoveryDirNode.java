@@ -65,7 +65,7 @@ public class DiscoveryDirNode extends DiscoveryNode {
 
         // No remove the untouched
         for(String untouchedKey : untouched) {
-            result.add(this.removeChildWithEvent(untouchedKey));
+            result.addAll(this.removeChildWithEvent(untouchedKey));
         }
 
         return result;

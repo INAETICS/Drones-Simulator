@@ -11,6 +11,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.List;
 import java.util.Optional;
 
 public class TestDiscoveryDiscoveryTree {
@@ -96,7 +97,7 @@ public class TestDiscoveryDiscoveryTree {
             Assert.assertEquals("value!", removedNode.getValue());
         });
 
-        RemovedNode<String> removeEvent = this.root.removeChildWithEvent("/firstValue");
+        RemovedNode<String> removeEvent = this.root.removeChildWithEvent("/firstValue").get(0);
 
         Assert.assertNull(this.root.getChild("/firstValue"));
         Assert.assertEquals(0, this.root.getChildren().size());
@@ -106,7 +107,7 @@ public class TestDiscoveryDiscoveryTree {
     }
 
     @Test
-    public void testUpdateTreeAddAndChange() {
+    public void testUpdateTreeAddChangeAndRemove() {
         MockDiscoveryStoredNode storedRoot = new MockDiscoveryStoredNode("/");
         MockDiscoveryStoredNode storedExistingDir = new MockDiscoveryStoredNode("/existingDir");
         MockDiscoveryStoredNode storedChangedValue = new MockDiscoveryStoredNode("/existingDir/changedValue", "changedValue");

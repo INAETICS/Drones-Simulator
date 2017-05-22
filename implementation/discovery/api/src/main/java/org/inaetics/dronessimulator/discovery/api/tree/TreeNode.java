@@ -63,4 +63,11 @@ public class TreeNode<V, N extends TreeNode<V, N>> {
     public synchronized void setParent(N parent) {
         this.parent = parent;
     }
+
+    public synchronized String toString() {
+        String children = this.children.entrySet().stream().map((e) -> "  " + e.getValue().toString()).reduce("", (r, c) -> r + "\n" + c);
+
+
+        return "Node " + this.id + (this.value != null ? " " + this.value : "") + children;
+    }
 }

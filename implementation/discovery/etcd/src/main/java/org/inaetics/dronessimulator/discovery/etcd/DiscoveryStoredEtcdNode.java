@@ -6,7 +6,7 @@ import org.inaetics.dronessimulator.discovery.api.tree.DiscoveryStoredNode;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DiscoveryStoredEtcdNode implements DiscoveryStoredNode {
+public class DiscoveryStoredEtcdNode extends DiscoveryStoredNode {
     private final EtcdKeysResponse.EtcdNode etcdNode;
 
     public DiscoveryStoredEtcdNode(EtcdKeysResponse.EtcdNode etcdNode) {

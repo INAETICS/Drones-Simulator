@@ -6,7 +6,7 @@ import org.inaetics.dronessimulator.discovery.api.tree.DiscoveryStoredNode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MockDiscoveryStoredNode implements DiscoveryStoredNode {
+public class MockDiscoveryStoredNode extends DiscoveryStoredNode {
     private final String key;
     private final String value;
     private final List<DiscoveryStoredNode> children;

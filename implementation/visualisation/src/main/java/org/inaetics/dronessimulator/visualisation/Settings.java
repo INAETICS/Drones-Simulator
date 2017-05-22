@@ -12,8 +12,9 @@ public class Settings {
     public static int CANVAS_HEIGHT = 1500;
 
     public static int DRONE_WIDTH = 128;
-    public static int DRONE_HEIGTH = 128;
+    public static int DRONE_HEIGHT = 128;
 
+    public static int BULLET_HEIGHT = 50;
 
 
     public static int DRONE_SPRITE_COLUMNS = 4;

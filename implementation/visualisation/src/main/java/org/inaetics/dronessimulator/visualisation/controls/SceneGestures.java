@@ -97,10 +97,8 @@ public class SceneGestures {
             // note: pivot value must be untransformed, i. e. without scaling
             canvas.setPivot(f * dx, f * dy);
 
-            System.out.println(canvas.getTranslateX());
-
-//            canvas.setTranslateX(clamp(newX, minX(), maxX()));
-//            canvas.setTranslateY(clamp(newY, minY(), maxY()));
+            canvas.setTranslateX(clamp(canvas.getTranslateX(), minX(), maxX()));
+            canvas.setTranslateY(clamp(canvas.getTranslateX(), minY(), maxY()));
 
             event.consume();
 

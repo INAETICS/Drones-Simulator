@@ -5,11 +5,8 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
@@ -28,21 +25,20 @@ import org.inaetics.dronessimulator.visualisation.controls.NodeGestures;
 import org.inaetics.dronessimulator.visualisation.controls.PannableCanvas;
 import org.inaetics.dronessimulator.visualisation.controls.SceneGestures;
 
-import java.awt.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class Game extends Application implements MessageHandler {
     private volatile RabbitSubscriber subscriber;
 
+    private PannableCanvas canvas;
+
     public Game() {
     }
 
-    private Pane playfieldLayer;
-
     private Map<String, Drone> drones = new HashMap<>();
+    private Map<String, Bullet> bullets = new HashMap<>();
 
     private int i = 0;
     private long lastLog = -1;
@@ -78,6 +74,7 @@ public class Game extends Application implements MessageHandler {
 
                 // update sprites in scene
                 drones.forEach((id, drone) -> drone.updateUI());
+                bullets.forEach((id, bullet) -> bullet.updateUI());
             }
 
         };
@@ -98,14 +95,15 @@ public class Game extends Application implements MessageHandler {
             if (!stateMessage.getIdentifier().isPresent()) {
                 return;
             }
-            Drone currentDrone = drones.computeIfAbsent(stateMessage.getIdentifier().get(), k -> createPlayer(stateMessage.getIdentifier().get()));
-
-            if (stateMessage.getPosition().isPresent()) {
-                currentDrone.setPosition(stateMessage.getPosition().get());
-            }
-
-            if (stateMessage.getDirection().isPresent()) {
-                currentDrone.setDirection(stateMessage.getDirection().get());
+            switch (stateMessage.getType()) {
+                case DRONE:
+                    createOrUpdateDrone(stateMessage);
+                    break;
+                case BULLET:
+                    createOrUpdateBullet(stateMessage);
+                    break;
+                default:
+                    System.out.println("Unknown type");
             }
         } else if (message instanceof KillMessage) {
             KillMessage killMessage = (KillMessage) message;
@@ -128,15 +126,59 @@ public class Game extends Application implements MessageHandler {
      */
     private Drone createPlayer(String id) {
         // create drone
-        BasicDrone drone = new BasicDrone(playfieldLayer);
+        BasicDrone drone = new BasicDrone(canvas);
 
-        drone.setPosition(new D3Vector(0, 0, 0));
+        drone.setPosition(new D3Vector(500, 400, 0));
         drone.setDirection(new D3PoolCoordinate(0, 0, 0));
 
         // register drone
         drones.put(id, drone);
 
         return drone;
+    }
+
+    /**
+     * Creates a new bullet and returns it
+     *
+     * @param id String - Identifier of the new bullet
+     * @return bullet Bullet - The newly created bullet
+     */
+    private Bullet createBullet(String id) {
+        System.out.println("Create bullet");
+        // create drone
+        Bullet bullet = new Bullet(canvas);
+
+        bullet.setPosition(new D3Vector(0, 0, 0));
+        bullet.setDirection(new D3PoolCoordinate(0, 0, 0));
+
+        // register drone
+        bullets.put(id, bullet);
+
+        return bullet;
+    }
+
+    private void createOrUpdateDrone(StateMessage stateMessage) {
+        Drone currentDrone = drones.computeIfAbsent(stateMessage.getIdentifier().get(), k -> createPlayer(stateMessage.getIdentifier().get()));
+
+        if (stateMessage.getPosition().isPresent()) {
+            currentDrone.setPosition(stateMessage.getPosition().get());
+        }
+
+        if (stateMessage.getDirection().isPresent()) {
+            currentDrone.setDirection(stateMessage.getDirection().get());
+        }
+    }
+
+    private void createOrUpdateBullet(StateMessage stateMessage) {
+        Bullet currentBullet = bullets.computeIfAbsent(stateMessage.getIdentifier().get(), k -> createBullet(stateMessage.getIdentifier().get()));
+
+        if (stateMessage.getPosition().isPresent()) {
+            currentBullet.setPosition(stateMessage.getPosition().get());
+        }
+
+        if (stateMessage.getDirection().isPresent()) {
+            currentBullet.setDirection(stateMessage.getDirection().get());
+        }
     }
 
     private void setupRabbit() {
@@ -167,7 +209,7 @@ public class Game extends Application implements MessageHandler {
         primaryStage.setResizable(false);
 
         // create canvas
-        PannableCanvas canvas = new PannableCanvas(Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT);
+        canvas = new PannableCanvas(Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT);
 
         canvas.setId("pane");
 
@@ -175,21 +217,21 @@ public class Game extends Application implements MessageHandler {
         canvas.setTranslateY(0);
 
         // create sample nodes which can be dragged
-        NodeGestures nodeGestures = new NodeGestures( canvas);
+        NodeGestures nodeGestures = new NodeGestures(canvas);
 
-        Circle circle1 = new Circle( 300, 300, 50);
+        Circle circle1 = new Circle(300, 300, 50);
         circle1.setStroke(Color.ORANGE);
         circle1.setFill(Color.ORANGE.deriveColor(1, 1, 1, 0.5));
-        circle1.addEventFilter( MouseEvent.MOUSE_PRESSED, nodeGestures.getOnMousePressedEventHandler());
-        circle1.addEventFilter( MouseEvent.MOUSE_DRAGGED, nodeGestures.getOnMouseDraggedEventHandler());
+        circle1.addEventFilter(MouseEvent.MOUSE_PRESSED, nodeGestures.getOnMousePressedEventHandler());
+        circle1.addEventFilter(MouseEvent.MOUSE_DRAGGED, nodeGestures.getOnMouseDraggedEventHandler());
 
-        Rectangle rect1 = new Rectangle(100,100);
+        Rectangle rect1 = new Rectangle(100, 100);
         rect1.setTranslateX(450);
         rect1.setTranslateY(450);
         rect1.setStroke(Color.BLUE);
         rect1.setFill(Color.BLUE.deriveColor(1, 1, 1, 0.5));
-        rect1.addEventFilter( MouseEvent.MOUSE_PRESSED, nodeGestures.getOnMousePressedEventHandler());
-        rect1.addEventFilter( MouseEvent.MOUSE_DRAGGED, nodeGestures.getOnMouseDraggedEventHandler());
+        rect1.addEventFilter(MouseEvent.MOUSE_PRESSED, nodeGestures.getOnMousePressedEventHandler());
+        rect1.addEventFilter(MouseEvent.MOUSE_DRAGGED, nodeGestures.getOnMouseDraggedEventHandler());
 
         canvas.getChildren().addAll(circle1, rect1);
 
@@ -197,14 +239,14 @@ public class Game extends Application implements MessageHandler {
 
         double width = Settings.SCENE_WIDTH > Settings.CANVAS_WIDTH ? Settings.CANVAS_WIDTH : Settings.SCENE_WIDTH;
         double height = Settings.SCENE_HEIGHT > Settings.CANVAS_HEIGHT ? Settings.CANVAS_HEIGHT : Settings.SCENE_HEIGHT;
-        
+
         // create scene which can be dragged and zoomed
         Scene scene = new Scene(group, width, height);
 
         SceneGestures sceneGestures = new SceneGestures(canvas);
-        scene.addEventFilter( MouseEvent.MOUSE_PRESSED, sceneGestures.getOnMousePressedEventHandler());
-        scene.addEventFilter( MouseEvent.MOUSE_DRAGGED, sceneGestures.getOnMouseDraggedEventHandler());
-        scene.addEventFilter( ScrollEvent.ANY, sceneGestures.getOnScrollEventHandler());
+        scene.addEventFilter(MouseEvent.MOUSE_PRESSED, sceneGestures.getOnMousePressedEventHandler());
+        scene.addEventFilter(MouseEvent.MOUSE_DRAGGED, sceneGestures.getOnMouseDraggedEventHandler());
+        scene.addEventFilter(ScrollEvent.ANY, sceneGestures.getOnScrollEventHandler());
 
         scene.getStylesheets().addAll(this.getClass().getResource("/style.css").toExternalForm());
         primaryStage.setScene(scene);

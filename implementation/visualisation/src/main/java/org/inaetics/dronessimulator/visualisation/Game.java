@@ -111,7 +111,7 @@ public class Game extends Application implements MessageHandler {
             if (!killMessage.getIdentifier().isPresent()) {
                 return;
             }
-            // todo: add boolean remove to drone. When this boolean is set, then do explosion animation and remove drone.
+            drones.get(killMessage.getIdentifier().get()).delete();
             drones.remove(killMessage.getIdentifier().get());
         } else {
             Logger.getLogger(this.getClass()).info("Received non-state msg: " + message);

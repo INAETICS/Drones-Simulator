@@ -40,7 +40,7 @@ abstract class Drone extends BaseEntity {
         this.layer.getChildren().remove(this.imageView);
     }
 
-    void explode() {
+    private void explode() {
         ImageView explosionImage = new ImageView(new Image(getClass().getResourceAsStream("/explosion.png")));
         explosionImage.setScaleX(getScale());
         explosionImage.setScaleY(getScale());

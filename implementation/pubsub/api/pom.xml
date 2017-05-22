@@ -13,6 +13,7 @@
     <groupId>org.inaetics.dronessimulator.pubsub</groupId>
     <artifactId>pubsub-api</artifactId>
     <version>0.1</version>
+    <name>Pubsub API</name>
 
     <packaging>bundle</packaging>
 

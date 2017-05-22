@@ -7,7 +7,11 @@ import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
 
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
+import java.util.Dictionary;
 import java.util.HashSet;
 import java.util.concurrent.TimeoutException;
 
@@ -49,9 +53,37 @@ public abstract class RabbitConnection {
      * @param connectionFactory The RabbitMQ connection factory to use when starting a new connection.
      */
     protected RabbitConnection(ConnectionFactory connectionFactory) {
+        this();
         assert connectionFactory != null;
         this.connectionFactory = connectionFactory;
+    }
+
+    /**
+     * Sets op the connection for use within OSGi. This constructor assumes that the connection factory is built later
+     * on with discoverable configs.
+     */
+    protected RabbitConnection() {
         this.declaredTopics = new HashSet<>();
+    }
+
+    /**
+     * Updates the connection config based on a discovered configuration.
+     * @param config The configuration.
+     */
+    public void setConfig(Dictionary<String, String> config) {
+        this.connectionFactory = new ConnectionFactory();
+
+        if (config != null) {
+            try {
+                String uri = config.get("uri");
+                this.connectionFactory.setUri(uri);
+                this.getLogger().debug("Received configuration, RabbitMQ URI is {}", uri);
+            } catch (URISyntaxException | NoSuchAlgorithmException | KeyManagementException e) {
+                this.getLogger().error("Invalid URI found in configuration");
+            }
+        } else {
+            this.getLogger().debug("Unset RabbitMQ configuration");
+        }
     }
 
     /**

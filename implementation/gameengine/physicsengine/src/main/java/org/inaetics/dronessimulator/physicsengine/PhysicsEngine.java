@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.log4j.Logger;
 
 /**
  * A very simple physicsengine where gravity holds, all entites are 1kg and without other

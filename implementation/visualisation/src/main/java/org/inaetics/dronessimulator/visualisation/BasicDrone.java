@@ -12,8 +12,8 @@ public class BasicDrone extends Drone {
 
     private static final String image = "/drones/drone_sprite.png";
 
-    public BasicDrone(Pane layer, Input input) {
-        super(layer, image, input);
+    public BasicDrone(Pane layer) {
+        super(layer, image);
         init();
     }
 

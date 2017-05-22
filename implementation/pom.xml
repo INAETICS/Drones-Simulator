@@ -12,7 +12,7 @@
     <modules>
         <module>common</module>
         <module>pubsub</module>
-        <module>etcddiscovery</module>
+        <module>discovery</module>
         <module>visualisation</module>
     </modules>
 
@@ -76,9 +76,14 @@
                 <version>4.4.0</version>
             </dependency>
             <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.configadmin</artifactId>
+                <version>1.8.14</version>
+            </dependency>
+            <dependency>
                 <groupId>org.ops4j.pax.logging</groupId>
                 <artifactId>pax-logging-api</artifactId>
-                <version>1.9.1</version>
+                <version>1.10.0</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

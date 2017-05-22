@@ -1,0 +1,7 @@
+#pane {
+    -fx-background-image: url("grass.jpg");
+}
+
+#drone {
+    -fx-effect: dropshadow(three-pass-box, white, 30, 0.2, 1, 0);
+}

@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -39,8 +40,8 @@ public class EtcdDiscoverer implements Discoverer {
     /** The etcd client instance. */
     private EtcdClient client;
 
-    /** Index of the last received update. */
-    private Long discoverableConfigModifiedIndex;
+    /** Index of the last received update for a given path. */
+    private Map<String, Long> pathModifiedIndex;
 
     /**
      * Instantiates a new etcd discoverer and connects to etcd using the given URI.
@@ -63,7 +64,7 @@ public class EtcdDiscoverer implements Discoverer {
         }
 
         // Initialize variables
-        this.discoverableConfigModifiedIndex = null;
+        this.pathModifiedIndex = new ConcurrentHashMap<>();
 
         // Create discoverable config directory
         this.client.putDir(buildPath(DISCOVERABLE_CONFIG_DIR));
@@ -212,13 +213,32 @@ public class EtcdDiscoverer implements Discoverer {
 
     @Override
     public Map<String, Collection<String>> find(String type) {
+        return this.find(type, false);
+    }
+
+    private Map<String, Collection<String>> find(String type, boolean wait) {
         Map<String, Collection<String>> forType = new HashMap<>();
 
         String path = buildInstancePath(type);
 
         try {
-            EtcdResponsePromise<EtcdKeysResponse> promise = this.client.getDir(path).recursive().send();
+            EtcdKeyGetRequest request = this.client.getDir(path).recursive();
+
+            if (wait) {
+                if (this.pathModifiedIndex.containsKey(path)) {
+                    request = request.waitForChange(this.pathModifiedIndex.get(path) + 1);
+                } else {
+                    request = request.waitForChange();
+                }
+            }
+
+            EtcdResponsePromise<EtcdKeysResponse> promise = request.send();
             EtcdKeysResponse keys = promise.get();
+
+            // If waited for changes, we have to get the actual data due to etcd quirks
+            if (wait) {
+                keys = this.client.getDir(path).recursive().send().get();
+            }
 
             if (keys != null) {
                 keys.node.nodes.forEach(groupNode -> {
@@ -228,6 +248,10 @@ public class EtcdDiscoverer implements Discoverer {
                         forGroup.add(getDirName(node.key));
                     });
                 });
+
+                if (wait) {
+                    this.setModifiedIndex(path, keys);
+                }
             }
         } catch (IOException | EtcdException | EtcdAuthenticationException | TimeoutException ignored) {
             // Just return an empty map
@@ -238,17 +262,45 @@ public class EtcdDiscoverer implements Discoverer {
     }
 
     @Override
+    public Map<String, Collection<String>> waitFor(String type) {
+        return this.find(type, true);
+    }
+
+    @Override
     public Collection<String> find(String type, String group) {
+        return this.find(type, group, false);
+    }
+
+    private Collection<String> find(String type, String group, boolean wait) {
         Collection<String> forGroup = new HashSet<>();
 
         String path = buildInstancePath(type, group);
 
         try {
-            EtcdResponsePromise<EtcdKeysResponse> promise = this.client.getDir(path).recursive().send();
+            EtcdKeyGetRequest request = this.client.getDir(path).recursive();
+
+            if (wait) {
+                if (this.pathModifiedIndex.containsKey(path)) {
+                    request = request.waitForChange(this.pathModifiedIndex.get(path) + 1);
+                } else {
+                    request = request.waitForChange();
+                }
+            }
+
+            EtcdResponsePromise<EtcdKeysResponse> promise = request.send();
             EtcdKeysResponse keys = promise.get();
+
+            // If waited for changes, we have to get the actual data due to etcd quirks
+            if (wait) {
+                keys = this.client.getDir(path).recursive().send().get();
+            }
 
             if (keys != null) {
                 keys.node.nodes.forEach(node -> forGroup.add(getDirName(node.key)));
+
+                if (wait) {
+                    this.setModifiedIndex(path, keys);
+                }
             }
         } catch (IOException | EtcdException | EtcdAuthenticationException | TimeoutException ignored) {
             // Just return an empty collection
@@ -256,6 +308,31 @@ public class EtcdDiscoverer implements Discoverer {
         }
 
         return forGroup;
+    }
+
+    @Override
+    public Collection<String> waitFor(String type, String group) {
+        return this.find(type, group, true);
+    }
+
+    /**
+     * Sets the modified index for the given path.
+     * @param path The path.
+     * @param response The etcd response containing the modified index.
+     */
+    private void setModifiedIndex(String path, EtcdKeysResponse response) {
+        if (response.node != null) {
+            // Calculate and set largest modified index
+            long modifiedIndex = response.node.modifiedIndex;
+
+            for (EtcdKeysResponse.EtcdNode node : response.node.nodes) {
+                if (node.modifiedIndex > modifiedIndex) {
+                    modifiedIndex = node.modifiedIndex;
+                }
+            }
+
+            this.pathModifiedIndex.put(path, modifiedIndex);
+        }
     }
 
     @Override
@@ -294,18 +371,25 @@ public class EtcdDiscoverer implements Discoverer {
             EtcdKeyGetRequest request = this.client.getDir(path).recursive();
 
             // Wait for change if needed
-            if (wait && this.discoverableConfigModifiedIndex != null) {
+            if (wait && this.pathModifiedIndex.containsKey(path)) {
                 logger.debug("Waiting for changes in discoverable configs at {}", path);
-                request = request.waitForChange(this.discoverableConfigModifiedIndex + 1);
+                request = request.waitForChange(this.pathModifiedIndex.get(path) + 1);
             }
 
+            // Wait for change
             EtcdResponsePromise<EtcdKeysResponse> promise = request.send();
             EtcdKeysResponse keys = promise.get();
 
+            // Because etcd does only return the subtree from the changed node, we NEED to do the whole request again :(
+            // Now REALLY get the subtree data
+            keys = this.client.getDir(path).recursive().send().get();
+
+
             if (keys != null) {
-                long modifiedIndex = 0L;
+                long modifiedIndex = keys.node.modifiedIndex;
 
                 for (EtcdKeysResponse.EtcdNode node : keys.getNode().getNodes()) {
+                    logger.debug("Node {} has modifiedIndex {}", node.key, node.modifiedIndex);
                     if (node.modifiedIndex > modifiedIndex) {
                         modifiedIndex = node.modifiedIndex;
                     }
@@ -313,8 +397,8 @@ public class EtcdDiscoverer implements Discoverer {
                 }
 
                 if (wait) {
-                    this.discoverableConfigModifiedIndex = modifiedIndex;
-                    logger.info("Updated last seen change to {}", this.discoverableConfigModifiedIndex);
+                    this.setModifiedIndex(path, keys);
+                    logger.info("Updated configuration last seen change to {}", modifiedIndex);
                 }
             }
         } catch (IOException | EtcdException | EtcdAuthenticationException | TimeoutException ignored) {

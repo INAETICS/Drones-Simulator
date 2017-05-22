@@ -1,16 +1,20 @@
 package org.inaetics.dronessimulator.gameengine.common.state;
 
+import lombok.EqualsAndHashCode;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 
 /**
  * A bullet game entity
  */
+ @EqualsAndHashCode(callSuper=true)
 public class Bullet extends GameEntity<Bullet> {
     /**
      * How much damage this bullet will do upon impact
      */
     private final int dmg;
+
+    private final GameEntity firedBy;
 
     /**
      * Construction of a bullet entity
@@ -20,9 +24,10 @@ public class Bullet extends GameEntity<Bullet> {
      * @param velocity The velocity of the bullet
      * @param acceleration The acceleration of the bullet
      */
-    public Bullet(int id, int dmg, D3Vector position, D3Vector velocity, D3Vector acceleration) {
+    public Bullet(int id, int dmg, GameEntity firedBy, D3Vector position, D3Vector velocity, D3Vector acceleration) {
         super(id, position, velocity, acceleration);
 
+        this.firedBy = firedBy;
         this.dmg = dmg;
     }
 
@@ -32,15 +37,19 @@ public class Bullet extends GameEntity<Bullet> {
      */
     @Override
     public EntityType getType() {
-        return EntityType.DRONE;
+        return EntityType.BULLET;
     }
 
     @Override
     public Bullet deepCopy() {
-        return new Bullet(this.getEntityId(), this.getDmg(), this.getPosition(), this.getVelocity(), this.getAcceleration());
+        return new Bullet(this.getEntityId(), this.getDmg(), this.getFiredBy(), this.getPosition(), this.getVelocity(), this.getAcceleration());
     }
 
     public int getDmg() {
         return dmg;
+    }
+
+    public GameEntity getFiredBy() {
+        return this.firedBy;
     }
 }

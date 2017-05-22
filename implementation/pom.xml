@@ -14,48 +14,11 @@
         <module>pubsub</module>
         <module>discovery</module>
         <module>visualisation</module>
+        <module>gameengine</module>
+        <module>drone</module>
+        <module>instancemanager</module>
+        <module>commontest</module>
     </modules>
-
-    <profiles>
-        <profile>
-            <id>all</id>
-            <activation>
-                <property>
-                    <name>all</name>
-                </property>
-                <activeByDefault>true</activeByDefault>
-            </activation>
-            <modules>
-                <module>drone</module>
-                <module>instancemanager</module>
-
-            </modules>
-        </profile>
-
-        <profile>
-            <id>droneservice</id>
-            <activation>
-                <property>
-                    <name>droneservice</name>
-                </property>
-            </activation>
-            <modules>
-                <module>drone</module>
-            </modules>
-        </profile>
-
-        <profile>
-            <id>instancemanagerservice</id>
-            <activation>
-                <property>
-                    <name>instancemanagerservice</name>
-                </property>
-            </activation>
-            <modules>
-                <module>instancemanager</module>
-            </modules>
-        </profile>
-    </profiles>
 
     <dependencyManagement>
         <dependencies>

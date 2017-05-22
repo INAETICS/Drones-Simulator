@@ -136,4 +136,9 @@ public class D3Vector implements Serializable {
     public boolean equals(D3Vector other) {
         return this.getX() == other.getX() && this.getY() == other.getY() && this.getZ() == other.getZ();
     }
+
+    @Override
+    public boolean equals(Object other) {
+        return other instanceof D3Vector && this.equals((D3Vector) other);
+    }
 }

@@ -24,4 +24,5 @@ cp "$ROOT/gameengine/gameengine/target/gameengine-gameengine-0.1.jar" $TARGET
 cp "$ROOT/gameengine/gamestate-manager/target/gameengine-gamestate-manager-0.1.jar" $TARGET
 cp "$ROOT/gameengine/physicsengine/target/gameengine-physicsengine-0.1.jar" $TARGET
 cp "$ROOT/gameengine/physicsenginedriver/target/gameengine-physicsenginedriver-0.1.jar" $TARGET
+cp "$ROOT/gameengine/identifier-mapper/target/gameengine-identifier-mapper-0.1.jar" $TARGET
 cp "$ROOT/gameengine/ruleprocessors/target/gameengine-ruleprocessors-0.1.jar" $TARGET

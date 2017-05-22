@@ -4,9 +4,12 @@ package org.inaetics.dronessimulator.gameengine;
 import lombok.AllArgsConstructor;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.D3Vector;
-import org.inaetics.dronessimulator.common.protocol.MovementMessage;
+import org.inaetics.dronessimulator.common.protocol.*;
+import org.inaetics.dronessimulator.gameengine.common.state.Bullet;
+import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
+import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
+import org.inaetics.dronessimulator.gameengine.identifiermapper.IIdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
-import org.inaetics.dronessimulator.gameengine.physicsenginedriver.gameentityupdate.AccelerationUpdate;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 
@@ -23,6 +26,10 @@ public class SubscriberMessageHandler implements MessageHandler {
      */
     private final IPhysicsEngineDriver physicsEngineDriver;
 
+    private final IIdentifierMapper id_mapper;
+
+    private final IGameStateManager stateManager;
+
     /**
      * Handle a message received from pubsub.
      * MovementMessages are used to change acceleration and direction of entity in engine
@@ -31,18 +38,49 @@ public class SubscriberMessageHandler implements MessageHandler {
     @Override
     public void handleMessage(Message message) {
         if(message instanceof MovementMessage) {
-            int entityId = 1;
+            // Change acceleration
             MovementMessage movementMessage = (MovementMessage) message;
             Optional<D3Vector> maybeAcceleration = movementMessage.getAcceleration();
 
             if(maybeAcceleration.isPresent()) {
-                physicsEngineDriver.addUpdate(entityId, new AccelerationUpdate(maybeAcceleration.get()));
+                physicsEngineDriver.changeAccelerationEntity(movementMessage.getIdentifier(),  maybeAcceleration.get());
             } else {
-                Logger.getLogger(SubscriberMessageHandler.class).error("Received movement message without acceleration for drone " + entityId + ". Received: " + message);
+                Logger.getLogger(SubscriberMessageHandler.class).error("Received movement message without acceleration for drone " + movementMessage.getIdentifier() + ". Received: " + message);
             }
 
+        } else if(message instanceof CollisionMessage) {
+            // Do nothing
+
+        } else if(message instanceof DamageMessage) {
+            DamageMessage damageMessage = (DamageMessage) message;
+
+            physicsEngineDriver.damageEntity(damageMessage.getEntityId(), damageMessage.getDamage());
+        } else if(message instanceof KillMessage) {
+            // Kill the entity
+            KillMessage killMessage = (KillMessage) message;
+
+            physicsEngineDriver.removeEntity(killMessage.getIdentifier());
+        } else if(message instanceof FireBulletMessage) {
+            FireBulletMessage fireBulletMessage = (FireBulletMessage) message;
+
+
+            int gameEngineId = id_mapper.getNewGameEngineId();
+
+            Optional<D3Vector> maybePosition = fireBulletMessage.getPosition();
+            Optional<D3Vector> maybeVelocity = fireBulletMessage.getVelocity();
+            Optional<D3Vector> maybeAcceleration = fireBulletMessage.getAcceleration();
+
+
+            if(fireBulletMessage.getType().equals(EntityType.BULLET) && maybePosition.isPresent() && maybeVelocity.isPresent() && maybeAcceleration.isPresent()) {
+                GameEntity firedBy = stateManager.getById(id_mapper.fromProtocolToGameEngineId(fireBulletMessage.getFiredById()));
+                Bullet bullet = new Bullet(gameEngineId, fireBulletMessage.getDamage(), firedBy, maybePosition.get(), maybeVelocity.get(), maybeAcceleration.get());
+
+                physicsEngineDriver.addNewEntity(bullet, fireBulletMessage.getIdentifier());
+            } else {
+                Logger.getLogger(SubscriberMessageHandler.class).error("Received a fire bullet but the type, position, velocity or acceleration is not set: " + fireBulletMessage);
+            }
         } else {
-            Logger.getLogger(SubscriberMessageHandler.class).error("Received a message which is not a movement message. Do not know what to do with it. Received: " + message);
+            Logger.getLogger(SubscriberMessageHandler.class).error("Received a message which is not a movement message. Do not know what to do with it. Received: " + message.getClass().getName() + " " + message);
         }
     }
 }

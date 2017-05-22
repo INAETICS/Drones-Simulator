@@ -41,6 +41,11 @@
             <artifactId>gameengine-common</artifactId>
             <version>0.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.gameengine</groupId>
+            <artifactId>gameengine-identifier-mapper</artifactId>
+            <version>0.1</version>
+        </dependency>
     </dependencies>
 
 </project>

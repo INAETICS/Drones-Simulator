@@ -86,7 +86,11 @@ public class PhysicsEngineObserver implements PhysicsEngineEventObserver {
             } else {
                 Logger.getLogger(GameStateManager.class).fatal("Tried to update complete state. Found entity in engine which is not in state. Engine id: " + id);
             }
+        }
 
+        if(stateCopy.size() != currentState.size()) {
+            Logger.getLogger(GameStateManager.class).fatal("The amount of entities in the gamestate-manager and physicsengine are not the same!");
+            assert stateCopy.size() == currentState.size();
         }
 
         this.outgoingQueue.add(new CurrentStateEvent(stateCopy));

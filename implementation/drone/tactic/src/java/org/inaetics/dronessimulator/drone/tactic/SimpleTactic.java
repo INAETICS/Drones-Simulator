@@ -8,7 +8,6 @@ import org.inaetics.dronessimulator.drone.components.engine.Engine;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.components.gun.Gun;
 import org.inaetics.dronessimulator.drone.components.radar.Radar;
-import org.apache.felix.dm.Component;
 
 
 import java.util.ArrayList;

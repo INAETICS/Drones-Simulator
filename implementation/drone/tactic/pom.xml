@@ -22,10 +22,43 @@
             <artifactId>pubsub-api</artifactId>
             <version>0.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.drone</groupId>
+            <artifactId>drone-init</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.drone.components</groupId>
+            <artifactId>components-radar</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.drone.components</groupId>
+            <artifactId>components-gps</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.drone.components</groupId>
+            <artifactId>components-engine</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.drone.components</groupId>
+            <artifactId>components-gun</artifactId>
+            <version>0.1</version>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -34,7 +67,7 @@
                     <instructions>
                         <Export-Package>org.inaetics.dronessimulator.drone.tactic</Export-Package>
                         <Bundle-Activator>org.inaetics.dronessimulator.drone.tactic.Activator</Bundle-Activator>
-                        <Import-Package>org.inaetics.dronessimulator.common,org.inaetics.dronessimulator.common.protocol,*</Import-Package>
+                        <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
                 </configuration>
             </plugin>

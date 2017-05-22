@@ -15,7 +15,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>components</module>
-        <module>drone</module>
+        <module>drone-init</module>
         <module>tactic</module>
     </modules>
 

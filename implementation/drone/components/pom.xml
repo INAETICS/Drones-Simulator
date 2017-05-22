@@ -24,16 +24,7 @@
         <dependency>
             <groupId>org.inaetics.dronessimulator.drone</groupId>
             <artifactId>drone-init</artifactId>
+            <version>0.1</version>
         </dependency>
     </dependencies>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.inaetics.dronessimulator.drone</groupId>
-                <artifactId>drone-init</artifactId>
-                <version>0.1</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 </project>

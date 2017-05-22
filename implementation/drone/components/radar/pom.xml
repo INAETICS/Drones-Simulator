@@ -16,16 +16,40 @@
     <packaging>bundle</packaging>
     <name>Drone Radar</name>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.pubsub</groupId>
+            <artifactId>pubsub-api</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.drone</groupId>
+            <artifactId>drone-init</artifactId>
+            <version>0.1</version>
+        </dependency>
+    </dependencies>
+
+
+
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+            </plugin>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package>org.inaetics.dronessimulator.drone.components.radar</Export-Package>
+                        <Export-Package>org.inaetics.dronessimulator.drone.components.radar.*</Export-Package>
                         <Bundle-Activator>org.inaetics.dronessimulator.drone.components.radar.Activator</Bundle-Activator>
+                        <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
                 </configuration>
             </plugin>

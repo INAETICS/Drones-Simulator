@@ -4,7 +4,7 @@ import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
-import org.inaetics.dronessimulator.gameengine.identifiermapper.IIdentifierMapper;
+import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.IRuleProcessors;
 import org.inaetics.dronessimulator.pubsub.api.Message;
@@ -35,7 +35,7 @@ public class GameEngine {
 
     private volatile Subscriber m_subscriber;
 
-    private volatile IIdentifierMapper m_id_mapper;
+    private volatile IdentifierMapper m_id_mapper;
 
     /**
      * Message handler to handle any newly discovered or removed drones

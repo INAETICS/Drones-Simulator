@@ -2,7 +2,7 @@ package org.inaetics.dronessimulator.gameengine.identifiermapper;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class IdentifierMapperService extends AbstractIdentifierMapper<Integer, String> implements IIdentifierMapper {
+public class IdentifierMapperService extends AbstractIdentifierMapper<Integer, String> implements IdentifierMapper {
     private final AtomicInteger nextGameEngineId;
 
     public IdentifierMapperService() {

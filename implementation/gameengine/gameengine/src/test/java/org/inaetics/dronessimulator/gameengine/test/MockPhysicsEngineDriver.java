@@ -4,14 +4,14 @@ import lombok.Getter;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
-import org.inaetics.dronessimulator.gameengine.identifiermapper.IIdentifierMapper;
+import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 
 import java.util.concurrent.LinkedBlockingQueue;
 
 @Getter
 public class MockPhysicsEngineDriver implements IPhysicsEngineDriver{
-    private final IIdentifierMapper id_mapper;
+    private final IdentifierMapper id_mapper;
     private GameEntity added = null;
     private int removed = -1;
     private int damaged = -1;
@@ -22,7 +22,7 @@ public class MockPhysicsEngineDriver implements IPhysicsEngineDriver{
     private D3Vector newVelocity = null;
     private D3Vector newAcceleration = null;
 
-    public MockPhysicsEngineDriver(IIdentifierMapper id_mapper) {
+    public MockPhysicsEngineDriver(IdentifierMapper id_mapper) {
         this.id_mapper = id_mapper;
     }
 

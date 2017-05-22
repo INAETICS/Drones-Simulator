@@ -6,7 +6,7 @@ import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 import org.inaetics.dronessimulator.gameengine.common.state.HealthGameEntity;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
-import org.inaetics.dronessimulator.gameengine.identifiermapper.IIdentifierMapper;
+import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.physicsengine.Entity;
 import org.inaetics.dronessimulator.physicsengine.IPhysicsEngine;
 import org.inaetics.dronessimulator.physicsengine.Size;
@@ -20,7 +20,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class PhysicsEngineDriver implements IPhysicsEngineDriver {
     private transient volatile IPhysicsEngine m_physicsEngine;
     private transient volatile IGameStateManager m_stateManager;
-    private transient volatile IIdentifierMapper m_id_mapper;
+    private transient volatile IdentifierMapper m_id_mapper;
 
     private final LinkedBlockingQueue<GameEngineEvent> outgoingQueue;
     private PhysicsEngineObserver engineObserver;

@@ -3,7 +3,7 @@ package org.inaetics.dronessimulator.gameengine;
 import lombok.AllArgsConstructor;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.gameengine.common.state.Drone;
-import org.inaetics.dronessimulator.gameengine.identifiermapper.IIdentifierMapper;
+import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 
 /**
@@ -12,7 +12,7 @@ import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngin
 @AllArgsConstructor
 public class DiscoveryHandler {
     private final IPhysicsEngineDriver driver;
-    private final IIdentifierMapper id_mapper;
+    private final IdentifierMapper id_mapper;
 
     public void newDrone(String protocolId, D3Vector position) {
         int gameengineId = id_mapper.getNewGameEngineId();

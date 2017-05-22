@@ -8,7 +8,7 @@ public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
         dependencyManager.add(createComponent()
-                                .setInterface(IIdentifierMapper.class.getName(), null)
+                                .setInterface(IdentifierMapper.class.getName(), null)
                                 .setImplementation(IdentifierMapperService.class)
         );
     }

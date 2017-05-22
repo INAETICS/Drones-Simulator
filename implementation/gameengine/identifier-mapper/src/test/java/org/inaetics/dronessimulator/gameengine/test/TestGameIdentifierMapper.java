@@ -1,6 +1,6 @@
 package org.inaetics.dronessimulator.gameengine.test;
 
-import org.inaetics.dronessimulator.gameengine.identifiermapper.IIdentifierMapper;
+import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapperService;
 import org.inaetics.dronessimulator.test.concurrent.ConcurrentExecute;
 import org.junit.Assert;
@@ -10,7 +10,7 @@ import org.junit.Test;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class TestGameIdentifierMapper {
-    private IIdentifierMapper id_mapper;
+    private IdentifierMapper id_mapper;
 
     @Before
     public void init() {

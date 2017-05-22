@@ -8,14 +8,35 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
+
+/**
+ * Test class to perform a number of jobs a specified amount of times
+ * The jobs are shuffled and performed concurrently by a threadpool
+ */
 public class ConcurrentExecute {
+    /**
+     * Next unique id
+     */
     private final AtomicLong nextId;
 
+    /**
+     * The job templates to be performed
+     */
     private final ArrayList<ConcurrentJobEntry> jobEntries;
+
+    /**
+     * The pool to perform the jobs
+     */
     private final ThreadPoolExecutor pool;
+    /**
+     * TimeoutHandler to make sure jobs are interrupted when they take too long
+     */
     private final TimeoutHandler timeoutHandler;
 
-
+    /**
+     * Create the ConcurrentExecute to perform a number of jobs concurrently
+     * @param concurrentThreads The amount of threads to concurrently perform the job
+     */
     public ConcurrentExecute(int concurrentThreads) {
         this.nextId = new AtomicLong(0);
         this.jobEntries = new ArrayList<>();
@@ -23,6 +44,12 @@ public class ConcurrentExecute {
         this.timeoutHandler = new TimeoutHandler();
     }
 
+    /**
+     * Add a job to be performed a number of times
+     * @param amount How many times this job should be performed
+     * @param timeoutMs
+     * @param job A lambda function which follows the {@link IConcurrentJob} interface. Should have a function which takes one argument int i which represents which time this job is performed
+     */
     public void addJob(int amount, int timeoutMs, IConcurrentJob job) {
         long id = nextId.incrementAndGet();
         synchronized (this) {
@@ -30,7 +57,9 @@ public class ConcurrentExecute {
         }
     }
 
-
+    /**
+     * Start the threadpool to perform all jobs. Jobs are randomly shuffled to increase concurrency risks.
+     */
     public void start() {
         List<ConcurrentJobEntry.ConcurrentJob> jobs = new ArrayList<>();
 
@@ -49,6 +78,9 @@ public class ConcurrentExecute {
         }
     }
 
+    /**
+     * Blocking wait till all jobs are performed.
+     */
     public void waitTillDone() {
         try {
             this.pool.shutdown();

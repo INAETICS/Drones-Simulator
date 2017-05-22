@@ -14,7 +14,6 @@
     <artifactId>tactic</artifactId>
     <version>0.1</version>
     <packaging>bundle</packaging>
-    <name>Drone tactic</name>
 
     <dependencies>
         <dependency>
@@ -65,7 +64,7 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package>org.inaetics.dronessimulator.drone.tactic</Export-Package>
+                        <Export-Package>org.inaetics.dronessimulator.drone.tactic.*</Export-Package>
                         <Bundle-Activator>org.inaetics.dronessimulator.drone.tactic.Activator</Bundle-Activator>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>

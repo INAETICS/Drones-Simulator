@@ -1,12 +1,10 @@
-package org.inaetics.dronessimulator.drone;
+package org.inaetics.dronessimulator.drone.tactic;
 
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.apache.felix.dm.ServiceDependency;
-import org.inaetics.dronessimulator.drone.tactic.SimpleTactic;
-import org.inaetics.dronessimulator.drone.tactic.Tactic;
-import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
+import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.osgi.framework.BundleContext;
 
 import javax.xml.ws.Service;
@@ -25,10 +23,10 @@ public class Activator extends DependencyActivatorBase {
             component.add(dep);
         }
 
-        component.add(createServiceDependency()
-                .setService(DroneInit.class)
-                .setRequired(true)
-        );
+        //component.add(createServiceDependency()
+        //        .setService(DroneInit.class)
+        //        .setRequired(true)
+        //);
         dependencyManager.add(component);
     }
 }

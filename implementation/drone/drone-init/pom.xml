@@ -27,6 +27,11 @@
             <artifactId>common</artifactId>
             <version>0.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.discovery</groupId>
+            <artifactId>discovery-api</artifactId>
+            <version>0.1</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -45,8 +50,8 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package>org.inaetics.dronessimulator.drone.drone.*</Export-Package>
-                        <Bundle-Activator>org.inaetics.dronessimulator.drone.Activator</Bundle-Activator>
+                        <Export-Package>org.inaetics.dronessimulator.drone.droneinit.*</Export-Package>
+                        <Bundle-Activator>org.inaetics.dronessimulator.drone.droneinit.Activator</Bundle-Activator>
                         <Embed-Transitive>true</Embed-Transitive>
                     </instructions>
                 </configuration>

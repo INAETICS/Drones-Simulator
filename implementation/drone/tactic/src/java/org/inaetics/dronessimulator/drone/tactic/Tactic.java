@@ -1,15 +1,9 @@
 package org.inaetics.dronessimulator.drone.tactic;
 
+import org.apache.felix.dm.DependencyManager;
 import org.apache.felix.dm.ServiceDependency;
 import org.inaetics.dronessimulator.common.D3Vector;
-import org.inaetics.dronessimulator.common.protocol.MessageTopic;
-import org.inaetics.dronessimulator.common.protocol.MovementMessage;
-import org.inaetics.dronessimulator.drone.DroneInit;
-import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
-
-import java.io.IOException;
-import java.util.List;
-
+import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 
 public abstract class Tactic extends Thread{
     protected volatile DroneInit m_drone;
@@ -17,8 +11,7 @@ public abstract class Tactic extends Thread{
     /**
      * -- Abstract metods
      */
-    public abstract List<ServiceDependency> getComponents;
-    public abstract D3Vector calculateTactics;
+    abstract void calculateTactics();
 
 
     /**
@@ -35,4 +28,6 @@ public abstract class Tactic extends Thread{
             this.calculateTactics();
         }
     }
+
+    public abstract Iterable<? extends ServiceDependency> getComponents(DependencyManager dependencyManager);
 }

@@ -3,7 +3,6 @@ package org.inaetics.dronessimulator.drone.tactic;
 import org.apache.felix.dm.DependencyManager;
 import org.apache.felix.dm.ServiceDependency;
 import org.inaetics.dronessimulator.common.D3Vector;
-import org.inaetics.dronessimulator.drone.DroneInit;
 import org.inaetics.dronessimulator.drone.components.engine.Engine;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.components.gun.Gun;
@@ -21,13 +20,12 @@ import java.util.concurrent.ThreadLocalRandom;
 public class SimpleTactic extends Tactic {
     protected volatile Radar m_radar;
     protected volatile GPS m_gps;
-    protected  volatile Engine m_engine;
+    protected volatile Engine m_engine;
     protected volatile Gun m_gun;
 
     private static final int MAX_DEVIATION_POSTION = 400;
     private static final int MAX_VELOCITY = 20;
     private static final int MAX_ACCELERATION = 10;
-
 
     /**
      *  -- IMPLEMENT FUNCTIONS
@@ -61,30 +59,35 @@ public class SimpleTactic extends Tactic {
     /**
      *  -- FUNCTIONS
      */
-    void calculateAcceleration(){
-        D3Vector output_acceleration = m_gps.getAcceleration();
-        output_acceleration = m_engine.maximize_acceleration(m_gps.getAcceleration());
-
-        //
+    private D3Vector accelerateByStagnation(D3Vector input_acceleration){
+        D3Vector output_acceleration = input_acceleration;
         if (m_gps.getAcceleration().length() == 0 && m_gps.getVelocity().length() == 0){
             double x = ThreadLocalRandom.current().nextDouble(-MAX_ACCELERATION, MAX_ACCELERATION);
             double y = ThreadLocalRandom.current().nextDouble(-MAX_ACCELERATION, MAX_ACCELERATION);
             double z = ThreadLocalRandom.current().nextDouble(-MAX_ACCELERATION, MAX_ACCELERATION);
-            output_acceleration = new D3Vector(x, y, z);
+            output_acceleration =  new D3Vector(x, y, z);
         }
+        return output_acceleration;
+    }
 
+    private D3Vector accelerateByEngine(D3Vector input_acceleration){
+        D3Vector output_acceleration = input_acceleration;
         // Check velocity
-        if (m_gps.getVelocity().length() >= MAX_VELOCITY){
+        if (m_gps.getVelocity().length() >= m_engine.getMaxVelocity()){
             output_acceleration = new D3Vector();
         }
 
         // Change acceleration if velocity is close to the maximum velocity
-        if (m_gps.getVelocity().length() >= (MAX_VELOCITY - (MAX_VELOCITY * 0.1))) {
+        if (m_gps.getVelocity().length() >= (m_engine.getMaxVelocity() - (m_engine.getMaxVelocity() * 0.1))) {
             double factor = 0.25;
             output_acceleration = m_gps.getAcceleration().scale(factor);
         }
+        return output_acceleration;
+    }
 
-        double aantal_seconden_tot_nul = m_gps.getVelocity().length() / MAX_ACCELERATION;
+    private D3Vector accelerateForWall(D3Vector input_acceleration){
+        D3Vector output_acceleration = input_acceleration;
+        double aantal_seconden_tot_nul = m_gps.getVelocity().length() / m_engine.getMaxAcceleration();
         D3Vector berekende_vertraging = m_engine.maximize_acceleration(m_engine.limit_acceleration(m_gps.getVelocity().scale(-1)));
         D3Vector berekende_position = m_gps.getVelocity().scale((1/2) * berekende_vertraging.length() * Math.pow(aantal_seconden_tot_nul, 2)).add(m_gps.getPosition());
 
@@ -93,86 +96,121 @@ public class SimpleTactic extends Tactic {
                 || Math.abs(berekende_position.getZ()-MAX_DEVIATION_POSTION) >= MAX_DEVIATION_POSTION){
             output_acceleration = berekende_vertraging;
         }
+        return output_acceleration;
+    }
 
+    private D3Vector accelerateAfterWall(D3Vector input_acceleration){
+        D3Vector output_acceleration = input_acceleration;
+        // Check positions | if maximum deviation is archieved then change acceleration in opposite direction
+            double x = output_acceleration.getX();
+            if(m_gps.getPosition().getX() >= MAX_DEVIATION_POSTION){
+                x = - m_engine.getMaxAcceleration();
+            }
+            else if(m_gps.getPosition().getX() <= 0){
+                x = m_engine.getMaxAcceleration();
+            }
+            double y = output_acceleration.getY();
+            if(m_gps.getPosition().getY() >= MAX_DEVIATION_POSTION){
+                y = - m_engine.getMaxAcceleration();
+            }
+            else if(m_gps.getPosition().getY() <= 0){
+                y = m_engine.getMaxAcceleration();
+            }
 
+            double z = output_acceleration.getZ();
+            if(m_gps.getPosition().getY() >= MAX_DEVIATION_POSTION){
+                z = - m_engine.getMaxAcceleration();
+            }
+            else if(m_gps.getPosition().getY() <= 0){
+                z = m_engine.getMaxAcceleration();
+            }
+            output_acceleration = new D3Vector(x,y,z);
+        return output_acceleration;
+
+    }
+
+    private D3Vector accelerateAfterWallOld(D3Vector input_acceleration){
+        D3Vector output_acceleration = input_acceleration;
         // Check positions | if maximum deviation is archieved then change acceleration in opposite direction
         if (Math.abs(m_gps.getPosition().getX()-MAX_DEVIATION_POSTION) >= MAX_DEVIATION_POSTION
                 || Math.abs(m_gps.getPosition().getY()-MAX_DEVIATION_POSTION) >= MAX_DEVIATION_POSTION
                 || Math.abs(m_gps.getPosition().getZ()-MAX_DEVIATION_POSTION) >= MAX_DEVIATION_POSTION){
 
 
-            double x = ThreadLocalRandom.current().nextDouble(-MAX_ACCELERATION, MAX_ACCELERATION);//current_acceleration.getX();
-            double y = ThreadLocalRandom.current().nextDouble(-MAX_ACCELERATION, MAX_ACCELERATION);//current_acceleration.getY();
-            double z = ThreadLocalRandom.current().nextDouble(-MAX_ACCELERATION, MAX_ACCELERATION);//current_acceleration.getZ();
+            double x = m_gps.getAcceleration().getX(); //ThreadLocalRandom.current().nextDouble(-MAX_ACCELERATION, MAX_ACCELERATION);//current_acceleration.getX();
+            double y = m_gps.getAcceleration().getY();//ThreadLocalRandom.current().nextDouble(-MAX_ACCELERATION, MAX_ACCELERATION);//current_acceleration.getY();
+            double z = m_gps.getAcceleration().getZ();//ThreadLocalRandom.current().nextDouble(-MAX_ACCELERATION, MAX_ACCELERATION);//current_acceleration.getZ();
 
             if( m_gps.getPosition().getX() >= MAX_DEVIATION_POSTION){
                 D3Vector next_postion = m_gps.getPosition().add(m_gps.getVelocity());
                 D3Vector next_position_accelerated = m_gps.getPosition().add(m_gps.getVelocity().add(m_gps.getAcceleration()));
-                if(next_postion.getX() <= next_position_accelerated.getX()){
-                    x = -MAX_ACCELERATION;
+                if(next_postion.getX() >= next_position_accelerated.getX()){
+                    x = -m_engine.getMaxAcceleration();
                 } else{
                     x = m_gps.getAcceleration().getX();
                 }
-                x = - MAX_ACCELERATION;
             }
 
             if( (m_gps.getPosition().getX()-MAX_DEVIATION_POSTION) <= -MAX_DEVIATION_POSTION){
                 D3Vector next_postion = m_gps.getPosition().add(m_gps.getVelocity());
                 D3Vector next_position_accelerated = m_gps.getPosition().add(m_gps.getVelocity().add(m_gps.getAcceleration()));
-                if(next_postion.getX() >= next_position_accelerated.getX()){
-                    x = MAX_ACCELERATION;
+                if(next_postion.getX() <= next_position_accelerated.getX()){
+                    x = m_engine.getMaxAcceleration();
                 } else{
                     x = m_gps.getAcceleration().getX();
                 }
-                x = MAX_ACCELERATION;
             }
             if( m_gps.getPosition().getY() >= MAX_DEVIATION_POSTION){
                 D3Vector next_postion = m_gps.getPosition().add(m_gps.getVelocity());
                 D3Vector next_position_accelerated = m_gps.getPosition().add(m_gps.getVelocity().add(m_gps.getAcceleration()));
-                if(next_postion.getY() <= next_position_accelerated.getY()){
-                    y = -MAX_ACCELERATION;
+                if(next_postion.getY() >= next_position_accelerated.getY()){
+                    y = -m_engine.getMaxAcceleration();
                 } else{
                     y = m_gps.getAcceleration().getY();
                 }
-                y = -MAX_ACCELERATION;
             }
 
             if( (m_gps.getPosition().getY()-MAX_DEVIATION_POSTION) <= -MAX_DEVIATION_POSTION){
                 D3Vector next_postion = m_gps.getPosition().add(m_gps.getVelocity());
                 D3Vector next_position_accelerated = m_gps.getPosition().add(m_gps.getVelocity().add(m_gps.getAcceleration()));
-                if(next_postion.getY() >= next_position_accelerated.getY()){
-                    y = MAX_ACCELERATION;
+                if(next_postion.getY() <= next_position_accelerated.getY()){
+                    y = m_engine.getMaxAcceleration();
                 } else{
                     y = m_gps.getAcceleration().getY();
                 }
-                y = MAX_ACCELERATION;
             }
 
             if( m_gps.getPosition().getZ() >= MAX_DEVIATION_POSTION){
                 D3Vector next_postion = m_gps.getPosition().add(m_gps.getVelocity());
                 D3Vector next_position_accelerated = m_gps.getPosition().add(m_gps.getVelocity().add(m_gps.getAcceleration()));
-                if(next_postion.getZ() <= next_position_accelerated.getZ()){
-                    z = -MAX_ACCELERATION;
+                if(next_postion.getZ() >= next_position_accelerated.getZ()){
+                    z = -m_engine.getMaxAcceleration();
                 } else{
                     z = m_gps.getAcceleration().getZ();
                 }
-                z = -MAX_ACCELERATION;
             }
 
             if( (m_gps.getPosition().getZ()-MAX_DEVIATION_POSTION) <= -MAX_DEVIATION_POSTION){
                 D3Vector next_postion = m_gps.getPosition().add(m_gps.getVelocity());
                 D3Vector next_position_accelerated = m_gps.getPosition().add(m_gps.getVelocity().add(m_gps.getAcceleration()));
-                if(next_postion.getZ() >= next_position_accelerated.getZ()){
-                    z = MAX_ACCELERATION;
+                if(next_postion.getZ() <= next_position_accelerated.getZ()){
+                    z = m_engine.getMaxAcceleration();
                 } else{
                     z = m_gps.getAcceleration().getZ();
                 }
-                z = MAX_ACCELERATION;
             }
 
             output_acceleration = new D3Vector(x, y, z);
         }
+        return output_acceleration;
+    }
 
+    void calculateAcceleration(){
+        D3Vector output_acceleration = m_engine.maximize_acceleration(m_gps.getAcceleration());
+        output_acceleration = this.accelerateByStagnation(output_acceleration);
+        output_acceleration = this.accelerateByEngine(output_acceleration);
+        output_acceleration = this.accelerateForWall(output_acceleration);
+        output_acceleration = this.accelerateAfterWall(output_acceleration);
         output_acceleration = m_engine.limit_acceleration(output_acceleration);
         m_engine.changeAcceleration(output_acceleration);
     }
@@ -180,7 +218,7 @@ public class SimpleTactic extends Tactic {
     void calculateGun(){
         Optional<D3Vector> target = m_radar.getNearestTarget();
         if(target.isPresent()){
-            if(target.get().distance_between(m_gps.getPosition() <= m_gun.getMaxDistance())){
+            if(target.get().distance_between(m_gps.getPosition()) <= m_gun.getMaxDistance()){
                 m_gun.fireBullet(target.get().sub(m_gps.getPosition()).toPoolCoordinate());
             }
         }

@@ -4,6 +4,9 @@ package org.inaetics.dronessimulator.drone.droneinit;
 import org.inaetics.dronessimulator.common.protocol.KillMessage;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
+import org.inaetics.dronessimulator.discovery.api.Discoverer;
+import org.inaetics.dronessimulator.discovery.api.DuplicateName;
+import org.inaetics.dronessimulator.discovery.api.Instance;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
@@ -15,36 +18,75 @@ import java.util.UUID;
 public class DroneInit implements MessageHandler {
     private String identifier;
     private Subscriber m_subscriber;
+    private Discoverer m_discoverer;
+    private Instance registered_instance;
+
+
+    public DroneInit(){
+        this.initIdentifier();
+    }
 
     /**
      * FELIX CALLBACKS
      */
     public void start() {
+        this.registerSubscriber();
+        this.registerDrone();
+    }
+
+    public void stop() {
+        this.unregisterDrone();
+    }
+
+    private void registerSubscriber(){
         try {
             this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
             System.out.println("IO Exception add Topic");
         }
         this.m_subscriber.addHandler(StateMessage.class, this);
+    }
 
+    private void registerDrone(){
+        Instance instance = new Instance("DRONE", "ALL_DRONES", this.getIdentifier(), null, true);
+        try{
+            m_discoverer.register(instance);
+            this.registered_instance = instance;
+        } catch (IOException e){
+            System.out.println("IO Exception registerDrone");
+        } catch(DuplicateName e){
+            this.setIdentifier(this.getIdentifier() + "-" + UUID.randomUUID().toString());
+            this.registerDrone();
+        }
 
-        // place indentifier in docker
+    }
+
+    private void unregisterDrone(){
+        try{
+            this.m_discoverer.unregister(registered_instance);
+        } catch (IOException e){
+            System.out.println("IO Exception unregisterDrone");
+        }
     }
 
     public String getIdentifier(){
-        if (this.identifier != null){
-            return this.identifier;
-        } else {
-            Map<String, String> env = System.getenv();
-            if(env.containsKey("DRONENAME"))
-                return env.get("DRONENAME");
-            else if (env.containsKey("COMPUTERNAME"))
-                return env.get("COMPUTERNAME") + "-" + UUID.randomUUID().toString();
-            else if (env.containsKey("HOSTNAME"))
-                return env.get("HOSTNAME") + "-" + UUID.randomUUID().toString();
-            else
-                return UUID.randomUUID().toString();
-        }
+        return this.identifier;
+    }
+
+    public void setIdentifier(String new_identifier){
+        this.identifier = new_identifier;
+    }
+
+    public void initIdentifier(){
+        Map<String, String> env = System.getenv();
+        if(env.containsKey("DRONENAME"))
+            this.setIdentifier(env.get("DRONENAME"));
+        else if (env.containsKey("COMPUTERNAME"))
+            this.setIdentifier(env.get("COMPUTERNAME"));
+        else if (env.containsKey("HOSTNAME"))
+            this.setIdentifier(env.get("HOSTNAME"));
+        else
+            this.setIdentifier(UUID.randomUUID().toString());
     }
     
     /**

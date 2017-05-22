@@ -42,7 +42,7 @@ public class Gun {
 
     public void fireBullet(D3PoolCoordinate direction){
         CreateEntity msg = new CreateEntity();
-        msg.setIdentifier();
+        msg.setIdentifier(m_drone.getIdentifier());
         msg.setType(EntityType.BULLET);
         msg.setDirection(direction);
         msg.setVelocity(this.optimize_acceleration(direction.toVector(), GUN_SPEED));

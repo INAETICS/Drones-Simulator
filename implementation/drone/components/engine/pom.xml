@@ -27,6 +27,11 @@
             <artifactId>drone-init</artifactId>
             <version>0.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.drone.components</groupId>
+            <artifactId>components-gps</artifactId>
+            <version>0.1</version>
+        </dependency>
     </dependencies>
 
 

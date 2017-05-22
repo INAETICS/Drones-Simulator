@@ -12,6 +12,7 @@ import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
@@ -20,6 +21,7 @@ public class DroneInit implements MessageHandler {
     private Subscriber m_subscriber;
     private Discoverer m_discoverer;
     private Instance registered_instance;
+    private String team;
 
 
     public DroneInit(){
@@ -48,7 +50,9 @@ public class DroneInit implements MessageHandler {
     }
 
     private void registerDrone(){
-        Instance instance = new Instance("DRONE", "ALL_DRONES", this.getIdentifier(), null, true);
+        Map<String, String> properties = new HashMap<String,String>();
+        properties.put("TEAM", this.team);
+        Instance instance = new Instance("DRONE", "ALL_DRONES", this.getIdentifier(), properties, true);
         try{
             m_discoverer.register(instance);
             this.registered_instance = instance;
@@ -100,7 +104,7 @@ public class DroneInit implements MessageHandler {
 
     public void handleKillMessage(KillMessage killMessage){
         if(killMessage.getIdentifier().equals(this.getIdentifier())){
-            // todo kill droneinit bundle
+            throw new RuntimeException("GAMEOVER! - Drone is killed!");
         }
     }
 

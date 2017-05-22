@@ -47,8 +47,19 @@ public class Engine {
         return output;
     }
 
+    public D3Vector stagnate_acceleration(D3Vector input){
+        D3Vector output = input;
+        return output;
+    }
 
-    public void changeAcceleration(D3Vector acceleration){
+
+    public void changeAcceleration(D3Vector input_acceleration){
+        D3Vector acceleration = input_acceleration;
+
+        acceleration = this.limit_acceleration(acceleration);
+        acceleration = this.stagnate_acceleration(acceleration);
+        
+
         MovementMessage msg = new MovementMessage();
         msg.setAcceleration(acceleration);
         msg.setIdentifier(m_drone.getIdentifier());

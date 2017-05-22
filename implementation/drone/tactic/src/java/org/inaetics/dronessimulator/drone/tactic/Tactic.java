@@ -7,6 +7,10 @@ import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 
 public abstract class Tactic extends Thread{
     protected volatile DroneInit m_drone;
+    private final int calculation_rate = 500;
+
+
+
 
     /**
      * -- Abstract metods

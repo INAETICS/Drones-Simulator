@@ -18,9 +18,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
-/**
- * Created by mart on 15-5-17.
- */
 public class Radar implements MessageHandler {
     private volatile Subscriber m_subscriber;
     private volatile DroneInit m_drone;

@@ -3,9 +3,16 @@ package org.inaetics.dronessimulator.visualisation;
 import com.rabbitmq.client.ConnectionFactory;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.D3PoolCoordinate;
@@ -17,10 +24,15 @@ import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitSubscriber;
+import org.inaetics.dronessimulator.visualisation.controls.NodeGestures;
+import org.inaetics.dronessimulator.visualisation.controls.PannableCanvas;
+import org.inaetics.dronessimulator.visualisation.controls.SceneGestures;
 
+import java.awt.*;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class Game extends Application implements MessageHandler {
     private volatile RabbitSubscriber subscriber;
@@ -59,8 +71,8 @@ public class Game extends Application implements MessageHandler {
 
 
                     lastLog = current;
-                    System.out.println("Average: " + durationAverageMs);
-                    System.out.println("FPS: " + fps);
+//                    System.out.println("Average: " + durationAverageMs);
+//                    System.out.println("FPS: " + fps);
                     i = 0;
                 }
 
@@ -149,18 +161,57 @@ public class Game extends Application implements MessageHandler {
     }
 
     private void setupInterface(Stage primaryStage) {
-        StackPane root = new StackPane();
+        Group group = new Group();
 
-        // create layers
-        playfieldLayer = new Pane();
-        root.getChildren().add(playfieldLayer);
-        root.setId("pane");
+        primaryStage.setTitle("Drone simulator");
+        primaryStage.setResizable(false);
 
-        Scene scene = new Scene(root, Settings.SCENE_WIDTH, Settings.SCENE_HEIGHT);
+        // create canvas
+        PannableCanvas canvas = new PannableCanvas(Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT);
+
+        canvas.setId("pane");
+
+        canvas.setTranslateX(0);
+        canvas.setTranslateY(0);
+
+        // create sample nodes which can be dragged
+        NodeGestures nodeGestures = new NodeGestures( canvas);
+
+        Circle circle1 = new Circle( 300, 300, 50);
+        circle1.setStroke(Color.ORANGE);
+        circle1.setFill(Color.ORANGE.deriveColor(1, 1, 1, 0.5));
+        circle1.addEventFilter( MouseEvent.MOUSE_PRESSED, nodeGestures.getOnMousePressedEventHandler());
+        circle1.addEventFilter( MouseEvent.MOUSE_DRAGGED, nodeGestures.getOnMouseDraggedEventHandler());
+
+        Rectangle rect1 = new Rectangle(100,100);
+        rect1.setTranslateX(450);
+        rect1.setTranslateY(450);
+        rect1.setStroke(Color.BLUE);
+        rect1.setFill(Color.BLUE.deriveColor(1, 1, 1, 0.5));
+        rect1.addEventFilter( MouseEvent.MOUSE_PRESSED, nodeGestures.getOnMousePressedEventHandler());
+        rect1.addEventFilter( MouseEvent.MOUSE_DRAGGED, nodeGestures.getOnMouseDraggedEventHandler());
+
+        canvas.getChildren().addAll(circle1, rect1);
+
+        group.getChildren().add(canvas);
+
+        double width = Settings.SCENE_WIDTH > Settings.CANVAS_WIDTH ? Settings.CANVAS_WIDTH : Settings.SCENE_WIDTH;
+        double height = Settings.SCENE_HEIGHT > Settings.CANVAS_HEIGHT ? Settings.CANVAS_HEIGHT : Settings.SCENE_HEIGHT;
+        
+        // create scene which can be dragged and zoomed
+        Scene scene = new Scene(group, width, height);
+
+        SceneGestures sceneGestures = new SceneGestures(canvas);
+        scene.addEventFilter( MouseEvent.MOUSE_PRESSED, sceneGestures.getOnMousePressedEventHandler());
+        scene.addEventFilter( MouseEvent.MOUSE_DRAGGED, sceneGestures.getOnMouseDraggedEventHandler());
+        scene.addEventFilter( ScrollEvent.ANY, sceneGestures.getOnScrollEventHandler());
+
         scene.getStylesheets().addAll(this.getClass().getResource("/style.css").toExternalForm());
-
         primaryStage.setScene(scene);
         primaryStage.show();
+
+        canvas.addGrid();
+
     }
 
     public static void main(String[] args) {

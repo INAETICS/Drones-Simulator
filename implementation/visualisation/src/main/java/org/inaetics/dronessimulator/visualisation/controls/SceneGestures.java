@@ -14,7 +14,7 @@ public class SceneGestures {
 
     private DragContext sceneDragContext = new DragContext();
 
-    PannableCanvas canvas;
+    private PannableCanvas canvas;
 
     public SceneGestures(PannableCanvas canvas) {
         this.canvas = canvas;
@@ -35,27 +35,25 @@ public class SceneGestures {
     private EventHandler<MouseEvent> onMousePressedEventHandler = new EventHandler<MouseEvent>() {
 
         public void handle(MouseEvent event) {
-
             // right mouse button => panning
-            if (!event.isSecondaryButtonDown())
+            if (!event.isSecondaryButtonDown()) {
                 return;
+            }
 
             sceneDragContext.mouseAnchorX = event.getSceneX();
             sceneDragContext.mouseAnchorY = event.getSceneY();
 
             sceneDragContext.translateAnchorX = canvas.getTranslateX();
             sceneDragContext.translateAnchorY = canvas.getTranslateY();
-
         }
-
     };
 
     private EventHandler<MouseEvent> onMouseDraggedEventHandler = new EventHandler<MouseEvent>() {
         public void handle(MouseEvent event) {
-
             // right mouse button => panning
-            if (!event.isSecondaryButtonDown())
+            if (!event.isSecondaryButtonDown()) {
                 return;
+            }
 
             double newX = sceneDragContext.translateAnchorX + event.getSceneX() - sceneDragContext.mouseAnchorX;
             double newY = sceneDragContext.translateAnchorY + event.getSceneY() - sceneDragContext.mouseAnchorY;
@@ -74,38 +72,29 @@ public class SceneGestures {
 
         @Override
         public void handle(ScrollEvent event) {
-
             double delta = 1.2;
-
             double scale = canvas.getScale(); // currently we only use Y, same value is used for X
             double oldScale = scale;
 
-            if (event.getDeltaY() < 0)
+            if (event.getDeltaY() < 0) {
                 scale /= delta;
-            else
+            } else {
                 scale *= delta;
-
+            }
             scale = clamp(scale, MIN_SCALE, MAX_SCALE);
 
             double f = (scale / oldScale) - 1;
-
             double dx = (event.getSceneX() - (canvas.getBoundsInParent().getWidth() / 2 + canvas.getBoundsInParent().getMinX()));
             double dy = (event.getSceneY() - (canvas.getBoundsInParent().getHeight() / 2 + canvas.getBoundsInParent().getMinY()));
 
             canvas.setScale(scale);
-
-            // note: pivot value must be untransformed, i. e. without scaling
             canvas.setPivot(f * dx, f * dy);
-
             canvas.setTranslateX(clamp(canvas.getTranslateX(), minX(), maxX()));
             canvas.setTranslateY(clamp(canvas.getTranslateX(), minY(), maxY()));
 
             event.consume();
-
         }
-
     };
-
 
     public static double clamp(double value, double min, double max) {
 

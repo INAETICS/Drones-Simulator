@@ -8,7 +8,7 @@ import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
 /**
- * Created by langstra on 24-3-17.
+ * Creates an animation based on a sprite
  */
 public class SpriteAnimation extends Transition {
     private final ImageView imageView;
@@ -19,6 +19,19 @@ public class SpriteAnimation extends Transition {
     private final int width;
     private final int height;
 
+    /**
+     * Creates an animation that will run for indefinite time.
+     * Use setCycleCount(1) to run animation only once. Remember to remove the imageView afterwards.
+     *
+     * @param imageView - the imageview of the sprite
+     * @param duration - How long should one animation cycle take
+     * @param count - Number of frames
+     * @param columns - Number of colums the sprite has
+     * @param offsetX - Offset x
+     * @param offsetY - Offset y
+     * @param width - Width of each frame
+     * @param height - Height of each frame
+     */
     public SpriteAnimation(
             ImageView imageView,
             Duration duration,

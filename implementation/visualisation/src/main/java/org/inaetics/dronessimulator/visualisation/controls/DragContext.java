@@ -10,5 +10,4 @@ public class DragContext {
 
     double translateAnchorX;
     double translateAnchorY;
-
 }

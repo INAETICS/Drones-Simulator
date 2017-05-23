@@ -6,37 +6,33 @@ import javafx.scene.layout.Pane;
 import org.inaetics.dronessimulator.common.D3PoolCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
 
-/**
- * Created by langstra on 22-5-17.
- */
 public abstract class BaseEntity {
 
     ImageView imageView;
 
     D3Vector position;
-    D3PoolCoordinate direction;
+    private D3PoolCoordinate direction;
 
-    double spriteX;
-    double spriteY;
-    double spriteZ;
+    private double spriteX;
+    private double spriteY;
+    private double spriteZ;
 
-    Pane layer;
+    Pane pane;
 
-    int width;
-
-    BaseEntity(Pane layer, String image) {
-        this.layer = layer;
-
-        this.width = Settings.DRONE_WIDTH;
+    BaseEntity(Pane pane, String image) {
+        this.pane = pane;
         this.imageView = new ImageView(new Image(getClass().getResourceAsStream(image)));
         this.imageView.setPreserveRatio(true);
         addToLayer();
     }
 
-    void addToLayer() {
-        this.layer.getChildren().addAll(this.imageView);
+    public void addToLayer() {
+        this.pane.getChildren().addAll(this.imageView);
     }
 
+    /**
+     * Update the position, rotation and scale of the entity
+     */
     void updateUI() {
         setSpriteX(position.getX() - imageView.getFitWidth() / 2);
         setSpriteY(position.getY() - imageView.getFitHeight() / 2);
@@ -46,39 +42,43 @@ public abstract class BaseEntity {
         imageView.setScaleY(getScale());
     }
 
-    double getSpriteX() {
+    public void delete() {
+        this.pane.getChildren().remove(this.imageView);
+    }
+
+    public double getSpriteX() {
         return spriteX;
     }
 
-    double getSpriteY() {
+    public double getSpriteY() {
         return spriteY;
     }
 
-    double getSpriteZ() {
+    public double getSpriteZ() {
         return spriteZ;
     }
 
-    void setSpriteX(double x) {
+    private void setSpriteX(double x) {
         spriteX = x;
     }
 
-    void setSpriteY(double y) {
+    private void setSpriteY(double y) {
         spriteY = y;
     }
 
-    void setSpriteZ(double z) {
+    private void setSpriteZ(double z) {
         spriteZ = z;
     }
 
-    double getScale() {
+    public double getScale() {
         return scale(position.getZ(), 0, 1000, 0.1, 1.0);
     }
 
-    void setPosition(D3Vector position) {
+    public void setPosition(D3Vector position) {
         this.position = position;
     }
 
-    void setDirection(D3PoolCoordinate direction) {
+    public void setDirection(D3PoolCoordinate direction) {
         this.direction = direction;
     }
 

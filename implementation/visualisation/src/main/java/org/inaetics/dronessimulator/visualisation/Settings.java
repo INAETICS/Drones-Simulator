@@ -1,8 +1,5 @@
 package org.inaetics.dronessimulator.visualisation;
 
-/**
- * Created by langstra on 10-3-17.
- */
 public class Settings {
 
     public static int SCENE_WIDTH = 1024;

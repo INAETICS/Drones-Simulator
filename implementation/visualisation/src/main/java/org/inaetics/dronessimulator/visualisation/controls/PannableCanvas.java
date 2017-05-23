@@ -23,7 +23,6 @@ public class PannableCanvas extends Pane {
      * Add a grid to the canvas, send it to back
      */
     public void addGrid() {
-
         double w = getBoundsInLocal().getWidth();
         double h = getBoundsInLocal().getHeight();
 

@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.discovery.api.test;
 
 
+import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.tree.DiscoveryStoredNode;
 
 import java.util.ArrayList;
@@ -46,6 +47,11 @@ public class MockDiscoveryStoredNode extends DiscoveryStoredNode {
     @Override
     public List<DiscoveryStoredNode> getChildren() {
         return this.children;
+    }
+
+    @Override
+    public DiscoveryPath getPath() {
+        return null;
     }
 
     @Override

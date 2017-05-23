@@ -5,12 +5,12 @@ import org.inaetics.dronessimulator.discovery.api.tree.Path;
 
 public class DiscoveryPath extends Path {
     public static final String PATH_DELIMITER = "/";
-    public static final String ROOT = "/";
+    public static final String ROOT = "";
     public static final String INSTANCE_DIR = "instances";
 
     public static final String DRONES = "drones";
 
-    private DiscoveryPath(String... segments) {
+    public DiscoveryPath(String... segments) {
         super(PATH_DELIMITER, segments);
     }
 

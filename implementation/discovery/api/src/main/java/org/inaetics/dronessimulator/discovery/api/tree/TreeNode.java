@@ -6,20 +6,22 @@ import java.util.concurrent.ConcurrentMap;
 
 public class TreeNode<V, N extends TreeNode<V, N>> {
     private final String id;
+    private final Path path;
     private volatile N parent;
     private volatile V value;
     private final ConcurrentMap<String, N> children;
 
-    public TreeNode(String id) {
-        this(id, null, new ConcurrentHashMap<>());
+    public TreeNode(String id, Path path) {
+        this(id, path, null, new ConcurrentHashMap<>());
     }
 
-    public TreeNode(String id, V value) {
-        this(id, value, new ConcurrentHashMap<>());
+    public TreeNode(String id, Path path,V value) {
+        this(id, path, value, new ConcurrentHashMap<>());
     }
 
-    public TreeNode(String id, V value, ConcurrentMap<String, N> children) {
+    public TreeNode(String id, Path path, V value, ConcurrentMap<String, N> children) {
         this.id = id;
+        this.path = path;
         this.value = value;
         this.children = children;
     }
@@ -69,5 +71,9 @@ public class TreeNode<V, N extends TreeNode<V, N>> {
 
 
         return "Node " + this.id + (this.value != null ? " " + this.value : "") + children;
+    }
+
+    public Path getPath() {
+        return path;
     }
 }

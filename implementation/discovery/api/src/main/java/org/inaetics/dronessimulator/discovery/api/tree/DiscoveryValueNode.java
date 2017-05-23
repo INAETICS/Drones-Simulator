@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.discovery.api.tree;
 
+import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.discoveryevent.DiscoveryEvent;
 
 import java.util.Collections;
@@ -7,8 +8,8 @@ import java.util.List;
 
 public class DiscoveryValueNode extends DiscoveryNode {
 
-    public DiscoveryValueNode(String id) {
-        super(id);
+    public DiscoveryValueNode(String id, DiscoveryPath path) {
+        super(id, path);
     }
 
     @Override

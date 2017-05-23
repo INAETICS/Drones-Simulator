@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.discovery.etcd;
 
 
 import mousio.etcd4j.responses.EtcdKeysResponse;
+import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.discoveryevent.AddedNode;
 import org.inaetics.dronessimulator.discovery.api.discoveryevent.ChangedValue;
 import org.inaetics.dronessimulator.discovery.api.discoveryevent.DiscoveryHandler;
@@ -17,7 +18,7 @@ public class EtcdChangeHandler extends Thread {
 
     public EtcdChangeHandler(EtcdDiscoverer discoverer) {
         this.discoverer = discoverer;
-        this.cachedRoot = new DiscoveryDirNode("/");
+        this.cachedRoot = new DiscoveryDirNode("/", new DiscoveryPath("", ""));
     }
 
     @Override

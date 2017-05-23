@@ -2,7 +2,6 @@ package org.inaetics.dronessimulator.discovery.api.tree;
 
 import org.inaetics.dronessimulator.discovery.api.discoveryevent.*;
 
-import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,8 +13,8 @@ public class EventTreeNode<V, N extends EventTreeNode<V, N>> extends TreeNode<V,
     private final List<DiscoveryHandler<ChangedValue<V>>> changeValueHandlers;
     private final List<DiscoveryHandler<RemovedNode<V>>> removeNodeHandlers;
 
-    public EventTreeNode(String id) {
-        super(id);
+    public EventTreeNode(String id, Path path) {
+        super(id, path);
         this.addNodeHandlers = new CopyOnWriteArrayList<>();
         this.changeValueHandlers = new CopyOnWriteArrayList<>();
         this.removeNodeHandlers = new CopyOnWriteArrayList<>();
@@ -26,7 +25,7 @@ public class EventTreeNode<V, N extends EventTreeNode<V, N>> extends TreeNode<V,
      * @param addHandler
      */
     public void initializeAddHandler(DiscoveryHandler<AddedNode> addHandler) {
-        addHandler.handle(new AddedNode(this.getId()));
+        addHandler.handle(new AddedNode(this.getId(), this.getPath()));
 
         for(Map.Entry<String, N> e : this.getChildren().entrySet()) {
             e.getValue().initializeAddHandler(addHandler);
@@ -39,7 +38,7 @@ public class EventTreeNode<V, N extends EventTreeNode<V, N>> extends TreeNode<V,
 
     public void initializeChangeHandler(DiscoveryHandler<ChangedValue<V>> changedValueHandler) {
         if(this.getValue() != null) {
-            changedValueHandler.handle(new ChangedValue<>(this.getId(), null, this.getValue()));
+            changedValueHandler.handle(new ChangedValue<>(this.getId(), this.getPath(), null, this.getValue()));
         }
 
         for(Map.Entry<String, N> e : this.getChildren().entrySet()) {
@@ -61,7 +60,7 @@ public class EventTreeNode<V, N extends EventTreeNode<V, N>> extends TreeNode<V,
 
         if((oldValue != null && !oldValue.equals(newValue)) || (oldValue == null && newValue != null)) {
             super.setValue(newValue);
-            ChangedValue<V> changedValue = new ChangedValue<>(this.getId(), oldValue, newValue);
+            ChangedValue<V> changedValue = new ChangedValue<>(this.getId(), this.getPath(), oldValue, newValue);
             result = changedValue;
             this.bubbleValueChangeEvent(changedValue);
         }
@@ -79,7 +78,7 @@ public class EventTreeNode<V, N extends EventTreeNode<V, N>> extends TreeNode<V,
 
     public AddedNode addChildWithEvent(N newChild) {
         this.addChild(newChild);
-        AddedNode result = new AddedNode(newChild.getId());
+        AddedNode result = new AddedNode(newChild.getId(), newChild.getPath());
 
         this.bubbleAddEvent(result);
 
@@ -105,7 +104,7 @@ public class EventTreeNode<V, N extends EventTreeNode<V, N>> extends TreeNode<V,
         }
 
         this.removeChild(id);
-        RemovedNode<V> result = new RemovedNode<>(id, child.getValue());
+        RemovedNode<V> result = new RemovedNode<>(id, this.getPath(), child.getValue());
         removeEvents.add(result);
         this.bubbleRemoveEvent(result);
 

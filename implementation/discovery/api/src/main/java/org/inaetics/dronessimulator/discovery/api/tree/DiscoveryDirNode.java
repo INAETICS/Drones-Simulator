@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.discovery.api.tree;
 
+import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.discoveryevent.ChangedValue;
 import org.inaetics.dronessimulator.discovery.api.discoveryevent.DiscoveryEvent;
 import org.inaetics.dronessimulator.discovery.api.discoveryevent.DiscoveryValueEvent;
@@ -7,8 +8,8 @@ import org.inaetics.dronessimulator.discovery.api.discoveryevent.DiscoveryValueE
 import java.util.*;
 
 public class DiscoveryDirNode extends DiscoveryNode {
-    public DiscoveryDirNode(String id) {
-        super(id);
+    public DiscoveryDirNode(String id, DiscoveryPath path) {
+        super(id, path);
     }
 
     @Override
@@ -48,10 +49,10 @@ public class DiscoveryDirNode extends DiscoveryNode {
             } else {
                 // New child is a dir
                 if(storedChild.isDir()) {
-                    child = new DiscoveryDirNode(storedChild.getKey());
+                    child = new DiscoveryDirNode(storedChild.getKey(), storedChild.getPath());
                 // New child is a key
                 } else {
-                    child = new DiscoveryValueNode(storedChild.getKey());
+                    child = new DiscoveryValueNode(storedChild.getKey(), storedChild.getPath());
                 }
 
                 result.add(this.addChildWithEvent(child));

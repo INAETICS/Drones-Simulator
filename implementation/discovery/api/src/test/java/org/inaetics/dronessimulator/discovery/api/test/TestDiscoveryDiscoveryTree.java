@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.discovery.api.test;
 
 
+import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.discoveryevent.AddedNode;
 import org.inaetics.dronessimulator.discovery.api.discoveryevent.ChangedValue;
 import org.inaetics.dronessimulator.discovery.api.discoveryevent.RemovedNode;
@@ -19,13 +20,13 @@ public class TestDiscoveryDiscoveryTree {
 
     @Before
     public void init() {
-        this.root = new DiscoveryDirNode("/");
+        this.root = new DiscoveryDirNode("/", new DiscoveryPath("", ""));
     }
 
 
     @Test
     public void testAddChildSetValue() {
-        AddedNode addEvent = this.root.addChildWithEvent(new DiscoveryValueNode("/firstChild"));
+        AddedNode addEvent = this.root.addChildWithEvent(new DiscoveryValueNode("/firstChild", new DiscoveryPath("", "firstChild")));
 
         this.root.getChild("/firstChild").addChangeValueHandler((ChangedValue<String> changedValue) -> {
             Assert.assertEquals("/firstChild", changedValue.getKey());
@@ -52,7 +53,7 @@ public class TestDiscoveryDiscoveryTree {
 
     @Test
     public void testAddDirAndChildSetValue() {
-        DiscoveryDirNode firstDir = new DiscoveryDirNode("/firstDir");
+        DiscoveryDirNode firstDir = new DiscoveryDirNode("/firstDir", new DiscoveryPath("", "firstDir"));
 
         this.root.addAddNodeHandler((AddedNode addedDir) -> {
             if(addedDir.getKey().equals("/firstDir")) {
@@ -66,7 +67,7 @@ public class TestDiscoveryDiscoveryTree {
             Assert.assertEquals("/firstDir/firstValue", addedValue.getKey());
         });
 
-        firstDir.addChildWithEvent(new DiscoveryValueNode("/firstDir/firstValue"));
+        firstDir.addChildWithEvent(new DiscoveryValueNode("/firstDir/firstValue", new DiscoveryPath("", "firstDir", "firtValue")));
 
 
 
@@ -75,6 +76,7 @@ public class TestDiscoveryDiscoveryTree {
         Optional<ChangedValue<String>> m_changeEvent = this.root.getChild("/firstDir").getChild("/firstDir/firstValue").setValueWithEvent("value1");
 
         Assert.assertEquals("/firstDir", addEvent.getKey());
+        Assert.assertEquals(new DiscoveryPath("", "firstDir"), addEvent.getPath());
         Assert.assertTrue(m_changeEvent.isPresent());
 
         ChangedValue<String> changeEvent = m_changeEvent.get();
@@ -86,7 +88,7 @@ public class TestDiscoveryDiscoveryTree {
 
     @Test
     public void testRemoveNode() {
-        DiscoveryValueNode firstChild = new DiscoveryValueNode("/firstValue");
+        DiscoveryValueNode firstChild = new DiscoveryValueNode("/firstValue", new DiscoveryPath("", "firstValue"));
         firstChild.setValueWithEvent("value!");
         this.root.addChild(firstChild);
 
@@ -119,9 +121,9 @@ public class TestDiscoveryDiscoveryTree {
         storedRoot.addChild(storedNewDir);
             storedNewDir.addChild(storedNewValue);
 
-        DiscoveryDirNode removedDir = new DiscoveryDirNode("/removedDir");
-        DiscoveryDirNode existingDir = new DiscoveryDirNode("/existingDir");
-        DiscoveryValueNode changedValue = new DiscoveryValueNode("/existingDir/changedValue");
+        DiscoveryDirNode removedDir = new DiscoveryDirNode("/removedDir", new DiscoveryPath("", "removedDir"));
+        DiscoveryDirNode existingDir = new DiscoveryDirNode("/existingDir", new DiscoveryPath("", "existingDir"));
+        DiscoveryValueNode changedValue = new DiscoveryValueNode("/existingDir/changedValue", new DiscoveryPath("", "existingDir", "changedValue"));
         changedValue.setValue("unchangedValue");
 
         existingDir.addChild(changedValue);

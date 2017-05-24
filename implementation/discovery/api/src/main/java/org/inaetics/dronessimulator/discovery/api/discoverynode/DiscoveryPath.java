@@ -27,6 +27,18 @@ public class DiscoveryPath extends Path<DiscoveryPath> {
         return new DiscoveryPath(ROOT, INSTANCE_DIR, type, group, name);
     }
 
+    public boolean isTypePath() {
+        return this.getSegments().length == 2;
+    }
+
+    public boolean isGroupPath() {
+        return this.getSegments().length == 3;
+    }
+
+    public boolean isConfigPath() {
+        return this.getSegments().length == 4;
+    }
+
     @Override
     protected DiscoveryPath newChild(String delimiter, String[] segments) {
         assert delimiter.equals(PATH_DELIMITER);

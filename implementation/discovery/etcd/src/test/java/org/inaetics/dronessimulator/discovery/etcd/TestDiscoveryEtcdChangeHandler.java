@@ -2,10 +2,11 @@ package org.inaetics.dronessimulator.discovery.etcd;
 
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
-import org.inaetics.dronessimulator.discovery.api.discoveryevent.AddedNode;
-import org.inaetics.dronessimulator.discovery.api.discoveryevent.ChangedValue;
-import org.inaetics.dronessimulator.discovery.api.discoveryevent.DiscoveryHandler;
-import org.inaetics.dronessimulator.discovery.api.discoveryevent.RemovedNode;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -34,8 +35,11 @@ public class TestDiscoveryEtcdChangeHandler {
     public void testChanges() throws DuplicateName, IOException {
         try {
             AtomicBoolean catchupAdded = new AtomicBoolean(false);
-            AtomicBoolean catchprop1Added = new AtomicBoolean(false);
+            AtomicBoolean helloAdded = new AtomicBoolean(false);
             AtomicBoolean catchprop1Set = new AtomicBoolean(false);
+
+            AtomicBoolean nameAdded = new AtomicBoolean(false);
+            AtomicBoolean discoverValueAdded = new AtomicBoolean(false);
             AtomicBoolean removedDiscoverValue = new AtomicBoolean(false);
             AtomicBoolean removedDiscoverDir = new AtomicBoolean(false);
 
@@ -47,44 +51,64 @@ public class TestDiscoveryEtcdChangeHandler {
 
             this.discoverer.register(new Instance("catchup", "group", "hello!", catchupProperties, false));
 
-            List<DiscoveryHandler<AddedNode>> addHandlers = new ArrayList<>();
-            List<DiscoveryHandler<ChangedValue<String>>> changedValueHandlers = new ArrayList<>();
-            List<DiscoveryHandler<RemovedNode<String>>> removedHandlers = new ArrayList<>();
+            List<NodeEventHandler<AddedNode>> addHandlers = new ArrayList<>();
+            List<NodeEventHandler<ChangedValue>> changedValueHandlers = new ArrayList<>();
+            List<NodeEventHandler<RemovedNode>> removedHandlers = new ArrayList<>();
 
-            addHandlers.add((AddedNode addedNode) -> {
-                switch(addedNode.getKey()) {
-                    case "/instances/catchup":
+            addHandlers.add((AddedNode addedNodeEvent) -> {
+                DiscoveryNode addedNode = addedNodeEvent.getNode();
+                switch(addedNode.getId()) {
+                    case "catchup":
                         Assert.assertFalse(catchupAdded.get());
                         catchupAdded.set(true);
                         break;
-                    case "/instances/catchup/group/hello!/catchprop1":
-                        Assert.assertFalse(catchprop1Added.get());
-                        catchprop1Added.set(true);
+                    case "hello!":
+                        Assert.assertFalse(helloAdded.get());
+                        helloAdded.set(true);
+                        break;
+                    case "name":
+                        Assert.assertFalse(nameAdded.get());
+                        nameAdded.set(true);
                         break;
                 }
             });
 
-            changedValueHandlers.add((ChangedValue<String> changedValue) -> {
+            AtomicBoolean issetDiscover = new AtomicBoolean(false);
+
+            changedValueHandlers.add((ChangedValue changedValue) -> {
                 switch(changedValue.getKey()) {
-                    case "/instances/catchup/group/hello!/catchprop1":
-                        Assert.assertFalse(catchprop1Set.get());
-                        catchprop1Set.set(true);
+                    case "catchprop1":
+                        // catchprop1 is not being unset
+                        if(changedValue.getNewValue() != null) {
+                            Assert.assertFalse(catchprop1Set.get());
+                            catchprop1Set.set(true);
 
-                        Assert.assertEquals(null, changedValue.getOldValue());
-                        Assert.assertEquals("catchupval1", changedValue.getNewValue());
+                            Assert.assertEquals(null, changedValue.getOldValue());
+                            Assert.assertEquals("catchupval1", changedValue.getNewValue());
+                        }
                         break;
+                    case "discover":
+                        if(!issetDiscover.get()) {
+                            Assert.assertEquals(null, changedValue.getOldValue());
+                            Assert.assertEquals("discoverValue", changedValue.getNewValue());
+
+                            Assert.assertFalse(discoverValueAdded.get());
+                            discoverValueAdded.set(true);
+                            issetDiscover.set(true);
+                        } else {
+                            Assert.assertEquals("discoverValue", changedValue.getOldValue());
+                            Assert.assertEquals(null, changedValue.getNewValue());
+
+                            Assert.assertFalse(removedDiscoverValue.get());
+                            removedDiscoverValue.set(true);
+                        }
                 }
             });
 
-            removedHandlers.add((RemovedNode<String> removedNode) -> {
-                switch(removedNode.getKey()) {
-                    case "/instances/catchup/discover/name/discover":
-                        Assert.assertEquals("discoverValue", removedNode.getValue());
-                        Assert.assertFalse(removedDiscoverValue.get());
-                        removedDiscoverValue.set(true);
-                        break;
-                    case "/instances/catchup/discover/name":
-                        Assert.assertEquals(null, removedNode.getValue());
+            removedHandlers.add((RemovedNode removedNodeEvent) -> {
+                DiscoveryNode removedNode = removedNodeEvent.getNode();
+                switch(removedNode.getId()) {
+                    case "name":
                         Assert.assertFalse(removedDiscoverDir.get());
                         removedDiscoverDir.set(true);
                         break;
@@ -120,8 +144,10 @@ public class TestDiscoveryEtcdChangeHandler {
             }
 
             Assert.assertTrue(catchupAdded.get());
-            Assert.assertTrue(catchprop1Added.get());
+            Assert.assertTrue(helloAdded.get());
             Assert.assertTrue(catchprop1Set.get());
+            Assert.assertTrue(nameAdded.get());
+            Assert.assertTrue(discoverValueAdded.get());
             Assert.assertTrue(removedDiscoverValue.get());
             Assert.assertTrue(removedDiscoverDir.get());
         } finally {

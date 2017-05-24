@@ -3,10 +3,10 @@ package org.inaetics.dronessimulator.discovery.etcd;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
-import org.inaetics.dronessimulator.discovery.api.discoveryevent.AddedNode;
-import org.inaetics.dronessimulator.discovery.api.discoveryevent.ChangedValue;
-import org.inaetics.dronessimulator.discovery.api.discoveryevent.DiscoveryHandler;
-import org.inaetics.dronessimulator.discovery.api.discoveryevent.RemovedNode;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 import java.io.IOException;
@@ -100,9 +100,9 @@ public class EtcdDiscovererService implements Discoverer {
     }
 
     @Override
-    public void addHandlers(boolean replay, List<DiscoveryHandler<AddedNode>> addHandlers
-                                          , List<DiscoveryHandler<ChangedValue<String>>> changedValueHandlers
-                                          , List<DiscoveryHandler<RemovedNode<String>>> removedHandlers) {
+    public void addHandlers(boolean replay, List<NodeEventHandler<AddedNode>> addHandlers
+                                          , List<NodeEventHandler<ChangedValue>> changedValueHandlers
+                                          , List<NodeEventHandler<RemovedNode>> removedHandlers) {
         this.changeHandler.addHandlers(replay, addHandlers, changedValueHandlers, removedHandlers);
     }
 }

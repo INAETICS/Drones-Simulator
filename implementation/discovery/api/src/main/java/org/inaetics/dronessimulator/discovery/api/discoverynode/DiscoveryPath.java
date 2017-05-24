@@ -3,9 +3,10 @@ package org.inaetics.dronessimulator.discovery.api.discoverynode;
 import org.inaetics.dronessimulator.discovery.api.tree.Path;
 
 public class DiscoveryPath extends Path<DiscoveryPath> {
-    public static final DiscoveryPath ROOT_PATH = new DiscoveryPath("");
+    public static final String ROOT = "";
+    public static final DiscoveryPath ROOT_PATH = new DiscoveryPath(ROOT);
     public static final String PATH_DELIMITER = "/";
-    private static final String ROOT = "";
+
     public static final String INSTANCE_DIR = "instances";
 
     public static final String DRONES = "drones";

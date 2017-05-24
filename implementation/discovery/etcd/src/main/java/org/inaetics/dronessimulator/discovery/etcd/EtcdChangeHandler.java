@@ -2,23 +2,23 @@ package org.inaetics.dronessimulator.discovery.etcd;
 
 
 import mousio.etcd4j.responses.EtcdKeysResponse;
-import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
-import org.inaetics.dronessimulator.discovery.api.discoveryevent.AddedNode;
-import org.inaetics.dronessimulator.discovery.api.discoveryevent.ChangedValue;
-import org.inaetics.dronessimulator.discovery.api.discoveryevent.DiscoveryHandler;
-import org.inaetics.dronessimulator.discovery.api.discoveryevent.RemovedNode;
-import org.inaetics.dronessimulator.discovery.api.tree.DiscoveryDirNode;
-import org.inaetics.dronessimulator.discovery.api.tree.DiscoveryStoredNode;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryPath;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryStoredNode;
 
 import java.util.List;
 
 public class EtcdChangeHandler extends Thread {
     private final EtcdDiscoverer discoverer;
-    private final DiscoveryDirNode cachedRoot;
+    private final DiscoveryNode cachedRoot;
 
     public EtcdChangeHandler(EtcdDiscoverer discoverer) {
         this.discoverer = discoverer;
-        this.cachedRoot = new DiscoveryDirNode("/", new DiscoveryPath("", ""));
+        this.cachedRoot = new DiscoveryNode(DiscoveryPath.ROOT, null, DiscoveryPath.ROOT_PATH);
     }
 
     @Override
@@ -40,25 +40,25 @@ public class EtcdChangeHandler extends Thread {
         }
     }
 
-    public void addHandlers(boolean replay, List<DiscoveryHandler<AddedNode>> addHandlers
-                                          , List<DiscoveryHandler<ChangedValue<String>>> changedValueHandlers
-                                          , List<DiscoveryHandler<RemovedNode<String>>> removedHandlers) {
+    public void addHandlers(boolean replay, List<NodeEventHandler<AddedNode>> addHandlers
+                                          , List<NodeEventHandler<ChangedValue>> changedValueHandlers
+                                          , List<NodeEventHandler<RemovedNode>> removedHandlers) {
         synchronized (this) {
-            for(DiscoveryHandler<AddedNode> handler : addHandlers) {
+            for(NodeEventHandler<AddedNode> handler : addHandlers) {
                 if(replay) {
                     this.cachedRoot.initializeAddHandler(handler);
                 }
                 this.cachedRoot.addAddNodeHandler(handler);
             }
 
-            for(DiscoveryHandler<ChangedValue<String>> handler : changedValueHandlers) {
+            for(NodeEventHandler<ChangedValue> handler : changedValueHandlers) {
                 if(replay) {
                     this.cachedRoot.initializeChangeHandler(handler);
                 }
                 this.cachedRoot.addChangeValueHandler(handler);
             }
 
-            for(DiscoveryHandler<RemovedNode<String>> handler : removedHandlers) {
+            for(NodeEventHandler<RemovedNode> handler : removedHandlers) {
                 this.cachedRoot.addRemoveNodeHandler(handler);
             }
         }

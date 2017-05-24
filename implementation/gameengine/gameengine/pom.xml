@@ -14,22 +14,6 @@
     <groupId>org.inaetics.dronessimulator.gameengine</groupId>
     <artifactId>gameengine-gameengine</artifactId>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Export-Package>org.inaetics.dronessimulator.gameengine</Export-Package>
-                        <Bundle-Activator>org.inaetics.dronessimulator.gameengine.Activator</Bundle-Activator>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
-
     <dependencies>
         <dependency>
             <groupId>org.inaetics.dronessimulator.gameengine</groupId>
@@ -52,9 +36,30 @@
             <version>0.1</version>
         </dependency>
         <dependency>
+            <groupId>org.inaetics.dronessimulator.discovery</groupId>
+            <artifactId>discovery-api</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.configadmin</artifactId>
             <version>1.8.14</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>org.inaetics.dronessimulator.gameengine</Export-Package>
+                        <Bundle-Activator>org.inaetics.dronessimulator.gameengine.Activator</Bundle-Activator>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

@@ -1,11 +1,11 @@
-package org.inaetics.dronessimulator.discovery.api;
+package org.inaetics.dronessimulator.discovery.api.discoverynode;
 
-import org.inaetics.dronessimulator.discovery.api.discoveryevent.DiscoveryHandler;
 import org.inaetics.dronessimulator.discovery.api.tree.Path;
 
-public class DiscoveryPath extends Path {
+public class DiscoveryPath extends Path<DiscoveryPath> {
+    public static final DiscoveryPath ROOT_PATH = new DiscoveryPath("");
     public static final String PATH_DELIMITER = "/";
-    public static final String ROOT = "";
+    private static final String ROOT = "";
     public static final String INSTANCE_DIR = "instances";
 
     public static final String DRONES = "drones";
@@ -24,5 +24,12 @@ public class DiscoveryPath extends Path {
 
     public static DiscoveryPath config(String type, String group, String name) {
         return new DiscoveryPath(ROOT, INSTANCE_DIR, type, group, name);
+    }
+
+    @Override
+    protected DiscoveryPath newChild(String delimiter, String[] segments) {
+        assert delimiter.equals(PATH_DELIMITER);
+
+        return new DiscoveryPath(segments);
     }
 }

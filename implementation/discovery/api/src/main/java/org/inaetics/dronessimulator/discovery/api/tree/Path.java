@@ -2,13 +2,17 @@ package org.inaetics.dronessimulator.discovery.api.tree;
 
 import java.util.Arrays;
 
-public class Path {
+public abstract class Path<C extends Path> {
     private final String delimiter;
     private final String[] segments;
 
     public Path(String delimiter, String... segments) {
         this.delimiter = delimiter;
         this.segments = segments;
+    }
+
+    public String getDelimiter() {
+        return this.delimiter;
     }
 
     public String[] getSegments() {
@@ -34,6 +38,18 @@ public class Path {
         return result;
     }
 
+    public C join(Path other) {
+        assert this.delimiter.equals(other.getDelimiter());
+
+        return this.addSegments(other.getSegments());
+    }
+
+    public C addSegments(String... newSegments) {
+        String[] pathSegments = Arrays.copyOf(this.segments, this.segments.length + newSegments.length);
+        System.arraycopy(newSegments, 0, pathSegments, this.segments.length, newSegments.length);
+        return this.newChild(this.getDelimiter(), pathSegments);
+    }
+
     @Override
     public boolean equals(Object other) {
         if(other instanceof Path) {
@@ -48,4 +64,5 @@ public class Path {
         return String.join(delimiter, this.getSegments());
     }
 
+    protected abstract C newChild(String delimiter, String[] segments);
 }

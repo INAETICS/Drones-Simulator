@@ -4,31 +4,30 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-public class TreeNode<V, N extends TreeNode<V, N>> {
+public abstract class TreeNode<K, V, N extends TreeNode<K, V, N, P>, P extends Path<P>> {
     private final String id;
-    private final Path path;
+    private volatile P path;
     private volatile N parent;
-    private volatile V value;
+    private final ConcurrentMap<K, V> values;
     private final ConcurrentMap<String, N> children;
 
-    public TreeNode(String id, Path path) {
-        this(id, path, null, new ConcurrentHashMap<>());
+    public TreeNode(String id) {
+        this(id, (N) null, (P) null);
     }
 
-    public TreeNode(String id, Path path,V value) {
-        this(id, path, value, new ConcurrentHashMap<>());
-    }
-
-    public TreeNode(String id, Path path, V value, ConcurrentMap<String, N> children) {
+    public TreeNode(String id, N parent, P path) {
         this.id = id;
+        this.parent = parent;
         this.path = path;
-        this.value = value;
-        this.children = children;
+        this.values = new ConcurrentHashMap<>();
+        this.children = new ConcurrentHashMap<>();
     }
 
     public String getId() {
         return id;
     }
+
+    public abstract N getSelf();
 
     public N getChild(String id) {
         return this.children.get(id);
@@ -39,6 +38,7 @@ public class TreeNode<V, N extends TreeNode<V, N>> {
     }
 
     public void addChild(N child) {
+        child.setParent(this.getSelf());
         this.children.put(child.getId(), child);
     }
 
@@ -46,12 +46,20 @@ public class TreeNode<V, N extends TreeNode<V, N>> {
         this.children.remove(id);
     }
 
-    public synchronized V getValue() {
-        return this.value;
+    public synchronized Map<K, V> getValues() {
+        return this.values;
     }
 
-    public synchronized void setValue(V v) {
-        this.value = v;
+    public synchronized V getValue(K k) {
+        return this.values.get(k);
+    }
+
+    public synchronized void setValue(K k, V v) {
+        if (v == null) {
+            this.values.remove(k);
+        } else {
+            this.values.put(k, v);
+        }
     }
 
     public boolean hasChildren() {
@@ -62,18 +70,25 @@ public class TreeNode<V, N extends TreeNode<V, N>> {
         return parent;
     }
 
-    public synchronized void setParent(N parent) {
+    protected synchronized void setParent(N parent) {
         this.parent = parent;
+
+        P parentPath = parent.getPath();
+        this.setPath(parentPath.addSegments(this.getId()));
     }
 
     public synchronized String toString() {
         String children = this.children.entrySet().stream().map((e) -> "  " + e.getValue().toString()).reduce("", (r, c) -> r + "\n" + c);
 
 
-        return "Node " + this.id + (this.value != null ? " " + this.value : "") + children;
+        return "Node " + this.id + (this.values != null ? " " + this.values : "") + children;
     }
 
-    public Path getPath() {
+    public P getPath() {
         return path;
+    }
+
+    public void setPath(P path) {
+        this.path = path;
     }
 }

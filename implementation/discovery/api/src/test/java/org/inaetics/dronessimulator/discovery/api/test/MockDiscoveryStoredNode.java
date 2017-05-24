@@ -1,47 +1,44 @@
 package org.inaetics.dronessimulator.discovery.api.test;
 
-
-import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
-import org.inaetics.dronessimulator.discovery.api.tree.DiscoveryStoredNode;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryStoredNode;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 public class MockDiscoveryStoredNode extends DiscoveryStoredNode {
-    private final String key;
-    private final String value;
+    private final String id;
+    private final Map<String, String> values;
     private final List<DiscoveryStoredNode> children;
 
     public MockDiscoveryStoredNode(String key) {
-        this(key, (String) null);
+        this(key, new ConcurrentHashMap<>(), new ArrayList<>());
     }
 
-    public MockDiscoveryStoredNode(String key, String value) {
-        this(key, value, new ArrayList<>());
+    public MockDiscoveryStoredNode(String id, Map<String, String> values) {
+        this(id, values, new ArrayList<>());
     }
 
-    public MockDiscoveryStoredNode(String key, List<DiscoveryStoredNode> children) {
-        this(key, null, children);
+    public MockDiscoveryStoredNode(String id, List<DiscoveryStoredNode> children) {
+        this(id, new ConcurrentHashMap<>(), children);
     }
 
-    public MockDiscoveryStoredNode(String key, String value, List<DiscoveryStoredNode> children) {
-        this.key = key;
-        this.value = value;
+    public MockDiscoveryStoredNode(String id, Map<String, String> values, List<DiscoveryStoredNode> children) {
+        this.id = id;
+        this.values = values;
         this.children = children;
     }
 
     @Override
-    public String getKey() {
-        return this.key;
+    public String getId() {
+        return this.id;
     }
 
     @Override
-    public String getValue() {
-        return this.value;
-    }
-
-    public void addChild(DiscoveryStoredNode child) {
-        this.children.add(child);
+    public Map<String, String> getValues() {
+        return this.values;
     }
 
     @Override
@@ -49,13 +46,7 @@ public class MockDiscoveryStoredNode extends DiscoveryStoredNode {
         return this.children;
     }
 
-    @Override
-    public DiscoveryPath getPath() {
-        return null;
-    }
-
-    @Override
-    public boolean isDir() {
-        return (this.children.size() > 0) && (this.value == null);
+    public void addChild(DiscoveryStoredNode child) {
+        this.children.add(child);
     }
 }

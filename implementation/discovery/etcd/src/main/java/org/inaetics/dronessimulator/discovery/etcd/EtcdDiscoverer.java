@@ -6,7 +6,6 @@ import mousio.etcd4j.promises.EtcdResponsePromise;
 import mousio.etcd4j.requests.EtcdKeyGetRequest;
 import mousio.etcd4j.responses.*;
 import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
 
@@ -22,7 +21,7 @@ import java.util.concurrent.TimeoutException;
 /**
  * Discoverer implementation which uses etcd.
  */
-public class EtcdDiscoverer implements Discoverer {
+public class EtcdDiscoverer {
     private static final Logger logger = Logger.getLogger(EtcdDiscoverer.class);
 
     /** Prefix for all etcd paths. */
@@ -70,7 +69,6 @@ public class EtcdDiscoverer implements Discoverer {
         this.client.putDir(buildPath(DISCOVERABLE_CONFIG_DIR));
     }
 
-    @Override
     public void register(Instance instance) throws DuplicateName, IOException {
         String path = buildInstancePath(instance);
         logger.debug("Registering instance {} at path {}", instance, path);
@@ -154,7 +152,6 @@ public class EtcdDiscoverer implements Discoverer {
         return path;
     }
 
-    @Override
     public void unregister(Instance instance) throws IOException {
         String path = buildInstancePath(instance);
 
@@ -211,7 +208,43 @@ public class EtcdDiscoverer implements Discoverer {
         }
     }
 
-    @Override
+    EtcdKeysResponse.EtcdNode getFromRoot(boolean wait) {
+        EtcdKeysResponse.EtcdNode root = null;
+        String path = buildPath();
+
+        try {
+            EtcdKeyGetRequest request = this.client.getDir(path).recursive();
+
+            if (wait) {
+                if (this.pathModifiedIndex.containsKey(path)) {
+                    Long modifiedIndex = this.pathModifiedIndex.get(path) + 1;
+                    request = request.waitForChange(modifiedIndex);
+                } else {
+                    request = request.waitForChange();
+                }
+
+                EtcdResponsePromise<EtcdKeysResponse> waitPromise = request.send();
+                waitPromise.get();
+
+                // If waited for changes, we have to get the actual data due to etcd quirks
+                EtcdKeysResponse getResponse = this.client.getDir(path).recursive().send().get();
+                root = getResponse.getNode();
+
+                this.pathModifiedIndex.put(path, getResponse.etcdIndex);
+            } else {
+                EtcdKeysResponse getResponse = request.send().get();
+
+                root = getResponse.getNode();
+                this.pathModifiedIndex.put(path, getResponse.etcdIndex);
+            }
+        } catch (IOException | EtcdException | EtcdAuthenticationException | TimeoutException ignored) {
+            // Just return an empty map
+            logger.error("No data could be retrieved from etcd, returning null");
+        }
+
+        return root;
+    }
+
     public Map<String, Collection<String>> find(String type) {
         return this.find(type, false);
     }
@@ -261,12 +294,10 @@ public class EtcdDiscoverer implements Discoverer {
         return forType;
     }
 
-    @Override
     public Map<String, Collection<String>> waitFor(String type) {
         return this.find(type, true);
     }
 
-    @Override
     public Collection<String> find(String type, String group) {
         return this.find(type, group, false);
     }
@@ -310,7 +341,6 @@ public class EtcdDiscoverer implements Discoverer {
         return forGroup;
     }
 
-    @Override
     public Collection<String> waitFor(String type, String group) {
         return this.find(type, group, true);
     }
@@ -335,7 +365,6 @@ public class EtcdDiscoverer implements Discoverer {
         }
     }
 
-    @Override
     public Map<String, String> getProperties(String type, String group, String name) {
         Map<String, String> properties = new HashMap<>();
 

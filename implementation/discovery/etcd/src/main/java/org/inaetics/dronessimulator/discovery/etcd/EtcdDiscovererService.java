@@ -3,11 +3,16 @@ package org.inaetics.dronessimulator.discovery.etcd;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
 import org.osgi.service.cm.ConfigurationAdmin;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -23,6 +28,8 @@ public class EtcdDiscovererService implements Discoverer {
     /** Configuration admin to use. */
     private volatile ConfigurationAdmin m_configurationAdmin;
 
+    private EtcdChangeHandler changeHandler;
+
     /**
      * Starts the service by starting the threads that allow for waiting on changes.
      */
@@ -33,6 +40,9 @@ public class EtcdDiscovererService implements Discoverer {
         EtcdConfigDiscoverer configDiscoverer = new EtcdConfigDiscoverer(discoverer, m_configurationAdmin);
         this.configDiscoverer = new Thread(configDiscoverer);
         this.configDiscoverer.start();
+
+        this.changeHandler = new EtcdChangeHandler(discoverer);
+        this.changeHandler.start();
     }
 
     /**
@@ -40,6 +50,18 @@ public class EtcdDiscovererService implements Discoverer {
      */
     public void stop() {
         this.configDiscoverer.interrupt();
+        try {
+            this.configDiscoverer.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        this.changeHandler.quit();
+        try {
+            this.changeHandler.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -75,5 +97,12 @@ public class EtcdDiscovererService implements Discoverer {
     @Override
     public Map<String, String> getProperties(String type, String group, String name) {
         return this.discoverer.getProperties(type, group, name);
+    }
+
+    @Override
+    public void addHandlers(boolean replay, List<NodeEventHandler<AddedNode>> addHandlers
+                                          , List<NodeEventHandler<ChangedValue>> changedValueHandlers
+                                          , List<NodeEventHandler<RemovedNode>> removedHandlers) {
+        this.changeHandler.addHandlers(replay, addHandlers, changedValueHandlers, removedHandlers);
     }
 }

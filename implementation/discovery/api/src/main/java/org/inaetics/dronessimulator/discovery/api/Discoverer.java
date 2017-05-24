@@ -1,7 +1,13 @@
 package org.inaetics.dronessimulator.discovery.api;
 
+import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
+
 import java.io.IOException;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -61,4 +67,8 @@ public interface Discoverer {
      * @return The properties for the given instance.
      */
     Map<String, String> getProperties(String type, String group, String name);
+
+    void addHandlers(boolean replay, List<NodeEventHandler<AddedNode>> addHandlers
+                                   , List<NodeEventHandler<ChangedValue>> changedValueHandlers
+                                   , List<NodeEventHandler<RemovedNode>> removedHandlers);
 }

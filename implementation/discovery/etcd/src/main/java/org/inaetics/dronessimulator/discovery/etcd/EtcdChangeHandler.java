@@ -4,11 +4,11 @@ package org.inaetics.dronessimulator.discovery.etcd;
 import mousio.etcd4j.responses.EtcdKeysResponse;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryPath;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryStoredNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryStoredNode;
 
 import java.util.List;
 

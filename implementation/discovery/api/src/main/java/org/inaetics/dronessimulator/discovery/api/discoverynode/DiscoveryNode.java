@@ -1,10 +1,10 @@
 package org.inaetics.dronessimulator.discovery.api.discoverynode;
 
-import org.inaetics.dronessimulator.discovery.api.tree.TreeNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.NodeEvent;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
+import org.inaetics.dronessimulator.discovery.api.tree.TreeNode;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;

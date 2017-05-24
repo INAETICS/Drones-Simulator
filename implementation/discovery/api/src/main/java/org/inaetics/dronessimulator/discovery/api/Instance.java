@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.discovery.api;
 
-import java.util.HashMap;
 import java.util.Map;
 
 /**

@@ -6,7 +6,6 @@ import mousio.etcd4j.promises.EtcdResponsePromise;
 import mousio.etcd4j.requests.EtcdKeyGetRequest;
 import mousio.etcd4j.responses.*;
 import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
 

@@ -8,12 +8,8 @@ import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManage
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.IRuleProcessors;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
 
 import java.io.IOException;
-import java.util.Dictionary;
-import java.util.Hashtable;
 
 /**
  * Wrapper around PhysicsEngine. Sets up and connects all handlers with each other.

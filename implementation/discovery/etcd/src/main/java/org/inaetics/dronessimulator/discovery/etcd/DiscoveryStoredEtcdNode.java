@@ -1,7 +1,6 @@
 package org.inaetics.dronessimulator.discovery.etcd;
 
 import mousio.etcd4j.responses.EtcdKeysResponse;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryStoredNode;
 

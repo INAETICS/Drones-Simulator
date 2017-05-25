@@ -8,10 +8,16 @@ set -e
 # Remove existing bundles in felix
 cd "$FELIX_BUNDLE_DIR"
 echo "Removing all felix bundles in $FELIX_BUNDLE_DIR"
-EXISTING_JARS=$(ls -A1d *.jar | wc -l)
+
+   # grep may return 1 if no lines are selected triggering set -e
+set +e
+EXISTING_JARS=$(ls -A1q | grep '.jar' | wc -l)
+set -e
+
 echo "Existing amount of bundles: $EXISTING_JARS"
-if [ $EXISTING_JARS > 0 ]; then
+if [ "$EXISTING_JARS" -ne 0 ]; then
   rm *.jar
+  echo "Removed all jars!"
 fi
 cd "$CWD"
 

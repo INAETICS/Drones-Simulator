@@ -80,3 +80,4 @@ docker_images/drone/files/dependencies/
 
 # Do not override template
 deploy_bundles_to_felix.config
+felix-config.properties

@@ -12,18 +12,16 @@ import org.osgi.framework.BundleContext;
 public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext context, DependencyManager manager) throws Exception {
-        RabbitPublisher publisher = new RabbitPublisher();
-
         manager.add(createComponent()
                 .setInterface(Publisher.class.getName(), null)
-                .setImplementation(publisher)
+                .setImplementation(RabbitPublisher.class)
                 .add(createServiceDependency()
                         .setService(Serializer.class)
                         .setRequired(true))
                 .add(createConfigurationDependency()
                         .setPid("rabbitmq.broker.default")
                         .setRequired(true)
-                        .setCallback("updateConfig"))
+                        .setCallback("setConfig"))
                 .setCallbacks("init", "connect", "disconnect", "destroy") // Init and destroy do not actually exist
         );
     }

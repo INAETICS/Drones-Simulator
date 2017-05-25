@@ -9,8 +9,7 @@ public abstract class DiscoveryStoredNode {
     public abstract List<DiscoveryStoredNode> getChildren();
 
     public String toString() {
-        String children = this.getChildren().stream().map((e) -> "  " + e.toString()).reduce("", (r, c) -> r + "\n" + c);
-
+        String children = this.getChildren().stream().map((e) -> "  " + e.toString().replace("\n", "\n  ")).reduce("", (r, c) -> r + "\n" + c);
 
         return "StoredNode " + this.getId() + " " + this.getValues() + children;
     }

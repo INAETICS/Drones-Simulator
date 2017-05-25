@@ -78,8 +78,7 @@ public abstract class TreeNode<K, V, N extends TreeNode<K, V, N, P>, P extends P
     }
 
     public synchronized String toString() {
-        String children = this.children.entrySet().stream().map((e) -> "  " + e.getValue().toString()).reduce("", (r, c) -> r + "\n" + c);
-
+        String children = this.children.entrySet().stream().map((e) -> "  " + e.getValue().toString().replace("\n", "\n  ")).reduce("", (r, c) -> r + "\n" + c);
 
         return "Node " + this.id + (this.values != null ? " " + this.values : "") + children;
     }

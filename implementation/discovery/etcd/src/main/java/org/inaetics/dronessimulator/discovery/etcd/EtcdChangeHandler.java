@@ -2,8 +2,9 @@ package org.inaetics.dronessimulator.discovery.etcd;
 
 
 import mousio.etcd4j.responses.EtcdKeysResponse;
+import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryPath;
+import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryStoredNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
@@ -11,6 +12,7 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.C
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
 
 import java.util.List;
+
 
 public class EtcdChangeHandler extends Thread {
     private final EtcdDiscoverer discoverer;
@@ -24,11 +26,17 @@ public class EtcdChangeHandler extends Thread {
     @Override
     public void run() {
         // Run once to get currentstate
+
+        Logger.getLogger(EtcdChangeHandler.class).info("Starting EtcdChangeHandler...");
+
         EtcdKeysResponse.EtcdNode etcdNode = discoverer.getFromRoot(false);
         DiscoveryStoredNode storedRoot = new DiscoveryStoredEtcdNode(etcdNode);
+
         synchronized (this) {
             cachedRoot.updateTree(storedRoot);
         }
+
+        Logger.getLogger(EtcdChangeHandler.class).info("Started EtcdChangeHandler!");
 
         while(!this.isInterrupted()) {
             etcdNode = discoverer.getFromRoot(true);
@@ -38,6 +46,8 @@ public class EtcdChangeHandler extends Thread {
                 cachedRoot.updateTree(storedRoot);
             }
         }
+
+        Logger.getLogger(EtcdChangeHandler.class).info("Stopped EtcdChangeHandler!");
     }
 
     public void addHandlers(boolean replay, List<NodeEventHandler<AddedNode>> addHandlers

@@ -7,8 +7,10 @@ import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryPath;
+import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
 import org.inaetics.dronessimulator.gameengine.common.state.Drone;
@@ -62,6 +64,8 @@ public class GameEngine {
      */
     private SubscriberMessageHandler incomingHandler;
 
+    private Instance discoveryInstance;
+
     /**
      * Start the wrapper. Setup all handlers, queues and engines. Connects everything if needed.
      */
@@ -82,7 +86,8 @@ public class GameEngine {
 
 
         // Setup discoverer
-        m_discoverer.register(new Instance("service", "services", "gameengine" , new HashMap<>(), false));
+        discoveryInstance = new Instance(Type.SERVICE, Group.SERVICES, "gameengine" , new HashMap<>(), false);
+        m_discoverer.register(discoveryInstance);
 
         List<NodeEventHandler<AddedNode>> addHandlers = new ArrayList<>();
 
@@ -90,13 +95,13 @@ public class GameEngine {
             DiscoveryNode node = addedNodeEvent.getNode();
             DiscoveryPath path = node.getPath();
 
-            if( path.startsWith(DiscoveryPath.type(DiscoveryPath.DRONES)) && path.isConfigPath()) {
+            if( path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
                 String protocolId = node.getId();
                 int gameengineId = m_id_mapper.getNewGameEngineId();
                 D3Vector position = new D3Vector();
 
                 this.m_physicsEngineDriver.addNewEntity(new Drone(gameengineId, Drone.DRONE_MAX_HEALTH, position, new D3Vector(), new D3Vector()), protocolId);
-
+                Logger.getLogger(GameEngine.class).info("Added new drone " + protocolId + " as " + gameengineId);
             }
 
         });
@@ -107,10 +112,11 @@ public class GameEngine {
             DiscoveryNode node = removedNodeEvent.getNode();
             DiscoveryPath path = node.getPath();
 
-            if( path.startsWith(DiscoveryPath.type(DiscoveryPath.DRONES)) && path.isConfigPath()) {
-                String protcolId = node.getId();
+            if( path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
+                String protocolId = node.getId();
 
-                this.m_physicsEngineDriver.removeEntity(protcolId);
+                this.m_physicsEngineDriver.removeEntity(protocolId);
+                Logger.getLogger(GameEngine.class).info("Removed drone " + protocolId);
             }
         });
 
@@ -126,6 +132,7 @@ public class GameEngine {
      * @throws Exception - Any exception which might happen during shutting down the wrapper
      */
     public void stop() throws Exception {
+        this.m_discoverer.unregister(discoveryInstance);
         Logger.getLogger(GameEngine.class).info("Stopped Game Engine!");
     }
 }

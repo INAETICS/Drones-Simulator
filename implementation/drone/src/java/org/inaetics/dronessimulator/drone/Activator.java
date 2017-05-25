@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.drone;
 
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
+import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.osgi.framework.BundleContext;
@@ -20,6 +21,10 @@ public class Activator extends DependencyActivatorBase {
                         .setService(Subscriber.class)
                         .setRequired(true)
                 ).setCallbacks("init", "start", "stop", "destroy")
+                .add(createServiceDependency()
+                        .setService(Discoverer.class)
+                        .setRequired(true)
+                )
         );
     }
 }

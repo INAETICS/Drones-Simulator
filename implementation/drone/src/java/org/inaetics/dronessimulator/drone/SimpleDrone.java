@@ -1,7 +1,15 @@
 package org.inaetics.dronessimulator.drone;
 
 import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.discovery.api.Discoverer;
+import org.inaetics.dronessimulator.discovery.api.DuplicateName;
+import org.inaetics.dronessimulator.discovery.api.Instance;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SimpleDrone extends Drone {
@@ -10,6 +18,22 @@ public class SimpleDrone extends Drone {
     private static final int MAX_VELOCITY = 100;
     private static final int MAX_ACCELERATION = 20;
     private static final double RANGE_FACTOR = 5;
+
+
+    private Instance instance;
+    private volatile Discoverer m_discoverer;
+
+    public void start() throws DuplicateName, IOException {
+        Map<String, String> properties = new HashMap<>();
+
+        properties.put("team", "team1");
+        instance = new Instance(Type.DRONE, Group.DRONE, "drone111", properties, true);
+        m_discoverer.register(instance);
+    }
+
+    public void stop() throws IOException {
+        m_discoverer.unregister(instance);
+    }
 
     /**
      *  -- FUNCTIONS

@@ -1,5 +1,7 @@
-package org.inaetics.dronessimulator.discovery.api.discoverynode;
+package org.inaetics.dronessimulator.discovery.api;
 
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 import org.inaetics.dronessimulator.discovery.api.tree.Path;
 
 public class DiscoveryPath extends Path<DiscoveryPath> {
@@ -15,28 +17,28 @@ public class DiscoveryPath extends Path<DiscoveryPath> {
         super(PATH_DELIMITER, segments);
     }
 
-    public static DiscoveryPath type(String type) {
-        return new DiscoveryPath(ROOT, INSTANCE_DIR, type);
+    public static DiscoveryPath type(Type type) {
+        return new DiscoveryPath(ROOT, INSTANCE_DIR, type.getStr());
     }
 
-    public static DiscoveryPath group(String type, String group) {
-        return new DiscoveryPath(ROOT, INSTANCE_DIR, type, group);
+    public static DiscoveryPath group(Type type, Group group) {
+        return new DiscoveryPath(ROOT, INSTANCE_DIR, type.getStr(), group.getStr());
     }
 
-    public static DiscoveryPath config(String type, String group, String name) {
-        return new DiscoveryPath(ROOT, INSTANCE_DIR, type, group, name);
+    public static DiscoveryPath config(Type type, Group group, String name) {
+        return new DiscoveryPath(ROOT, INSTANCE_DIR, type.getStr(), group.getStr(), name);
     }
 
     public boolean isTypePath() {
-        return this.getSegments().length == 2;
-    }
-
-    public boolean isGroupPath() {
         return this.getSegments().length == 3;
     }
 
-    public boolean isConfigPath() {
+    public boolean isGroupPath() {
         return this.getSegments().length == 4;
+    }
+
+    public boolean isConfigPath() {
+        return this.getSegments().length == 5;
     }
 
     @Override

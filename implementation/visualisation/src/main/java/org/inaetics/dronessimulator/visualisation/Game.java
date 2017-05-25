@@ -83,10 +83,7 @@ public class Game extends Application implements MessageHandler {
         if (message instanceof StateMessage) {
             StateMessage stateMessage = (StateMessage) message;
 
-            if (!stateMessage.getIdentifier().isPresent()) {
-                return;
-            }
-            Drone currentDrone = drones.computeIfAbsent(stateMessage.getIdentifier().get(), k -> createPlayer(stateMessage.getIdentifier().get()));
+            Drone currentDrone = drones.computeIfAbsent(stateMessage.getIdentifier(), k -> createPlayer(stateMessage.getIdentifier()));
 
             if (stateMessage.getPosition().isPresent()) {
                 currentDrone.setPosition(stateMessage.getPosition().get());
@@ -98,11 +95,8 @@ public class Game extends Application implements MessageHandler {
         } else if (message instanceof KillMessage) {
             KillMessage killMessage = (KillMessage) message;
 
-            if (!killMessage.getIdentifier().isPresent()) {
-                return;
-            }
             // todo: add boolean remove to drone. When this boolean is set, then do explosion animation and remove drone.
-            drones.remove(killMessage.getIdentifier().get());
+            drones.remove(killMessage.getIdentifier());
         } else {
             Logger.getLogger(this.getClass()).info("Received non-state msg: " + message);
         }

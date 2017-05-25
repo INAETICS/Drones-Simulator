@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.discovery.etcd;
 
 import org.apache.log4j.Logger;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.service.cm.Configuration;
 import org.osgi.service.cm.ConfigurationAdmin;
 
@@ -95,8 +96,10 @@ public class EtcdConfigDiscoverer implements Runnable {
 
             // Register properties
             try {
-                Configuration configuration = this.configurationAdmin.getConfiguration(pid);
+                Configuration configuration = this.configurationAdmin.getConfiguration(pid, "?");
                 configuration.update(configurationProperties);
+
+                logger.info("Registered {} as a discovered config", instancePath);
             } catch (IOException e) {
                 logger.error("Error when accessing the configuration admin: {}", e.getMessage());
             }

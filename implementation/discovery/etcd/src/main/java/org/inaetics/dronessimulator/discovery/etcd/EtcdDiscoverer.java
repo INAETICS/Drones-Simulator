@@ -8,6 +8,8 @@ import mousio.etcd4j.responses.*;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 
 import java.io.IOException;
 import java.net.URI;
@@ -69,14 +71,12 @@ public class EtcdDiscoverer {
         this.client.putDir(buildPath(DISCOVERABLE_CONFIG_DIR));
     }
 
-    public void closeConnection() {
-        try {
-            this.client.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
+    /**
+     * Registers the given instance in etcd.
+     * @param instance The instance to register.
+     * @throws DuplicateName There is already an instance registered with the same type, group and name.
+     * @throws IOException An error occured in the connection with etcd.
+     */
     public void register(Instance instance) throws DuplicateName, IOException {
         String path = buildInstancePath(instance);
         logger.debug("Registering instance {} at path {}", instance, path);
@@ -112,7 +112,7 @@ public class EtcdDiscoverer {
     /**
      * Registers the properties for an instance. Assumes the instance itself already exists.
      * @param instance The instance to register the properties of.
-     * @throws IOException An error occurred.
+     * @throws IOException An error occurred in the connection with etcd.
      */
     public void registerProperties(Instance instance) throws IOException {
         String path = buildInstancePath(instance);
@@ -134,7 +134,7 @@ public class EtcdDiscoverer {
      * Registers the instance as a discoverable config. Places a reference to the instance in a special etcd directory.
      * @param instance The instance to register.
      * @return The path to the key.
-     * @throws IOException An error occurred.
+     * @throws IOException An error occurred in the connection with etcd.
      */
     private String registerDiscoverableConfig(Instance instance) throws IOException {
         String path;
@@ -160,6 +160,11 @@ public class EtcdDiscoverer {
         return path;
     }
 
+    /**
+     * Unregisters the given instance from etcd.
+     * @param instance The instance to unregister.
+     * @throws IOException An error occurred in the connection with etcd.
+     */
     public void unregister(Instance instance) throws IOException {
         String path = buildInstancePath(instance);
 
@@ -216,6 +221,11 @@ public class EtcdDiscoverer {
         }
     }
 
+    /**
+     * Builds and returns an etcd node tree from the root. Optionally waits for changes.
+     * @param wait Whether to wait for changes.
+     * @return The root node of the tree, or null if the tree is empty or when an error occurred.
+     */
     EtcdKeysResponse.EtcdNode getFromRoot(boolean wait) {
         EtcdKeysResponse.EtcdNode root = null;
         String path = buildPath();
@@ -246,17 +256,28 @@ public class EtcdDiscoverer {
                 this.pathModifiedIndex.put(path, getResponse.etcdIndex);
             }
         } catch (IOException | EtcdException | EtcdAuthenticationException | TimeoutException ignored) {
-            // Just return an empty map
+            // Just return null
             logger.error("No data could be retrieved from etcd, returning null");
         }
 
         return root;
     }
 
+    /**
+     * Gets the groups and names for the given type.
+     * @param type The type.
+     * @return A map containing the groups and lists of names per group.
+     */
     public Map<String, Collection<String>> find(String type) {
         return this.find(type, false);
     }
 
+    /**
+     * Gets the groups and names for the given type. Optionally waits for changes.
+     * @param type The type.
+     * @param wait Whether to wait for changes.
+     * @return A map containing the groups and lists of names per group.
+     */
     private Map<String, Collection<String>> find(String type, boolean wait) {
         Map<String, Collection<String>> forType = new HashMap<>();
 
@@ -302,14 +323,32 @@ public class EtcdDiscoverer {
         return forType;
     }
 
+    /**
+     * Waits for a change in the given type and returns the groups and names for the given type.
+     * @param type The type.
+     * @return A map containing the groups and lists of names per group.
+     */
     public Map<String, Collection<String>> waitFor(String type) {
         return this.find(type, true);
     }
 
+    /**
+     * Gets the names for the given type and group.
+     * @param type The type.
+     * @param group The group.
+     * @return A list of names.
+     */
     public Collection<String> find(String type, String group) {
         return this.find(type, group, false);
     }
 
+    /**
+     * Gets the names for the given type and group. Optionally waits for changes.
+     * @param type The type.
+     * @param group The group.
+     * @param wait Whether to wait for changes.
+     * @return A list of names.
+     */
     private Collection<String> find(String type, String group, boolean wait) {
         Collection<String> forGroup = new HashSet<>();
 
@@ -349,6 +388,12 @@ public class EtcdDiscoverer {
         return forGroup;
     }
 
+    /**
+     * Waits for changes in the given group and returns the names for the given type and group.
+     * @param type The type.
+     * @param group The group.
+     * @return A list of names.
+     */
     public Collection<String> waitFor(String type, String group) {
         return this.find(type, group, true);
     }
@@ -373,6 +418,24 @@ public class EtcdDiscoverer {
         }
     }
 
+    /**
+     * Returns the properties for the instance identified by the given parameters.
+     * @param type The type of the instance.
+     * @param group The group of the instance.
+     * @param name The name of the instance.
+     * @return The properties of the instance.
+     */
+    public Map<String, String> getProperties(Type type, Group group, String name) {
+        return this.getProperties(type.getStr(), group.getStr(), name);
+    }
+
+    /**
+     * Returns the properties for the instance identified by the given parameters.
+     * @param type The type of the instance.
+     * @param group The group of the instance.
+     * @param name The name of the instance.
+     * @return The properties of the instance.
+     */
     public Map<String, String> getProperties(String type, String group, String name) {
         Map<String, String> properties = new HashMap<>();
 
@@ -419,9 +482,8 @@ public class EtcdDiscoverer {
 
             // Because etcd does only return the subtree from the changed node, we NEED to do the whole request again :(
             // Now REALLY get the subtree data
-            if(keys != null) {
-                keys = this.client.getDir(path).recursive().send().get();
-            }
+            keys = this.client.getDir(path).recursive().send().get();
+
 
             if (keys != null) {
                 long modifiedIndex = keys.node.modifiedIndex;
@@ -472,6 +534,17 @@ public class EtcdDiscoverer {
      * @param name The name of the instance.
      * @return The path for the instance.
      */
+    static String buildInstancePath(Type type, Group group, String name) {
+        return buildInstancePath(type.getStr(), group.getStr(), name);
+    }
+
+    /**
+     * Builds an etcd path for the given parameters.
+     * @param type The type of the instance.
+     * @param group The group of the instance.
+     * @param name The name of the instance.
+     * @return The path for the instance.
+     */
     static String buildInstancePath(String type, String group, String name) {
         return buildPath(INSTANCE_DIR, type, group, name);
     }
@@ -482,8 +555,27 @@ public class EtcdDiscoverer {
      * @param group The group of the instance.
      * @return The path for the instance.
      */
+    static String buildInstancePath(Type type, Group group) {
+        return buildInstancePath(type.getStr(), group.getStr());
+    }
+
+    /**
+     * Builds an etcd path for the given parameters.
+     * @param type The type of the instance.
+     * @param group The group of the instance.
+     * @return The path for the instance.
+     */
     static String buildInstancePath(String type, String group) {
         return buildPath(INSTANCE_DIR, type, group);
+    }
+
+    /**
+     * Builds an etcd path for the given parameters.
+     * @param type The type of the instance.
+     * @return The path for the instance.
+     */
+    static String buildInstancePath(Type type) {
+        return buildInstancePath(type.getStr());
     }
 
     /**

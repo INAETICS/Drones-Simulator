@@ -3,6 +3,7 @@ package org.inaetics.dronessimulator.discovery.api;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -24,33 +25,54 @@ public class Instance {
     /** Whether this instance is a discoverable configuration. */
     private boolean isConfigDiscoverable;
 
+    /**
+     * Instantiates a new instance with the given type, group, name and properties.
+     * @param type The type of this instance.
+     * @param group The group of this instance.
+     * @param name The name of this instance.
+     * @param properties The properties of this instance.
+     * @param isConfigDiscoverable Whether this instance is a discoverable configuration.
+     */
     public Instance(Type type, Group group, String name, Map<String, String> properties, boolean isConfigDiscoverable) {
         this.type = type;
         this.group = group;
         this.name = name;
-        this.properties = properties;
+        this.properties = properties == null ? new HashMap<>() : properties;
         this.isConfigDiscoverable = isConfigDiscoverable;
+
+        this.setInitialProperties(properties);
     }
 
     /**
-     * Gets the name of the type of this instance.
-     * @return The name of the type.
+     * Instantiates a new instance with the given type, group, name and properties.
+     * @param type The type of this instance.
+     * @param group The group of this instance.
+     * @param name The name of this instance.
+     * @param isConfigDiscoverable Whether this instance is a discoverable configuration.
      */
-    public String getType() {
-        return this.type.getStr();
+    public Instance(Type type, Group group, String name, boolean isConfigDiscoverable) {
+        this(type, group, name, null, isConfigDiscoverable);
     }
 
     /**
-     * Gets the name of the group this instance belongs to.
-     * @return The name of the group.
+     * Gets the type of this instance.
+     * @return The type.
      */
-    public String getGroup() {
-        return this.group.getStr();
+    public Type getType() {
+        return this.type;
     }
 
     /**
-     * Gets the name of this specific instance.
-     * @return The name of this instance.
+     * Gets the group this instance belongs to.
+     * @return The group.
+     */
+    public Group getGroup() {
+        return this.group;
+    }
+
+    /**
+     * Gets the name of this instance.
+     * @return The name.
      */
     public String getName() {
         return this.name;
@@ -70,5 +92,14 @@ public class Instance {
      */
     public boolean isConfigDiscoverable() {
         return this.isConfigDiscoverable;
+    }
+
+    /**
+     * Sets the initial properties of this instance. This method is called from the constructor and only once. Override
+     * this method to add your own properties to the given map.
+     * @param properties The properties of this instance.
+     */
+    protected void setInitialProperties(Map<String, String> properties) {
+        // Left blank intentionally.
     }
 }

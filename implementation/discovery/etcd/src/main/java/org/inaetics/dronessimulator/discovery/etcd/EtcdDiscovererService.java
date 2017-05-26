@@ -41,6 +41,8 @@ public class EtcdDiscovererService implements Discoverer {
 
         this.changeHandler = new EtcdChangeHandler(discoverer);
         this.changeHandler.start();
+
+        this.addConfigAdminHandlers();
     }
 
     /**
@@ -65,31 +67,6 @@ public class EtcdDiscovererService implements Discoverer {
     @Override
     public void unregister(Instance instance) throws IOException {
         this.discoverer.unregister(instance);
-    }
-
-    @Override
-    public Map<String, Collection<String>> find(String type) {
-        return this.discoverer.find(type);
-    }
-
-    @Override
-    public Map<String, Collection<String>> waitFor(String type) {
-        return this.discoverer.waitFor(type);
-    }
-
-    @Override
-    public Collection<String> find(String type, String group) {
-        return this.discoverer.find(type, group);
-    }
-
-    @Override
-    public Collection<String> waitFor(String type, String group) {
-        return this.discoverer.waitFor(type, group);
-    }
-
-    @Override
-    public Map<String, String> getProperties(String type, String group, String name) {
-        return this.discoverer.getProperties(type, group, name);
     }
 
     @Override

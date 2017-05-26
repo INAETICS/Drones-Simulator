@@ -16,7 +16,7 @@ public class Type {
      * Instantiates a new type with the given string representation.
      * @param str The string representation of this type.
      */
-    private Type(String str) {
+    public Type(String str) {
         this.str = str;
     }
 

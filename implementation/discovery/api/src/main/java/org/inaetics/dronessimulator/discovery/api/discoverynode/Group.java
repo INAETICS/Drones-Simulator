@@ -16,7 +16,7 @@ public class Group {
      * Instantiates a new group with the given string representation.
      * @param str String representation of this group.
      */
-    private Group(String str) {
+    public Group(String str) {
         this.str = str;
     }
 

@@ -6,7 +6,7 @@ import lombok.ToString;
 import org.inaetics.dronessimulator.common.protocol.DamageMessage;
 import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
-import org.inaetics.dronessimulator.gameengine.identifiermapper.IIdentifierMapper;
+import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 
 import java.util.Collections;
 import java.util.List;
@@ -19,7 +19,7 @@ public class DamageEvent extends GameEngineEvent {
     private final int dmg;
 
     @Override
-    public List<ProtocolMessage> getProtocolMessage(IIdentifierMapper id_mapper) {
+    public List<ProtocolMessage> getProtocolMessage(IdentifierMapper id_mapper) {
         DamageMessage msg = new DamageMessage();
 
         msg.setEntityId(id_mapper.fromGameEngineToProtocolId(this.e.getEntityId()));

@@ -21,7 +21,7 @@ public class Activator extends DependencyActivatorBase {
                 .add(createConfigurationDependency()
                         .setPid("rabbitmq.broker.default")
                         .setRequired(true)
-                        .setCallback("updateConfig"))
+                        .setCallback("setConfig"))
                 .setCallbacks("init", "connect", "disconnect", "destroy") // Init and destroy do not actually exist
         );
     }

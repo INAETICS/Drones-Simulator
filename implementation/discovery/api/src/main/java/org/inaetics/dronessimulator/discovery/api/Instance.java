@@ -1,5 +1,8 @@
 package org.inaetics.dronessimulator.discovery.api;
 
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
+
 import java.util.Map;
 
 /**
@@ -12,9 +15,9 @@ public class Instance {
     private Map<String, String> properties;
     private boolean isConfigDiscoverable;
 
-    public Instance(String type, String group, String name, Map<String, String> properties, boolean isConfigDiscoverable) {
-        this.type = type;
-        this.group = group;
+    public Instance(Type type, Group group, String name, Map<String, String> properties, boolean isConfigDiscoverable) {
+        this.type = type.getStr();
+        this.group = group.getStr();
         this.name = name;
         this.properties = properties;
         this.isConfigDiscoverable = isConfigDiscoverable;

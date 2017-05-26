@@ -2,6 +2,10 @@ package org.inaetics.dronessimulator.test.concurrent;
 
 import java.util.concurrent.PriorityBlockingQueue;
 
+/**
+ * TimeoutHandler to keep track of timeouts. Each {@link org.inaetics.dronessimulator.test.concurrent.ConcurrentJobEntry.ConcurrentJob}
+ * has a timeout. This handler keeps track of all timeouts and makes sure to interrupt the jobs which take too long.
+ */
 public class TimeoutHandler extends Thread {
     private volatile boolean quit;
     private final PriorityBlockingQueue<TimeoutEntry> timeouts;
@@ -28,6 +32,10 @@ public class TimeoutHandler extends Thread {
         }
     }
 
+    /**
+     * Try to sleep till the next timeout. If an earlier timeout is added, be interrupted and reconfigure
+     * to sleep till that timeout instead.
+     */
     @Override
     public void run() {
         while(!quit || !timeouts.isEmpty()) {
@@ -64,11 +72,17 @@ public class TimeoutHandler extends Thread {
 
     }
 
+    /**
+     * Quit a running TimeoutHandler
+     */
     public void quit() {
         this.quit = true;
         this.interrupt();
     }
 
+    /**
+     * A single timeout entry to be handled by the timeout handler.
+     */
     private class TimeoutEntry implements Comparable<TimeoutEntry> {
         private final Long timeoutAt;
         private final ConcurrentJobEntry.ConcurrentJob job;

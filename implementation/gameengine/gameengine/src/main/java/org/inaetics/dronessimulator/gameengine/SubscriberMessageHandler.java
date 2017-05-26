@@ -8,7 +8,7 @@ import org.inaetics.dronessimulator.common.protocol.*;
 import org.inaetics.dronessimulator.gameengine.common.state.Bullet;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
-import org.inaetics.dronessimulator.gameengine.identifiermapper.IIdentifierMapper;
+import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
@@ -26,7 +26,7 @@ public class SubscriberMessageHandler implements MessageHandler {
      */
     private final IPhysicsEngineDriver physicsEngineDriver;
 
-    private final IIdentifierMapper id_mapper;
+    private final IdentifierMapper id_mapper;
 
     private final IGameStateManager stateManager;
 

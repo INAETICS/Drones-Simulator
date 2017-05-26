@@ -3,7 +3,7 @@ package org.inaetics.dronessimulator.gameengine.ruleprocessors;
 
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
-import org.inaetics.dronessimulator.gameengine.identifiermapper.IIdentifierMapper;
+import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.Processor;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.SendMessages;
@@ -19,7 +19,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class RuleProcessors extends Thread implements IRuleProcessors {
     private IPhysicsEngineDriver m_driver;
     private Publisher m_publisher;
-    private IIdentifierMapper m_id_mapper;
+    private IdentifierMapper m_id_mapper;
 
     private LinkedBlockingQueue<GameEngineEvent> incomingEvents;
 

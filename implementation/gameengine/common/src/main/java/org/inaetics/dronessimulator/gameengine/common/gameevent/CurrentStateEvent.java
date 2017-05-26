@@ -6,7 +6,7 @@ import org.inaetics.dronessimulator.common.D3PoolCoordinate;
 import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
-import org.inaetics.dronessimulator.gameengine.identifiermapper.IIdentifierMapper;
+import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ public class CurrentStateEvent extends GameEngineEvent {
     List<GameEntity> currentState;
 
     @Override
-    public List<ProtocolMessage> getProtocolMessage(IIdentifierMapper id_mapper) {
+    public List<ProtocolMessage> getProtocolMessage(IdentifierMapper id_mapper) {
         List<ProtocolMessage> msgs = new ArrayList<>();
 
         for(GameEntity e : currentState) {

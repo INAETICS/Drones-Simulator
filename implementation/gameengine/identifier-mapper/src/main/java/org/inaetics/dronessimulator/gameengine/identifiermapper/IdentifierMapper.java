@@ -1,6 +1,6 @@
 package org.inaetics.dronessimulator.gameengine.identifiermapper;
 
-public interface IIdentifierMapper {
+public interface IdentifierMapper {
     Integer getNewGameEngineId();
 
     Integer fromProtocolToGameEngineId(String id);

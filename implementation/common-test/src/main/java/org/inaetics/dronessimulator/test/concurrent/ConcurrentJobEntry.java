@@ -5,13 +5,43 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+/**
+ * Template of a ConcurrentJob
+ * It is used by {@link ConcurrentExecute} to keep record of which jobs to perform and how many times they should
+ * be performed.
+ */
 public class ConcurrentJobEntry {
+    /**
+     * The id of the template. This is shared by all amount times invocations of this job
+     */
     private final long id;
+    /**
+     * How many times this job needs to be performed
+     */
     private final int amount;
+    /**
+     * How long each separate invocation may take in milliseconds
+     */
     private final int timeoutMs;
+    /**
+     * Which TimeoutHandler to register the timeout of each job with
+     */
     private final TimeoutHandler timeoutHandler;
+    /**
+     * The job to be performed. Should follow {@link IConcurrentJob} structure
+     */
     private final IConcurrentJob job;
 
+    /**
+     * Construct a job entry for ConcurrentExecute
+     * @param id The id of this template
+     * @param amount Amount of times to perform job
+     * @param timeoutMs How long each job invocation may take
+     * @param timeoutHandler Handler to register the timeout of each invocation at
+     * @param job The job to be performed. Should follow {@link IConcurrentJob} structure. Usually a lambda with
+     * a single argument int i. This argument is amount of time this job has performed. E.g. 1 if this is the second
+     * time the job is performed. Due to shuffle, i is not performed in order. In other words: i=2  may be before i=1.
+     */
     public ConcurrentJobEntry(long id, int amount, int timeoutMs, TimeoutHandler timeoutHandler, IConcurrentJob job) {
         this.id = id;
         this.amount = amount;
@@ -40,6 +70,11 @@ public class ConcurrentJobEntry {
         return this.job;
     }
 
+    /**
+     * Gets all specific jobs based on this template.
+     * @return List of jobs to be performed by execute. They each contain their subid which is used for the argument
+     * of the job
+     */
     Collection<ConcurrentJob> getJobs() {
         List<ConcurrentJob> result = new ArrayList<>(this.amount);
 
@@ -50,6 +85,10 @@ public class ConcurrentJobEntry {
         return result;
     }
 
+    /**
+     * While the outer class {@link ConcurrentJobEntry} is a template to be instantiated amount times, this class represents
+     * a single instance of the template
+     */
     public class ConcurrentJob implements Runnable {
         private final int subid;
         private boolean hasRun;

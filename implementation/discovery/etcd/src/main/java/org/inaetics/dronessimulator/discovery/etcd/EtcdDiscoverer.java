@@ -69,6 +69,14 @@ public class EtcdDiscoverer {
         this.client.putDir(buildPath(DISCOVERABLE_CONFIG_DIR));
     }
 
+    public void closeConnection() {
+        try {
+            this.client.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void register(Instance instance) throws DuplicateName, IOException {
         String path = buildInstancePath(instance);
         logger.debug("Registering instance {} at path {}", instance, path);
@@ -411,8 +419,9 @@ public class EtcdDiscoverer {
 
             // Because etcd does only return the subtree from the changed node, we NEED to do the whole request again :(
             // Now REALLY get the subtree data
-            keys = this.client.getDir(path).recursive().send().get();
-
+            if(keys != null) {
+                keys = this.client.getDir(path).recursive().send().get();
+            }
 
             if (keys != null) {
                 long modifiedIndex = keys.node.modifiedIndex;

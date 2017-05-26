@@ -32,8 +32,10 @@ public class EtcdChangeHandler extends Thread {
         EtcdKeysResponse.EtcdNode etcdNode = discoverer.getFromRoot(false);
         DiscoveryStoredNode storedRoot = new DiscoveryStoredEtcdNode(etcdNode);
 
-        synchronized (this) {
-            cachedRoot.updateTree(storedRoot);
+        if(etcdNode != null) {
+            synchronized (this) {
+                cachedRoot.updateTree(storedRoot);
+            }
         }
 
         Logger.getLogger(EtcdChangeHandler.class).info("Started EtcdChangeHandler!");
@@ -42,8 +44,10 @@ public class EtcdChangeHandler extends Thread {
             etcdNode = discoverer.getFromRoot(true);
             storedRoot = new DiscoveryStoredEtcdNode(etcdNode);
 
-            synchronized (this) {
-                cachedRoot.updateTree(storedRoot);
+            if(etcdNode != null) {
+                synchronized (this) {
+                    cachedRoot.updateTree(storedRoot);
+                }
             }
         }
 

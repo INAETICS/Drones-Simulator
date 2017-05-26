@@ -7,6 +7,8 @@ import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
@@ -21,8 +23,6 @@ public class DroneInit implements MessageHandler {
     private Subscriber m_subscriber;
     private Discoverer m_discoverer;
     private Instance registered_instance;
-    private String team;
-
 
     public DroneInit(){
         this.initIdentifier();
@@ -31,12 +31,12 @@ public class DroneInit implements MessageHandler {
     /**
      * FELIX CALLBACKS
      */
-    public void start() {
+    public void start() throws IOException{
         this.registerSubscriber();
         this.registerDrone();
     }
 
-    public void stop() {
+    public void stop() throws IOException {
         this.unregisterDrone();
     }
 
@@ -49,15 +49,14 @@ public class DroneInit implements MessageHandler {
         this.m_subscriber.addHandler(StateMessage.class, this);
     }
 
-    private void registerDrone(){
-        Map<String, String> properties = new HashMap<String,String>();
-        properties.put("TEAM", this.team);
-        Instance instance = new Instance("DRONE", "ALL_DRONES", this.getIdentifier(), properties, true);
+    private void registerDrone() throws IOException{
+        Map<String, String> properties = new HashMap<>();
+
+        properties.put("team", "team1");
+        Instance instance = new Instance(Type.DRONE, Group.DRONE, this.getIdentifier(), properties, true);
         try{
             m_discoverer.register(instance);
             this.registered_instance = instance;
-        } catch (IOException e){
-            System.out.println("IO Exception registerDrone");
         } catch(DuplicateName e){
             this.setIdentifier(this.getIdentifier() + "-" + UUID.randomUUID().toString());
             this.registerDrone();
@@ -65,12 +64,8 @@ public class DroneInit implements MessageHandler {
 
     }
 
-    private void unregisterDrone(){
-        try{
-            this.m_discoverer.unregister(registered_instance);
-        } catch (IOException e){
-            System.out.println("IO Exception unregisterDrone");
-        }
+    private void unregisterDrone() throws IOException{
+        this.m_discoverer.unregister(registered_instance);
     }
 
     public String getIdentifier(){

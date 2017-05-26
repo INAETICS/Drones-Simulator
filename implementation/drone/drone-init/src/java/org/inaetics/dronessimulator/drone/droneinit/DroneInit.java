@@ -53,7 +53,7 @@ public class DroneInit implements MessageHandler {
         Map<String, String> properties = new HashMap<>();
 
         properties.put("team", "team1");
-        Instance instance = new Instance(Type.DRONE, Group.DRONE, this.getIdentifier(), properties, true);
+        Instance instance = new Instance(Type.DRONE, Group.DRONE, this.getIdentifier(), properties);
         try{
             m_discoverer.register(instance);
             this.registered_instance = instance;

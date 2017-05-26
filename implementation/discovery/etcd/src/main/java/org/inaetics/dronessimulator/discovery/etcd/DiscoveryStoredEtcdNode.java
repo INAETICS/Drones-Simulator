@@ -9,9 +9,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+/**
+ * Implementation of a stored node for etcd.
+ *
+ * Maps key/value pairs to distinct etcd nodes.
+ */
 public class DiscoveryStoredEtcdNode extends DiscoveryStoredNode {
+    /** The etcd node. */
     private final EtcdKeysResponse.EtcdNode etcdNode;
 
+    /**
+     * Instantiates a new node using the given etcd node.
+     * @param etcdNode The etcd node.
+     */
     public DiscoveryStoredEtcdNode(EtcdKeysResponse.EtcdNode etcdNode) {
         this.etcdNode = etcdNode;
     }
@@ -43,6 +53,11 @@ public class DiscoveryStoredEtcdNode extends DiscoveryStoredNode {
                        .collect(Collectors.toList());
     }
 
+    /**
+     * Returns the etcd node name for the given key.
+     * @param key The key.
+     * @return The etcd node name.
+     */
     static String getNodeName(String key) {
         if(key != null) {
             return key.substring(Math.max(0, key.lastIndexOf("/") + 1));

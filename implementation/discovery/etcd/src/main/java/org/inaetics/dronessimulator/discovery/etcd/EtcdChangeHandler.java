@@ -66,7 +66,8 @@ public class EtcdChangeHandler extends Thread {
     }
 
     /**
-     * Adds handlers for node events.
+     * Adds handlers for node events. The handlers are added to the root of the tree so they will receive all events of
+     * the respective type.
      * @param replay Whether to replay the current state of the tree by sending added node events for the existing
      *               nodes.
      * @param addHandlers The added node event handlers to add.

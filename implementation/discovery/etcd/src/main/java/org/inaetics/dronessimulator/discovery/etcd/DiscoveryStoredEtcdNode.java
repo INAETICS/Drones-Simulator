@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 /**
  * Implementation of a stored node for etcd.
  *
- * Maps key/value pairs to distinct etcd nodes.
+ * Squashes an etcd directory node with zero or more values into a single DiscoveryStoredNode.
  */
 public class DiscoveryStoredEtcdNode extends DiscoveryStoredNode {
     /** The etcd node. */

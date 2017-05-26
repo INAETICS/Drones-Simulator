@@ -9,7 +9,7 @@ import java.util.concurrent.ConcurrentMap;
  *
  * @param <K> Type of the keys.
  * @param <V> Type of the values.
- * @param <N> Type of the parent and child nodes.
+ * @param <N> Type of the current, parent and child nodes.
  * @param <P> Type of the path.
  */
 public abstract class TreeNode<K, V, N extends TreeNode<K, V, N, P>, P extends Path<P>> {

@@ -28,6 +28,7 @@ public class EtcdDiscovererService implements Discoverer {
     /** Configuration admin to use. */
     private volatile ConfigurationAdmin m_configurationAdmin;
 
+    /** The etcd change handler to use. */
     private EtcdChangeHandler changeHandler;
 
     /**

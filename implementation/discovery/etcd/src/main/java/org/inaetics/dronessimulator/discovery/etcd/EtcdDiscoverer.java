@@ -72,6 +72,17 @@ public class EtcdDiscoverer {
     }
 
     /**
+     * Closes any open connection to etcd. This method can be called to stop any processes waiting on changes from etcd.
+     */
+    public void closeConnection() {
+        try {
+            this.client.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * Registers the given instance in etcd.
      * @param instance The instance to register.
      * @throws DuplicateName There is already an instance registered with the same type, group and name.

@@ -74,6 +74,11 @@ public abstract class RabbitConnection {
         this.connectionFactory = new ConnectionFactory();
 
         if (config != null) {
+            String username = config.get("username");
+            this.connectionFactory.setUsername(username);
+
+            String password = config.get("password");
+            this.connectionFactory.setPassword(password);
             try {
                 String uri = config.get("uri");
                 this.connectionFactory.setUri(uri);

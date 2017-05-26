@@ -27,7 +27,7 @@ public class SimpleDrone extends Drone {
         Map<String, String> properties = new HashMap<>();
 
         properties.put("team", "team1");
-        instance = new Instance(Type.DRONE, Group.DRONE, "drone111", properties, true);
+        instance = new Instance(Type.DRONE, Group.DRONE, "drone111", properties);
         m_discoverer.register(instance);
     }
 

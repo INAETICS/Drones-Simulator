@@ -22,23 +22,20 @@ public class Instance {
     /** The properties this instance has. */
     private Map<String, String> properties;
 
-    /** Whether this instance is a discoverable configuration. */
-    private boolean isConfigDiscoverable;
-
     /**
-     * Instantiates a new instance with the given type, group, name and properties.
+     * Instantiates a new instance with the given type, group, name and properties. This constructor can be used to
+     * build a quick instance. However, it is recommended to subclass this class and use your own constructor together
+     * with overriding the setInitialProperties method.
      * @param type The type of this instance.
      * @param group The group of this instance.
      * @param name The name of this instance.
      * @param properties The properties of this instance.
-     * @param isConfigDiscoverable Whether this instance is a discoverable configuration.
      */
-    public Instance(Type type, Group group, String name, Map<String, String> properties, boolean isConfigDiscoverable) {
+    public Instance(Type type, Group group, String name, Map<String, String> properties) {
         this.type = type;
         this.group = group;
         this.name = name;
         this.properties = properties == null ? new HashMap<>() : properties;
-        this.isConfigDiscoverable = isConfigDiscoverable;
 
         this.setInitialProperties(properties);
     }
@@ -48,10 +45,9 @@ public class Instance {
      * @param type The type of this instance.
      * @param group The group of this instance.
      * @param name The name of this instance.
-     * @param isConfigDiscoverable Whether this instance is a discoverable configuration.
      */
-    public Instance(Type type, Group group, String name, boolean isConfigDiscoverable) {
-        this(type, group, name, null, isConfigDiscoverable);
+    public Instance(Type type, Group group, String name) {
+        this(type, group, name, null);
     }
 
     /**
@@ -84,14 +80,6 @@ public class Instance {
      */
     public Map<String, String> getProperties() {
         return this.properties;
-    }
-
-    /**
-     * Returns whether this instance should be registered as a discoverable configuration.
-     * @return Whether to register this instance as a discoverable configuration.
-     */
-    public boolean isConfigDiscoverable() {
-        return this.isConfigDiscoverable;
     }
 
     /**

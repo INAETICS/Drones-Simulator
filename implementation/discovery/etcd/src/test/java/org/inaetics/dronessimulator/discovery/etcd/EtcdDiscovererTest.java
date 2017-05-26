@@ -29,7 +29,7 @@ public class EtcdDiscovererTest {
 
         Map<String, String> instanceProperties = new HashMap<>();
         instanceProperties.put("property", "value");
-        this.instance = new Instance("unittest", "discovery", "etcd", instanceProperties, false);
+        this.instance = new Instance("unittest", "discovery", "etcd", instanceProperties);
 
         Map<String, String> rabbitmqProperties = new HashMap<>();
         rabbitmqProperties.put("URI", "amqp://rabbit@localhost:5672/dronessimulator");
@@ -37,7 +37,7 @@ public class EtcdDiscovererTest {
         rabbitmqProperties.put("port", "5672");
         rabbitmqProperties.put("user", "rabbitmq");
         rabbitmqProperties.put("vhost", "dronessimulator");
-        this.rabbitmq = new Instance("rabbitmq", "broker", "default", rabbitmqProperties, true);
+        this.rabbitmq = new Instance("rabbitmq", "broker", "default", rabbitmqProperties);
     }
 
     @After

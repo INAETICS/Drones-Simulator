@@ -49,7 +49,7 @@ public class TestDiscoveryEtcdChangeHandler {
             Map<String, String> catchupProperties = new HashMap<>();
             catchupProperties.put("catchprop1", "catchupval1");
 
-            this.discoverer.register(new Instance("catchup", "group", "hello!", catchupProperties, false));
+            this.discoverer.register(new Instance("catchup", "group", "hello!", catchupProperties));
 
             List<NodeEventHandler<AddedNode>> addHandlers = new ArrayList<>();
             List<NodeEventHandler<ChangedValue>> changedValueHandlers = new ArrayList<>();
@@ -126,7 +126,7 @@ public class TestDiscoveryEtcdChangeHandler {
             Map<String, String> discoverProperties = new HashMap<>();
             discoverProperties.put("discover", "discoverValue");
 
-            Instance discoverInstance = new Instance("catchup", "discover", "name", discoverProperties, false);
+            Instance discoverInstance = new Instance("catchup", "discover", "name", discoverProperties);
             this.discoverer.register(discoverInstance);
 
             try {

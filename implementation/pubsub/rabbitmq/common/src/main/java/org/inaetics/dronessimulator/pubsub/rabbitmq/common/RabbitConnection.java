@@ -23,10 +23,10 @@ import java.util.concurrent.TimeoutException;
  */
 public abstract class RabbitConnection {
     /** The maximum number of connection attempts. */
-    private static final int MAX_CONNECTION_ATTEMPTS = 10;
+    private static final int MAX_CONNECTION_ATTEMPTS = 100;
 
     /** The timeout between connection attempts in milliseconds. */
-    private static final long CONNECTION_ATTEMPT_TIMEOUT = 10000;
+    private static final long CONNECTION_ATTEMPT_TIMEOUT = 2000;
 
     /** The connection factory used for setting up a connection. */
     private ConnectionFactory connectionFactory;
@@ -115,7 +115,10 @@ public abstract class RabbitConnection {
                     } else {
                         try {
                             Thread.sleep(CONNECTION_ATTEMPT_TIMEOUT);
-                        } catch (InterruptedException ignored) {}
+                        } catch (InterruptedException ignored) {
+                            // Just quit
+                            return;
+                        }
                     }
                 }
             }

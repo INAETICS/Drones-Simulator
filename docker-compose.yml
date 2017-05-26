@@ -1,7 +1,7 @@
 version: '3'
 services:
   etcd:
-    image: appcelerator/etcd
+    build: ./docker_images/etcd
     ports:
       - "2379:2379"
       - "2380:2380"
@@ -10,6 +10,7 @@ services:
     build: ./docker_images/rabbitmq
     ports:
       - "5672:5672"
+      - "15672:15672"
     depends_on:
       - etcd
     links:

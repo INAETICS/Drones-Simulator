@@ -68,6 +68,13 @@ public interface Discoverer {
      */
     Map<String, String> getProperties(String type, String group, String name);
 
+    /**
+     * Adds change handlers to the discoverer.
+     * @param replay Whether to send all current data to the handlers. The nodes are sent to the add handlers.
+     * @param addHandlers Handlers for handling addition of new nodes.
+     * @param changedValueHandlers Handlers for handling changes in nodes.
+     * @param removedHandlers Handlers for handling the removal of nodes.
+     */
     void addHandlers(boolean replay, List<NodeEventHandler<AddedNode>> addHandlers
                                    , List<NodeEventHandler<ChangedValue>> changedValueHandlers
                                    , List<NodeEventHandler<RemovedNode>> removedHandlers);

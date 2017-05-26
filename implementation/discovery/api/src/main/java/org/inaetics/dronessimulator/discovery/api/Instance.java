@@ -9,15 +9,24 @@ import java.util.Map;
  * Interface which describes a part of a system.
  */
 public class Instance {
-    private String type;
-    private String group;
+    /** The type of this instance. */
+    private Type type;
+
+    /** The group of this instance. */
+    private Group group;
+
+    /** The name of this instance. */
     private String name;
+
+    /** The properties this instance has. */
     private Map<String, String> properties;
+
+    /** Whether this instance is a discoverable configuration. */
     private boolean isConfigDiscoverable;
 
     public Instance(Type type, Group group, String name, Map<String, String> properties, boolean isConfigDiscoverable) {
-        this.type = type.getStr();
-        this.group = group.getStr();
+        this.type = type;
+        this.group = group;
         this.name = name;
         this.properties = properties;
         this.isConfigDiscoverable = isConfigDiscoverable;
@@ -28,7 +37,7 @@ public class Instance {
      * @return The name of the type.
      */
     public String getType() {
-        return this.type;
+        return this.type.getStr();
     }
 
     /**
@@ -36,7 +45,7 @@ public class Instance {
      * @return The name of the group.
      */
     public String getGroup() {
-        return this.group;
+        return this.group.getStr();
     }
 
     /**

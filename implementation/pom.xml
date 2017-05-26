@@ -13,7 +13,7 @@
         <module>common</module>
         <module>pubsub</module>
         <module>discovery</module>
-        <!--<module>visualisation</module>-->
+        <module>visualisation</module>
         <module>gameengine</module>
         <module>drone</module>
         <module>instancemanager</module>

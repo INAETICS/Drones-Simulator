@@ -20,8 +20,8 @@ import java.util.UUID;
 
 public class DroneInit implements MessageHandler {
     private String identifier;
-    private Subscriber m_subscriber;
-    private Discoverer m_discoverer;
+    private volatile Subscriber m_subscriber;
+    private volatile Discoverer m_discoverer;
     private Instance registered_instance;
 
     public DroneInit(){
@@ -49,7 +49,7 @@ public class DroneInit implements MessageHandler {
         this.m_subscriber.addHandler(StateMessage.class, this);
     }
 
-    private void registerDrone() throws IOException{
+    private void registerDrone(){
         Map<String, String> properties = new HashMap<>();
 
         properties.put("team", "team1");
@@ -57,15 +57,21 @@ public class DroneInit implements MessageHandler {
         try{
             m_discoverer.register(instance);
             this.registered_instance = instance;
-        } catch(DuplicateName e){
+        } catch (IOException e) {
+            System.out.println("IO Exception");
+        }catch(DuplicateName e){
             this.setIdentifier(this.getIdentifier() + "-" + UUID.randomUUID().toString());
             this.registerDrone();
         }
 
     }
 
-    private void unregisterDrone() throws IOException{
-        this.m_discoverer.unregister(registered_instance);
+    private void unregisterDrone(){
+        try{
+            this.m_discoverer.unregister(registered_instance);
+        } catch (IOException e) {
+            System.out.println("IO Exception");
+        }
     }
 
     public String getIdentifier(){
@@ -99,7 +105,7 @@ public class DroneInit implements MessageHandler {
 
     public void handleKillMessage(KillMessage killMessage){
         if(killMessage.getIdentifier().equals(this.getIdentifier())){
-            throw new RuntimeException("GAMEOVER! - Drone is killed!");
+            //throw new RuntimeException("GAMEOVER! - Drone is killed!");
         }
     }
 

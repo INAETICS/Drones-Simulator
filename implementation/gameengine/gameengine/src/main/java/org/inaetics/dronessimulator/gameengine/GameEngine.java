@@ -86,7 +86,7 @@ public class GameEngine {
 
 
         // Setup discoverer
-        discoveryInstance = new Instance(Type.SERVICE, Group.SERVICES, "gameengine" , new HashMap<>(), false);
+        discoveryInstance = new Instance(Type.SERVICE, Group.SERVICES, "gameengine" , new HashMap<>());
         m_discoverer.register(discoveryInstance);
 
         List<NodeEventHandler<AddedNode>> addHandlers = new ArrayList<>();

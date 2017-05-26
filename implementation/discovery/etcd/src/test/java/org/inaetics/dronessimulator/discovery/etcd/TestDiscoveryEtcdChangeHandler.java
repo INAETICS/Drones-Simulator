@@ -3,7 +3,9 @@ package org.inaetics.dronessimulator.discovery.etcd;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
@@ -49,7 +51,7 @@ public class TestDiscoveryEtcdChangeHandler {
             Map<String, String> catchupProperties = new HashMap<>();
             catchupProperties.put("catchprop1", "catchupval1");
 
-            this.discoverer.register(new Instance("catchup", "group", "hello!", catchupProperties, false));
+            this.discoverer.register(new Instance(new Type("catchup"), new Group("group"), "hello!", catchupProperties));
 
             List<NodeEventHandler<AddedNode>> addHandlers = new ArrayList<>();
             List<NodeEventHandler<ChangedValue>> changedValueHandlers = new ArrayList<>();
@@ -126,7 +128,7 @@ public class TestDiscoveryEtcdChangeHandler {
             Map<String, String> discoverProperties = new HashMap<>();
             discoverProperties.put("discover", "discoverValue");
 
-            Instance discoverInstance = new Instance("catchup", "discover", "name", discoverProperties, false);
+            Instance discoverInstance = new Instance(new Type("catchup"), new Group("discover"), "name", discoverProperties);
             this.discoverer.register(discoverInstance);
 
             try {

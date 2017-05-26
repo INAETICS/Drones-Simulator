@@ -2,21 +2,19 @@ package org.inaetics.dronessimulator.visualisation;
 
 import javafx.scene.layout.Pane;
 
-/**
- * Created by langstra on 10-3-17.
- */
 public class BasicDrone extends Drone {
-
-    double speed;
-    double rotationSpeed;
 
     private static final String image = "/drones/drone_sprite.png";
 
-    public BasicDrone(Pane layer) {
-        super(layer, image);
+    /**
+     * Creates a basic drone based on an image
+     *
+     * @param pane - Pane to add the drone to
+     */
+    public BasicDrone(Pane pane) {
+        super(pane, image);
         init();
     }
-
 
     private void init() {
 

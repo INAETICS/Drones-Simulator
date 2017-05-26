@@ -3,9 +3,13 @@ package org.inaetics.dronessimulator.visualisation;
 import com.rabbitmq.client.ConnectionFactory;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.D3PoolCoordinate;
@@ -17,6 +21,9 @@ import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitSubscriber;
+import org.inaetics.dronessimulator.visualisation.controls.NodeGestures;
+import org.inaetics.dronessimulator.visualisation.controls.PannableCanvas;
+import org.inaetics.dronessimulator.visualisation.controls.SceneGestures;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -24,13 +31,14 @@ import java.util.Map;
 
 public class Game extends Application implements MessageHandler {
     private volatile RabbitSubscriber subscriber;
+    private static final Logger logger = Logger.getLogger(Game.class);
+
+    private PannableCanvas canvas;
 
     public Game() {
     }
 
-    private Pane playfieldLayer;
-
-    private Map<String, Drone> drones = new HashMap<>();
+    private Map<String, BaseEntity> entities = new HashMap<>();
 
     private int i = 0;
     private long lastLog = -1;
@@ -56,16 +64,15 @@ public class Game extends Application implements MessageHandler {
                     long current = System.currentTimeMillis();
                     float durationAverageMs = ((float) (current - lastLog)) / 100f;
                     float fps = 1000f / durationAverageMs;
-
-
                     lastLog = current;
-                    System.out.println("Average: " + durationAverageMs);
-                    System.out.println("FPS: " + fps);
+
+                    logger.info("Average: " + durationAverageMs);
+                    logger.info("FPS: " + fps);
                     i = 0;
                 }
 
                 // update sprites in scene
-                drones.forEach((id, drone) -> drone.updateUI());
+                entities.forEach((id, entity) -> entity.updateUI());
             }
 
         };
@@ -86,14 +93,15 @@ public class Game extends Application implements MessageHandler {
             if (!stateMessage.getIdentifier().isPresent()) {
                 return;
             }
-            Drone currentDrone = drones.computeIfAbsent(stateMessage.getIdentifier().get(), k -> createPlayer(stateMessage.getIdentifier().get()));
-
-            if (stateMessage.getPosition().isPresent()) {
-                currentDrone.setPosition(stateMessage.getPosition().get());
-            }
-
-            if (stateMessage.getDirection().isPresent()) {
-                currentDrone.setDirection(stateMessage.getDirection().get());
+            switch (stateMessage.getType()) {
+                case DRONE:
+                    createOrUpdateDrone(stateMessage);
+                    break;
+                case BULLET:
+                    createOrUpdateBullet(stateMessage);
+                    break;
+                default:
+                    System.out.println("Unknown type");
             }
         } else if (message instanceof KillMessage) {
             KillMessage killMessage = (KillMessage) message;
@@ -101,8 +109,8 @@ public class Game extends Application implements MessageHandler {
             if (!killMessage.getIdentifier().isPresent()) {
                 return;
             }
-            // todo: add boolean remove to drone. When this boolean is set, then do explosion animation and remove drone.
-            drones.remove(killMessage.getIdentifier().get());
+            entities.get(killMessage.getIdentifier().get()).delete();
+            entities.remove(killMessage.getIdentifier().get());
         } else {
             Logger.getLogger(this.getClass()).info("Received non-state msg: " + message);
         }
@@ -116,17 +124,72 @@ public class Game extends Application implements MessageHandler {
      */
     private Drone createPlayer(String id) {
         // create drone
-        BasicDrone drone = new BasicDrone(playfieldLayer);
-
-        drone.setPosition(new D3Vector(0, 0, 0));
+        BasicDrone drone = new BasicDrone(canvas);
+        drone.setPosition(new D3Vector(500, 400, 1000));
         drone.setDirection(new D3PoolCoordinate(0, 0, 0));
 
         // register drone
-        drones.put(id, drone);
-
+        entities.put(id, drone);
         return drone;
     }
 
+    /**
+     * Creates a new bullet and returns it
+     *
+     * @param id String - Identifier of the new bullet
+     * @return bullet Bullet - The newly created bullet
+     */
+    private Bullet createBullet(String id) {
+        System.out.println("Create bullet");
+        // create drone
+        Bullet bullet = new Bullet(canvas);
+
+        bullet.setPosition(new D3Vector(0, 0, 0));
+        bullet.setDirection(new D3PoolCoordinate(0, 0, 0));
+
+        // register drone
+        entities.put(id, bullet);
+
+        return bullet;
+    }
+
+    /**
+     * Creates or updates a drone
+     *
+     * @param stateMessage - Message containing the state of the drone
+     */
+    private void createOrUpdateDrone(StateMessage stateMessage) {
+        BaseEntity currentDrone = entities.computeIfAbsent(stateMessage.getIdentifier().get(), k -> createPlayer(stateMessage.getIdentifier().get()));
+
+        if (stateMessage.getPosition().isPresent()) {
+            currentDrone.setPosition(stateMessage.getPosition().get());
+        }
+
+        if (stateMessage.getDirection().isPresent()) {
+            currentDrone.setDirection(stateMessage.getDirection().get());
+        }
+    }
+
+    /**
+     * Creates or updates a bullet
+     *
+     * @param stateMessage - Message containing the state of the bullet
+     */
+    private void createOrUpdateBullet(StateMessage stateMessage) {
+        BaseEntity currentBullet = entities.computeIfAbsent(stateMessage.getIdentifier().get(), k -> createBullet(stateMessage.getIdentifier().get()));
+
+        if (stateMessage.getPosition().isPresent()) {
+            currentBullet.setPosition(stateMessage.getPosition().get());
+        }
+
+        if (stateMessage.getDirection().isPresent()) {
+            currentBullet.setDirection(stateMessage.getDirection().get());
+        }
+    }
+
+    /**
+     * Sets up the connection to the message broker and subscribes to the necessary channels and sets the required handlers
+     */
     private void setupRabbit() {
         if (this.subscriber == null) {
             ConnectionFactory connectionFactory = new ConnectionFactory();
@@ -148,23 +211,61 @@ public class Game extends Application implements MessageHandler {
         }
     }
 
+    /**
+     * Creates the canvas for scrolling and panning.
+     *
+     * @param primaryStage - Stage as given by the start method
+     */
     private void setupInterface(Stage primaryStage) {
-        StackPane root = new StackPane();
+        Group group = new Group();
 
-        // create layers
-        playfieldLayer = new Pane();
-        root.getChildren().add(playfieldLayer);
-        root.setId("pane");
+        primaryStage.setTitle("Drone simulator");
+        primaryStage.setResizable(false);
 
-        Scene scene = new Scene(root, Settings.SCENE_WIDTH, Settings.SCENE_HEIGHT);
+        // create canvas
+        canvas = new PannableCanvas(Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT);
+        canvas.setId("pane");
+        canvas.setTranslateX(0);
+        canvas.setTranslateY(0);
+
+        // create sample nodes which can be dragged
+        // @todo: remove these before production, currently quite useful for position recognition when there are no drones
+        NodeGestures nodeGestures = new NodeGestures(canvas);
+
+        Circle circle1 = new Circle(300, 300, 50);
+        circle1.setStroke(Color.ORANGE);
+        circle1.setFill(Color.ORANGE.deriveColor(1, 1, 1, 0.5));
+        circle1.addEventFilter(MouseEvent.MOUSE_PRESSED, nodeGestures.getOnMousePressedEventHandler());
+        circle1.addEventFilter(MouseEvent.MOUSE_DRAGGED, nodeGestures.getOnMouseDraggedEventHandler());
+
+        Rectangle rect1 = new Rectangle(100, 100);
+        rect1.setTranslateX(450);
+        rect1.setTranslateY(450);
+        rect1.setStroke(Color.BLUE);
+        rect1.setFill(Color.BLUE.deriveColor(1, 1, 1, 0.5));
+        rect1.addEventFilter(MouseEvent.MOUSE_PRESSED, nodeGestures.getOnMousePressedEventHandler());
+        rect1.addEventFilter(MouseEvent.MOUSE_DRAGGED, nodeGestures.getOnMouseDraggedEventHandler());
+
+        canvas.getChildren().addAll(circle1, rect1);
+        group.getChildren().add(canvas);
+
+        double width = Settings.SCENE_WIDTH > Settings.CANVAS_WIDTH ? Settings.CANVAS_WIDTH : Settings.SCENE_WIDTH;
+        double height = Settings.SCENE_HEIGHT > Settings.CANVAS_HEIGHT ? Settings.CANVAS_HEIGHT : Settings.SCENE_HEIGHT;
+
+        // create scene which can be dragged and zoomed
+        Scene scene = new Scene(group, width, height);
+        SceneGestures sceneGestures = new SceneGestures(canvas);
+        scene.addEventFilter(MouseEvent.MOUSE_PRESSED, sceneGestures.getOnMousePressedEventHandler());
+        scene.addEventFilter(MouseEvent.MOUSE_DRAGGED, sceneGestures.getOnMouseDraggedEventHandler());
+        scene.addEventFilter(ScrollEvent.ANY, sceneGestures.getOnScrollEventHandler());
         scene.getStylesheets().addAll(this.getClass().getResource("/style.css").toExternalForm());
 
         primaryStage.setScene(scene);
         primaryStage.show();
+        canvas.addGrid();
     }
 
     public static void main(String[] args) {
         launch(args);
     }
-
 }

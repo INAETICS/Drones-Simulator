@@ -6,6 +6,7 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.C
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.NodeEvent;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
 import org.inaetics.dronessimulator.discovery.api.tree.TreeNode;
+import org.inaetics.dronessimulator.discovery.api.tree.Tuple;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -79,12 +80,13 @@ public class DiscoveryNode extends TreeNode<String, String, DiscoveryNode, Disco
                 untouched.remove(storedChild.getId());
             // Child is new! Add
             } else {
-                child = new DiscoveryNode(storedChild.getId());
-
-                events.add(this.addChildWithEvent(child));
+                // Add child will set both AddNode and ChangedValue events
+                Tuple<DiscoveryNode, List<NodeEvent>> addResult = this.addStoredNode(storedChild);
+                child = addResult.getT1();
+                events.addAll(addResult.getT2());
             }
 
-            //Child is added if needed. Now update regardless
+            // Now update child regardless to also add/update directories
             events.addAll(child.updateTree(storedChild));
         }
 
@@ -96,6 +98,30 @@ public class DiscoveryNode extends TreeNode<String, String, DiscoveryNode, Disco
         events.addAll(this.updateValues(storedNode));
 
         return events;
+    }
+
+    public Tuple<DiscoveryNode, List<NodeEvent>> addStoredNode(DiscoveryStoredNode storedNode) {
+        List<ChangedValue> changedValueEvents = new ArrayList<>();
+        List<NodeEvent> events = new ArrayList<>();
+
+        DiscoveryNode newNode = new DiscoveryNode(storedNode.getId());
+
+        // First set new values on node
+        for(Map.Entry<String, String> value : storedNode.getValues().entrySet()) {
+            changedValueEvents.add(newNode.setValueWithEvent(value.getKey(), value.getValue()).get());
+        }
+
+        // Node add as a child and trigger AddedNode event
+        events.add(this.addChildWithEvent(newNode));
+
+        // Now trigger ChangedValue events
+        for(ChangedValue changedValueEvent : changedValueEvents) {
+            this.bubbleValueChangeEvent(changedValueEvent);
+        }
+
+        events.addAll(changedValueEvents);
+
+        return new Tuple<>(newNode, events);
     }
 
     /**

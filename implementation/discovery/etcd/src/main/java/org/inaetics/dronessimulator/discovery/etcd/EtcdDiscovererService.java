@@ -37,7 +37,7 @@ public class EtcdDiscovererService implements Discoverer {
      */
     public void start() {
         // TODO: Make this URI dynamic
-        this.discoverer = new EtcdDiscoverer(URI.create("http://localhost:4001/"));
+        this.discoverer = new EtcdDiscoverer(URI.create("http://etcd:4001/"));
 
         this.changeHandler = new EtcdChangeHandler(discoverer);
         this.changeHandler.start();

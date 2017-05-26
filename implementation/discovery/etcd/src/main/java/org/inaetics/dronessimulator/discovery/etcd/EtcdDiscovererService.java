@@ -49,14 +49,16 @@ public class EtcdDiscovererService implements Discoverer {
      * Stops the service and any related threads.
      */
     public void stop() {
+        this.changeHandler.quit();
         this.configDiscoverer.interrupt();
+        this.discoverer.closeConnection();
+
         try {
             this.configDiscoverer.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
 
-        this.changeHandler.quit();
         try {
             this.changeHandler.join();
         } catch (InterruptedException e) {

@@ -84,8 +84,7 @@ public class SimpleTactic extends Tactic {
     private D3Vector accelerateForWall(D3Vector input_acceleration){
         D3Vector output_acceleration = input_acceleration;
         double aantal_seconden_tot_nul = m_gps.getVelocity().length() / m_engine.getMaxAcceleration();
-        D3Vector berekende_vertraging = m_engine.maximize_acceleration(m_engine.limit_acceleration(m_gps.getVelocity().scale(-1)));
-        D3Vector berekende_position = m_gps.getVelocity().scale((1/2) * berekende_vertraging.length() * Math.pow(aantal_seconden_tot_nul, 2)).add(m_gps.getPosition());
+        D3Vector berekende_position = m_gps.getVelocity().scale(0.5).scale(aantal_seconden_tot_nul).add(m_gps.getPosition());
 
         if(berekende_position.getX() >= MAX_DEVIATION_POSTION ||
                 berekende_position.getX() <= 0 ||
@@ -93,7 +92,7 @@ public class SimpleTactic extends Tactic {
                 berekende_position.getY() <= 0 ||
                 berekende_position.getZ() >= MAX_DEVIATION_POSTION ||
                 berekende_position.getZ() <= 0){
-            output_acceleration = berekende_vertraging;
+            output_acceleration = m_engine.maximize_acceleration(m_engine.limit_acceleration(m_gps.getVelocity().scale(-1)));
         }
         return output_acceleration;
     }

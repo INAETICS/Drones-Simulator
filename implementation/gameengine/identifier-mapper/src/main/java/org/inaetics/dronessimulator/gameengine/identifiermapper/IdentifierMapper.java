@@ -1,10 +1,12 @@
 package org.inaetics.dronessimulator.gameengine.identifiermapper;
 
+import java.util.Optional;
+
 public interface IdentifierMapper {
     Integer getNewGameEngineId();
 
-    Integer fromProtocolToGameEngineId(String id);
-    String fromGameEngineToProtocolId(Integer id);
+    Optional<Integer> fromProtocolToGameEngineId(String id);
+    Optional<String> fromGameEngineToProtocolId(Integer id);
 
     void setMapping(Integer id1, String id2);
 

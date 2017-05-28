@@ -3,8 +3,8 @@
 ROOT="implementation" 
 
 set -e
-(cd $ROOT && mvn clean -P all)
-(cd $ROOT && mvn package -P all -Dmaven.test.skip=true)
+(cd $ROOT && mvn clean)
+(cd $ROOT && mvn package -Dmaven.test.skip=true)
 
 # Build base docker image 
 docker build ./docker_images/base_image/ -t dronesim/base
@@ -43,6 +43,14 @@ cp "$ROOT/gameengine/ruleprocessors/target/gameengine-ruleprocessors-0.1.jar" $G
 
 # Drone
 DRONE="docker_images/drone/files/bundles/"
+cp "$ROOT/discovery/api/target/discovery-api-0.1.jar" $DRONE
+cp "$ROOT/discovery/etcd/target/etcd-0.1.jar" $DRONE
+cp "$ROOT/pubsub/javaserializer/target/java-serializer-0.1.jar" $DRONE
+cp "$ROOT/pubsub/rabbitmq/common/target/rabbitmq-common-0.1.jar" $DRONE
+cp "$ROOT/pubsub/rabbitmq/subscriber/target/rabbitmq-subscriber-0.1.jar" $DRONE
+cp "$ROOT/pubsub/rabbitmq/publisher/target/rabbitmq-publisher-0.1.jar" $DRONE
+cp "$ROOT/pubsub/api/target/pubsub-api-0.1.jar" $DRONE
+cp "$ROOT/common/target/common-0.1.jar" $DRONE
 cp "$ROOT/drone/components/engine/target/components-engine-0.1.jar" $DRONE
 cp "$ROOT/drone/components/gps/target/components-gps-0.1.jar" $DRONE
 cp "$ROOT/drone/components/gun/target/components-gun-0.1.jar" $DRONE

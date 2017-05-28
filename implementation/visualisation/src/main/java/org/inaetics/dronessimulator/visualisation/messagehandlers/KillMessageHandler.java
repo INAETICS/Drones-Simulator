@@ -19,8 +19,11 @@ public class KillMessageHandler implements MessageHandler {
     @Override
     public void handleMessage(Message message) {
         KillMessage killMessage = (KillMessage) message;
+        BaseEntity baseEntity = entities.get(killMessage.getIdentifier());
 
-        entities.get(killMessage.getIdentifier()).delete();
-        entities.remove(killMessage.getIdentifier());
+        if(baseEntity != null) {
+            baseEntity.delete();
+            entities.remove(killMessage.getIdentifier());
+        }
     }
 }

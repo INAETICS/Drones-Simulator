@@ -124,6 +124,8 @@ public class Game extends Application implements MessageHandler {
     private void setupRabbit() {
         if (this.subscriber == null) {
             ConnectionFactory connectionFactory = new ConnectionFactory();
+            connectionFactory.setUsername("yourUser");
+            connectionFactory.setPassword("yourPass");
             // We can connect to localhost, since the visualization does not run within Docker
             this.subscriber = new RabbitSubscriber(connectionFactory, "visualisation", new JavaSerializer());
 

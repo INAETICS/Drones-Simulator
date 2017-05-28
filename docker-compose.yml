@@ -1,29 +1,40 @@
 version: '3'
 services:
-  rabbitmq:
-    image: rabbitmq:alpine
-    ports:
-      - "5672:5672"
   etcd:
-    image: appcelerator/etcd
+    build: ./docker_images/etcd
     ports:
       - "2379:2379"
       - "2380:2380"
       - "4001:4001"
+  rabbitmq:
+    build: ./docker_images/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    depends_on:
+      - etcd
+    links:
+      - "etcd:etcd"
   game-engine:
     build: ./docker_images/game_engine
     depends_on:
       - rabbitmq
+      - etcd
     links:
       - "rabbitmq:rabbitmq"
+      - "etcd:etcd"
     env_file: docker.env
     tty: true
   drone:
     build: ./docker_images/drone
     depends_on:
-      - game-engine
+      - rabbitmq
+      - etcd
     links:
       - "rabbitmq:rabbitmq"
+      - "etcd:etcd"
     env_file: docker.env
+ 
+  
 
     # Specify more docker images

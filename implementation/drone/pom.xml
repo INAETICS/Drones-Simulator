@@ -3,45 +3,31 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>dronessimulator</artifactId>
         <groupId>org.inaetics</groupId>
+        <artifactId>dronessimulator</artifactId>
         <version>0.1</version>
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.inaetics.dronessimulator</groupId>
     <artifactId>drone</artifactId>
-    <version>0.1</version>
-
-    <packaging>bundle</packaging>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        <Export-Package>org.inaetics.dronessimulator.drone.*
-                        </Export-Package>
-                        <Bundle-Activator>org.inaetics.dronessimulator.drone.Activator</Bundle-Activator>
-                        <Embed-Transitive>true</Embed-Transitive>
-                    </instructions>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+    <packaging>pom</packaging>
+    <modules>
+        <module>components</module>
+        <module>drone-init</module>
+        <module>tactic</module>
+    </modules>
 
     <dependencies>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.dependencymanager</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator</groupId>
             <artifactId>common</artifactId>
@@ -59,4 +45,13 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+            </plugin>
+        </plugins>
+    </build>
 </project>

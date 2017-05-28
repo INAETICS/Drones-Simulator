@@ -20,7 +20,7 @@ public class Gun {
     private volatile Publisher m_publisher;
     private volatile DroneInit m_drone;
     private volatile GPS m_gps;
-    private long last_shot_at_ms;
+    private long last_shot_at_ms = System.currentTimeMillis();
     private final double GUN_SPEED = 50.0;
     private final double MAX_DISTANCE = 100;
     private final double SHOT_TIME_BETWEEN = 1000;
@@ -28,6 +28,8 @@ public class Gun {
     public double getMaxDistance(){
         return MAX_DISTANCE;
     }
+
+
 
 
     public long msSinceLastShot(){ return this.last_shot_at_ms - System.currentTimeMillis(); }

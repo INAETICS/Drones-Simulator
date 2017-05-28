@@ -24,8 +24,6 @@ public class SimpleTactic extends Tactic {
     protected volatile Gun m_gun;
 
     private static final int MAX_DEVIATION_POSTION = 400;
-    private static final int MAX_ACCELERATION = 10;
-
     /**
      *  -- IMPLEMENT FUNCTIONS
      */
@@ -89,9 +87,12 @@ public class SimpleTactic extends Tactic {
         D3Vector berekende_vertraging = m_engine.maximize_acceleration(m_engine.limit_acceleration(m_gps.getVelocity().scale(-1)));
         D3Vector berekende_position = m_gps.getVelocity().scale((1/2) * berekende_vertraging.length() * Math.pow(aantal_seconden_tot_nul, 2)).add(m_gps.getPosition());
 
-        if (Math.abs(berekende_position.getX()-MAX_DEVIATION_POSTION) >= MAX_DEVIATION_POSTION
-                || Math.abs(berekende_position.getY()-MAX_DEVIATION_POSTION) >= MAX_DEVIATION_POSTION
-                || Math.abs(berekende_position.getZ()-MAX_DEVIATION_POSTION) >= MAX_DEVIATION_POSTION){
+        if(berekende_position.getX() >= MAX_DEVIATION_POSTION ||
+                berekende_position.getX() <= 0 ||
+                berekende_position.getY() >= MAX_DEVIATION_POSTION ||
+                berekende_position.getY() <= 0 ||
+                berekende_position.getZ() >= MAX_DEVIATION_POSTION ||
+                berekende_position.getZ() <= 0){
             output_acceleration = berekende_vertraging;
         }
         return output_acceleration;

@@ -27,13 +27,13 @@ public class MovementMessageHandler implements MessageHandler {
     @Override
     public void handleMessage(Message message) {
         // Change acceleration
-            MovementMessage movementMessage = (MovementMessage) message;
-            Optional<D3Vector> maybeAcceleration = movementMessage.getAcceleration();
+        MovementMessage movementMessage = (MovementMessage) message;
+        Optional<D3Vector> maybeAcceleration = movementMessage.getAcceleration();
 
-            if(maybeAcceleration.isPresent()) {
-                physicsEngineDriver.changeAccelerationEntity(movementMessage.getIdentifier(),  maybeAcceleration.get());
-            } else {
-                Logger.getLogger(MovementMessageHandler.class).error("Received movement message without acceleration for drone " + movementMessage.getIdentifier() + ". Received: " + message);
-            }
+        if(maybeAcceleration.isPresent()) {
+            physicsEngineDriver.changeAccelerationEntity(movementMessage.getIdentifier(),  maybeAcceleration.get());
+        } else {
+            Logger.getLogger(MovementMessageHandler.class).error("Received movement message without acceleration for drone " + movementMessage.getIdentifier() + ". Received: " + message);
+        }
     }
 }

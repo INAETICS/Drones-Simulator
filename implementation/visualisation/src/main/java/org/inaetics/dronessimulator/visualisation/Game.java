@@ -3,31 +3,46 @@ package org.inaetics.dronessimulator.visualisation;
 import com.rabbitmq.client.ConnectionFactory;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
+import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.protocol.*;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitSubscriber;
 import org.inaetics.dronessimulator.visualisation.messagehandlers.*;
+import org.inaetics.dronessimulator.visualisation.controls.NodeGestures;
+import org.inaetics.dronessimulator.visualisation.controls.PannableCanvas;
+import org.inaetics.dronessimulator.visualisation.controls.SceneGestures;
+import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
 
 import java.io.IOException;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class Game extends Application {
     private volatile RabbitSubscriber subscriber;
+    private static final Logger logger = Logger.getLogger(Game.class);
+
+    private final ConcurrentMap<String, BaseEntity> entities = new ConcurrentHashMap<>();
+
+    private PannableCanvas canvas;
+
+    private final BlockingQueue<UIUpdate> uiUpdates;
 
     private KillMessageHandler killMessageHandler;
     private StateMessageHandler stateMessageHandler;
 
     public Game() {
+        this.uiUpdates = new LinkedBlockingQueue<>();
     }
-
-    private Pane playfieldLayer;
-
-    private final ConcurrentMap<String, Drone> drones = new ConcurrentHashMap<>();
 
     private int i = 0;
     private long lastLog = -1;
@@ -39,8 +54,8 @@ public class Game extends Application {
      */
     @Override
     public void start(Stage primaryStage) {
-        setupRabbit();
         setupInterface(primaryStage);
+        setupRabbit();
 
         lastLog = System.currentTimeMillis();
 
@@ -53,22 +68,33 @@ public class Game extends Application {
                     long current = System.currentTimeMillis();
                     float durationAverageMs = ((float) (current - lastLog)) / 100f;
                     float fps = 1000f / durationAverageMs;
-
-
                     lastLog = current;
-                    System.out.println("Average: " + durationAverageMs);
-                    System.out.println("FPS: " + fps);
+
+                    logger.info("Average: " + durationAverageMs);
+                    logger.info("FPS: " + fps);
                     i = 0;
                 }
 
+                while(!uiUpdates.isEmpty()) {
+                    try {
+                        UIUpdate uiUpdate = uiUpdates.take();
+                        uiUpdate.execute(canvas);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
                 // update sprites in scene
-                drones.forEach((id, drone) -> drone.updateUI());
+                entities.forEach((id, entity) -> entity.updateUI());
             }
 
         };
         gameLoop.start();
     }
 
+    /**
+     * Sets up the connection to the message broker and subscribes to the necessary channels and sets the required handlers
+     */
     private void setupRabbit() {
         if (this.subscriber == null) {
             ConnectionFactory connectionFactory = new ConnectionFactory();
@@ -84,8 +110,8 @@ public class Game extends Application {
             }
         }
 
-        this.stateMessageHandler = new StateMessageHandler(this.playfieldLayer, this.drones);
-        this.killMessageHandler = new KillMessageHandler(this.drones);
+        this.stateMessageHandler = new StateMessageHandler(uiUpdates, this.canvas, this.entities);
+        this.killMessageHandler = new KillMessageHandler(this.entities);
 
         this.subscriber.addHandler(CollisionMessage.class, new CollisionMessageHandler());
         this.subscriber.addHandler(DamageMessage.class, new DamageMessageHandler());
@@ -100,23 +126,61 @@ public class Game extends Application {
         }
     }
 
+    /**
+     * Creates the canvas for scrolling and panning.
+     *
+     * @param primaryStage - Stage as given by the start method
+     */
     private void setupInterface(Stage primaryStage) {
-        StackPane root = new StackPane();
+        Group group = new Group();
 
-        // create layers
-        playfieldLayer = new Pane();
-        root.getChildren().add(playfieldLayer);
-        root.setId("pane");
+        primaryStage.setTitle("Drone simulator");
+        primaryStage.setResizable(false);
 
-        Scene scene = new Scene(root, Settings.SCENE_WIDTH, Settings.SCENE_HEIGHT);
+        // create canvas
+        canvas = new PannableCanvas(Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT);
+        canvas.setId("pane");
+        canvas.setTranslateX(0);
+        canvas.setTranslateY(0);
+
+        // create sample nodes which can be dragged
+        // @todo: remove these before production, currently quite useful for position recognition when there are no drones
+        NodeGestures nodeGestures = new NodeGestures(canvas);
+
+        Circle circle1 = new Circle(300, 300, 50);
+        circle1.setStroke(Color.ORANGE);
+        circle1.setFill(Color.ORANGE.deriveColor(1, 1, 1, 0.5));
+        circle1.addEventFilter(MouseEvent.MOUSE_PRESSED, nodeGestures.getOnMousePressedEventHandler());
+        circle1.addEventFilter(MouseEvent.MOUSE_DRAGGED, nodeGestures.getOnMouseDraggedEventHandler());
+
+        Rectangle rect1 = new Rectangle(100, 100);
+        rect1.setTranslateX(450);
+        rect1.setTranslateY(450);
+        rect1.setStroke(Color.BLUE);
+        rect1.setFill(Color.BLUE.deriveColor(1, 1, 1, 0.5));
+        rect1.addEventFilter(MouseEvent.MOUSE_PRESSED, nodeGestures.getOnMousePressedEventHandler());
+        rect1.addEventFilter(MouseEvent.MOUSE_DRAGGED, nodeGestures.getOnMouseDraggedEventHandler());
+
+        canvas.getChildren().addAll(circle1, rect1);
+        group.getChildren().add(canvas);
+
+        double width = Settings.SCENE_WIDTH > Settings.CANVAS_WIDTH ? Settings.CANVAS_WIDTH : Settings.SCENE_WIDTH;
+        double height = Settings.SCENE_HEIGHT > Settings.CANVAS_HEIGHT ? Settings.CANVAS_HEIGHT : Settings.SCENE_HEIGHT;
+
+        // create scene which can be dragged and zoomed
+        Scene scene = new Scene(group, width, height);
+        SceneGestures sceneGestures = new SceneGestures(canvas);
+        scene.addEventFilter(MouseEvent.MOUSE_PRESSED, sceneGestures.getOnMousePressedEventHandler());
+        scene.addEventFilter(MouseEvent.MOUSE_DRAGGED, sceneGestures.getOnMouseDraggedEventHandler());
+        scene.addEventFilter(ScrollEvent.ANY, sceneGestures.getOnScrollEventHandler());
         scene.getStylesheets().addAll(this.getClass().getResource("/style.css").toExternalForm());
 
         primaryStage.setScene(scene);
         primaryStage.show();
+        canvas.addGrid();
     }
 
     public static void main(String[] args) {
         launch(args);
     }
-
 }

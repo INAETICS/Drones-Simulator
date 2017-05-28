@@ -1,5 +1,6 @@
 #pane {
     -fx-background-image: url("grass.jpg");
+    -fx-background-size: 5%;
 }
 
 #drone {

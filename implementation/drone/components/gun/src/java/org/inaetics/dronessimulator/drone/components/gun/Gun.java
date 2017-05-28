@@ -20,29 +20,37 @@ public class Gun {
     private volatile Publisher m_publisher;
     private volatile DroneInit m_drone;
     private volatile GPS m_gps;
+    private long last_shot_at_ms;
     private final double GUN_SPEED = 50.0;
     private final double MAX_DISTANCE = 100;
-
+    private final double SHOT_TIME_BETWEEN = 1000;
 
     public double getMaxDistance(){
         return MAX_DISTANCE;
     }
 
-    public void fireBullet(D3PoolCoordinate direction){
-        FireBulletMessage msg = new FireBulletMessage();
-        msg.setDamage(100);
-        msg.setFiredById(m_drone.getIdentifier());
-        msg.setIdentifier(UUID.randomUUID().toString());
-        msg.setType(EntityType.BULLET);
-        msg.setDirection(direction);
-        msg.setVelocity(direction.toVector().scale(GUN_SPEED / direction.toVector().length()));
-        msg.setPosition(m_gps.getPosition());
-        msg.setAcceleration(new D3Vector());
 
-        try{
-            m_publisher.send(MessageTopic.MOVEMENTS, msg);
-        } catch(IOException e){
-            e.printStackTrace();
+    public long msSinceLastShot(){ return this.last_shot_at_ms - System.currentTimeMillis(); }
+
+    public void fireBullet(D3PoolCoordinate direction){
+        if (this.msSinceLastShot() >= SHOT_TIME_BETWEEN){
+            FireBulletMessage msg = new FireBulletMessage();
+            msg.setDamage(100);
+            msg.setFiredById(m_drone.getIdentifier());
+            msg.setIdentifier(UUID.randomUUID().toString());
+            msg.setType(EntityType.BULLET);
+            msg.setDirection(direction);
+            msg.setVelocity(direction.toVector().scale(GUN_SPEED / direction.toVector().length()));
+            msg.setPosition(m_gps.getPosition());
+            msg.setAcceleration(new D3Vector());
+
+            this.last_shot_at_ms = System.currentTimeMillis();
+
+            try{
+                m_publisher.send(MessageTopic.MOVEMENTS, msg);
+            } catch(IOException e){
+                e.printStackTrace();
+            }
         }
     }
 }

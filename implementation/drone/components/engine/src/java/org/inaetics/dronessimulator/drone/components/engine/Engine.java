@@ -41,7 +41,7 @@ public class Engine {
         D3Vector output = input;
         // Prevent that the acceleration exteeds te maximum acceleration
         if(input.length() < this.getMaxAcceleration()){
-            double correctionFactor =  input.length() / this.getMaxAcceleration();
+            double correctionFactor =  this.getMaxAcceleration() / input.length();
             output = input.scale(correctionFactor);
         }
         return output;

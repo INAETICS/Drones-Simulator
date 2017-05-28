@@ -28,18 +28,6 @@ public class Gun {
         return MAX_DISTANCE;
     }
 
-
-    D3Vector optimize_acceleration(D3Vector input, double max_length){
-        double correctionFactor = 0;
-        // Prevent that the acceleration exteeds te maximum acceleration
-        if(input.length() > max_length){
-            correctionFactor = max_length / input.length();
-        } else if(input.length() < max_length){
-            correctionFactor = input.length() / max_length;
-        }
-        return input.scale(correctionFactor);
-    }
-
     public void fireBullet(D3PoolCoordinate direction){
         FireBulletMessage msg = new FireBulletMessage();
         msg.setDamage(100);
@@ -47,7 +35,7 @@ public class Gun {
         msg.setIdentifier(UUID.randomUUID().toString());
         msg.setType(EntityType.BULLET);
         msg.setDirection(direction);
-        msg.setVelocity(this.optimize_acceleration(direction.toVector(), GUN_SPEED));
+        msg.setVelocity(direction.toVector().scale(GUN_SPEED / direction.toVector().length()));
         msg.setPosition(m_gps.getPosition());
         msg.setAcceleration(new D3Vector());
 

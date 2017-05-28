@@ -36,6 +36,7 @@ public class Radar implements MessageHandler {
             System.out.println("IO Exception add Topic");
         }
         this.m_subscriber.addHandler(StateMessage.class, this);
+        this.m_subscriber.addHandler(KillMessage.class, this);
     }
 
     /**

@@ -46,7 +46,7 @@ public class DroneInit implements MessageHandler {
         } catch (IOException e) {
             System.out.println("IO Exception add Topic");
         }
-        this.m_subscriber.addHandler(StateMessage.class, this);
+        this.m_subscriber.addHandler(KillMessage.class, this);
     }
 
     private void registerDrone(){

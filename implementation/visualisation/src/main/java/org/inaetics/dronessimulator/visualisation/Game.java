@@ -7,30 +7,27 @@ import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
-import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.common.D3PoolCoordinate;
-import org.inaetics.dronessimulator.common.D3Vector;
-import org.inaetics.dronessimulator.common.protocol.KillMessage;
-import org.inaetics.dronessimulator.common.protocol.MessageTopic;
-import org.inaetics.dronessimulator.common.protocol.StateMessage;
-import org.inaetics.dronessimulator.pubsub.api.Message;
-import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
+import org.inaetics.dronessimulator.common.protocol.*;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitSubscriber;
+import org.inaetics.dronessimulator.visualisation.messagehandlers.*;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
-public class Game extends Application implements MessageHandler {
+public class Game extends Application {
     private volatile RabbitSubscriber subscriber;
+
+    private KillMessageHandler killMessageHandler;
+    private StateMessageHandler stateMessageHandler;
 
     public Game() {
     }
 
     private Pane playfieldLayer;
 
-    private Map<String, Drone> drones = new HashMap<>();
+    private final ConcurrentMap<String, Drone> drones = new ConcurrentHashMap<>();
 
     private int i = 0;
     private long lastLog = -1;
@@ -72,55 +69,6 @@ public class Game extends Application implements MessageHandler {
         gameLoop.start();
     }
 
-    /**
-     * Message handler for the pubsub
-     * Changes the position and direction based on the stateMessage
-     *
-     * @param message The received message.
-     */
-    public synchronized void handleMessage(Message message) {
-
-        if (message instanceof StateMessage) {
-            StateMessage stateMessage = (StateMessage) message;
-
-            Drone currentDrone = drones.computeIfAbsent(stateMessage.getIdentifier(), k -> createPlayer(stateMessage.getIdentifier()));
-
-            if (stateMessage.getPosition().isPresent()) {
-                currentDrone.setPosition(stateMessage.getPosition().get());
-            }
-
-            if (stateMessage.getDirection().isPresent()) {
-                currentDrone.setDirection(stateMessage.getDirection().get());
-            }
-        } else if (message instanceof KillMessage) {
-            KillMessage killMessage = (KillMessage) message;
-
-            // todo: add boolean remove to drone. When this boolean is set, then do explosion animation and remove drone.
-            drones.remove(killMessage.getIdentifier());
-        } else {
-            Logger.getLogger(this.getClass()).info("Received non-state msg: " + message);
-        }
-    }
-
-    /**
-     * Creates a new drone and returns it
-     *
-     * @param id String - Identifier of the new drone
-     * @return drone Drone - The newly created drone
-     */
-    private Drone createPlayer(String id) {
-        // create drone
-        BasicDrone drone = new BasicDrone(playfieldLayer);
-
-        drone.setPosition(new D3Vector(0, 0, 0));
-        drone.setDirection(new D3PoolCoordinate(0, 0, 0));
-
-        // register drone
-        drones.put(id, drone);
-
-        return drone;
-    }
-
     private void setupRabbit() {
         if (this.subscriber == null) {
             ConnectionFactory connectionFactory = new ConnectionFactory();
@@ -135,8 +83,16 @@ public class Game extends Application implements MessageHandler {
                 e.printStackTrace();
             }
         }
-        this.subscriber.addHandler(StateMessage.class, this);
-        this.subscriber.addHandler(KillMessage.class, this);
+
+        this.stateMessageHandler = new StateMessageHandler(this.playfieldLayer, this.drones);
+        this.killMessageHandler = new KillMessageHandler(this.drones);
+
+        this.subscriber.addHandler(CollisionMessage.class, new CollisionMessageHandler());
+        this.subscriber.addHandler(DamageMessage.class, new DamageMessageHandler());
+        this.subscriber.addHandler(FireBulletMessage.class, new FireBulletMessageHandler());
+        this.subscriber.addHandler(KillMessage.class, this.killMessageHandler);
+        this.subscriber.addHandler(StateMessage.class, this.stateMessageHandler);
+
         try {
             this.subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {

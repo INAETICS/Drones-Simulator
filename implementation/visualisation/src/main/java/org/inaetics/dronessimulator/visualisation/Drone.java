@@ -12,17 +12,17 @@ import org.inaetics.dronessimulator.common.D3Vector;
 
 import static org.inaetics.dronessimulator.visualisation.Settings.DRONE_SPRITE_COLUMNS;
 
-abstract class Drone {
+public abstract class Drone {
 
-    private ImageView imageView;
-    private Text heightText;
+    private final ImageView imageView;
+    private final Text heightText;
+    private final Pane layer;
 
+    private final int width;
     private D3Vector position;
     private D3PoolCoordinate direction;
 
-    private Pane layer;
-
-    private int width;
+    private volatile boolean initialized;
 
     Drone(Pane layer, String image) {
         this.layer = layer;
@@ -36,7 +36,8 @@ abstract class Drone {
         new SpriteAnimation(imageView, Duration.millis(200), DRONE_SPRITE_COLUMNS, DRONE_SPRITE_COLUMNS, 0, 0, Settings.SPRITE_WIDTH, Settings.SPRITE_HEIGTH).play();
         heightText = new Text(0, 20, "Height: 0");
         heightText.setFill(Color.WHITE);
-        addToLayer();
+
+        initialized = false;
     }
 
     private void addToLayer() {
@@ -44,7 +45,13 @@ abstract class Drone {
         this.layer.getChildren().addAll(this.heightText);
     }
 
+    // Is run by javaFX
     void updateUI() {
+        if(!initialized) {
+            initialized = true;
+            this.addToLayer();
+        }
+
         imageView.relocate(position.getX(), position.getY());
         imageView.setRotate(getRotation());
         heightText.setText("Height: " + position.getZ());
@@ -52,14 +59,17 @@ abstract class Drone {
 
     }
 
-    void setPosition(D3Vector position) {
+    // Is run by SubscriberMessageHandler
+    public void setPosition(D3Vector position) {
         this.position = position;
     }
 
-    void setDirection(D3PoolCoordinate direction) {
+    // Is run by SubscriberMessageHandler
+    public void setDirection(D3PoolCoordinate direction) {
         this.direction = direction;
     }
 
+    // Is run by SubscriberMessageHandler
     private double getRotation() {
         return this.direction.getAngle1Degrees();
     }

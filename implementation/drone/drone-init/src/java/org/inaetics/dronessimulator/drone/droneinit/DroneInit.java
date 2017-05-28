@@ -105,7 +105,7 @@ public class DroneInit implements MessageHandler {
 
     public void handleKillMessage(KillMessage killMessage){
         if(killMessage.getIdentifier().equals(this.getIdentifier())){
-            //throw new RuntimeException("GAMEOVER! - Drone is killed!");
+            throw new RuntimeException("GAMEOVER! - Drone is killed!");
         }
     }
 

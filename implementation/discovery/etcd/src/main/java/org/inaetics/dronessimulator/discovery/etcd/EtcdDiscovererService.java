@@ -110,8 +110,15 @@ public class EtcdDiscovererService implements Discoverer {
             if (path.isConfigPath()) {
                 try {
                     Configuration config = this.getConfig(path);
-                    logger.debug("Updating configuration {}", config.getPid());
-                    config.getProperties().put(event.getKey(), event.getNewValue());
+                    logger.debug("Updating configuration {} with new value for key {} and value " + event.getNewValue(), config.getPid(), event.getKey());
+
+                    if(event.getNewValue() == null) {
+                        // Value should be removed
+                        config.getProperties().remove(event.getKey());
+                    } else {
+                        // Value should be set
+                        config.getProperties().put(event.getKey(), event.getNewValue());
+                    }
                 } catch (IOException e) {
                     logger.error("Error while updating configuration {}", path.toString());
                 }

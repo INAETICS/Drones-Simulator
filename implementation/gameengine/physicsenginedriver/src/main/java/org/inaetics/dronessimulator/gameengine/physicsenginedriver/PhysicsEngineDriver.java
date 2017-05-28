@@ -69,12 +69,16 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
     public void damageEntity(int entityId, int damage) {
         GameEntity e = this.m_stateManager.getById(entityId);
 
-        if(e instanceof HealthGameEntity) {
-            HealthGameEntity healthGameEntity = (HealthGameEntity) e;
+        if(e != null) {
+            if(e instanceof HealthGameEntity) {
+                HealthGameEntity healthGameEntity = (HealthGameEntity) e;
 
-            healthGameEntity.damage(damage);
+                healthGameEntity.damage(damage);
+            } else {
+                Logger.getLogger(PhysicsEngineDriver.class).error("Tried to damage an entity without hp! Got: " + entityId + " " + e);
+            }
         } else {
-            Logger.getLogger(PhysicsEngineDriver.class).error("Tried to damage an entity without hp! Got: " + entityId + " " + e);
+            // It is possible that an entity is removed but something damages the entity just before it is removed.
         }
     }
 

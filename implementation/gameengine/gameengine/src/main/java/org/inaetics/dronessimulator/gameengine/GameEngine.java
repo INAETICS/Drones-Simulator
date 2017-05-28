@@ -2,7 +2,7 @@ package org.inaetics.dronessimulator.gameengine;
 
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.D3Vector;
-import org.inaetics.dronessimulator.common.protocol.MessageTopic;
+import org.inaetics.dronessimulator.common.protocol.*;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
@@ -16,6 +16,7 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.R
 import org.inaetics.dronessimulator.gameengine.common.state.Drone;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
+import org.inaetics.dronessimulator.gameengine.messagehandlers.*;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.IRuleProcessors;
 import org.inaetics.dronessimulator.pubsub.api.Message;
@@ -54,15 +55,16 @@ public class GameEngine {
 
     private volatile Discoverer m_discoverer;
 
-    /**
-     * Message handler to handle any newly discovered or removed drones
-     */
-    private DiscoveryHandler discoveryHandler;
 
     /**
      * Message handler to handle incoming commands from drones
      */
-    private SubscriberMessageHandler incomingHandler;
+    private CollisionMessageHandler collisionMessageHandler;
+    private DamageMessageHandler damageMessageHandler;
+    private FireBulletMessageHandler fireBulletMessageHandler;
+    private KillMessageHandler killMessageHandler;
+    private MovementMessageHandler movementMessageHandler;
+    private StateMessageHandler stateMessageHandler;
 
     private Instance discoveryInstance;
 
@@ -71,8 +73,12 @@ public class GameEngine {
      */
     public void start() throws DuplicateName, IOException {
         Logger.getLogger(GameEngine.class).info("Starting Game Engine...");
-        this.incomingHandler = new SubscriberMessageHandler(this.m_physicsEngineDriver, this.m_id_mapper, this.m_stateManager);
-        this.discoveryHandler = new DiscoveryHandler(this.m_physicsEngineDriver, this.m_id_mapper);
+        this.collisionMessageHandler = new CollisionMessageHandler(this.m_physicsEngineDriver, this.m_id_mapper, this.m_stateManager);
+        this.damageMessageHandler = new DamageMessageHandler(this.m_physicsEngineDriver, this.m_id_mapper, this.m_stateManager);
+        this.fireBulletMessageHandler = new FireBulletMessageHandler(this.m_physicsEngineDriver, this.m_id_mapper, this.m_stateManager);
+        this.killMessageHandler = new KillMessageHandler(this.m_physicsEngineDriver, this.m_id_mapper, this.m_stateManager);
+        this.movementMessageHandler = new MovementMessageHandler(this.m_physicsEngineDriver, this.m_id_mapper, this.m_stateManager);
+        this.stateMessageHandler = new StateMessageHandler(this.m_physicsEngineDriver, this.m_id_mapper, this.m_stateManager);
 
         // Setup subscriber
         try {
@@ -82,7 +88,12 @@ public class GameEngine {
             Logger.getLogger(GameEngine.class).fatal("Could not subscribe to topic " + MessageTopic.MOVEMENTS + ".");
         }
 
-        this.m_subscriber.addHandler(Message.class, this.incomingHandler);
+        this.m_subscriber.addHandler(CollisionMessage.class, this.collisionMessageHandler);
+        this.m_subscriber.addHandler(DamageMessage.class, this.damageMessageHandler);
+        this.m_subscriber.addHandler(FireBulletMessage.class, this.fireBulletMessageHandler);
+        this.m_subscriber.addHandler(KillMessage.class, this.killMessageHandler);
+        this.m_subscriber.addHandler(MovementMessage.class, this.movementMessageHandler);
+        this.m_subscriber.addHandler(StateMessage.class, this.stateMessageHandler);
 
 
         // Setup discoverer

@@ -5,7 +5,7 @@ import org.apache.felix.dm.ServiceDependency;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 
-public abstract class Tactic extends Thread{
+public abstract class Tactic extends Thread {
     protected volatile DroneInit m_drone;
     private final int calculation_rate = 500;
 
@@ -31,6 +31,11 @@ public abstract class Tactic extends Thread{
             }
             this.calculateTactics();
         }
+    }
+
+    @Override
+    @Deprecated
+    public void destroy() {
     }
 
     public abstract Iterable<? extends ServiceDependency> getComponents(DependencyManager dependencyManager);

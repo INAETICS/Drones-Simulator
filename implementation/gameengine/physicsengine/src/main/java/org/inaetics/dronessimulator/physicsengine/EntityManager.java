@@ -115,6 +115,7 @@ public class EntityManager {
      * Process all incoming entity update requests.
      */
     private void processUpdate() {
+        // TODO remove memory leak for updates that belong to non-existing entities
         for(Map.Entry<Integer, Entity> e : entities.entrySet()) {
             Entity entity = e.getValue();
             ConcurrentLinkedQueue<EntityUpdate> updates = updateMap.get(entity.getId());

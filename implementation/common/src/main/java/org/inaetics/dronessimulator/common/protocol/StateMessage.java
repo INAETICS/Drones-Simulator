@@ -86,6 +86,6 @@ public class StateMessage extends ProtocolMessage {
 
     @Override
     public String toString() {
-        return String.format("(StateMessage %s, %s, %s, %s)", this.position, this.direction, this.velocity, this.acceleration);
+        return String.format("(StateMessage %s %s, %s, %s, %s)", this.identifier, this.position, this.direction, this.velocity, this.acceleration);
     }
 }

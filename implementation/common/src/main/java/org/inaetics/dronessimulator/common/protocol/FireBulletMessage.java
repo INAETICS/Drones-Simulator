@@ -19,4 +19,8 @@ public class FireBulletMessage extends CreateEntityMessage {
     public void setFiredById(String firedById) {
         this.firedById = firedById;
     }
+
+    public String toString() {
+        return String.format("(FireBulletMessage %s fired by %s, %s)", this.getIdentifier(), this.getFiredById(), this.getDamage());
+    }
 }

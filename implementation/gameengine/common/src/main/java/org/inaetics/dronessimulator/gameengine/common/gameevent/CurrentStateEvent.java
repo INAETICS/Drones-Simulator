@@ -10,6 +10,7 @@ import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A unified physicsengine message which contains the state of all entities
@@ -27,16 +28,22 @@ public class CurrentStateEvent extends GameEngineEvent {
         List<ProtocolMessage> msgs = new ArrayList<>();
 
         for(GameEntity e : currentState) {
-            StateMessage msg = new StateMessage();
 
-            msg.setIdentifier(id_mapper.fromGameEngineToProtocolId(e.getEntityId()));
-            msg.setType(e.getType());
-            msg.setPosition(e.getPosition());
-            msg.setDirection(new D3PoolCoordinate());
-            msg.setVelocity(e.getVelocity());
-            msg.setAcceleration(e.getAcceleration());
 
-            msgs.add(msg);
+            Optional<String> maybeProtocolId = id_mapper.fromGameEngineToProtocolId(e.getEntityId());
+
+            if(maybeProtocolId.isPresent()) {
+                StateMessage msg = new StateMessage();
+
+                msg.setIdentifier(maybeProtocolId.get());
+                msg.setType(e.getType());
+                msg.setPosition(e.getPosition());
+                msg.setDirection(new D3PoolCoordinate());
+                msg.setVelocity(e.getVelocity());
+                msg.setAcceleration(e.getAcceleration());
+
+                msgs.add(msg);
+            }
         }
 
         return msgs;

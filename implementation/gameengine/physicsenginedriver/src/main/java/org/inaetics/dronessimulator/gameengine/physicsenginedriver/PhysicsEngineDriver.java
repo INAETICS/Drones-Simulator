@@ -14,6 +14,7 @@ import org.inaetics.dronessimulator.physicsengine.entityupdate.AccelerationEntit
 import org.inaetics.dronessimulator.physicsengine.entityupdate.PositionEntityUpdate;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.VelocityEntityUpdate;
 
+import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
@@ -62,7 +63,10 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
 
     @Override
     public void removeEntity(String protocolId) {
-        this.removeEntity(m_id_mapper.fromProtocolToGameEngineId(protocolId));
+        Optional<Integer> gameEngineId = m_id_mapper.fromProtocolToGameEngineId(protocolId);
+        if(gameEngineId.isPresent()) {
+            this.removeEntity(gameEngineId.get());
+        }
     }
 
     @Override
@@ -84,7 +88,10 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
 
     @Override
     public void damageEntity(String protocolId, int damage) {
-        this.damageEntity(m_id_mapper.fromProtocolToGameEngineId(protocolId), damage);
+        Optional<Integer> gameEngineId = m_id_mapper.fromProtocolToGameEngineId(protocolId);
+        if(gameEngineId.isPresent()) {
+            this.damageEntity(gameEngineId.get(), damage);
+        }
     }
 
     @Override
@@ -94,7 +101,10 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
 
     @Override
     public void changePositionEntity(String protocolId, D3Vector newPosition) {
-        this.changePositionEntity(m_id_mapper.fromProtocolToGameEngineId(protocolId), newPosition);
+        Optional<Integer> gameEngineId = m_id_mapper.fromProtocolToGameEngineId(protocolId);
+        if(gameEngineId.isPresent()) {
+            this.changePositionEntity(gameEngineId.get(), newPosition);
+        }
     }
 
     @Override
@@ -104,7 +114,10 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
 
     @Override
     public void changeVelocityEntity(String protocolId, D3Vector newVelocity) {
-        this.changeVelocityEntity(m_id_mapper.fromProtocolToGameEngineId(protocolId), newVelocity);
+        Optional<Integer> gameEngineId = m_id_mapper.fromProtocolToGameEngineId(protocolId);
+        if(gameEngineId.isPresent()) {
+            this.changeVelocityEntity(gameEngineId.get(), newVelocity);
+        }
     }
 
     @Override
@@ -114,10 +127,13 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
 
     @Override
     public void changeAccelerationEntity(String protocolId, D3Vector newAcceleration) {
-        this.changeAccelerationEntity(m_id_mapper.fromProtocolToGameEngineId(protocolId), newAcceleration);
+        Optional<Integer> gameEngineId = m_id_mapper.fromProtocolToGameEngineId(protocolId);
+        if(gameEngineId.isPresent()) {
+            this.changeAccelerationEntity(gameEngineId.get(), newAcceleration);
+        }
     }
 
     private static Entity gameEntityToPhysicsEntity(GameEntity g) {
-        return new Entity(g.getEntityId(), new Size(0.1,0.1,0.1), g.getPosition(), g.getVelocity(), g.getAcceleration());
+        return new Entity(g.getEntityId(), new Size(5,5,5), g.getPosition(), g.getVelocity(), g.getAcceleration());
     }
 }

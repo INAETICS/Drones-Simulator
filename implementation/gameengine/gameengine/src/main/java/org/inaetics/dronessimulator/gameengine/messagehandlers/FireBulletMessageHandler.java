@@ -38,10 +38,14 @@ public class FireBulletMessageHandler implements MessageHandler {
 
 
         if(fireBulletMessage.getType().equals(EntityType.BULLET) && maybePosition.isPresent() && maybeVelocity.isPresent() && maybeAcceleration.isPresent()) {
-            GameEntity firedBy = stateManager.getById(id_mapper.fromProtocolToGameEngineId(fireBulletMessage.getFiredById()));
-            Bullet bullet = new Bullet(gameEngineId, fireBulletMessage.getDamage(), firedBy, maybePosition.get(), maybeVelocity.get(), maybeAcceleration.get());
+            Optional<Integer> maybeGameengineId = id_mapper.fromProtocolToGameEngineId(fireBulletMessage.getFiredById());
 
-            physicsEngineDriver.addNewEntity(bullet, fireBulletMessage.getIdentifier());
+            if(maybeGameengineId.isPresent()) {
+                GameEntity firedBy = stateManager.getById(maybeGameengineId.get());
+                Bullet bullet = new Bullet(gameEngineId, fireBulletMessage.getDamage(), firedBy, maybePosition.get(), maybeVelocity.get(), maybeAcceleration.get());
+
+                physicsEngineDriver.addNewEntity(bullet, fireBulletMessage.getIdentifier());
+            }
         } else {
             Logger.getLogger(FireBulletMessageHandler.class).error("Received a fire bullet but the type, position, velocity or acceleration is not set: " + fireBulletMessage);
         }

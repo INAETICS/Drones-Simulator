@@ -140,6 +140,8 @@ public class EntityManager {
             updateMap.remove(removeEntityId);
             entities.remove(removeEntityId);
 
+            System.out.println("REMOVING (gameengine): " + removeEntityId);
+
             this.currentCollisions.remove(removeEntityId);
         }
     }

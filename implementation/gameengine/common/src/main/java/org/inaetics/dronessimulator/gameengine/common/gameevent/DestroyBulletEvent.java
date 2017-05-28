@@ -10,6 +10,7 @@ import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor
 @Getter
@@ -19,11 +20,17 @@ public class DestroyBulletEvent extends GameEngineEvent {
 
     @Override
     public List<ProtocolMessage> getProtocolMessage(IdentifierMapper id_mapper) {
-        KillMessage msg = new KillMessage();
+        Optional<String> maybeProtocolId = id_mapper.fromGameEngineToProtocolId(id);
 
-        msg.setIdentifier(id_mapper.fromGameEngineToProtocolId(id));
-        msg.setEntityType(EntityType.BULLET);
+        if(maybeProtocolId.isPresent()) {
+            KillMessage msg = new KillMessage();
 
-        return Collections.emptyList();
+            msg.setIdentifier(maybeProtocolId.get());
+            msg.setEntityType(EntityType.BULLET);
+
+            return Collections.singletonList(msg);
+        } else {
+            return Collections.emptyList();
+        }
     }
 }

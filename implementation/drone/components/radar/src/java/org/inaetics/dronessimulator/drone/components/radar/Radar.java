@@ -1,10 +1,7 @@
 package org.inaetics.dronessimulator.drone.components.radar;
 
 import org.inaetics.dronessimulator.common.D3Vector;
-import org.inaetics.dronessimulator.common.protocol.KillMessage;
-import org.inaetics.dronessimulator.common.protocol.MessageTopic;
-import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
-import org.inaetics.dronessimulator.common.protocol.StateMessage;
+import org.inaetics.dronessimulator.common.protocol.*;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
@@ -85,15 +82,15 @@ public class Radar implements MessageHandler {
                 this.setPosition(stateMessage.getPosition().get());
             }
         } else {
-            if (stateMessage.getPosition().isPresent()){
+            if (stateMessage.getPosition().isPresent() && stateMessage.getType().equals(EntityType.DRONE)){
                 this.all_positions.put(stateMessage.getIdentifier(), stateMessage.getPosition().get());
             }
         }
     }
 
     public void handleKillMessage(KillMessage killMessage){
-        if(killMessage.getIdentifier().equals(this.m_drone.getIdentifier())){
-                this.all_positions.remove(killMessage.getIdentifier());
+        if(killMessage.getEntityType().equals(EntityType.DRONE)) {
+            this.all_positions.remove(killMessage.getIdentifier());
         }
     }
 

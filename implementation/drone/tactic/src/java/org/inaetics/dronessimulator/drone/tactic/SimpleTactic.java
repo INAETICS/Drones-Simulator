@@ -24,6 +24,7 @@ public class SimpleTactic extends Tactic {
     protected volatile Gun m_gun;
 
     private static final int MAX_DEVIATION_POSTION = 400;
+    private static final int MAX_Z_DEVIATION_POSTION = 100;
     /**
      *  -- IMPLEMENT FUNCTIONS
      */
@@ -90,7 +91,7 @@ public class SimpleTactic extends Tactic {
                 berekende_position.getX() <= 0 ||
                 berekende_position.getY() >= MAX_DEVIATION_POSTION ||
                 berekende_position.getY() <= 0 ||
-                berekende_position.getZ() >= MAX_DEVIATION_POSTION ||
+                berekende_position.getZ() >= MAX_Z_DEVIATION_POSTION ||
                 berekende_position.getZ() <= 0){
             output_acceleration = m_engine.maximize_acceleration(m_engine.limit_acceleration(m_gps.getVelocity().scale(-1)));
         }
@@ -129,11 +130,11 @@ public class SimpleTactic extends Tactic {
             }
         }
 
-        if(m_gps.getPosition().getZ() >= MAX_DEVIATION_POSTION || m_gps.getPosition().getZ() <= 0){
+        if(m_gps.getPosition().getZ() >= MAX_Z_DEVIATION_POSTION || m_gps.getPosition().getZ() <= 0){
             x = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
             y = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
 
-            if(m_gps.getPosition().getZ() >= MAX_DEVIATION_POSTION){
+            if(m_gps.getPosition().getZ() >= MAX_Z_DEVIATION_POSTION){
                 z = - m_engine.getMaxAcceleration();
             }
             else if(m_gps.getPosition().getZ() <= 0){

@@ -6,6 +6,7 @@ import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.Processor;
+import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.RemoveStrayBullets;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.SendMessages;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch.CollisionRule;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch.KillEntitiesRule;
@@ -35,6 +36,7 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
 
         this.rules = new Processor[]{ new CollisionRule()
                                     , new KillEntitiesRule()
+                                    , new RemoveStrayBullets()
                                     , new SendMessages(this.m_publisher, this.m_id_mapper)
                                     };
         super.start();

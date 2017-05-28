@@ -129,7 +129,7 @@ public class SimpleTactic extends Tactic {
             }
         }
 
-        if(m_gps.getPosition().getY() >= MAX_DEVIATION_POSTION || m_gps.getPosition().getY() <= 0){
+        if(m_gps.getPosition().getZ() >= MAX_DEVIATION_POSTION || m_gps.getPosition().getZ() <= 0){
             x = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
             y = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
 

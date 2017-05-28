@@ -42,7 +42,7 @@ public class Gun {
         try{
             m_publisher.send(MessageTopic.MOVEMENTS, msg);
         } catch(IOException e){
-            System.out.println("Exception");
+            e.printStackTrace();
         }
     }
 }

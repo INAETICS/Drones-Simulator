@@ -51,6 +51,8 @@ public class Gun {
             } catch(IOException e){
                 e.printStackTrace();
             }
+
+            System.out.println("FIRING BULLET!");
         }
     }
 }

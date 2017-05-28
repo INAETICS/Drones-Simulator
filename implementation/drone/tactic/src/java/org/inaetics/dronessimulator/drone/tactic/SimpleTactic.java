@@ -14,16 +14,13 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
-/**
- * Created by mart on 17-5-17.
- */
 public class SimpleTactic extends Tactic {
     protected volatile Radar m_radar;
     protected volatile GPS m_gps;
     protected volatile Engine m_engine;
     protected volatile Gun m_gun;
 
-    private static final int MAX_DEVIATION_POSTION = 400;
+    private static final int MAX_DEVIATION_POSTION = 100;
     private static final int MAX_Z_DEVIATION_POSTION = 100;
     /**
      *  -- IMPLEMENT FUNCTIONS

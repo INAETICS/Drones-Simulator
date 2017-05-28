@@ -109,7 +109,7 @@ public class GameEngine {
             if( path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
                 String protocolId = node.getId();
                 int gameengineId = m_id_mapper.getNewGameEngineId();
-                D3Vector position = new D3Vector();
+                D3Vector position = new D3Vector(50, 50, 50);
 
                 this.m_physicsEngineDriver.addNewEntity(new Drone(gameengineId, Drone.DRONE_MAX_HEALTH, position, new D3Vector(), new D3Vector()), protocolId);
                 Logger.getLogger(GameEngine.class).info("Added new drone " + protocolId + " as " + gameengineId);

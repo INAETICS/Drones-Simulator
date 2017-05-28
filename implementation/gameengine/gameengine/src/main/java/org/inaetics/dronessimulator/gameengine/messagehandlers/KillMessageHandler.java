@@ -25,5 +25,6 @@ public class KillMessageHandler implements MessageHandler {
         KillMessage killMessage = (KillMessage) message;
 
         physicsEngineDriver.removeEntity(killMessage.getIdentifier());
+        System.out.println("KILLMESSAGE FOR : " + killMessage.getIdentifier() + " " + killMessage.getEntityType());
     }
 }

@@ -98,6 +98,7 @@ public class DroneInit implements MessageHandler {
      * -- MESSAGEHANDLERS
      */
     public void handleMessage(Message message) {
+        System.out.println("FOUND KILL MESSAGE!" + this.getIdentifier() +  "    "  + message);
         if (message instanceof KillMessage){
             handleKillMessage((KillMessage) message);
         }
@@ -105,6 +106,7 @@ public class DroneInit implements MessageHandler {
 
     public void handleKillMessage(KillMessage killMessage){
         if(killMessage.getIdentifier().equals(this.getIdentifier())){
+            new RuntimeException().printStackTrace();
             throw new RuntimeException("GAMEOVER! - Drone is killed!");
         }
     }

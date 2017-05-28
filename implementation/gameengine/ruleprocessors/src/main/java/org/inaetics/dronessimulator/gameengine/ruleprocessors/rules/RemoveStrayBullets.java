@@ -24,6 +24,7 @@ public class RemoveStrayBullets extends Processor {
 
                     if(bullet.getPosition().length() >= 565) {
                         events.add(new DestroyBulletEvent(bullet.getEntityId()));
+                        System.out.println("STRAY BULLET: " + bullet.getEntityId() + " " + bullet.getPosition() + " " + bullet.getPosition().length());
                     }
 
                 }

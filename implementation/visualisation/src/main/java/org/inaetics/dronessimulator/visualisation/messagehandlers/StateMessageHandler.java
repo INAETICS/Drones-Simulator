@@ -64,7 +64,7 @@ public class StateMessageHandler implements MessageHandler {
      * @param stateMessage - Message containing the state of the drone
      */
     private void createOrUpdateDrone(StateMessage stateMessage) {
-        BaseEntity currentDrone = entities.computeIfAbsent(stateMessage.getIdentifier(), k -> createPlayer(stateMessage.getIdentifier()));
+        Drone currentDrone = (Drone) entities.computeIfAbsent(stateMessage.getIdentifier(), k -> createPlayer(stateMessage.getIdentifier()));
 
         if (stateMessage.getPosition().isPresent()) {
             currentDrone.setPosition(stateMessage.getPosition().get());
@@ -72,6 +72,10 @@ public class StateMessageHandler implements MessageHandler {
 
         if (stateMessage.getDirection().isPresent()) {
             currentDrone.setDirection(stateMessage.getDirection().get());
+        }
+
+        if(stateMessage.getHp().isPresent()) {
+            currentDrone.setCurrentHP(stateMessage.getHp().get());
         }
     }
 

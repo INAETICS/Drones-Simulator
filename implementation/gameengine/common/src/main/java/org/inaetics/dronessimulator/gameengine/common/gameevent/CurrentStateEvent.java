@@ -6,6 +6,7 @@ import org.inaetics.dronessimulator.common.D3PoolCoordinate;
 import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
+import org.inaetics.dronessimulator.gameengine.common.state.HealthGameEntity;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 
 import java.util.ArrayList;
@@ -41,6 +42,10 @@ public class CurrentStateEvent extends GameEngineEvent {
                 msg.setDirection(new D3PoolCoordinate());
                 msg.setVelocity(e.getVelocity());
                 msg.setAcceleration(e.getAcceleration());
+
+                if(e instanceof HealthGameEntity) {
+                    msg.setHp(((HealthGameEntity) e).getHP());
+                }
 
                 msgs.add(msg);
             }

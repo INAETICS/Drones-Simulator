@@ -14,7 +14,7 @@ import java.util.concurrent.BlockingQueue;
 import static org.inaetics.dronessimulator.visualisation.Settings.DRONE_SPRITE_COLUMNS;
 
 public abstract class Drone extends BaseEntity {
-
+    private int currentHP;
     private Text heightText;
 
     /**
@@ -31,7 +31,7 @@ public abstract class Drone extends BaseEntity {
         imageView.setFitHeight(Settings.DRONE_HEIGHT);
         imageView.setFitWidth(Settings.DRONE_WIDTH);
         imageView.setId("drone");
-
+        currentHP = -1;
         uiUpdates.add(new AddDrone(heightText));
     }
 
@@ -40,7 +40,7 @@ public abstract class Drone extends BaseEntity {
      */
     void updateUI() {
         super.updateUI();
-        heightText.setText("Height: " + position.getZ());
+        heightText.setText("HP: " + currentHP + "/100 Height: " + (int) position.getZ());
         heightText.relocate(getSpriteX() + Settings.DRONE_WIDTH / 2 * (1 - getScale()), getSpriteY() + Settings.DRONE_HEIGHT / 2 * (1- getScale()) - 20);
     }
 
@@ -50,10 +50,18 @@ public abstract class Drone extends BaseEntity {
     @Override
     public void delete() {
         explode();
-        getUiUpdates().add(new RemoveDrone(imageView));
+        getUiUpdates().add(new RemoveDrone(imageView, heightText));
     }
 
     private void explode() {
         getUiUpdates().add(new Explosion(getScale(), imageView));
+    }
+
+    public int getCurrentHP() {
+        return currentHP;
+    }
+
+    public void setCurrentHP(int currentHP) {
+        this.currentHP = currentHP;
     }
 }

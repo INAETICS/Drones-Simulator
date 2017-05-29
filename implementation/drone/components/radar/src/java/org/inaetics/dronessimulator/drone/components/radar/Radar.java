@@ -21,7 +21,7 @@ public class Radar implements MessageHandler {
 
     private volatile D3Vector position;
     private ConcurrentHashMap<String, D3Vector> all_positions = new ConcurrentHashMap<String, D3Vector>();
-    private static final int RADAR_RANGE = 100;
+    private static final int RADAR_RANGE = 500;
 
     /**
      * FELIX CALLBACKS

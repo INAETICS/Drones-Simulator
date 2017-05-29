@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.gameengine.physicsenginedriver;
 
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 import org.inaetics.dronessimulator.gameengine.common.state.HealthGameEntity;
@@ -134,6 +135,16 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
     }
 
     private static Entity gameEntityToPhysicsEntity(GameEntity g) {
-        return new Entity(g.getEntityId(), new Size(5,5,5), g.getPosition(), g.getVelocity(), g.getAcceleration());
+        Size size;
+
+        if(g.getType().equals(EntityType.DRONE)) {
+            size = new Size(10, 10, 10);
+        } else if(g.getType().equals(EntityType.BULLET)) {
+            size = new Size(1, 1, 1);
+        } else {
+            size = new Size(100, 100, 100);
+        }
+
+        return new Entity(g.getEntityId(), size, g.getPosition(), g.getVelocity(), g.getAcceleration());
     }
 }

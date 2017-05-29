@@ -145,7 +145,9 @@ public class Game extends Application {
 
         // create sample nodes which can be dragged
         // @todo: remove these before production, currently quite useful for position recognition when there are no drones
+        /*
         NodeGestures nodeGestures = new NodeGestures(canvas);
+
 
         Circle circle1 = new Circle(300, 300, 50);
         circle1.setStroke(Color.ORANGE);
@@ -162,6 +164,7 @@ public class Game extends Application {
         rect1.addEventFilter(MouseEvent.MOUSE_DRAGGED, nodeGestures.getOnMouseDraggedEventHandler());
 
         canvas.getChildren().addAll(circle1, rect1);
+        */
         group.getChildren().add(canvas);
 
         double width = Settings.SCENE_WIDTH > Settings.CANVAS_WIDTH ? Settings.CANVAS_WIDTH : Settings.SCENE_WIDTH;

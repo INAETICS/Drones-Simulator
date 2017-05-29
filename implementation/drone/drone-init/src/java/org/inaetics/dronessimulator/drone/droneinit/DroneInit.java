@@ -12,6 +12,9 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.launch.Framework;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -19,12 +22,14 @@ import java.util.Map;
 import java.util.UUID;
 
 public class DroneInit implements MessageHandler {
+    private final BundleContext bundleContext;
     private String identifier;
     private volatile Subscriber m_subscriber;
     private volatile Discoverer m_discoverer;
     private Instance registered_instance;
 
-    public DroneInit(){
+    public DroneInit(BundleContext bundleContext){
+        this.bundleContext = bundleContext;
         this.initIdentifier();
     }
 
@@ -106,8 +111,13 @@ public class DroneInit implements MessageHandler {
 
     public void handleKillMessage(KillMessage killMessage){
         if(killMessage.getIdentifier().equals(this.getIdentifier())){
-            new RuntimeException().printStackTrace();
-            throw new RuntimeException("GAMEOVER! - Drone is killed!");
+            System.out.println("GAMEOVER!");
+            Framework framework = (Framework) bundleContext.getBundle("System Bundle");
+            try {
+                framework.stop();
+            } catch (BundleException e) {
+                e.printStackTrace();
+            }
         }
     }
 

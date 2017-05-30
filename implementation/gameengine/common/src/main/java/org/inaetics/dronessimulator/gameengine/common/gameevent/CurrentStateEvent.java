@@ -24,6 +24,10 @@ public class CurrentStateEvent extends GameEngineEvent {
      */
     List<GameEntity> currentState;
 
+    public void removeEntity(int entityId) {
+        this.currentState.removeIf((entity) -> entity.getEntityId() == entityId);
+    }
+
     @Override
     public List<ProtocolMessage> getProtocolMessage(IdentifierMapper id_mapper) {
         List<ProtocolMessage> msgs = new ArrayList<>();

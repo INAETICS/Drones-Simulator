@@ -25,7 +25,7 @@ services:
       - "etcd:etcd"
     env_file: docker.env
     tty: true
-  drone1:
+  drone:
     build: ./docker_images/drone
     depends_on:
       - rabbitmq
@@ -34,14 +34,3 @@ services:
       - "rabbitmq:rabbitmq"
       - "etcd:etcd"
     env_file: docker.env
-  drone2:
-    build: ./docker_images/drone
-    depends_on:
-      - rabbitmq
-      - etcd
-    links:
-      - "rabbitmq:rabbitmq"
-      - "etcd:etcd"
-    env_file: docker.env
-
-    # Specify more docker images

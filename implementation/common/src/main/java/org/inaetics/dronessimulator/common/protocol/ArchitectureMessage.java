@@ -22,4 +22,8 @@ public class ArchitectureMessage extends ProtocolMessage {
     public void setAction(Action action) {
         this.action = action;
     }
+
+    public String toString() {
+        return "ArchitectureMessage " + action;
+    }
 }

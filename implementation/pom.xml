@@ -18,6 +18,7 @@
         <module>drone</module>
         <module>instancemanager</module>
         <module>common-test</module>
+        <module>architecture-manager</module>
     </modules>
 
     <properties>

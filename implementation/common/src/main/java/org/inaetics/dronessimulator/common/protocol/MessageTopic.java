@@ -7,7 +7,8 @@ import org.inaetics.dronessimulator.pubsub.api.Topic;
  */
 public enum MessageTopic implements Topic {
     STATEUPDATES ("StateUpdates"),
-    MOVEMENTS ("Movements");
+    MOVEMENTS ("Movements"),
+    ARCHITECTURE ("Architecture");
 
     private String name;
 

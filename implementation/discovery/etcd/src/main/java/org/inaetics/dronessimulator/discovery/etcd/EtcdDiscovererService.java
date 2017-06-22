@@ -70,6 +70,11 @@ public class EtcdDiscovererService implements Discoverer {
     }
 
     @Override
+    public Instance updateProperties(Instance instance, Map<String, String> properties) throws IOException {
+        return this.discoverer.updateProperties(instance, properties);
+    }
+
+    @Override
     public void addHandlers(boolean replay, List<NodeEventHandler<AddedNode>> addHandlers
                                           , List<NodeEventHandler<ChangedValue>> changedValueHandlers
                                           , List<NodeEventHandler<RemovedNode>> removedHandlers) {

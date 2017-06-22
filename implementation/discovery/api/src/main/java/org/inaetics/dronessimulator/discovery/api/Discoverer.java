@@ -28,6 +28,11 @@ public interface Discoverer {
     void unregister(Instance instance) throws IOException;
 
     /**
+     * Updates the properties associated with an instance. The instance must exist!
+     */
+     Instance updateProperties(Instance instance, Map<String, String> properties) throws IOException;
+
+    /**
      * Adds change handlers to the discoverer.
      * @param replay Whether to send all current data to the handlers. The nodes are sent to the add handlers.
      * @param addHandlers Handlers for handling addition of new nodes.

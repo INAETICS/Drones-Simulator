@@ -260,4 +260,12 @@ public class EtcdDiscoverer {
     static String buildInstancePath(String type, String group, String name) {
         return buildPath(INSTANCE_DIR, type, group, name);
     }
+
+    public Instance updateProperties(Instance instance, Map<String, String> properties) throws IOException {
+        Instance newInstance = new Instance(instance.getType(), instance.getGroup(), instance.getName(), properties);
+
+        registerProperties(newInstance);
+
+        return newInstance;
+    }
 }

@@ -2,7 +2,9 @@ package org.inaetics.dronessimulator.drone.components.gun;
 
 import org.inaetics.dronessimulator.common.D3PoolCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
-import org.inaetics.dronessimulator.common.protocol.*;
+import org.inaetics.dronessimulator.common.protocol.EntityType;
+import org.inaetics.dronessimulator.common.protocol.FireBulletMessage;
+import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;

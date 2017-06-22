@@ -8,7 +8,6 @@ import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.components.gun.Gun;
 import org.inaetics.dronessimulator.drone.components.radar.Radar;
 
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

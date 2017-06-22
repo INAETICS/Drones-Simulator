@@ -6,7 +6,6 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.C
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 

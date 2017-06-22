@@ -4,10 +4,7 @@ import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.apache.felix.dm.ServiceDependency;
-import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.osgi.framework.BundleContext;
-
-import javax.xml.ws.Service;
 
 public class Activator extends DependencyActivatorBase {
     @Override

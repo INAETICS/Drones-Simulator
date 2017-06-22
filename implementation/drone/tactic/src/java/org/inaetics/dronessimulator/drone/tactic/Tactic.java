@@ -2,7 +2,6 @@ package org.inaetics.dronessimulator.drone.tactic;
 
 import org.apache.felix.dm.DependencyManager;
 import org.apache.felix.dm.ServiceDependency;
-import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 
 public abstract class Tactic extends Thread {

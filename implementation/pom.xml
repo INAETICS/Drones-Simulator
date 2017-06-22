@@ -19,6 +19,7 @@
         <module>instancemanager</module>
         <module>common-test</module>
         <module>architecture-manager</module>
+        <module>architecture-event-listener</module>
     </modules>
 
     <properties>

@@ -4,9 +4,16 @@ import javax.swing.text.html.Option;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * OSGi service for the identifier mapper.
+ */
 public class IdentifierMapperService extends AbstractIdentifierMapper<Integer, String> implements IdentifierMapper {
+    /** The next used game engine id. */
     private final AtomicInteger nextGameEngineId;
 
+    /**
+     * Instantiates a new identifier mapper service.
+     */
     public IdentifierMapperService() {
         nextGameEngineId = new AtomicInteger(0);
     }

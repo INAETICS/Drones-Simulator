@@ -12,10 +12,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * A game engine message which signals the end of the life of a game entity with health.
+ */
 @AllArgsConstructor
 @Getter
 @ToString
 public class DestroyHealthEntityEvent extends GameEngineEvent {
+    /** The game entity that got destroyed. */
     private final HealthGameEntity destroyedEntity;
 
     @Override

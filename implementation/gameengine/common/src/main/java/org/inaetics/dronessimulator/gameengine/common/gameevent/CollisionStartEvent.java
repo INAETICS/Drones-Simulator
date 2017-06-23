@@ -12,10 +12,16 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * A unified physics engine message which contains the start of a collision between two game entities.
+ */
 @AllArgsConstructor
 @Getter
 public class CollisionStartEvent extends GameEngineEvent {
+    /** First entity in the collision. */
     private final GameEntity e1;
+
+    /** Second entity in the collision. */
     private final GameEntity e2;
 
     @Override

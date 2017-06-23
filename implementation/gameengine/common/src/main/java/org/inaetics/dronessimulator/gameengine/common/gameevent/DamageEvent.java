@@ -12,11 +12,17 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * A game engine message which contains damage inflicted on a game entity.
+ */
 @AllArgsConstructor
 @ToString(callSuper=true)
 @EqualsAndHashCode(callSuper=true)
 public class DamageEvent extends GameEngineEvent {
+    /** The game entity that is damaged. */
     private final GameEntity e;
+
+    /** The damage inflicted on the entity. */
     private final int dmg;
 
     @Override

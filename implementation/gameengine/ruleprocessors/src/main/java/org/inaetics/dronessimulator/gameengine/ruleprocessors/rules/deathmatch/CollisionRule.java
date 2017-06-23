@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CollisionRule extends Processor {
-    public static final int collisionDmg = 20;
+    public static final int collisionDmg = Drone.DRONE_MAX_HEALTH;
 
     public List<GameEngineEvent> process(GameEngineEvent msg) {
         List<GameEngineEvent> results = new ArrayList<>();
@@ -41,15 +41,19 @@ public class CollisionRule extends Processor {
                 Bullet bullet = (Bullet) e2;
                 Drone drone = (Drone) e1;
 
-                results.add(new DestroyBulletEvent(bullet.getEntityId()));
-                results.add(new DamageEvent(drone, bullet.getDmg()));
+                if(!bullet.getFiredBy().equals(drone)) {
+                    results.add(new DestroyBulletEvent(bullet.getEntityId()));
+                    results.add(new DamageEvent(drone, bullet.getDmg()));
+                }
             } else if(e1Type.equals(EntityType.BULLET) && e2Type.equals(EntityType.DRONE)) {
                 // Drone vs. bullet. Damage drone
                 Bullet bullet = (Bullet) e1;
                 Drone drone = (Drone) e2;
 
-                results.add(new DestroyBulletEvent(bullet.getEntityId()));
-                results.add(new DamageEvent(drone, bullet.getDmg()));
+                if(!bullet.getFiredBy().equals(drone)) {
+                    results.add(new DestroyBulletEvent(bullet.getEntityId()));
+                    results.add(new DamageEvent(drone, bullet.getDmg()));
+                }
             } else {
                 Logger.getLogger(CollisionRule.class).error("Found a collision with unknown rules. Collision between: {} & {} ", e1Type, e2Type);
             }

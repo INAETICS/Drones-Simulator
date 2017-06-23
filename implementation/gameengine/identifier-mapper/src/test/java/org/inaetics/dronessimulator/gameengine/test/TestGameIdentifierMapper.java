@@ -35,8 +35,8 @@ public class TestGameIdentifierMapper {
         concurrentAddAndGenerate.waitTillDone();
 
         for(int i = 0; i < amount; i++) {
-            Assert.assertEquals(Integer.toString(i), id_mapper.fromGameEngineToProtocolId(i));
-            Assert.assertEquals(new Integer(i), id_mapper.fromProtocolToGameEngineId(Integer.toString(i)));
+            Assert.assertEquals(Integer.toString(i), id_mapper.fromGameEngineToProtocolId(i).get());
+            Assert.assertEquals(new Integer(i), id_mapper.fromProtocolToGameEngineId(Integer.toString(i)).get());
             Assert.assertTrue("Created id: " + i, queue.contains(i + 1));
         }
 
@@ -52,8 +52,8 @@ public class TestGameIdentifierMapper {
         concurrentRemove.waitTillDone();
 
         for(int i = 0; i < amount; i++) {
-            Assert.assertEquals(null, id_mapper.fromProtocolToGameEngineId(Integer.toString(i)));
-            Assert.assertEquals(null, id_mapper.fromGameEngineToProtocolId(i));
+            Assert.assertFalse(id_mapper.fromProtocolToGameEngineId(Integer.toString(i)).isPresent());
+            Assert.assertFalse(id_mapper.fromGameEngineToProtocolId(i).isPresent());
         }
     }
 }

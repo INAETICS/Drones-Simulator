@@ -33,4 +33,9 @@ public class KillMessage extends ProtocolMessage {
 
         return topics;
     }
+
+    @Override
+    public String toString() {
+        return String.format("(KillMessage %s %s)", this.identifier, this.entityType);
+    }
 }

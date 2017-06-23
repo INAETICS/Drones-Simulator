@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.gameengine.physicsenginedriver;
 
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 import org.inaetics.dronessimulator.gameengine.common.state.HealthGameEntity;
@@ -14,6 +15,7 @@ import org.inaetics.dronessimulator.physicsengine.entityupdate.AccelerationEntit
 import org.inaetics.dronessimulator.physicsengine.entityupdate.PositionEntityUpdate;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.VelocityEntityUpdate;
 
+import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
 
 
@@ -62,25 +64,35 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
 
     @Override
     public void removeEntity(String protocolId) {
-        this.removeEntity(m_id_mapper.fromProtocolToGameEngineId(protocolId));
+        Optional<Integer> gameEngineId = m_id_mapper.fromProtocolToGameEngineId(protocolId);
+        if(gameEngineId.isPresent()) {
+            this.removeEntity(gameEngineId.get());
+        }
     }
 
     @Override
     public void damageEntity(int entityId, int damage) {
         GameEntity e = this.m_stateManager.getById(entityId);
 
-        if(e instanceof HealthGameEntity) {
-            HealthGameEntity healthGameEntity = (HealthGameEntity) e;
+        if(e != null) {
+            if(e instanceof HealthGameEntity) {
+                HealthGameEntity healthGameEntity = (HealthGameEntity) e;
 
-            healthGameEntity.damage(damage);
+                healthGameEntity.damage(damage);
+            } else {
+                Logger.getLogger(PhysicsEngineDriver.class).error("Tried to damage an entity without hp! Got: " + entityId + " " + e);
+            }
         } else {
-            Logger.getLogger(PhysicsEngineDriver.class).error("Tried to damage an entity without hp! Got: " + entityId + " " + e);
+            // It is possible that an entity is removed but something damages the entity just before it is removed.
         }
     }
 
     @Override
     public void damageEntity(String protocolId, int damage) {
-        this.damageEntity(m_id_mapper.fromProtocolToGameEngineId(protocolId), damage);
+        Optional<Integer> gameEngineId = m_id_mapper.fromProtocolToGameEngineId(protocolId);
+        if(gameEngineId.isPresent()) {
+            this.damageEntity(gameEngineId.get(), damage);
+        }
     }
 
     @Override
@@ -90,7 +102,10 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
 
     @Override
     public void changePositionEntity(String protocolId, D3Vector newPosition) {
-        this.changePositionEntity(m_id_mapper.fromProtocolToGameEngineId(protocolId), newPosition);
+        Optional<Integer> gameEngineId = m_id_mapper.fromProtocolToGameEngineId(protocolId);
+        if(gameEngineId.isPresent()) {
+            this.changePositionEntity(gameEngineId.get(), newPosition);
+        }
     }
 
     @Override
@@ -100,7 +115,10 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
 
     @Override
     public void changeVelocityEntity(String protocolId, D3Vector newVelocity) {
-        this.changeVelocityEntity(m_id_mapper.fromProtocolToGameEngineId(protocolId), newVelocity);
+        Optional<Integer> gameEngineId = m_id_mapper.fromProtocolToGameEngineId(protocolId);
+        if(gameEngineId.isPresent()) {
+            this.changeVelocityEntity(gameEngineId.get(), newVelocity);
+        }
     }
 
     @Override
@@ -110,10 +128,23 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
 
     @Override
     public void changeAccelerationEntity(String protocolId, D3Vector newAcceleration) {
-        this.changeAccelerationEntity(m_id_mapper.fromProtocolToGameEngineId(protocolId), newAcceleration);
+        Optional<Integer> gameEngineId = m_id_mapper.fromProtocolToGameEngineId(protocolId);
+        if(gameEngineId.isPresent()) {
+            this.changeAccelerationEntity(gameEngineId.get(), newAcceleration);
+        }
     }
 
     private static Entity gameEntityToPhysicsEntity(GameEntity g) {
-        return new Entity(g.getEntityId(), new Size(0.1,0.1,0.1), g.getPosition(), g.getVelocity(), g.getAcceleration());
+        Size size;
+
+        if(g.getType().equals(EntityType.DRONE)) {
+            size = new Size(10, 10, 10);
+        } else if(g.getType().equals(EntityType.BULLET)) {
+            size = new Size(1, 1, 1);
+        } else {
+            size = new Size(100, 100, 100);
+        }
+
+        return new Entity(g.getEntityId(), size, g.getPosition(), g.getVelocity(), g.getAcceleration());
     }
 }

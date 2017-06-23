@@ -29,6 +29,8 @@ public class StateMessage extends ProtocolMessage {
     /** The acceleration of the object. */
     private D3Vector acceleration = null;
 
+    private Integer hp = null;
+
     public Optional<D3Vector> getPosition() {
         return Optional.ofNullable(position);
     }
@@ -86,6 +88,14 @@ public class StateMessage extends ProtocolMessage {
 
     @Override
     public String toString() {
-        return String.format("(StateMessage %s, %s, %s, %s)", this.position, this.direction, this.velocity, this.acceleration);
+        return String.format("(StateMessage %s %s, %s, %s, %s, %s)", this.identifier, this.position, this.direction, this.velocity, this.acceleration, this.hp);
+    }
+
+    public Optional<Integer> getHp() {
+        return Optional.ofNullable(hp);
+    }
+
+    public void setHp(int hp) {
+        this.hp = hp;
     }
 }

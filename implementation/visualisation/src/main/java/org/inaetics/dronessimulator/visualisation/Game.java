@@ -12,33 +12,37 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Stage;
 import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.common.D3PoolCoordinate;
-import org.inaetics.dronessimulator.common.D3Vector;
-import org.inaetics.dronessimulator.common.protocol.KillMessage;
-import org.inaetics.dronessimulator.common.protocol.MessageTopic;
-import org.inaetics.dronessimulator.common.protocol.StateMessage;
-import org.inaetics.dronessimulator.pubsub.api.Message;
-import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
+import org.inaetics.dronessimulator.common.protocol.*;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitSubscriber;
+import org.inaetics.dronessimulator.visualisation.messagehandlers.*;
 import org.inaetics.dronessimulator.visualisation.controls.NodeGestures;
 import org.inaetics.dronessimulator.visualisation.controls.PannableCanvas;
 import org.inaetics.dronessimulator.visualisation.controls.SceneGestures;
+import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.LinkedBlockingQueue;
 
-public class Game extends Application implements MessageHandler {
+public class Game extends Application {
     private volatile RabbitSubscriber subscriber;
     private static final Logger logger = Logger.getLogger(Game.class);
 
+    private final ConcurrentMap<String, BaseEntity> entities = new ConcurrentHashMap<>();
+
     private PannableCanvas canvas;
 
-    public Game() {
-    }
+    private final BlockingQueue<UIUpdate> uiUpdates;
 
-    private Map<String, BaseEntity> entities = new HashMap<>();
+    private KillMessageHandler killMessageHandler;
+    private StateMessageHandler stateMessageHandler;
+
+    public Game() {
+        this.uiUpdates = new LinkedBlockingQueue<>();
+    }
 
     private int i = 0;
     private long lastLog = -1;
@@ -50,8 +54,8 @@ public class Game extends Application implements MessageHandler {
      */
     @Override
     public void start(Stage primaryStage) {
-        setupRabbit();
         setupInterface(primaryStage);
+        setupRabbit();
 
         lastLog = System.currentTimeMillis();
 
@@ -71,6 +75,15 @@ public class Game extends Application implements MessageHandler {
                     i = 0;
                 }
 
+                while(!uiUpdates.isEmpty()) {
+                    try {
+                        UIUpdate uiUpdate = uiUpdates.take();
+                        uiUpdate.execute(canvas);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+
                 // update sprites in scene
                 entities.forEach((id, entity) -> entity.updateUI());
             }
@@ -80,119 +93,13 @@ public class Game extends Application implements MessageHandler {
     }
 
     /**
-     * Message handler for the pubsub
-     * Changes the position and direction based on the stateMessage
-     *
-     * @param message The received message.
-     */
-    public synchronized void handleMessage(Message message) {
-
-        if (message instanceof StateMessage) {
-            StateMessage stateMessage = (StateMessage) message;
-
-            if (!stateMessage.getIdentifier().isPresent()) {
-                return;
-            }
-            switch (stateMessage.getType()) {
-                case DRONE:
-                    createOrUpdateDrone(stateMessage);
-                    break;
-                case BULLET:
-                    createOrUpdateBullet(stateMessage);
-                    break;
-                default:
-                    System.out.println("Unknown type");
-            }
-        } else if (message instanceof KillMessage) {
-            KillMessage killMessage = (KillMessage) message;
-
-            if (!killMessage.getIdentifier().isPresent()) {
-                return;
-            }
-            entities.get(killMessage.getIdentifier().get()).delete();
-            entities.remove(killMessage.getIdentifier().get());
-        } else {
-            Logger.getLogger(this.getClass()).info("Received non-state msg: " + message);
-        }
-    }
-
-    /**
-     * Creates a new drone and returns it
-     *
-     * @param id String - Identifier of the new drone
-     * @return drone Drone - The newly created drone
-     */
-    private Drone createPlayer(String id) {
-        // create drone
-        BasicDrone drone = new BasicDrone(canvas);
-        drone.setPosition(new D3Vector(500, 400, 1000));
-        drone.setDirection(new D3PoolCoordinate(0, 0, 0));
-
-        // register drone
-        entities.put(id, drone);
-        return drone;
-    }
-
-    /**
-     * Creates a new bullet and returns it
-     *
-     * @param id String - Identifier of the new bullet
-     * @return bullet Bullet - The newly created bullet
-     */
-    private Bullet createBullet(String id) {
-        System.out.println("Create bullet");
-        // create drone
-        Bullet bullet = new Bullet(canvas);
-
-        bullet.setPosition(new D3Vector(0, 0, 0));
-        bullet.setDirection(new D3PoolCoordinate(0, 0, 0));
-
-        // register drone
-        entities.put(id, bullet);
-
-        return bullet;
-    }
-
-    /**
-     * Creates or updates a drone
-     *
-     * @param stateMessage - Message containing the state of the drone
-     */
-    private void createOrUpdateDrone(StateMessage stateMessage) {
-        BaseEntity currentDrone = entities.computeIfAbsent(stateMessage.getIdentifier().get(), k -> createPlayer(stateMessage.getIdentifier().get()));
-
-        if (stateMessage.getPosition().isPresent()) {
-            currentDrone.setPosition(stateMessage.getPosition().get());
-        }
-
-        if (stateMessage.getDirection().isPresent()) {
-            currentDrone.setDirection(stateMessage.getDirection().get());
-        }
-    }
-
-    /**
-     * Creates or updates a bullet
-     *
-     * @param stateMessage - Message containing the state of the bullet
-     */
-    private void createOrUpdateBullet(StateMessage stateMessage) {
-        BaseEntity currentBullet = entities.computeIfAbsent(stateMessage.getIdentifier().get(), k -> createBullet(stateMessage.getIdentifier().get()));
-
-        if (stateMessage.getPosition().isPresent()) {
-            currentBullet.setPosition(stateMessage.getPosition().get());
-        }
-
-        if (stateMessage.getDirection().isPresent()) {
-            currentBullet.setDirection(stateMessage.getDirection().get());
-        }
-    }
-
-    /**
      * Sets up the connection to the message broker and subscribes to the necessary channels and sets the required handlers
      */
     private void setupRabbit() {
         if (this.subscriber == null) {
             ConnectionFactory connectionFactory = new ConnectionFactory();
+            connectionFactory.setUsername("yourUser");
+            connectionFactory.setPassword("yourPass");
             // We can connect to localhost, since the visualization does not run within Docker
             this.subscriber = new RabbitSubscriber(connectionFactory, "visualisation", new JavaSerializer());
 
@@ -202,8 +109,16 @@ public class Game extends Application implements MessageHandler {
                 e.printStackTrace();
             }
         }
-        this.subscriber.addHandler(StateMessage.class, this);
-        this.subscriber.addHandler(KillMessage.class, this);
+
+        this.stateMessageHandler = new StateMessageHandler(uiUpdates, this.canvas, this.entities);
+        this.killMessageHandler = new KillMessageHandler(this.entities);
+
+        this.subscriber.addHandler(CollisionMessage.class, new CollisionMessageHandler());
+        this.subscriber.addHandler(DamageMessage.class, new DamageMessageHandler());
+        this.subscriber.addHandler(FireBulletMessage.class, new FireBulletMessageHandler());
+        this.subscriber.addHandler(KillMessage.class, this.killMessageHandler);
+        this.subscriber.addHandler(StateMessage.class, this.stateMessageHandler);
+
         try {
             this.subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
@@ -230,7 +145,9 @@ public class Game extends Application implements MessageHandler {
 
         // create sample nodes which can be dragged
         // @todo: remove these before production, currently quite useful for position recognition when there are no drones
+        /*
         NodeGestures nodeGestures = new NodeGestures(canvas);
+
 
         Circle circle1 = new Circle(300, 300, 50);
         circle1.setStroke(Color.ORANGE);
@@ -247,6 +164,7 @@ public class Game extends Application implements MessageHandler {
         rect1.addEventFilter(MouseEvent.MOUSE_DRAGGED, nodeGestures.getOnMouseDraggedEventHandler());
 
         canvas.getChildren().addAll(circle1, rect1);
+        */
         group.getChildren().add(canvas);
 
         double width = Settings.SCENE_WIDTH > Settings.CANVAS_WIDTH ? Settings.CANVAS_WIDTH : Settings.SCENE_WIDTH;

@@ -30,7 +30,12 @@ public class AbstractIdentifierMapper<I1, I2> implements IAbstractIdentifierMapp
 
     @Override
     public synchronized void removeMapping(I1 id1, I2 id2) {
-        this.oneToTwo.remove(id1);
-        this.twoToOne.remove(id2);
+        if(id1 != null) {
+            this.oneToTwo.remove(id1);
+        }
+
+        if(id2 != null) {
+            this.twoToOne.remove(id2);
+        }
     }
 }

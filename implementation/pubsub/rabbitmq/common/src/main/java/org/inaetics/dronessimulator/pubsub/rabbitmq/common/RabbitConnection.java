@@ -22,6 +22,12 @@ import java.util.concurrent.TimeoutException;
  * related to the connection to the broker.
  */
 public abstract class RabbitConnection {
+    /** The maximum number of connection attempts. */
+    private static final int MAX_CONNECTION_ATTEMPTS = 100;
+
+    /** The timeout between connection attempts in milliseconds. */
+    private static final long CONNECTION_ATTEMPT_TIMEOUT = 2000;
+
     /** The connection factory used for setting up a connection. */
     private ConnectionFactory connectionFactory;
 
@@ -74,6 +80,11 @@ public abstract class RabbitConnection {
         this.connectionFactory = new ConnectionFactory();
 
         if (config != null) {
+            String username = config.get("username");
+            this.connectionFactory.setUsername(username);
+
+            String password = config.get("password");
+            this.connectionFactory.setPassword(password);
             try {
                 String uri = config.get("uri");
                 this.connectionFactory.setUri(uri);
@@ -93,12 +104,28 @@ public abstract class RabbitConnection {
     public void connect() throws IOException {
         // Create a channel if not present
         if (!isConnected()) {
-            try {
-                connection = connectionFactory.newConnection();
-                getLogger().info("Connected to RabbitMQ");
-            } catch (ConnectException | TimeoutException e) {
-                getLogger().error("Could not connect to RabbitMQ: {}", e.getMessage());
-                throw new IOException(e);
+            int attempt = 0;
+
+            while (connection == null) {
+                attempt++;
+
+                try {
+                    connection = connectionFactory.newConnection();
+                    getLogger().info("Connected to RabbitMQ");
+                } catch (ConnectException | TimeoutException e) {
+                    getLogger().error("Could not connect to RabbitMQ (attempt {}): {}", attempt, e.getMessage());
+
+                    if (attempt >= MAX_CONNECTION_ATTEMPTS) {
+                        throw new IOException(e);
+                    } else {
+                        try {
+                            Thread.sleep(CONNECTION_ATTEMPT_TIMEOUT);
+                        } catch (InterruptedException ignored) {
+                            // Just quit
+                            return;
+                        }
+                    }
+                }
             }
 
             channel = connection.createChannel();

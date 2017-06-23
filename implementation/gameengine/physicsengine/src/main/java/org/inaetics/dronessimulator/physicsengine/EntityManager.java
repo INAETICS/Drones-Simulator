@@ -33,13 +33,16 @@ public class EntityManager {
      * Which entities currently exist in this manager
      */
     private final Map<Integer, Entity> entities;
+    private final HashMap<Integer, Set<Integer>> currentCollisions;
 
-    public EntityManager() {
+    public EntityManager(HashMap<Integer, Set<Integer>> currentCollisions) {
         this.creationList = new ConcurrentLinkedQueue<>();
         this.updateMap = new ConcurrentHashMap<>(100);
         this.removalList = new ConcurrentLinkedQueue<>();
 
         this.entities = new HashMap<>(100);
+
+        this.currentCollisions = currentCollisions;
     }
 
     /**
@@ -108,6 +111,8 @@ public class EntityManager {
             Entity entity = creationList.poll();
             updateMap.putIfAbsent(entity.getId(), new ConcurrentLinkedQueue<>());
             entities.put(entity.getId(), entity);
+
+            this.currentCollisions.put(entity.getId(), new HashSet<>());
         }
     }
 
@@ -115,6 +120,7 @@ public class EntityManager {
      * Process all incoming entity update requests.
      */
     private void processUpdate() {
+        // TODO remove memory leak for updates that belong to non-existing entities
         for(Map.Entry<Integer, Entity> e : entities.entrySet()) {
             Entity entity = e.getValue();
             ConcurrentLinkedQueue<EntityUpdate> updates = updateMap.get(entity.getId());
@@ -133,6 +139,10 @@ public class EntityManager {
             Integer removeEntityId = removalList.poll();
             updateMap.remove(removeEntityId);
             entities.remove(removeEntityId);
+
+            System.out.println("REMOVING (gameengine): " + removeEntityId);
+
+            this.currentCollisions.remove(removeEntityId);
         }
     }
 

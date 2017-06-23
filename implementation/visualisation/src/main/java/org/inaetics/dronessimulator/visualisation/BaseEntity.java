@@ -5,13 +5,18 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import org.inaetics.dronessimulator.common.D3PoolCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.visualisation.uiupdates.AddBaseEntity;
+import org.inaetics.dronessimulator.visualisation.uiupdates.RemoveBaseEntity;
+import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
+
+import java.util.concurrent.BlockingQueue;
 
 /**
  * Base class for each entity inside the visualitation
  * This class can be extended by e.g.: drones, bullets, gamified objects
  */
 public abstract class BaseEntity {
-
+    private final BlockingQueue<UIUpdate> uiUpdates;
     ImageView imageView;
 
     D3Vector position;
@@ -27,11 +32,13 @@ public abstract class BaseEntity {
      * @param pane - Pane to add the basic entity to
      * @param image - String containing the path to an image to visualise the basic entity
      */
-    BaseEntity(Pane pane, String image) {
+    BaseEntity(BlockingQueue<UIUpdate> uiUpdates, Pane pane, String image) {
+        this.uiUpdates = uiUpdates;
         this.pane = pane;
         this.imageView = new ImageView(new Image(getClass().getResourceAsStream(image)));
         this.imageView.setPreserveRatio(true);
-        this.pane.getChildren().addAll(this.imageView);
+
+        this.uiUpdates.add(new AddBaseEntity(imageView));
     }
 
     /**
@@ -47,7 +54,7 @@ public abstract class BaseEntity {
     }
 
     public void delete() {
-        this.pane.getChildren().remove(this.imageView);
+        uiUpdates.add(new RemoveBaseEntity(imageView));
     }
 
     /**
@@ -111,5 +118,9 @@ public abstract class BaseEntity {
      */
     public static double scale(final double valueIn, final double baseMin, final double baseMax, final double limitMin, final double limitMax) {
         return ((limitMax - limitMin) * (valueIn - baseMin) / (baseMax - baseMin)) + limitMin;
+    }
+
+    public BlockingQueue<UIUpdate> getUiUpdates() {
+        return uiUpdates;
     }
 }

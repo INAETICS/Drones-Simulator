@@ -10,6 +10,7 @@ import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor
 @ToString(callSuper=true)
@@ -20,12 +21,18 @@ public class DamageEvent extends GameEngineEvent {
 
     @Override
     public List<ProtocolMessage> getProtocolMessage(IdentifierMapper id_mapper) {
-        DamageMessage msg = new DamageMessage();
+        Optional<String> maybeProtocolId = id_mapper.fromGameEngineToProtocolId(this.e.getEntityId());
 
-        msg.setEntityId(id_mapper.fromGameEngineToProtocolId(this.e.getEntityId()));
-        msg.setEntityType(this.e.getType());
-        msg.setDamage(this.dmg);
+        if(maybeProtocolId.isPresent()) {
+            DamageMessage msg = new DamageMessage();
 
-        return Collections.singletonList(msg);
+            msg.setEntityId(maybeProtocolId.get());
+            msg.setEntityType(this.e.getType());
+            msg.setDamage(this.dmg);
+
+            return Collections.singletonList(msg);
+        } else {
+            return Collections.emptyList();
+        }
     }
 }

@@ -67,6 +67,15 @@
                                 <mainClass>org.inaetics.dronessimulator.visualisation.Game</mainClass>
                             </transformer>
                         </transformers>
+                        <filters>
+                            <filter>
+                                <artifact>org.ops4j.pax.logging:pax-logging-api</artifact>
+                                <excludes>
+                                    <exclude>org/apache/logging/log4j/**</exclude>
+                                    <exclude>org/slf4j/**</exclude>
+                                </excludes>
+                            </filter>
+                        </filters>
                     </configuration>
                   </execution>
                 </executions>

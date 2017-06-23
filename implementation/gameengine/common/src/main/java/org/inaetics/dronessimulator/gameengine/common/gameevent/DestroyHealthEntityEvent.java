@@ -10,6 +10,7 @@ import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor
 @Getter
@@ -19,11 +20,17 @@ public class DestroyHealthEntityEvent extends GameEngineEvent {
 
     @Override
     public List<ProtocolMessage> getProtocolMessage(IdentifierMapper id_mapper) {
-        KillMessage msg = new KillMessage();
+        Optional<String> maybeProtocolId = id_mapper.fromGameEngineToProtocolId(this.destroyedEntity.getEntityId());
 
-        msg.setIdentifier(id_mapper.fromGameEngineToProtocolId(this.destroyedEntity.getEntityId()));
-        msg.setEntityType(this.destroyedEntity.getType());
+        if(maybeProtocolId.isPresent()) {
+            KillMessage msg = new KillMessage();
 
-        return Collections.singletonList(msg);
+            msg.setIdentifier(maybeProtocolId.get());
+            msg.setEntityType(this.destroyedEntity.getType());
+
+            return Collections.singletonList(msg);
+        } else {
+            return Collections.emptyList();
+        }
     }
 }

@@ -1,6 +1,9 @@
 package org.inaetics.dronessimulator.visualisation;
 
 import javafx.scene.layout.Pane;
+import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
+
+import java.util.concurrent.BlockingQueue;
 
 public class BasicDrone extends Drone {
 
@@ -11,8 +14,8 @@ public class BasicDrone extends Drone {
      *
      * @param pane - Pane to add the drone to
      */
-    public BasicDrone(Pane pane) {
-        super(pane, image);
+    public BasicDrone(BlockingQueue<UIUpdate> uiUpdates, Pane pane) {
+        super(uiUpdates, pane, image);
         init();
     }
 

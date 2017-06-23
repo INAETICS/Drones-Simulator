@@ -71,9 +71,8 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
         this.quit = false;
         this.started = new AtomicBoolean(false);
 
-        this.entityManager = new EntityManager();
-
         this.currentCollisions = new HashMap<>();
+        this.entityManager = new EntityManager(this.currentCollisions);
 
         this.observer = null;
     }
@@ -254,10 +253,6 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
      */
     public void addInserts(Collection<Entity> creations) {
         this.entityManager.addInserts(creations);
-
-        for(Entity e : creations) {
-            this.currentCollisions.put(e.getId(), new HashSet<>());
-        }
     }
 
     /**
@@ -267,7 +262,6 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
      */
     public void addInsert(Entity creation) {
         this.entityManager.addInsert(creation);
-        this.currentCollisions.put(creation.getId(), new HashSet<>());
     }
 
     /**
@@ -297,10 +291,6 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
      */
     public void addRemovals(Collection<Integer> removals) {
         this.entityManager.addRemovals(removals);
-
-        for(Integer removal : removals) {
-            this.currentCollisions.remove(removal);
-        }
      }
 
     /**
@@ -310,7 +300,6 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
      */
     public void addRemoval(Integer removal) {
         this.entityManager.addRemoval(removal);
-        this.currentCollisions.remove(removal);
     }
 
     /**

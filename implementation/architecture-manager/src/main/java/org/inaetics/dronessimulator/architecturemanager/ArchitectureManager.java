@@ -1,8 +1,8 @@
 package org.inaetics.dronessimulator.architecturemanager;
 
 import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.common.architecture.Action;
-import org.inaetics.dronessimulator.common.architecture.State;
+import org.inaetics.dronessimulator.common.architecture.SimulationAction;
+import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.ArchitectureMessage;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
@@ -25,19 +25,20 @@ public class ArchitectureManager {
 
     private Instance instance;
 
-    private State previousState;
-    private Action previousAction;
-    private State currentState;
+    private SimulationState previousState;
+    private SimulationAction previousAction;
+    private SimulationState currentState;
 
     public ArchitectureManager() {
-        previousState = State.NOSTATE;
-        previousAction = Action.INIT;
-        currentState = State.CONFIG;
+        previousState = SimulationState.NOSTATE;
+        previousAction = SimulationAction.INIT;
+        currentState = SimulationState.CONFIG;
 
         this.instance = new Instance(Type.SERVICE, Group.SERVICES, "architecture", getCurrentProperties());
     }
 
     public void start() {
+        logger.info("Starting Architecture Manager...");
         try {
             // Register instance with discovery
             m_discoverer.register(this.instance);
@@ -46,14 +47,16 @@ public class ArchitectureManager {
             m_subscriber.addTopic(MessageTopic.ARCHITECTURE);
             m_subscriber.addHandler(ArchitectureMessage.class, (Message _msg) -> {
                 ArchitectureMessage msg = (ArchitectureMessage) _msg;
-                Action action = msg.getAction();
-                State nextState = nextState(this.currentState, action);
+                SimulationAction action = msg.getAction();
+                SimulationState nextState = nextState(this.currentState, action);
 
                 if(nextState != null) {
                     // New state! Save and publish on discovery
                     this.previousState = this.currentState;
                     this.previousAction = action;
                     this.currentState = nextState;
+
+                    logger.info("New transition: (" + this.previousState + ", " + this.previousAction + ", " + this.currentState + ")");
 
                     try {
                         instance = m_discoverer.updateProperties(instance, getCurrentProperties());
@@ -71,34 +74,36 @@ public class ArchitectureManager {
             logger.fatal(e);
             e.printStackTrace();
         }
+
+        logger.info("Started Architecture Manager!");
     }
 
     public void stop() {
+        logger.info("Stopping Architecture Manager...");
         try {
             m_discoverer.unregister(instance);
         } catch (IOException e) {
             e.printStackTrace();
             logger.error(e);
         }
+        logger.info("Stopped Architecture Manager!");
     }
 
     public Map<String, String> getCurrentProperties() {
         Map<String, String> properties = new HashMap<>();
-        properties.put("previous_state", previousState.toString());
-        properties.put("previous_action", previousAction.toString());
-        properties.put("current_state", currentState.toString());
+        properties.put("current_life_cycle", String.format("%s.%s.%s", previousState.toString(), previousAction.toString(), currentState.toString()));
 
         return properties;
     }
 
-    public static State nextState(State currentState, Action action) {
-        State nextState = null;
+    public static SimulationState nextState(SimulationState currentState, SimulationAction action) {
+        SimulationState nextState = null;
 
         switch(currentState) {
             case NOSTATE:
                 switch(action) {
                     case INIT:
-                        nextState = State.CONFIG;
+                        nextState = SimulationState.CONFIG;
                         break;
                 }
                 break;
@@ -106,10 +111,10 @@ public class ArchitectureManager {
             case CONFIG:
                 switch(action) {
                     case START:
-                        nextState = State.RUNNING;
+                        nextState = SimulationState.RUNNING;
                         break;
                     case STOP:
-                        nextState = State.STOPPED;
+                        nextState = SimulationState.STOPPED;
                         break;
                 }
                 break;
@@ -117,13 +122,13 @@ public class ArchitectureManager {
             case RUNNING:
                 switch(action) {
                     case STOP:
-                        nextState = State.STOPPED;
+                        nextState = SimulationState.STOPPED;
                         break;
                     case PAUSE:
-                        nextState = State.PAUSED;
+                        nextState = SimulationState.PAUSED;
                         break;
                     case GAMEOVER:
-                        nextState = State.GAMEOVER;
+                        nextState = SimulationState.GAMEOVER;
                         break;
                 }
                 break;
@@ -131,7 +136,7 @@ public class ArchitectureManager {
             case STOPPED:
                 switch(action) {
                     case RESTART:
-                        nextState = State.CONFIG;
+                        nextState = SimulationState.CONFIG;
                         break;
                 }
                 break;
@@ -139,7 +144,7 @@ public class ArchitectureManager {
             case PAUSED:
                 switch(action) {
                     case RESUME:
-                        nextState = State.RUNNING;
+                        nextState = SimulationState.RUNNING;
                         break;
                 }
                 break;
@@ -147,7 +152,7 @@ public class ArchitectureManager {
             case GAMEOVER:
                 switch(action) {
                     case RESTART:
-                        nextState = State.CONFIG;
+                        nextState = SimulationState.CONFIG;
                         break;
                 }
                 break;

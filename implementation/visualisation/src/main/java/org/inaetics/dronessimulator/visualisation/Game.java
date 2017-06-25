@@ -14,7 +14,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.common.architecture.Action;
+import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.protocol.*;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.publisher.RabbitPublisher;
@@ -218,11 +218,11 @@ public class Game extends Application {
         borderPane.setBottom(container);
         root.getChildren().add(borderPane);
 
-        startButton.setOnMouseClicked(new ArchitectureButtonEventHandler(Action.START, publisher));
-        restartButton.setOnMouseClicked(new ArchitectureButtonEventHandler(Action.RESTART, publisher));
-        stopButton.setOnMouseClicked(new ArchitectureButtonEventHandler(Action.STOP, publisher));
-        pauseButton.setOnMouseClicked(new ArchitectureButtonEventHandler(Action.PAUSE, publisher));
-        resumeButton.setOnMouseClicked(new ArchitectureButtonEventHandler(Action.RESUME, publisher));
+        startButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.START, publisher));
+        restartButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.RESTART, publisher));
+        stopButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.STOP, publisher));
+        pauseButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.PAUSE, publisher));
+        resumeButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.RESUME, publisher));
     }
 
     public static void main(String[] args) {

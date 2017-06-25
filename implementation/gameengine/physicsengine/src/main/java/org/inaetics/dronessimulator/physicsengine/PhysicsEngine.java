@@ -62,6 +62,8 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
      */
     private PhysicsEngineEventObserver observer;
 
+    private final AtomicBoolean pauseToken;
+
     /**
      * Create the physics engine object
      * Before you start the engine, you MUST set an observer using setObserver
@@ -78,6 +80,7 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
         this.entityManager = new EntityManager(this.currentCollisions);
 
         this.observer = null;
+        this.pauseToken = new AtomicBoolean(false);
     }
 
     public EntityManager getEntityManager() {
@@ -203,6 +206,19 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
 
     }
 
+    private void stagePause() {
+       synchronized (pauseToken) {
+            while(pauseToken.get()) {
+                try {
+                    pauseToken.wait();
+                } catch (InterruptedException e) {
+                    Logger.getLogger(PhysicsEngine.class).fatal(e);
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
     /**
      * Start the current physicsengine. If already started, it does not start.
      * @threadsafe
@@ -223,7 +239,12 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
                 this.entityManager.processChanges();
                 this.stageMove(timestep_s);
                 this.stageBroadcastState();
+
+                this.stagePause();
             }
+
+            this.entityManager.addRemoveAll();
+            this.entityManager.processChanges();
 
             started.set(false);
             quit = true;
@@ -232,7 +253,7 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
         }
     }
 
-    public void start() {
+    public void startEngine() {
         Logger.getLogger(PhysicsEngine.class).info("Starting PhysicsEngine...");
 
         super.start();
@@ -309,9 +330,24 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
      * Tell the engine thread to quit
      * @threadsafe
      */
-    public void quit() {
-        Logger.getLogger(PhysicsEngine.class).info("Turning off physics engine...");
+    public void quitEngine() {
+        Logger.getLogger(PhysicsEngine.class).info("Stopping physics engine...");
         this.interrupt();
+    }
+
+    @Override
+    public void pauseEngine() {
+        synchronized (pauseToken) {
+            pauseToken.set(true);
+        }
+    }
+
+    @Override
+    public void resumeEngine() {
+        synchronized (pauseToken) {
+            pauseToken.set(false);
+            pauseToken.notifyAll();
+        }
     }
 
     /**

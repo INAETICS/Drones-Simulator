@@ -35,6 +35,7 @@ class RabbitMessageConsumer extends DefaultConsumer {
                 this.getChannel().basicAck(envelope.getDeliveryTag(), false);
                 subscriber.receive(message);
             } catch (ClassNotFoundException ignore) {
+                ignore.printStackTrace();
                 // Reject the message since we cannot do anything useful with it
                 this.getChannel().basicNack(envelope.getDeliveryTag(), false, false);
                 subscriber.getLogger().warn("Received message of unknown type, message dropped");

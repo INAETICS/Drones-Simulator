@@ -16,10 +16,9 @@
         <module>visualisation</module>
         <module>gameengine</module>
         <module>drone</module>
-        <module>instancemanager</module>
         <module>common-test</module>
         <module>architecture-manager</module>
-        <module>architecture-event-listener</module>
+        <module>architecture-event-controller</module>
     </modules>
 
     <properties>

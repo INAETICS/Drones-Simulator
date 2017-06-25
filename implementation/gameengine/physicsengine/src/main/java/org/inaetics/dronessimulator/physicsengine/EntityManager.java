@@ -103,6 +103,10 @@ public class EntityManager {
         this.removalList.add(removal);
     }
 
+    public void addRemoveAll() {
+        this.addRemovals(this.entities.keySet());
+    }
+
     /**
      * Process all incoming entity insertion requests.
      */
@@ -139,8 +143,6 @@ public class EntityManager {
             Integer removeEntityId = removalList.poll();
             updateMap.remove(removeEntityId);
             entities.remove(removeEntityId);
-
-            System.out.println("REMOVING (gameengine): " + removeEntityId);
 
             this.currentCollisions.remove(removeEntityId);
         }

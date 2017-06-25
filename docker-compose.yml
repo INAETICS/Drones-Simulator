@@ -34,3 +34,12 @@ services:
       - "rabbitmq:rabbitmq"
       - "etcd:etcd"
     env_file: docker.env
+  architecture-manager:
+    build: ./docker_images/architecture_manager
+    depends_on:
+      - rabbitmq
+      - etcd
+    links:
+      - "rabbitmq:rabbitmq"
+      - "etcd:etcd"
+    env_file: docker.env

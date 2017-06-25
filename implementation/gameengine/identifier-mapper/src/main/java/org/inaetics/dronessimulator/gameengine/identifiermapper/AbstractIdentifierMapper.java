@@ -3,8 +3,8 @@ package org.inaetics.dronessimulator.gameengine.identifiermapper;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class AbstractIdentifierMapper<I1, I2> implements IAbstractIdentifierMapper<I1, I2> {
-    private final ConcurrentHashMap<I1, I2> oneToTwo;
-    private final ConcurrentHashMap<I2, I1> twoToOne;
+    protected final ConcurrentHashMap<I1, I2> oneToTwo;
+    protected final ConcurrentHashMap<I2, I1> twoToOne;
 
 
     public AbstractIdentifierMapper() {

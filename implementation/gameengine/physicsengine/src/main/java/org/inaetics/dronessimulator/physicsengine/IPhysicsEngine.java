@@ -21,4 +21,9 @@ public interface IPhysicsEngine {
     void addRemoval(Integer entityId);
 
     void addRemovals(Collection<Integer> entityIds);
+
+    void startEngine();
+    void quitEngine();
+    void pauseEngine();
+    void resumeEngine();
 }

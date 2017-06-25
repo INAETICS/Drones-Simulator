@@ -1,13 +1,13 @@
 package org.inaetics.dronessimulator.common.protocol;
 
 
-import org.inaetics.dronessimulator.common.architecture.Action;
+import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 
 import java.util.Collections;
 import java.util.List;
 
 public class ArchitectureMessage extends ProtocolMessage {
-    private Action action = null;
+    private SimulationAction action = null;
 
 
     @Override
@@ -15,11 +15,11 @@ public class ArchitectureMessage extends ProtocolMessage {
         return Collections.singletonList(MessageTopic.ARCHITECTURE);
     }
 
-    public Action getAction() {
+    public SimulationAction getAction() {
         return action;
     }
 
-    public void setAction(Action action) {
+    public void setAction(SimulationAction action) {
         this.action = action;
     }
 

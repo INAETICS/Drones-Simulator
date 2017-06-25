@@ -1,7 +1,10 @@
 package org.inaetics.dronessimulator.gameengine.physicsenginedriver;
 
 import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.architecture.SimulationAction;
+import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
@@ -23,6 +26,7 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
     private transient volatile IPhysicsEngine m_physicsEngine;
     private transient volatile IGameStateManager m_stateManager;
     private transient volatile IdentifierMapper m_id_mapper;
+    private transient volatile ArchitectureEventController m_architectureEventController;
 
     private final LinkedBlockingQueue<GameEngineEvent> outgoingQueue;
     private PhysicsEngineObserver engineObserver;
@@ -40,6 +44,26 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
         this.engineObserver = new PhysicsEngineObserver(this.outgoingQueue, m_stateManager);
         m_physicsEngine.setObserver(engineObserver);
         m_physicsEngine.setTimeBetweenBroadcastms(20L);
+
+        m_architectureEventController.addHandler(SimulationState.CONFIG, SimulationAction.START, SimulationState.RUNNING, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            this.startEngine();
+        });
+
+        m_architectureEventController.addHandler(SimulationState.PAUSED, SimulationAction.RESUME, SimulationState.RUNNING, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            this.resumeEngine();
+        });
+
+        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.PAUSE, SimulationState.PAUSED, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            this.pauseEngine();
+        });
+
+        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.GAMEOVER, SimulationState.GAMEOVER, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            this.quitEngine();
+        });
+
+        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.STOP, SimulationState.STOPPED, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            this.quitEngine();
+        });
 
         Logger.getLogger(PhysicsEngineDriver.class).info("Started PhysicsEngine Driver!");
     }
@@ -132,6 +156,26 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
         if(gameEngineId.isPresent()) {
             this.changeAccelerationEntity(gameEngineId.get(), newAcceleration);
         }
+    }
+
+    @Override
+    public void startEngine() {
+        m_physicsEngine.startEngine();
+    }
+
+    @Override
+    public void pauseEngine() {
+        m_physicsEngine.pauseEngine();
+    }
+
+    @Override
+    public void resumeEngine() {
+        m_physicsEngine.resumeEngine();
+    }
+
+    @Override
+    public void quitEngine() {
+        m_physicsEngine.quitEngine();
     }
 
     private static Entity gameEntityToPhysicsEntity(GameEntity g) {

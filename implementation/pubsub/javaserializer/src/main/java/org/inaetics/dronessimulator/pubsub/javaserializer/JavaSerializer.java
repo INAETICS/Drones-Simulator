@@ -50,6 +50,7 @@ public class JavaSerializer implements Serializer {
             logger.debug("Deserialized message {} from bytes", message.toString());
         } catch (ClassCastException ignore) {
             // This is not a valid message so we can drop it.
+            ignore.printStackTrace();
             logger.warn("Invalid message offered for deserialization, message dropped");
         }
 

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>dronessimulator</artifactId>
+        <groupId>org.inaetics</groupId>
+        <version>0.1</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <packaging>bundle</packaging>
+
+    <groupId>org.inaetics.dronessimulator</groupId>
+    <artifactId>architecture-event-controller</artifactId>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator</groupId>
+            <artifactId>common</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.discovery</groupId>
+            <artifactId>discovery-api</artifactId>
+            <version>0.1</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>org.inaetics.dronessimulator.architectureevents.*</Export-Package>
+                        <Bundle-Activator>org.inaetics.dronessimulator.architectureevents.Activator</Bundle-Activator>
+                        <Embed-Transitive>true</Embed-Transitive>
+                    </instructions>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>

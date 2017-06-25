@@ -1,6 +1,9 @@
 package org.inaetics.dronessimulator.drone.components.radar;
 
+import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.architecture.SimulationAction;
+import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.protocol.KillMessage;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
@@ -17,6 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class Radar implements MessageHandler {
+    private volatile ArchitectureEventController m_architectureEventController;
     private volatile Subscriber m_subscriber;
     private volatile DroneInit m_drone;
 
@@ -35,6 +39,12 @@ public class Radar implements MessageHandler {
         }
         this.m_subscriber.addHandler(StateMessage.class, this);
         this.m_subscriber.addHandler(KillMessage.class, this);
+
+        m_architectureEventController.addHandler(SimulationState.CONFIG, SimulationAction.START, SimulationState.RUNNING,
+                (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+                    all_positions.clear();
+                }
+        );
     }
 
     /**

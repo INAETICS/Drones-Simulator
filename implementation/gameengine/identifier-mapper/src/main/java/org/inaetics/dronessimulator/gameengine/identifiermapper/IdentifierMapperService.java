@@ -1,9 +1,15 @@
 package org.inaetics.dronessimulator.gameengine.identifiermapper;
 
+import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
+import org.inaetics.dronessimulator.common.architecture.SimulationAction;
+import org.inaetics.dronessimulator.common.architecture.SimulationState;
+
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class IdentifierMapperService extends AbstractIdentifierMapper<Integer, String> implements IdentifierMapper {
+    private volatile ArchitectureEventController m_architectureEventController;
+
     private final AtomicInteger nextGameEngineId;
 
     public IdentifierMapperService() {
@@ -43,5 +49,10 @@ public class IdentifierMapperService extends AbstractIdentifierMapper<Integer, S
         }
     }
 
-
+    public void start() {
+        m_architectureEventController.addHandler(SimulationState.CONFIG, SimulationAction.START, SimulationState.RUNNING, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            this.oneToTwo.clear();
+            this.twoToOne.clear();
+        });
+    }
 }

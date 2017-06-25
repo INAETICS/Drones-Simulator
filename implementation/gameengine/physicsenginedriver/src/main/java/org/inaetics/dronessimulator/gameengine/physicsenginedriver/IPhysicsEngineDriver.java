@@ -26,4 +26,9 @@ public interface IPhysicsEngineDriver {
 
     void changeAccelerationEntity(int entityId, D3Vector newAcceleration);
     void changeAccelerationEntity(String protocolId, D3Vector newAcceleration);
+
+    void startEngine();
+    void pauseEngine();
+    void resumeEngine();
+    void quitEngine();
 }

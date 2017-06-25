@@ -4,6 +4,7 @@ import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.apache.felix.dm.ServiceDependency;
+import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.osgi.framework.BundleContext;
 
 public class Activator extends DependencyActivatorBase {
@@ -14,16 +15,19 @@ public class Activator extends DependencyActivatorBase {
 
         Component component = createComponent()
                                .setInterface(Tactic.class.getName(), null)
-                               .setImplementation(tactic);
+                               .setImplementation(tactic)
+                               .setCallbacks("no_init", "startTactic", "stopTactic", "no_destroy");
 
         for(ServiceDependency dep : tactic.getComponents(dependencyManager)) {
             component.add(dep);
         }
 
-        //component.add(createServiceDependency()
-        //        .setService(DroneInit.class)
-        //        .setRequired(true)
-        //);
+        component.add(
+            createServiceDependency()
+            .setService(ArchitectureEventController.class)
+            .setRequired(true)
+        );
+
         dependencyManager.add(component);
     }
 }

@@ -144,7 +144,7 @@ public class GameEngine {
             int dronesInLobby = lobbiedDrones.size();
             D2Vector center = new D2Vector(arenaWidth / 2, arenaDepth / 2);
             float spawnRadius = Math.min(arenaDepth, arenaWidth) / 2;
-            double spawnAngle = Math.PI / dronesInLobby;
+            double spawnAngle = (2 * Math.PI) / dronesInLobby;
 
             int numberSpawned = 0;
             for(String protocolId : lobbiedDrones) {

@@ -1,5 +1,8 @@
 package org.inaetics.dronessimulator.common;
 
+/**
+ * Three-dimensional vector with a custom origin.
+ */
 public class D3BaseVector {
     private D3Vector base;
     private D3Vector direction;

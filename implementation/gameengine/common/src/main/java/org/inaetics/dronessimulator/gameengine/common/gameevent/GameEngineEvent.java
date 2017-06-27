@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * Unified messages from physics engine in our own type. Whichever type of messages the engine uses (if any),
- * we can always map to PhysicsEngineMessage. Used to generalize the ruleprocessors.
+ * we can always map to PhysicsEngineMessage. Used to generalize the rule processors.
  */
 public abstract class GameEngineEvent {
 

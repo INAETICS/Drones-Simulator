@@ -12,10 +12,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * A game engine message which signals the end of a bullet's life time.
+ */
 @AllArgsConstructor
 @Getter
 @ToString
 public class DestroyBulletEvent extends GameEngineEvent {
+    /** The id of the bullet. */
     private final int id;
 
     @Override

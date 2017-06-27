@@ -14,14 +14,12 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * A unified physicsengine message which contains the state of all entities
+ * A unified physics engine message which contains the state of all entities.
  */
 @AllArgsConstructor
 @Getter
 public class CurrentStateEvent extends GameEngineEvent {
-    /**
-     * All entities as currently in the
-     */
+    /** The entities as currently in the physics engine. */
     List<GameEntity> currentState;
 
     public void removeEntity(int entityId) {

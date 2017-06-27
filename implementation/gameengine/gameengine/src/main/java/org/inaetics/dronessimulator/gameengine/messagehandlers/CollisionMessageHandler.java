@@ -7,15 +7,18 @@ import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngin
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 
+/**
+ * Message handler for collision messages.
+ */
 @AllArgsConstructor
 public class CollisionMessageHandler implements MessageHandler {
-    /**
-     * Which physicsengine to update entities in
-     */
+    /** The physics engine to update entities in. */
     private final IPhysicsEngineDriver physicsEngineDriver;
 
+    /** The mapping between protocol and physics engine ids. */
     private final IdentifierMapper id_mapper;
 
+    /** The game state manager for the entities. */
     private final IGameStateManager stateManager;
 
     @Override

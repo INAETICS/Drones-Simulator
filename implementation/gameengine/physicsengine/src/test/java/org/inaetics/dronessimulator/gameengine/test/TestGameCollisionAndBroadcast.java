@@ -40,7 +40,7 @@ public class TestGameCollisionAndBroadcast {
 
         try {
             Thread.sleep(1100);
-            physicsEngine.quit();
+            physicsEngine.quitEngine();
             physicsEngine.join();
         } catch (InterruptedException e) {
             e.printStackTrace();

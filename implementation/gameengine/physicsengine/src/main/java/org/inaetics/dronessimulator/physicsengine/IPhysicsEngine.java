@@ -65,7 +65,7 @@ public interface IPhysicsEngine {
     void addRemovals(Collection<Integer> entityIds);
 
     void startEngine();
-    void quitEngine();
+    void stopEngine();
     void pauseEngine();
     void resumeEngine();
 }

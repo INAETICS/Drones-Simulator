@@ -195,13 +195,13 @@ public class Game extends Application {
     private void setupArchitectureManagement() {
         HBox buttons = new HBox();
 
+        Button configButton = new Button("Config");
         Button startButton = new Button("Start");
-        Button restartButton = new Button("Restart");
-        Button stopButton = new Button("Stop");
         Button pauseButton = new Button("Pause");
         Button resumeButton = new Button("Resume");
+        Button stopButton = new Button("Stop");
 
-        buttons.getChildren().addAll(startButton, restartButton, stopButton, pauseButton, resumeButton);
+        buttons.getChildren().addAll(configButton, startButton, pauseButton, resumeButton, stopButton);
 
         BorderPane borderPane = new BorderPane();
         borderPane.setPrefHeight(canvas.getScene().getHeight());
@@ -218,8 +218,8 @@ public class Game extends Application {
         borderPane.setBottom(container);
         root.getChildren().add(borderPane);
 
+        configButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.CONFIG, publisher));
         startButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.START, publisher));
-        restartButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.RESTART, publisher));
         stopButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.STOP, publisher));
         pauseButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.PAUSE, publisher));
         resumeButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.RESUME, publisher));

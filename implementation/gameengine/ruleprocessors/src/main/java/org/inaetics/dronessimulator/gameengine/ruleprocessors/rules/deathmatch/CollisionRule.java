@@ -18,6 +18,9 @@ import java.util.List;
 public class CollisionRule extends Processor {
     public static final int collisionDmg = Drone.DRONE_MAX_HEALTH;
 
+    @Override
+    public void configRule() {}
+
     public List<GameEngineEvent> process(GameEngineEvent msg) {
         List<GameEngineEvent> results = new ArrayList<>();
 

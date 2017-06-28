@@ -18,6 +18,11 @@ public class RemoveStaleStateData extends Processor {
     }
 
     @Override
+    public void configRule() {
+        killedEntities.clear();
+    }
+
+    @Override
     public List<GameEngineEvent> process(GameEngineEvent msg) {
         if(msg instanceof CurrentStateEvent) {
             CurrentStateEvent currentStateEvent = (CurrentStateEvent) msg;

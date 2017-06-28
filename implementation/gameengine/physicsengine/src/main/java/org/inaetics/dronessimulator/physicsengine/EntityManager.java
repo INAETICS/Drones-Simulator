@@ -170,4 +170,13 @@ public class EntityManager {
         this.processUpdate();
         this.processRemoval();
     }
+
+    public void clear() {
+        this.currentCollisions.clear();
+        this.entities.clear();
+
+        this.updateMap.clear();
+        this.creationList.clear();
+        this.removalList.clear();
+    }
 }

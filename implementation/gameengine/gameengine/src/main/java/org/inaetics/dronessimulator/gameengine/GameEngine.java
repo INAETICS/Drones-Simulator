@@ -18,6 +18,7 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
 import org.inaetics.dronessimulator.gameengine.common.state.Drone;
+import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.messagehandlers.*;
@@ -37,8 +38,10 @@ import java.util.List;
  * discovery handler.
  */
 public class GameEngine {
-    public static final float arenaWidth = 1000;
-    public static final float arenaDepth = 1000;
+    public static final float arenaWidth = 200;
+    public static final float arenaDepth = 200;
+
+    private final static Logger logger = Logger.getLogger(GameEngine.class);
 
     /** Physics engine used in the game engine. */
     private volatile IPhysicsEngineDriver m_physicsEngineDriver;
@@ -113,7 +116,7 @@ public class GameEngine {
             if( path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
                 lobbiedDrones.add(node.getId());
 
-                Logger.getLogger(GameEngine.class).info("Added new drone in lobby " + node.getId());
+                logger.info("Added new drone " + node.getId() + " in simulation/lobby");
             }
 
         });
@@ -127,8 +130,10 @@ public class GameEngine {
             if( path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
                 String protocolId = node.getId();
 
+                lobbiedDrones.remove(node.getId());
+
                 this.m_physicsEngineDriver.removeEntity(protocolId);
-                Logger.getLogger(GameEngine.class).info("Removed drone " + protocolId);
+                Logger.getLogger(GameEngine.class).info("Removed drone " + protocolId + " from simulation");
             }
         });
 
@@ -136,9 +141,10 @@ public class GameEngine {
 
         // Setup Architecture Event listeners!
         m_architectureEventListener.addHandler(SimulationState.CONFIG, SimulationAction.START, SimulationState.RUNNING, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            logger.info("Adding " + lobbiedDrones.size() + " drones to simulation");
             int dronesInLobby = lobbiedDrones.size();
             D2Vector center = new D2Vector(arenaWidth / 2, arenaDepth / 2);
-            float spawnRadius = Math.min(arenaDepth, arenaWidth) / 2;
+            double spawnRadius = (Math.min(arenaDepth, arenaWidth) / 2) * 0.9;
             double spawnAngle = (2 * Math.PI) / dronesInLobby;
 
             int numberSpawned = 0;
@@ -150,14 +156,11 @@ public class GameEngine {
                 numberSpawned++;
 
                 this.m_physicsEngineDriver.addNewEntity(new Drone(gameengineId, Drone.DRONE_MAX_HEALTH, position, new D3Vector(), new D3Vector()), protocolId);
-                Logger.getLogger(GameEngine.class).info("Added new drone " + protocolId + " as " + gameengineId);
+                logger.info("Added new drone " + protocolId + " as " + gameengineId);
             }
-
-            // Clear lobby for next start
-            lobbiedDrones = new ArrayList<>();
         });
 
-        Logger.getLogger(GameEngine.class).info("Started Game Engine!");
+        logger.info("Started Game Engine!");
     }
 
     /**
@@ -166,6 +169,6 @@ public class GameEngine {
      */
     public void stop() throws Exception {
         this.m_discoverer.unregister(discoveryInstance);
-        Logger.getLogger(GameEngine.class).info("Stopped Game Engine!");
+        logger.info("Stopped Game Engine!");
     }
 }

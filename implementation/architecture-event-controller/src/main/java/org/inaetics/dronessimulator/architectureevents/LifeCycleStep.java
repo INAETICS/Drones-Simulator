@@ -14,6 +14,12 @@ public class LifeCycleStep {
         this.toState = toState;
     }
 
+
+    public int hashCode() {
+        return fromState.hashCode() + action.hashCode() + toState.hashCode();
+    }
+
+    @Override
     public boolean equals(Object other) {
         if(other instanceof LifeCycleStep) {
             LifeCycleStep o = (LifeCycleStep) other;

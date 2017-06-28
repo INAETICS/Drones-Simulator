@@ -32,7 +32,7 @@ public class ArchitectureManager {
     public ArchitectureManager() {
         previousState = SimulationState.NOSTATE;
         previousAction = SimulationAction.INIT;
-        currentState = SimulationState.CONFIG;
+        currentState = SimulationState.INIT;
 
         this.instance = new Instance(Type.SERVICE, Group.SERVICES, "architecture", getCurrentProperties());
     }
@@ -103,10 +103,17 @@ public class ArchitectureManager {
             case NOSTATE:
                 switch(action) {
                     case INIT:
-                        nextState = SimulationState.CONFIG;
+                        nextState = SimulationState.INIT;
                         break;
                 }
                 break;
+
+            case INIT:
+                switch(action) {
+                    case CONFIG:
+                        nextState = SimulationState.CONFIG;
+                        break;
+                }
 
             case CONFIG:
                 switch(action) {
@@ -114,7 +121,7 @@ public class ArchitectureManager {
                         nextState = SimulationState.RUNNING;
                         break;
                     case STOP:
-                        nextState = SimulationState.STOPPED;
+                        nextState = SimulationState.INIT;
                         break;
                 }
                 break;
@@ -122,21 +129,13 @@ public class ArchitectureManager {
             case RUNNING:
                 switch(action) {
                     case STOP:
-                        nextState = SimulationState.STOPPED;
+                        nextState = SimulationState.INIT;
                         break;
                     case PAUSE:
                         nextState = SimulationState.PAUSED;
                         break;
                     case GAMEOVER:
-                        nextState = SimulationState.GAMEOVER;
-                        break;
-                }
-                break;
-
-            case STOPPED:
-                switch(action) {
-                    case RESTART:
-                        nextState = SimulationState.CONFIG;
+                        nextState = SimulationState.DONE;
                         break;
                 }
                 break;
@@ -146,13 +145,16 @@ public class ArchitectureManager {
                     case RESUME:
                         nextState = SimulationState.RUNNING;
                         break;
+                    case STOP:
+                        nextState = SimulationState.INIT;
+                        break;
                 }
                 break;
 
-            case GAMEOVER:
+            case DONE:
                 switch(action) {
-                    case RESTART:
-                        nextState = SimulationState.CONFIG;
+                    case STOP:
+                        nextState = SimulationState.INIT;
                         break;
                 }
                 break;

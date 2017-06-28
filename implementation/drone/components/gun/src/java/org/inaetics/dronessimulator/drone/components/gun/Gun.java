@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.drone.components.gun;
 
+import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.D3PoolCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
@@ -31,9 +32,6 @@ public class Gun {
         return MAX_DISTANCE;
     }
 
-
-
-
     public long msSinceLastShot(){ return System.currentTimeMillis() - this.last_shot_at_ms; }
 
     public void fireBullet(D3PoolCoordinate direction){
@@ -57,8 +55,7 @@ public class Gun {
                 e.printStackTrace();
             }
 
-            System.out.println("FIRING BULLET!");
-            System.out.println("Next shot possible in " + ((double) (next_shot_at_ms - current_time_ms) / 1000) + " seconds.");
+            Logger.getLogger(Gun.class).info("Firing bullet! Next shot possible in " + ((double) (next_shot_at_ms - current_time_ms) / 1000) + " seconds.");
         }
     }
 }

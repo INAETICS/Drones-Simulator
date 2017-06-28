@@ -12,13 +12,14 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.A
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class ArchitectureEventControllerService implements ArchitectureEventController {
     private volatile Discoverer m_discovery;
+
+    private SimulationState currentFromState;
+    private SimulationAction currentAction;
+    private SimulationState currentToState;
 
     private final Map<LifeCycleStep, List<ArchitectureEventHandler>> handlers = new HashMap<>();
 
@@ -26,19 +27,6 @@ public class ArchitectureEventControllerService implements ArchitectureEventCont
         List<NodeEventHandler<AddedNode>> addHandlers = new ArrayList<>();
         List<NodeEventHandler<ChangedValue>> changedValueHandlers = new ArrayList<>();
         List<NodeEventHandler<RemovedNode>> removedHandlers = new ArrayList<>();
-
-
-        addHandlers.add((AddedNode addedNode) -> {
-            DiscoveryNode discoveredNode = addedNode.getNode();
-            DiscoveryPath discoveredPath = discoveredNode.getPath();
-
-            if(  discoveredPath.isConfigPath()
-              && discoveredPath.startsWith(DiscoveryPath.group(Type.SERVICE, Group.SERVICES))
-              && discoveredNode.getId().equals("architecture")
-              ) {
-                handleNewState(discoveredNode);
-            }
-        });
 
         changedValueHandlers.add((ChangedValue changedValue) -> {
             DiscoveryNode discoveredNode = changedValue.getNode();
@@ -59,16 +47,27 @@ public class ArchitectureEventControllerService implements ArchitectureEventCont
 
     public void handleNewState(DiscoveryNode architectureNode) {
         String currentLifeCycle = architectureNode.getValue("current_life_cycle");
-        String[] lifeCycleParts = currentLifeCycle.split(".");
 
-        SimulationState fromState = SimulationState.valueOf(lifeCycleParts[0]);
-        SimulationAction action = SimulationAction.valueOf(lifeCycleParts[1]);
-        SimulationState toState = SimulationState.valueOf(lifeCycleParts[2]);
+        if(currentLifeCycle != null) {
+            String[] lifeCycleParts = currentLifeCycle.split("\\.");
 
-        LifeCycleStep lifeCycleStep = new LifeCycleStep(fromState, action, toState);
+            currentFromState = SimulationState.valueOf(lifeCycleParts[0]);
+            currentAction = SimulationAction.valueOf(lifeCycleParts[1]);
+            currentToState = SimulationState.valueOf(lifeCycleParts[2]);
+        } else {
+            currentFromState = currentToState;
+            currentAction = SimulationAction.DESTROY;
+            currentToState = SimulationState.NOSTATE;
+        }
 
-        for(ArchitectureEventHandler handler : handlers.get(lifeCycleStep)) {
-            handler.handle(fromState, action, toState);
+        LifeCycleStep lifeCycleStep = new LifeCycleStep(currentFromState, currentAction, currentToState);
+
+        List<ArchitectureEventHandler> handlers = this.handlers.get(lifeCycleStep);
+
+        if(handlers != null) {
+            for(ArchitectureEventHandler handler : handlers) {
+                handler.handle(currentFromState, currentAction, currentToState);
+            }
         }
     }
 

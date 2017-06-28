@@ -11,6 +11,9 @@ import java.util.List;
 
 public class RemoveStrayBullets extends Processor {
     @Override
+    public void configRule() {}
+
+    @Override
     public List<GameEngineEvent> process(GameEngineEvent event) {
         List<GameEngineEvent> events = new ArrayList<>();
 

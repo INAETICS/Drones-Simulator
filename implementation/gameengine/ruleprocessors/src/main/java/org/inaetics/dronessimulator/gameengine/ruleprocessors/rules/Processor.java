@@ -6,5 +6,6 @@ import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import java.util.List;
 
 public abstract class Processor {
+    public abstract void configRule();
     public abstract List<GameEngineEvent> process(GameEngineEvent msg);
 }

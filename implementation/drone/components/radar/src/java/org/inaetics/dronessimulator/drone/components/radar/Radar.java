@@ -40,7 +40,7 @@ public class Radar implements MessageHandler {
         this.m_subscriber.addHandler(StateMessage.class, this);
         this.m_subscriber.addHandler(KillMessage.class, this);
 
-        m_architectureEventController.addHandler(SimulationState.CONFIG, SimulationAction.START, SimulationState.RUNNING,
+        m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG,
                 (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
                     all_positions.clear();
                 }

@@ -25,6 +25,8 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Driver for the simple physics engine shipped with the game engine.
  */
 public class PhysicsEngineDriver implements IPhysicsEngineDriver {
+    private final static Logger logger = Logger.getLogger(PhysicsEngineDriver.class);
+
     /** The physics engine instance to use. */
     private transient volatile IPhysicsEngine m_physicsEngine;
 
@@ -63,33 +65,48 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
         m_physicsEngine.setTimeBetweenBroadcastms(20L);
 
         m_architectureEventController.addHandler(SimulationState.CONFIG, SimulationAction.START, SimulationState.RUNNING, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            logger.info("Starting simulation!");
             this.startEngine();
         });
 
         m_architectureEventController.addHandler(SimulationState.PAUSED, SimulationAction.RESUME, SimulationState.RUNNING, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            logger.info("Resuming simulation!");
             this.resumeEngine();
         });
 
         m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.PAUSE, SimulationState.PAUSED, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            logger.info("Pausing simulation!");
             this.pauseEngine();
         });
 
-        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.GAMEOVER, SimulationState.GAMEOVER, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
-            this.quitEngine();
+        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.GAMEOVER, SimulationState.DONE, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            logger.info("Stopping simulation!");
+            this.stopEngine();
         });
 
-        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.STOP, SimulationState.STOPPED, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
-            this.quitEngine();
+        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.STOP, SimulationState.INIT, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            logger.info("Stopping simulation!");
+            this.stopEngine();
         });
 
-        Logger.getLogger(PhysicsEngineDriver.class).info("Started PhysicsEngine Driver!");
+       m_architectureEventController.addHandler(SimulationState.CONFIG, SimulationAction.STOP, SimulationState.INIT, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            logger.info("Stopping simulation!");
+            this.stopEngine();
+        });
+
+       m_architectureEventController.addHandler(SimulationState.PAUSED, SimulationAction.STOP, SimulationState.INIT, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            logger.info("Stopping simulation!");
+            this.stopEngine();
+        });
+
+        logger.info("Started PhysicsEngine Driver!");
     }
 
     /**
      * Stops the physics engine driver.
      */
     public void stop() {
-        Logger.getLogger(PhysicsEngineDriver.class).info("Stopped PhysicsEngine Driver!");
+        logger.info("Stopped PhysicsEngine Driver!");
     }
 
     @Override
@@ -195,8 +212,8 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
     }
 
     @Override
-    public void quitEngine() {
-        m_physicsEngine.quitEngine();
+    public void stopEngine() {
+        m_physicsEngine.stopEngine();
     }
 
     /**

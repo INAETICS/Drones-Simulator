@@ -5,6 +5,9 @@ import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.apache.felix.dm.ServiceDependency;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
+import org.inaetics.dronessimulator.discovery.api.Discoverer;
+import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
+import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.osgi.framework.BundleContext;
 
 public class Activator extends DependencyActivatorBase {
@@ -16,7 +19,7 @@ public class Activator extends DependencyActivatorBase {
         Component component = createComponent()
                                .setInterface(Tactic.class.getName(), null)
                                .setImplementation(tactic)
-                               .setCallbacks("no_init", "startTactic", "stopTactic", "no_destroy");
+                               .setCallbacks("init", "startTactic", "stopTactic", "destroy");
 
         for(ServiceDependency dep : tactic.getComponents(dependencyManager)) {
             component.add(dep);
@@ -25,6 +28,24 @@ public class Activator extends DependencyActivatorBase {
         component.add(
             createServiceDependency()
             .setService(ArchitectureEventController.class)
+            .setRequired(true)
+        );
+
+        component.add(
+            createServiceDependency()
+            .setService(Subscriber.class)
+            .setRequired(true)
+        );
+
+        component.add(
+            createServiceDependency()
+            .setService(Discoverer.class)
+            .setRequired(true)
+        );
+
+        component.add(
+            createServiceDependency()
+            .setService(DroneInit.class)
             .setRequired(true)
         );
 

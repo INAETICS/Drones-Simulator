@@ -2,6 +2,10 @@ package org.inaetics.dronessimulator.gameengine.ruleprocessors;
 
 
 import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
+import org.inaetics.dronessimulator.common.architecture.SimulationAction;
+import org.inaetics.dronessimulator.common.architecture.SimulationState;
+import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
@@ -22,6 +26,8 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Rule processors service. The rule processors listen on events and act on them based on predefined rules.
  */
 public class RuleProcessors extends Thread implements IRuleProcessors {
+    private ArchitectureEventController m_architectureEventController;
+
     /** The physics engine driver to get events from. */
     private IPhysicsEngineDriver m_driver;
 
@@ -51,6 +57,13 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
                                     , new RemoveStaleStateData()
                                     , new SendMessages(this.m_publisher, this.m_id_mapper)
                                     };
+
+        m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG,
+                (SimulationState from, SimulationAction action, SimulationState to) -> {
+                    configRules();
+                }
+        );
+
         super.start();
     }
 
@@ -104,6 +117,12 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
         }
 
         return result;
+    }
+
+    public void configRules() {
+        for(Processor rule : rules) {
+            rule.configRule();
+        }
     }
 
     /**

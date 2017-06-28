@@ -132,7 +132,6 @@ public class DiscoveryNode extends TreeNode<String, String, DiscoveryNode, Disco
     public List<ChangedValue> updateValues(DiscoveryStoredNode storedNode) {
         List<ChangedValue> events = new ArrayList<>();
         Set<String> untouched = new HashSet<>(this.getValues().keySet());
-        Map<String, String> values = this.getValues();
         Map<String, String> storedValues = storedNode.getValues();
 
         // Set all values of storedNode in this

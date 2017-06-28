@@ -3,12 +3,13 @@ package org.inaetics.dronessimulator.common.architecture;
 
 public enum SimulationAction {
     INIT ("init"),
+    CONFIG ("config"),
     START ("start"),
-    RESTART ("restart"),
     STOP ("stop"),
     PAUSE ("pause"),
     RESUME ("resume"),
-    GAMEOVER ("gameover");
+    GAMEOVER ("gameover"),
+    DESTROY("destroy");
 
     private String name;
 

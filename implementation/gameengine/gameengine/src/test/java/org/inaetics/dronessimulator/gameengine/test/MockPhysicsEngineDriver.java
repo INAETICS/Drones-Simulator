@@ -127,7 +127,7 @@ public class MockPhysicsEngineDriver implements IPhysicsEngineDriver{
     }
 
     @Override
-    public void quitEngine() {
+    public void stopEngine() {
 
     }
 }

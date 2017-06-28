@@ -13,6 +13,9 @@ import java.util.List;
 
 public class KillEntitiesRule extends Processor {
     @Override
+    public void configRule() {}
+
+    @Override
     public List<GameEngineEvent> process(GameEngineEvent msg) {
         List<GameEngineEvent> results;
 

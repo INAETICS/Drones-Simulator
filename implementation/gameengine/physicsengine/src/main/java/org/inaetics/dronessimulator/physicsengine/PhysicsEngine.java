@@ -19,6 +19,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @threadsafe
  */
 public class PhysicsEngine extends Thread implements IPhysicsEngine {
+    private static final Logger logger = Logger.getLogger(PhysicsEngine.class);
+
     /** Gravity in meters/second^2. */
     public static final D3Vector GRAVITY = new D3Vector(0, 0, 0); // TODO: Fix gravity (-9.81)
 
@@ -32,7 +34,7 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
     private long broadcast_state_every_ms;
 
     /** Whether the physics engine has quit. (Only true if the engine has started and then quit.) */
-    private volatile boolean quit;
+    private final AtomicBoolean quit;
 
     /** Whether the physics engine is started. */
     private final AtomicBoolean started;
@@ -57,7 +59,7 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
         this.last_state_broadcast_at_ms = this.current_step_started_at_ms;
         this.broadcast_state_every_ms = -1;
 
-        this.quit = false;
+        this.quit = new AtomicBoolean(false);
         this.started = new AtomicBoolean(false);
 
         this.currentCollisions = new HashMap<>();
@@ -188,15 +190,11 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
 
     }
 
-    private void stagePause() {
+    private void stagePause() throws InterruptedException {
        synchronized (pauseToken) {
             while(pauseToken.get()) {
-                try {
-                    pauseToken.wait();
-                } catch (InterruptedException e) {
-                    Logger.getLogger(PhysicsEngine.class).fatal(e);
-                    e.printStackTrace();
-                }
+                pauseToken.wait();
+                this.current_step_started_at_ms = System.currentTimeMillis();
             }
         }
     }
@@ -206,32 +204,39 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
      * @threadsafe
      */
     private void runServer() {
-        Thread t = Thread.currentThread();
+        while(!this.isInterrupted()) {
+            try {
+                // Wait to start
+                synchronized (started) {
+                    while(!started.get()) {
+                        started.wait();
+                    }
+                }
 
-        if(started.compareAndSet(false, true)) {
-            Logger.getLogger(PhysicsEngine.class).info("Started PhysicsEngine!");
+                Logger.getLogger(PhysicsEngine.class).info("Started PhysicsEngine!");
 
-            quit = false;
+                quit.set(false);
+                pauseToken.set(false);
+                this.current_step_started_at_ms = System.currentTimeMillis();
+                this.last_state_broadcast_at_ms = this.current_step_started_at_ms;
 
-            this.current_step_started_at_ms = System.currentTimeMillis();
-            this.last_state_broadcast_at_ms = this.current_step_started_at_ms;
-            
-            while(!t.isInterrupted()) {
-                double timestep_s = this.stageTimeStep();
-                this.entityManager.processChanges();
-                this.stageMove(timestep_s);
-                this.stageBroadcastState();
+                while(!quit.get()) {
+                    double timestep_s = this.stageTimeStep();
+                    this.entityManager.processChanges();
+                    this.stageMove(timestep_s);
+                    this.stageBroadcastState();
 
-                this.stagePause();
+                    this.stagePause();
+                }
+
+                this.entityManager.clear();
+
+                started.set(false);
+
+                Logger.getLogger(PhysicsEngine.class).info("PhysicsEngine has shutdown");
+            } catch(InterruptedException e) {
+                this.interrupt();
             }
-
-            this.entityManager.addRemoveAll();
-            this.entityManager.processChanges();
-
-            started.set(false);
-            quit = true;
-
-            Logger.getLogger(PhysicsEngine.class).info("PhysicsEngine has shutdown");
         }
     }
 
@@ -239,9 +244,12 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
      * Starts the physics engine thread.
      */
     public void startEngine() {
-        Logger.getLogger(PhysicsEngine.class).info("Starting PhysicsEngine...");
+        logger.info("Starting PhysicsEngine...");
 
-        super.start();
+        synchronized (started) {
+            this.started.set(true);
+            started.notifyAll();
+        }
     }
 
     /**
@@ -289,13 +297,16 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
      * Tell the engine thread to quit.
      * @threadsafe
      */
-    public void quitEngine() {
-        Logger.getLogger(PhysicsEngine.class).info("Stopping physics engine...");
-        this.interrupt();
+    public void stopEngine() {
+        logger.info("Stopping physics engine...");
+        synchronized (quit) {
+            this.quit.set(true);
+        }
     }
 
     @Override
     public void pauseEngine() {
+        logger.info("Pausing physics engine!");
         synchronized (pauseToken) {
             pauseToken.set(true);
         }
@@ -303,6 +314,7 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
 
     @Override
     public void resumeEngine() {
+        logger.info("Reusming physics engine!");
         synchronized (pauseToken) {
             pauseToken.set(false);
             pauseToken.notifyAll();
@@ -324,11 +336,11 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
      * @return Whether the physics engine has quit.
      */
     public boolean hasQuit() {
-        return this.quit;
+        return this.quit.get();
     }
 
     @Override
-    @Deprecated
     public void destroy() {
+        this.interrupt();
     }
 }

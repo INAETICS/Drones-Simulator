@@ -57,7 +57,7 @@ public class IdentifierMapperService extends AbstractIdentifierMapper<Integer, S
     }
 
     public void start() {
-        m_architectureEventController.addHandler(SimulationState.CONFIG, SimulationAction.START, SimulationState.RUNNING, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+        m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
             this.oneToTwo.clear();
             this.twoToOne.clear();
         });

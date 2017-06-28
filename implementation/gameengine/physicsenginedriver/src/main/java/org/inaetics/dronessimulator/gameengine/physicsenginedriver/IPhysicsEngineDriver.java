@@ -94,5 +94,5 @@ public interface IPhysicsEngineDriver {
     void startEngine();
     void pauseEngine();
     void resumeEngine();
-    void quitEngine();
+    void stopEngine();
 }

@@ -44,7 +44,7 @@ cp "$ROOT/gameengine/physicsengine/target/gameengine-physicsengine-0.1.jar" $GAM
 cp "$ROOT/gameengine/physicsenginedriver/target/gameengine-physicsenginedriver-0.1.jar" $GAME_ENGINE
 cp "$ROOT/gameengine/identifier-mapper/target/gameengine-identifier-mapper-0.1.jar" $GAME_ENGINE
 cp "$ROOT/gameengine/ruleprocessors/target/gameengine-ruleprocessors-0.1.jar" $GAME_ENGINE
-
+cp "$ROOT/architecture-event-controller/target/architecture-event-controller-0.1.jar" $GAME_ENGINE
 
 # Drone
 DRONE="docker_images/drone/files/bundles/"
@@ -62,6 +62,7 @@ cp "$ROOT/drone/components/gun/target/components-gun-0.1.jar" $DRONE
 cp "$ROOT/drone/components/radar/target/components-radar-0.1.jar" $DRONE
 cp "$ROOT/drone/drone-init/target/drone-init-0.1.jar" $DRONE
 cp "$ROOT/drone/tactic/target/tactic-0.1.jar" $DRONE
+cp "$ROOT/architecture-event-controller/target/architecture-event-controller-0.1.jar" $DRONE
 
 # Architecture Manager
 ARCHITECTURE_MANAGER="docker_images/architecture_manager/files/bundles/"

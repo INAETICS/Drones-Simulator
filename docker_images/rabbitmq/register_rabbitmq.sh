@@ -2,6 +2,7 @@
 rabbitmq-server -detached
 echo "RabbitMQ starting ..."
 
+# wait until RabbitMQ is started
 while ! nc -z localhost 5672; do   
   sleep 0.1 # wait for 1/10 of the second before check again
 done
@@ -11,7 +12,7 @@ echo "RabbitMQ is gestart"
 USERNAME=yourUser
 PASSWORD=yourPass
 
-	# add rabbitmq user
+# add rabbitmq user
 rabbitmqctl add_user $USERNAME $PASSWORD
 rabbitmqctl set_permissions -p / $USERNAME ".*" ".*" ".*"
 rabbitmqctl set_user_tags $USERNAME administrator
@@ -23,6 +24,11 @@ INSTANCE_DIR="/instances/rabbitmq/broker/default"
 
 # RabbitMQ config
 RABBITMQ_PATH="amqp://rabbitmq:5672"
+
+# wait until etcd is started
+while ! nc -z etcd 4001; do   
+  sleep 0.1 # wait for 1/10 of the second before check again
+done
 
 # Actually set values in etcd
 curl http://etcd:4001/v2/keys$INSTANCE_DIR/uri -XPUT -d value="$RABBITMQ_PATH"

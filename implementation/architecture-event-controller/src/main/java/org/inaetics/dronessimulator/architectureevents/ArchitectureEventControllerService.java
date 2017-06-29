@@ -12,7 +12,10 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.A
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class ArchitectureEventControllerService implements ArchitectureEventController {
     private volatile Discoverer m_discovery;

@@ -9,7 +9,6 @@ import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 
 import java.io.IOException;
 
-
 public class Engine {
     private final static Logger logger = Logger.getLogger(Engine.class);
 
@@ -68,7 +67,6 @@ public class Engine {
             m_publisher.send(MessageTopic.MOVEMENTS, msg);
         } catch (IOException e) {
             logger.fatal(e);
-            e.printStackTrace();
         }
     }
 }

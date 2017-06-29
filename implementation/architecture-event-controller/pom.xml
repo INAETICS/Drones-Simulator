@@ -9,6 +9,8 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <name>Architecture Event Controller</name>
+
     <packaging>bundle</packaging>
 
     <groupId>org.inaetics.dronessimulator</groupId>

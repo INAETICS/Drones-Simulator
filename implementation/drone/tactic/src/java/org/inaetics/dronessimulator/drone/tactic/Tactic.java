@@ -147,7 +147,6 @@ public abstract class Tactic extends Thread implements MessageHandler {
             this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
             Logger.getLogger(Tactic.class).fatal(e);
-            e.printStackTrace();
         }
         this.m_subscriber.addHandler(KillMessage.class, this);
     }
@@ -163,7 +162,6 @@ public abstract class Tactic extends Thread implements MessageHandler {
             registered = true;
         } catch (IOException | DuplicateName e) {
             logger.fatal(e);
-            e.printStackTrace();
         }
     }
 
@@ -174,7 +172,6 @@ public abstract class Tactic extends Thread implements MessageHandler {
                 registered = false;
             } catch (IOException e) {
                 logger.fatal(e);
-                e.printStackTrace();
             }
         }
     }

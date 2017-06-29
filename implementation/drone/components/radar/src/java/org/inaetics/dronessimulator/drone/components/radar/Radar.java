@@ -39,7 +39,6 @@ public class Radar implements MessageHandler {
             this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
             logger.fatal(e);
-            e.printStackTrace();
         }
         this.m_subscriber.addHandler(StateMessage.class, this);
         this.m_subscriber.addHandler(KillMessage.class, this);

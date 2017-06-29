@@ -32,7 +32,6 @@ public class GPS implements MessageHandler {
             this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
             logger.fatal(e);
-            e.printStackTrace();
         }
         this.m_subscriber.addHandler(StateMessage.class, this);
     }

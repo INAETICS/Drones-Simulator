@@ -1,5 +1,7 @@
 package org.inaetics.dronessimulator.test.concurrent;
 
+import org.apache.log4j.Logger;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -14,6 +16,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * The jobs are shuffled and performed concurrently by a threadpool
  */
 public class ConcurrentExecute {
+    private final static Logger logger = Logger.getLogger(ConcurrentExecute.class);
+
     /**
      * Next unique id
      */
@@ -88,7 +92,8 @@ public class ConcurrentExecute {
             this.timeoutHandler.quit();
             this.timeoutHandler.join();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.fatal(e);
+            Thread.currentThread().interrupt();
         }
     }
 }

@@ -14,5 +14,11 @@
     <groupId>org.inaetics.dronessimulator</groupId>
     <artifactId>common-test</artifactId>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+        </dependency>
+    </dependencies>
 
 </project>

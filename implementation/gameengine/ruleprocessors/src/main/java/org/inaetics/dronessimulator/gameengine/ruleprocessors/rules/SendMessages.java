@@ -28,7 +28,9 @@ public class SendMessages extends Processor {
     }
 
     @Override
-    public void configRule() {}
+    public void configRule() {
+        // Nothing to config
+    }
 
     @Override
     public List<GameEngineEvent> process(GameEngineEvent msg) {

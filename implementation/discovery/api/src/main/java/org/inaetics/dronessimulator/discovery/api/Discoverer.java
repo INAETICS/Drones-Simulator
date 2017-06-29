@@ -27,7 +27,11 @@ public interface Discoverer {
     void unregister(Instance instance) throws IOException;
 
     /**
-     * Updates the properties associated with an instance. The instance must exist!
+     * Updates the properties associated with an existing instance. The instance must exist!
+     * @param instance The published instance to update
+     * @param properties The new properties associated with the instance
+     * @return Returns the new instance published in discovery
+     * @throws IOException If something goes wrong with the publishing
      */
      Instance updateProperties(Instance instance, Map<String, String> properties) throws IOException;
 

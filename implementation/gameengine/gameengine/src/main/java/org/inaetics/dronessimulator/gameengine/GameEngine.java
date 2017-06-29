@@ -37,8 +37,8 @@ import java.util.List;
  * discovery handler.
  */
 public class GameEngine {
-    public static final float arenaWidth = 200;
-    public static final float arenaDepth = 200;
+    public static final float ARENA_WIDTH = 200;
+    public static final float ARENA_DEPTH = 200;
 
     private final static Logger logger = Logger.getLogger(GameEngine.class);
 
@@ -92,7 +92,7 @@ public class GameEngine {
             this.m_subscriber.addTopic(MessageTopic.MOVEMENTS);
             this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch(IOException e) {
-            Logger.getLogger(GameEngine.class).fatal("Could not subscribe to topic " + MessageTopic.MOVEMENTS + ".");
+            logger.fatal("Could not subscribe to topic " + MessageTopic.MOVEMENTS + ".", e);
         }
 
         this.m_subscriber.addHandler(CollisionMessage.class, this.collisionMessageHandler);
@@ -142,8 +142,8 @@ public class GameEngine {
         m_architectureEventListener.addHandler(SimulationState.CONFIG, SimulationAction.START, SimulationState.RUNNING, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
             logger.info("Adding " + lobbiedDrones.size() + " drones to simulation");
             int dronesInLobby = lobbiedDrones.size();
-            D2Vector center = new D2Vector(arenaWidth / 2, arenaDepth / 2);
-            double spawnRadius = (Math.min(arenaDepth, arenaWidth) / 2) * 0.9;
+            D2Vector center = new D2Vector(ARENA_WIDTH / 2, ARENA_DEPTH / 2);
+            double spawnRadius = (Math.min(ARENA_DEPTH, ARENA_WIDTH) / 2) * 0.9;
             double spawnAngle = (2 * Math.PI) / dronesInLobby;
 
             int numberSpawned = 0;
@@ -164,10 +164,13 @@ public class GameEngine {
 
     /**
      * Stops the wrapper. Kills the engine and rule processor threads.
-     * @throws Exception - Any exception which might happen during shutting down the wrapper.
      */
-    public void stop() throws Exception {
-        this.m_discoverer.unregister(discoveryInstance);
+    public void stop() {
+        try {
+            this.m_discoverer.unregister(discoveryInstance);
+        } catch (IOException e) {
+            logger.fatal(e);
+        }
         logger.info("Stopped Game Engine!");
     }
 }

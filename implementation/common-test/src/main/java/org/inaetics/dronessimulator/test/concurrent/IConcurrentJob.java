@@ -5,6 +5,7 @@ package org.inaetics.dronessimulator.test.concurrent;
  * You can add a lambda with a single argument int i. Java will turn that
  * lambda into a function following the run method.
  */
+ @FunctionalInterface
 public interface IConcurrentJob {
     /**
      * Run the job

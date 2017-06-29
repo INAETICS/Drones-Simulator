@@ -72,8 +72,6 @@ public abstract class Path<C extends Path> {
      * @return A new path instance for the joined path.
      */
     public C join(Path other) {
-        assert this.delimiter.equals(other.getDelimiter());
-
         return this.addSegments(other.getSegments());
     }
 
@@ -96,11 +94,13 @@ public abstract class Path<C extends Path> {
      */
     @Override
     public boolean equals(Object other) {
-        if(other instanceof Path) {
-            return Arrays.equals(this.segments, ((Path) other).getSegments());
-        } else {
-            return false;
-        }
+        return other instanceof Path
+            && delimiter.equals(((Path) other).getDelimiter())
+            && Arrays.equals(this.segments, ((Path) other).getSegments());
+    }
+
+    public int hashCode() {
+        return Arrays.hashCode(this.segments) + delimiter.hashCode();
     }
 
     @Override
@@ -109,7 +109,7 @@ public abstract class Path<C extends Path> {
     }
 
     /**
-     * Builds a new path starting from this path.
+     * Builds a new path object of type C
      * @param delimiter The delimiter to use for the new path.
      * @param segments The segments to add to the path.
      * @return The created child path.

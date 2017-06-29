@@ -66,9 +66,9 @@ public class RabbitPublisher extends RabbitConnection implements Publisher {
                 this.channel.basicPublish(topic.getName(), "", null, serializedMessage);
                 logger.debug("Sent message {} to topic {}", message.toString(), topic.getName());
             }
-        } catch (IOException ignore) {
+        } catch (IOException e) {
             // Just drop the message if there is no good connection
-            logger.error("Error while sending message: {}", ignore.getMessage());
+            logger.error("Error while sending message: {}", e);
         }
     }
 

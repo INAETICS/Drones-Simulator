@@ -5,7 +5,7 @@ package org.inaetics.dronessimulator.common;
  */
 public class D2Vector {
     /** The unity vector. */
-    public static D2Vector UNIT = new D2Vector(1,1);
+    public transient final static D2Vector UNIT = new D2Vector(1,1);
 
     /** X coordinate of this vector. */
     private final double x;

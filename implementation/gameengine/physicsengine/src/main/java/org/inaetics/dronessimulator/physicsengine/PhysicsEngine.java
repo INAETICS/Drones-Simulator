@@ -119,7 +119,6 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
 
         for(Map.Entry<Integer, Entity> e1 : entities.entrySet()) {
             Entity entity = e1.getValue();
-            int e1Id = entity.getId();
 
             // Set the next place the entity will move to with new velocity
             D3Vector nextAcceleration = entity.getAcceleration();
@@ -131,49 +130,63 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
             entity.setPosition(nextPosition);
 
             // Check for collisions for this entity
-            for(Map.Entry<Integer, Entity> e2 : entities.entrySet()) {
-                Entity otherEntity = e2.getValue();
-                int e2Id = otherEntity.getId();
+            stageCollision(entity, entities);
+        }
+    }
 
-                if(entity.getId() != otherEntity.getId()) {
-                    // If the entity is colliding with another entity
-                    Set<Integer> collisionsE1 = currentCollisions.get(e1Id);
-                    Set<Integer> collisionsE2 = currentCollisions.get(e2Id);
+    private void stageCollision(Entity entity, Map<Integer, Entity> allEntities) {
+        int e1Id = entity.getId();
 
-                    if(entity.collides(otherEntity)) {
-                        boolean startedE1WithE2 = false;
-                        boolean startedE2WithE1 = false;
+        for(Map.Entry<Integer, Entity> e2 : allEntities.entrySet()) {
+            Entity otherEntity = e2.getValue();
+            int e2Id = otherEntity.getId();
 
-                        // Only add to hashmap if the collision was not present yet
-                        if(!collisionsE1.contains(e2Id)) {
-                            collisionsE1.add(e2Id);
-                            startedE1WithE2 = true;
-                        }
-
-                        if(!collisionsE2.contains(e1Id)) {
-                            collisionsE2.add(e1Id);
-                            startedE2WithE1 = true;
-                        }
-
-                        // If the collision wasn't happening yet
-                        if(observer != null && (startedE1WithE2 || startedE2WithE1)) {
-                            //This collision is new and has just started
-                            observer.collisionStartHandler(Entity.deepcopy(entity), Entity.deepcopy(otherEntity));
-                        }
-                    } else {
-                        //These entities are not colliding, so remove any collisions if there were any
-                        boolean e1CollidedWithe2 = collisionsE1.remove(e2Id);
-                        boolean e2CollidedWithe1 = collisionsE2.remove(e1Id);
-
-                        if(observer != null && (e1CollidedWithe2 || e2CollidedWithe1)) {
-                            //This collision has just ended
-                            observer.collisionStopHandler(Entity.deepcopy(entity), Entity.deepcopy(otherEntity));
-                        }
-                    }
+            if(entity.getId() != otherEntity.getId()) {
+                if(entity.collides(otherEntity)) {
+                    startCollision(e1Id, entity, e2Id, otherEntity);
+                } else {
+                    //These entities are not colliding, so remove any collisions if there were any
+                    removeCollision(e1Id, entity, e2Id, otherEntity);
                 }
             }
+        }
+    }
 
+    private void startCollision(int e1Id, Entity entity1, int e2Id, Entity entity2) {
+        boolean startedE1WithE2 = false;
+        boolean startedE2WithE1 = false;
 
+        Set<Integer> collisionsE1 = currentCollisions.get(e1Id);
+        Set<Integer> collisionsE2 = currentCollisions.get(e2Id);
+
+        // Only add to hashmap if the collision was not present yet
+        if(!collisionsE1.contains(e2Id)) {
+            collisionsE1.add(e2Id);
+            startedE1WithE2 = true;
+        }
+
+        if(!collisionsE2.contains(e1Id)) {
+            collisionsE2.add(e1Id);
+            startedE2WithE1 = true;
+        }
+
+        // If the collision wasn't happening yet
+        if(observer != null && (startedE1WithE2 || startedE2WithE1)) {
+            //This collision is new and has just started
+            observer.collisionStartHandler(Entity.deepcopy(entity1), Entity.deepcopy(entity2));
+        }
+    }
+
+    private void removeCollision(int e1Id, Entity entity1, int e2Id, Entity entity2) {
+        Set<Integer> collisionsE1 = currentCollisions.get(e1Id);
+        Set<Integer> collisionsE2 = currentCollisions.get(e2Id);
+
+        boolean e1CollidedWithe2 = collisionsE1.remove(e2Id);
+        boolean e2CollidedWithe1 = collisionsE2.remove(e1Id);
+
+        if(observer != null && (e1CollidedWithe2 || e2CollidedWithe1)) {
+            //This collision has just ended
+            observer.collisionStopHandler(Entity.deepcopy(entity1), Entity.deepcopy(entity2));
         }
     }
 

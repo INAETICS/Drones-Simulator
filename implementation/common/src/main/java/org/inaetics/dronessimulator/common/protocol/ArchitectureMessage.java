@@ -9,7 +9,6 @@ import java.util.List;
 public class ArchitectureMessage extends ProtocolMessage {
     private SimulationAction action = null;
 
-
     @Override
     public List<MessageTopic> getTopics() {
         return Collections.singletonList(MessageTopic.ARCHITECTURE);

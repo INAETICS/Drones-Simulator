@@ -135,7 +135,7 @@ public class D3Vector implements Serializable {
      * Converts this vector to a three-dimensional polar coordinate.
      * @return The polar coordinate.
      */
-    public D3PoolCoordinate toPoolCoordinate() {
+    public D3PolarCoordinate toPoolCoordinate() {
         double angle1_x_y;
 
         // atan relation only available if x != 0!
@@ -183,7 +183,7 @@ public class D3Vector implements Serializable {
             }
         }
 
-        return new D3PoolCoordinate(angle1_x_y, angle2_x_z, this.length());
+        return new D3PolarCoordinate(angle1_x_y, angle2_x_z, this.length());
     }
 
     /**

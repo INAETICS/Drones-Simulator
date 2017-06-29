@@ -4,11 +4,10 @@ import java.io.Serializable;
 
 /**
  * Three-dimensional polar coordinate.
- * TODO: Rename this class to D3PolarCoordinate
  */
-public class D3PoolCoordinate implements Serializable {
+public class D3PolarCoordinate implements Serializable {
     /** The unity coordinate. */
-    public static final D3PoolCoordinate UNIT = new D3PoolCoordinate(0,0, 1);
+    public static final D3PolarCoordinate UNIT = new D3PolarCoordinate(0,0, 1);
 
     /** The angle between the x and y axis. */
     private final double angle1_x_y; // Between 0 and 2pi
@@ -22,7 +21,7 @@ public class D3PoolCoordinate implements Serializable {
     /**
      * Instantiates a new three-dimensional unity polar coordinate.
      */
-    public D3PoolCoordinate() {
+    public D3PolarCoordinate() {
         this(0,0,1);
     }
 
@@ -32,7 +31,7 @@ public class D3PoolCoordinate implements Serializable {
      * @param angle2_x_z The angle between the x and z axis.
      * @param length The distance to the coordinate.
      */
-    public D3PoolCoordinate(double angle1_x_y, double angle2_x_z, double length) {
+    public D3PolarCoordinate(double angle1_x_y, double angle2_x_z, double length) {
         // Change angles to keep the length always positive.
         if(length < 0) {
             angle1_x_y = angle1_x_y + Math.PI;
@@ -145,8 +144,8 @@ public class D3PoolCoordinate implements Serializable {
      * @param angle2_x_z The relative rotation between the x and z axis.
      * @return The produced coordinate.
      */
-    public D3PoolCoordinate rotate(double angle1_x_y, double angle2_x_z) {
-        return new D3PoolCoordinate(this.angle1_x_y + angle1_x_y, this.angle2_x_z + angle2_x_z, this.length);
+    public D3PolarCoordinate rotate(double angle1_x_y, double angle2_x_z) {
+        return new D3PolarCoordinate(this.angle1_x_y + angle1_x_y, this.angle2_x_z + angle2_x_z, this.length);
     }
 
     /**
@@ -154,8 +153,8 @@ public class D3PoolCoordinate implements Serializable {
      * @param scalar The scalar for the distance.
      * @return The produced coordinate.
      */
-    public D3PoolCoordinate scale(double scalar) {
-        return new D3PoolCoordinate(this.angle1_x_y, this.angle2_x_z, this.length * scalar);
+    public D3PolarCoordinate scale(double scalar) {
+        return new D3PolarCoordinate(this.angle1_x_y, this.angle2_x_z, this.length * scalar);
     }
 
     /**
@@ -192,7 +191,7 @@ public class D3PoolCoordinate implements Serializable {
      * @param other The object to test.
      * @return Whether the given object is equal to this coordinate.
      */
-    public boolean equals(D3PoolCoordinate other) {
+    public boolean equals(D3PolarCoordinate other) {
         return this.getAngle1() == other.getAngle1() && this.getAngle2() == other.getAngle2() && this.getLength() == other.getLength();
     }
 

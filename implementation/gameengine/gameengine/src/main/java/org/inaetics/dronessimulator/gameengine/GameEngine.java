@@ -30,35 +30,29 @@ import java.util.List;
 
 /**
  * Wrapper around PhysicsEngine. Sets up and connects all handlers with each other.
- * Set up are: physicsengine, incoming command messages, queue between physicsengine and ruleprocessors,
- * discovery handler
- * and ruleprocessors
+ * Set up are: physics engine, incoming command messages, queue between physics engine and rule processors,
+ * discovery handler.
  */
 public class GameEngine {
-    /**
-     * Physicsengine which is used in game engine
-     */
+    /** Physics engine used in the game engine. */
     private volatile IPhysicsEngineDriver m_physicsEngineDriver;
 
-    /**
-     * Manager of state outside of physicsengine
-     */
+    /** Manager of state outside of physicsengine. */
     private volatile IGameStateManager m_stateManager;
-    /**
-     * Ruleprocessors to handle any outgoing messages. Last ruleprocessor SendMessages send all messages off
-     */
+
+    /** Rule processors to handle any outgoing messages. The last rule processor SendMessages sends all messages off. */
     private volatile IRuleProcessors m_ruleProcessors;
 
+    /** The subscriber to use. */
     private volatile Subscriber m_subscriber;
 
+    /** The identifier mapper to use. */
     private volatile IdentifierMapper m_id_mapper;
 
+    /** The discoverer to use. */
     private volatile Discoverer m_discoverer;
 
-
-    /**
-     * Message handler to handle incoming commands from drones
-     */
+    /** Concrete message handlers. */
     private CollisionMessageHandler collisionMessageHandler;
     private DamageMessageHandler damageMessageHandler;
     private FireBulletMessageHandler fireBulletMessageHandler;
@@ -66,10 +60,11 @@ public class GameEngine {
     private MovementMessageHandler movementMessageHandler;
     private StateMessageHandler stateMessageHandler;
 
+    /** The game engine instance to register. */
     private Instance discoveryInstance;
 
     /**
-     * Start the wrapper. Setup all handlers, queues and engines. Connects everything if needed.
+     * Starts the wrapper. Sets up all handlers, queues and engines. Connects everything if needed.
      */
     public void start() throws DuplicateName, IOException {
         Logger.getLogger(GameEngine.class).info("Starting Game Engine...");
@@ -94,7 +89,6 @@ public class GameEngine {
         this.m_subscriber.addHandler(KillMessage.class, this.killMessageHandler);
         this.m_subscriber.addHandler(MovementMessage.class, this.movementMessageHandler);
         this.m_subscriber.addHandler(StateMessage.class, this.stateMessageHandler);
-
 
         // Setup discoverer
         discoveryInstance = new Instance(Type.SERVICE, Group.SERVICES, "gameengine" , new HashMap<>());
@@ -131,16 +125,14 @@ public class GameEngine {
             }
         });
 
-
         m_discoverer.addHandlers(true, addHandlers, Collections.emptyList(), removeHandlers);
-
 
         Logger.getLogger(GameEngine.class).info("Started Game Engine!");
     }
 
     /**
-     * Stops the wrapper. Kills the engine and ruleprocessor threads
-     * @throws Exception - Any exception which might happen during shutting down the wrapper
+     * Stops the wrapper. Kills the engine and rule processor threads.
+     * @throws Exception - Any exception which might happen during shutting down the wrapper.
      */
     public void stop() throws Exception {
         this.m_discoverer.unregister(discoveryInstance);

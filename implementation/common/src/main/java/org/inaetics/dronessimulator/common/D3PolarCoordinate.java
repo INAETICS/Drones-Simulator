@@ -2,24 +2,44 @@ package org.inaetics.dronessimulator.common;
 
 import java.io.Serializable;
 
-public class D3PoolCoordinate implements Serializable {
-    public static final D3PoolCoordinate UNIT = new D3PoolCoordinate(0,0, 1);
+/**
+ * Three-dimensional polar coordinate.
+ */
+public class D3PolarCoordinate implements Serializable {
+    /** The unity coordinate. */
+    public static final D3PolarCoordinate UNIT = new D3PolarCoordinate(0,0, 1);
+
+    /** The angle between the x and y axis. */
     private final double angle1_x_y; // Between 0 and 2pi
+
+    /** The angle between the x and z axis. */
     private final double angle2_x_z; // Between -0.5 * pi and 0.5 * pi
+
+    /** The distance to the coordinate. */
     private final double length;
 
-    public D3PoolCoordinate() {
+    /**
+     * Instantiates a new three-dimensional unity polar coordinate.
+     */
+    public D3PolarCoordinate() {
         this(0,0,1);
     }
 
-    public D3PoolCoordinate(double angle1_x_y, double angle2_x_z, double length) {
-
+    /**
+     * Instantiates a new three-dimensional polar coordinate with the given coordinates.
+     * @param angle1_x_y The angle between the x and y axis.
+     * @param angle2_x_z The angle between the x and z axis.
+     * @param length The distance to the coordinate.
+     */
+    public D3PolarCoordinate(double angle1_x_y, double angle2_x_z, double length) {
+        // Change angles to keep the length always positive.
         if(length < 0) {
             angle1_x_y = angle1_x_y + Math.PI;
             angle2_x_z = -1 * angle2_x_z;
             length = -1 * length;
         }
 
+        // Normalize the angles.
         Tuple<Double, Double> normalizedAngles = normalizeAngles(angle1_x_y, angle2_x_z);
 
         this.angle1_x_y = normalizedAngles.getLeft();
@@ -27,6 +47,13 @@ public class D3PoolCoordinate implements Serializable {
         this.length = length;
     }
 
+    /**
+     * Normalizes the given angles such that the first angle is between 0 and 2pi and the second angle is between -0.5pi
+     * and 0.5pi.
+     * @param angle1_x_y The angle between the x and y axis.
+     * @param angle2_x_z The angle between the x and z axis.
+     * @return A tuple containing the normalized angles in the order they were given.
+     */
     private static Tuple<Double, Double> normalizeAngles(double angle1_x_y, double angle2_x_z) {
         double a1_ = angle1_x_y;
         double a2_ = angle2_x_z % (2 * Math.PI);
@@ -79,34 +106,69 @@ public class D3PoolCoordinate implements Serializable {
         return new Tuple<>(a1_, a2_);
     }
 
+    /**
+     * Returns the angle between the x and y axis in radians.
+     * @return The angle between the x and y axis.
+     */
     public double getAngle1() {
         return angle1_x_y;
     }
 
+    /**
+     * Returns the angle between the x and y axis in degrees.
+     * @return The angle between the x and y axis.
+     */
     public double getAngle1Degrees() {
         return radianToDegrees(this.angle1_x_y);
     }
 
+    /**
+     * Returns the angle between the x and z axis in radians.
+     * @return The angle between the x and z axis.
+     */
     public double getAngle2() {
         return angle2_x_z;
     }
 
+    /**
+     * Returns the angle between the x and z axis in degrees.
+     * @return The angle between the x and z axis.
+     */
     public double getAngle2Degrees() {
         return radianToDegrees(this.angle2_x_z);
     }
 
-    public D3PoolCoordinate rotate(double angle1_x_y, double angle2_x_z) {
-        return new D3PoolCoordinate(this.angle1_x_y + angle1_x_y, this.angle2_x_z + angle2_x_z, this.length);
+    /**
+     * Produces a new coordinate which is rotated with the given angles.
+     * @param angle1_x_y The relative rotation between the x and y axis.
+     * @param angle2_x_z The relative rotation between the x and z axis.
+     * @return The produced coordinate.
+     */
+    public D3PolarCoordinate rotate(double angle1_x_y, double angle2_x_z) {
+        return new D3PolarCoordinate(this.angle1_x_y + angle1_x_y, this.angle2_x_z + angle2_x_z, this.length);
     }
 
-    public D3PoolCoordinate scale(double scalar) {
-        return new D3PoolCoordinate(this.angle1_x_y, this.angle2_x_z, this.length * scalar);
+    /**
+     * Produces a new coordinate which is moved (in distance) with the given factor.
+     * @param scalar The scalar for the distance.
+     * @return The produced coordinate.
+     */
+    public D3PolarCoordinate scale(double scalar) {
+        return new D3PolarCoordinate(this.angle1_x_y, this.angle2_x_z, this.length * scalar);
     }
 
+    /**
+     * Returns the distance of this coordinate.
+     * @return The distance of this coordinate.
+     */
     public double getLength() {
         return length;
     }
 
+    /**
+     * Converts this polar coordinate to a vector.
+     * @return The resulting vector.
+     */
     public D3Vector toVector() {
         double xy_length = Math.cos(this.angle2_x_z) * this.length;
         double x_length = Math.cos(this.angle1_x_y) * xy_length;
@@ -116,18 +178,37 @@ public class D3PoolCoordinate implements Serializable {
         return new D3Vector(x_length, y_length, z_length);
     }
 
+    /**
+     * Returns the string representation of this coordinate.
+     * @return The string representation.
+     */
     public String toString() {
         return "(a1:" + this.angle1_x_y + ", a2: " + this.angle2_x_z + " l:" + this.length + ")";
     }
 
-    public boolean equals(D3PoolCoordinate other) {
+    /**
+     * Tests whether the given object is equal to this coordinate.
+     * @param other The object to test.
+     * @return Whether the given object is equal to this coordinate.
+     */
+    public boolean equals(D3PolarCoordinate other) {
         return this.getAngle1() == other.getAngle1() && this.getAngle2() == other.getAngle2() && this.getLength() == other.getLength();
     }
 
+    /**
+     * Converts the given angle in radians to degrees.
+     * @param radians The angle in radians.
+     * @return The given angle in degrees.
+     */
     public static double radianToDegrees(double radians) {
         return (radians / Math.PI) * 180;
     }
 
+    /**
+     * Converts the given angle in degrees to radians.
+     * @param degrees The angle in degrees.
+     * @return The given angle in radians.
+     */
     public static double degreesToRadian(double degrees) {
         return (degrees / 180) * Math.PI;
     }

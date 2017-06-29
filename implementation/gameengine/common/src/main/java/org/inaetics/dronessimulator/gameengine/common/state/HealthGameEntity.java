@@ -4,13 +4,21 @@ import lombok.EqualsAndHashCode;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 
+/**
+ * Base game entity with health points.
+ */
 @EqualsAndHashCode(callSuper=true)
 public abstract class HealthGameEntity<C extends GameEntity<C>> extends GameEntity<C> {
-    /**
-     * How much hp this entity has left
-     */
+    /** The amount of hp this entity has left. */
     private volatile int hp;
 
+    /**
+     * Construction of a health game entity.
+     * @param entityId Id of the new entity.
+     * @param position Position of the new entity.
+     * @param velocity Velocity of the new entity.
+     * @param acceleration Acceleration of the new entity.
+     */
     public HealthGameEntity(int entityId, int hp, D3Vector position, D3Vector velocity, D3Vector acceleration) {
         super(entityId, position, velocity, acceleration);
 
@@ -23,14 +31,17 @@ public abstract class HealthGameEntity<C extends GameEntity<C>> extends GameEnti
     @Override
     public abstract C deepCopy();
 
-
+    /**
+     * Returns the amount of health points this entity has left.
+     * @return The amount of health points.
+     */
     public int getHP() {
         return hp;
     }
 
     /**
-     * Damage this entity with dmg damage.
-     * @param dmg Amount of damage to the entity
+     * Damage this entity with the given amount of damage.
+     * @param dmg Amount of damage to inflict on the entity
      */
     public void damage(int dmg) {
         this.hp -= dmg;

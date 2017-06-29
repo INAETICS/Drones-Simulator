@@ -10,10 +10,16 @@ import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A unified physics engine message which contains the end of a collision between two game entities.
+ */
 @AllArgsConstructor
 @Getter
 public class CollisionEndEvent extends GameEngineEvent {
+    /** First entity in the collision. */
     private final GameEntity e1;
+
+    /** Second entity in the collision. */
     private final GameEntity e2;
 
     @Override

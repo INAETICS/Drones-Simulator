@@ -1,6 +1,6 @@
 package org.inaetics.dronessimulator.visualisation.messagehandlers;
 
-import org.inaetics.dronessimulator.common.D3PoolCoordinate;
+import org.inaetics.dronessimulator.common.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.pubsub.api.Message;
@@ -36,7 +36,8 @@ public class StateMessageHandler implements MessageHandler {
     private Drone createPlayer(String id) {
         BasicDrone drone = new BasicDrone(uiUpdates, canvas);
         drone.setPosition(new D3Vector(500, 400, 1000));
-        drone.setDirection(new D3PoolCoordinate(0, 0, 0));
+        drone.setDirection(new D3PolarCoordinate(0, 0, 0));
+
         return drone;
     }
 
@@ -49,7 +50,8 @@ public class StateMessageHandler implements MessageHandler {
     private Bullet createBullet(String id) {
         Bullet bullet = new Bullet(uiUpdates, canvas);
         bullet.setPosition(new D3Vector(0, 0, 0));
-        bullet.setDirection(new D3PoolCoordinate(0, 0, 0));
+        bullet.setDirection(new D3PolarCoordinate(0, 0, 0));
+
         return bullet;
     }
 

@@ -18,23 +18,40 @@ import org.inaetics.dronessimulator.physicsengine.entityupdate.VelocityEntityUpd
 import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
 
-
+/**
+ * Driver for the simple physics engine shipped with the game engine.
+ */
 public class PhysicsEngineDriver implements IPhysicsEngineDriver {
+    /** The physics engine instance to use. */
     private transient volatile IPhysicsEngine m_physicsEngine;
+
+    /** The game state manager to use. */
     private transient volatile IGameStateManager m_stateManager;
+
+    /** The identifier mapper to use. */
     private transient volatile IdentifierMapper m_id_mapper;
 
+    /** Event queue for events produced by the physics engine. */
     private final LinkedBlockingQueue<GameEngineEvent> outgoingQueue;
+
+    /** Observer for the physics engine. */
     private PhysicsEngineObserver engineObserver;
 
+    /**
+     * Instantiates a new physics engine driver instance.
+     */
     public PhysicsEngineDriver() {
         this.outgoingQueue = new LinkedBlockingQueue<>();
     }
 
+    @Override
     public LinkedBlockingQueue<GameEngineEvent> getOutgoingQueue() {
         return this.outgoingQueue;
     }
 
+    /**
+     * Starts the physics engine driver.
+     */
     public void start() {
         Logger.getLogger(PhysicsEngineDriver.class).info("Starting PhysicsEngine Driver...");
         this.engineObserver = new PhysicsEngineObserver(this.outgoingQueue, m_stateManager);
@@ -44,10 +61,14 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
         Logger.getLogger(PhysicsEngineDriver.class).info("Started PhysicsEngine Driver!");
     }
 
+    /**
+     * Stops the physics engine driver.
+     */
     public void stop() {
         Logger.getLogger(PhysicsEngineDriver.class).info("Stopped PhysicsEngine Driver!");
     }
 
+    @Override
     public void addNewEntity(GameEntity gameEntity, String protocolId) {
         this.m_stateManager.addEntityState(gameEntity);
         this.m_physicsEngine.addInsert(PhysicsEngineDriver.gameEntityToPhysicsEntity(gameEntity));
@@ -134,6 +155,11 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
         }
     }
 
+    /**
+     * Converts a game entity to a physics engine entity.
+     * @param g The game entity.
+     * @return The new physics engine entity.
+     */
     private static Entity gameEntityToPhysicsEntity(GameEntity g) {
         Size size;
 

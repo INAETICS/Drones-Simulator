@@ -1,6 +1,6 @@
 package org.inaetics.dronessimulator.common.protocol;
 
-import org.inaetics.dronessimulator.common.D3PoolCoordinate;
+import org.inaetics.dronessimulator.common.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ public class StateMessage extends ProtocolMessage {
     private D3Vector position = null;
 
     /** The direction the object is in. */
-    private D3PoolCoordinate direction = null;
+    private D3PolarCoordinate direction = null;
 
     /** The velocity of the object. */
     private D3Vector velocity = null;
@@ -39,11 +39,11 @@ public class StateMessage extends ProtocolMessage {
         this.position = position;
     }
 
-    public Optional<D3PoolCoordinate> getDirection() {
+    public Optional<D3PolarCoordinate> getDirection() {
         return Optional.ofNullable(direction);
     }
 
-    public void setDirection(D3PoolCoordinate direction) {
+    public void setDirection(D3PolarCoordinate direction) {
         this.direction = direction;
     }
 

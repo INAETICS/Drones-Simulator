@@ -1,16 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.test;
 
-import org.inaetics.dronessimulator.common.D3PoolCoordinate;
-import org.inaetics.dronessimulator.common.D3Vector;
-import org.inaetics.dronessimulator.common.protocol.*;
-import org.inaetics.dronessimulator.gameengine.common.state.Bullet;
-import org.inaetics.dronessimulator.gameengine.common.state.Drone;
-import org.inaetics.dronessimulator.gameengine.gamestatemanager.GameStateManager;
-import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapperService;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-
 public class TestGameSubscriberMessageHandler {
     /*
     private MockPhysicsEngineDriver mockDriver;

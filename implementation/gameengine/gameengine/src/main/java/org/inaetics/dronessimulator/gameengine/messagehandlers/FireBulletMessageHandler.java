@@ -17,13 +17,13 @@ import java.util.Optional;
 
 @AllArgsConstructor
 public class FireBulletMessageHandler implements MessageHandler {
-    /**
-     * Which physicsengine to update entities in
-     */
+    /** The physics engine to update entities in. */
     private final IPhysicsEngineDriver physicsEngineDriver;
 
+    /** The mapping between protocol and physics engine ids. */
     private final IdentifierMapper id_mapper;
 
+    /** The game state manager for the entities. */
     private final IGameStateManager stateManager;
 
     @Override

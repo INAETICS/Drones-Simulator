@@ -2,7 +2,7 @@ package org.inaetics.dronessimulator.gameengine.common.gameevent;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.inaetics.dronessimulator.common.D3PoolCoordinate;
+import org.inaetics.dronessimulator.common.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
@@ -14,14 +14,12 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * A unified physicsengine message which contains the state of all entities
+ * A unified physics engine message which contains the state of all entities.
  */
 @AllArgsConstructor
 @Getter
 public class CurrentStateEvent extends GameEngineEvent {
-    /**
-     * All entities as currently in the
-     */
+    /** The entities as currently in the physics engine. */
     List<GameEntity> currentState;
 
     public void removeEntity(int entityId) {
@@ -43,7 +41,7 @@ public class CurrentStateEvent extends GameEngineEvent {
                 msg.setIdentifier(maybeProtocolId.get());
                 msg.setType(e.getType());
                 msg.setPosition(e.getPosition());
-                msg.setDirection(new D3PoolCoordinate());
+                msg.setDirection(new D3PolarCoordinate());
                 msg.setVelocity(e.getVelocity());
                 msg.setAcceleration(e.getAcceleration());
 

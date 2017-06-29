@@ -61,7 +61,7 @@ function finish {
   rabbitmqctl stop
   
 }
-trap finish SIGTERM
+trap finish SIGINT SIGTERM SIGQUIT
 while "$SCRIPT_RUNNING"; do
 	sleep 0.5
 done

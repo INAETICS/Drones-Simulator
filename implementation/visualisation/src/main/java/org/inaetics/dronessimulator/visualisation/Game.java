@@ -18,6 +18,11 @@ import org.inaetics.dronessimulator.architectureevents.ArchitectureEventControll
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.*;
+import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
 import org.inaetics.dronessimulator.discovery.etcd.EtcdDiscovererService;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.publisher.RabbitPublisher;
@@ -28,6 +33,7 @@ import org.inaetics.dronessimulator.visualisation.messagehandlers.*;
 import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
 
 import java.io.IOException;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -42,6 +48,8 @@ public class Game extends Application {
     private static final Logger logger = Logger.getLogger(Game.class);
 
     private final ConcurrentMap<String, BaseEntity> entities = new ConcurrentHashMap<>();
+
+    private final Map<String, String> rabbitConfig = new HashMap<>();
 
     private PannableCanvas canvas;
     private Group root;
@@ -63,6 +71,7 @@ public class Game extends Application {
     @Override
     public void start(Stage primaryStage) {
         setupInterface(primaryStage);
+        setupDiscovery();
         setupRabbit();
         setupArchitectureManagementVisuals();
         setupArchitectureManagement();
@@ -102,14 +111,53 @@ public class Game extends Application {
         gameLoop.start();
     }
 
+    private void setupDiscovery() {
+        this.discoverer = new EtcdDiscovererService();
+        this.discoverer.start();
+    }
+
     /**
      * Sets up the connection to the message broker and subscribes to the necessary channels and sets the required handlers
      */
     private void setupRabbit() {
+        List<NodeEventHandler<ChangedValue>> changedValueHandlers = new ArrayList<>();
+
+        changedValueHandlers.add((ChangedValue e) -> {
+            DiscoveryNode node = e.getNode();
+            DiscoveryPath path = node.getPath();
+
+            if(path.startsWith(DiscoveryPath.config(Type.RABBITMQ, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.BROKER, "default"))) {
+                if(node.getValue("username") != null) {
+                    rabbitConfig.put("username", node.getValue("username"));
+                }
+
+                if(node.getValue("password") != null) {
+                    rabbitConfig.put("password", node.getValue("password"));
+                }
+
+                if(node.getValue("uri") != null) {
+                    rabbitConfig.put("uri", node.getValue("uri"));
+                }
+
+                if(rabbitConfig.size() == 3) {
+                    connectRabbit();
+                }
+            }
+        });
+
+        this.discoverer.addHandlers(true, Collections.emptyList(), changedValueHandlers, Collections.emptyList());
+
+
+    }
+
+    private void connectRabbit() {
         if (this.subscriber == null) {
+            logger.info("Connecting RabbitMQ...");
             ConnectionFactory connectionFactory = new ConnectionFactory();
-            connectionFactory.setUsername("yourUser");
-            connectionFactory.setPassword("yourPass");
+            connectionFactory.setUsername(rabbitConfig.get("username"));
+            connectionFactory.setPassword(rabbitConfig.get("password"));
+            connectionFactory.setHost(rabbitConfig.get("uri"));
+
             // We can connect to localhost, since the visualization does not run within Docker
             this.subscriber = new RabbitSubscriber(connectionFactory, "visualisation", new JavaSerializer());
             this.publisher = new RabbitPublisher(connectionFactory, new JavaSerializer());
@@ -117,6 +165,7 @@ public class Game extends Application {
             try {
                 this.subscriber.connect();
                 this.publisher.connect();
+                logger.info("Connected RabbitMQ!");
             } catch (IOException e) {
                 logger.fatal(e);
             }
@@ -204,9 +253,6 @@ public class Game extends Application {
     }
 
     private void setupArchitectureManagement() {
-        this.discoverer = new EtcdDiscovererService();
-        this.discoverer.start();
-
         this.architectureEventController = new ArchitectureEventControllerService(this.discoverer);
         this.architectureEventController.start();
 

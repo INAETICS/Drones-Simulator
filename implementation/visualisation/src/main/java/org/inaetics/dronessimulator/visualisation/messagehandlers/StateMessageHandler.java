@@ -34,7 +34,6 @@ public class StateMessageHandler implements MessageHandler {
      * @return drone Drone - The newly created drone
      */
     private Drone createPlayer(String id) {
-        // create drone
         BasicDrone drone = new BasicDrone(uiUpdates, canvas);
         drone.setPosition(new D3Vector(500, 400, 1000));
         drone.setDirection(new D3PolarCoordinate(0, 0, 0));
@@ -49,9 +48,7 @@ public class StateMessageHandler implements MessageHandler {
      * @return bullet Bullet - The newly created bullet
      */
     private Bullet createBullet(String id) {
-        // create drone
         Bullet bullet = new Bullet(uiUpdates, canvas);
-
         bullet.setPosition(new D3Vector(0, 0, 0));
         bullet.setDirection(new D3PolarCoordinate(0, 0, 0));
 

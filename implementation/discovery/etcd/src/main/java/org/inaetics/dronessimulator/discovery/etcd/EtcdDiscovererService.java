@@ -36,8 +36,10 @@ public class EtcdDiscovererService implements Discoverer {
      * Starts the service by starting the threads that allow for waiting on changes.
      */
     public void start() {
-        // TODO: Make this URI dynamic
-        this.discoverer = new EtcdDiscoverer(URI.create("http://etcd:4001/"));
+        String etcd_host = System.getenv("ETCD_HOST") != null ? System.getenv("ETCD_HOST") : "etcd";
+        String etcd_port = System.getenv("ETCD_PORT") != null ? System.getenv("ETCD_PORT") : "4001";
+        logger.info("Connecting to http://" + etcd_host +":" + etcd_port + "/");
+        this.discoverer = new EtcdDiscoverer(URI.create("http://" + etcd_host +":" + etcd_port + "/"));
 
         this.changeHandler = new EtcdChangeHandler(discoverer);
         this.changeHandler.start();

@@ -28,7 +28,8 @@ public class Radar implements MessageHandler {
     private volatile DroneInit m_drone;
 
     private volatile D3Vector position;
-    private ConcurrentHashMap<String, D3Vector> all_positions = new ConcurrentHashMap<String, D3Vector>();
+    private final Object positionLock = new Object();
+    private final ConcurrentHashMap<String, D3Vector> all_positions = new ConcurrentHashMap<>();
     private static final int RADAR_RANGE = 500;
 
     /**
@@ -45,7 +46,9 @@ public class Radar implements MessageHandler {
 
         m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG,
                 (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
-                    all_positions.clear();
+                    synchronized (all_positions) {
+                        all_positions.clear();
+                    }
                 }
         );
     }
@@ -58,11 +61,25 @@ public class Radar implements MessageHandler {
     }
 
     public List<D3Vector> getRadar(){
-        return all_positions.entrySet()
-                .stream()
-                .map(e -> e.getValue())
-                .filter(object_position -> position.distance_between(object_position) <= RADAR_RANGE)
-                .collect(Collectors.toList());
+        List<D3Vector> results;
+
+        synchronized (all_positions)  {
+            results = all_positions.entrySet()
+                                   .stream()
+                                   .map(e -> e.getValue())
+                                   .filter(object_position -> {
+                                        boolean result;
+
+                                        synchronized (positionLock) {
+                                           result = position.distance_between(object_position) <= RADAR_RANGE;
+                                        }
+
+                                        return result;
+                                   })
+                                   .collect(Collectors.toList());
+        }
+
+        return results;
     }
 
     public Optional<D3Vector> getNearestTarget(){
@@ -76,7 +93,9 @@ public class Radar implements MessageHandler {
      * -- SETTERS
      */
     private void setPosition(D3Vector new_position){
-        position = new_position;
+        synchronized (positionLock) {
+            position = new_position;
+        }
     }
 
     /**
@@ -97,14 +116,18 @@ public class Radar implements MessageHandler {
             }
         } else {
             if (stateMessage.getPosition().isPresent() && stateMessage.getType().equals(EntityType.DRONE)){
-                this.all_positions.put(stateMessage.getIdentifier(), stateMessage.getPosition().get());
+                synchronized (all_positions) {
+                    this.all_positions.put(stateMessage.getIdentifier(), stateMessage.getPosition().get());
+                }
             }
         }
     }
 
     public void handleKillMessage(KillMessage killMessage){
         if(killMessage.getEntityType().equals(EntityType.DRONE)) {
-            this.all_positions.remove(killMessage.getIdentifier());
+            synchronized (all_positions) {
+                this.all_positions.remove(killMessage.getIdentifier());
+            }
         }
     }
 

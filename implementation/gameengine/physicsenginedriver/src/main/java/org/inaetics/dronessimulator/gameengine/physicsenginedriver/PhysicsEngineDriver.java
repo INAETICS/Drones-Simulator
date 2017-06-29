@@ -63,7 +63,7 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
         Logger.getLogger(PhysicsEngineDriver.class).info("Starting PhysicsEngine Driver...");
         this.engineObserver = new PhysicsEngineObserver(this.outgoingQueue, m_stateManager);
         m_physicsEngine.setObserver(engineObserver);
-        m_physicsEngine.setTimeBetweenBroadcastms(20L);
+        m_physicsEngine.setTimeBetweenBroadcastms(30L);
 
         m_architectureEventController.addHandler(SimulationState.CONFIG, SimulationAction.START, SimulationState.RUNNING, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
             logger.info("Starting simulation!");

@@ -19,7 +19,7 @@ public class SimpleTactic extends Tactic {
     protected volatile Engine m_engine;
     protected volatile Gun m_gun;
 
-    private static final int MAX_DEVIATION_POSTION = 200;
+    private static final int MAX_DEVIATION_POSTION = 1024;
     private static final int MAX_Z_DEVIATION_POSTION = 100;
     /**
      *  -- IMPLEMENT FUNCTIONS

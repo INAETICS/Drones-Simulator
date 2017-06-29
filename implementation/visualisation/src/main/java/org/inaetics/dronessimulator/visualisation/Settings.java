@@ -3,10 +3,10 @@ package org.inaetics.dronessimulator.visualisation;
 public class Settings {
 
     public final static int SCENE_WIDTH = 1024;
-    public final static int SCENE_HEIGHT = 768;
+    public final static int SCENE_HEIGHT = 1024;
 
-    public final static int CANVAS_WIDTH = 1500;
-    public final static int CANVAS_HEIGHT = 1500;
+    public final static int CANVAS_WIDTH = 1024;
+    public final static int CANVAS_HEIGHT = 1024;
 
     public final static int DRONE_WIDTH = 128;
     public final static int DRONE_HEIGHT = 128;

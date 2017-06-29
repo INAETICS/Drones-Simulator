@@ -14,8 +14,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.architectureevents.ArchitectureEventControllerService;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
+import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.*;
+import org.inaetics.dronessimulator.discovery.etcd.EtcdDiscovererService;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.publisher.RabbitPublisher;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitSubscriber;
@@ -33,6 +36,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 public class Game extends Application {
     private RabbitSubscriber subscriber;
     private RabbitPublisher publisher;
+    private EtcdDiscovererService discoverer;
+    private ArchitectureEventControllerService architectureEventController;
 
     private static final Logger logger = Logger.getLogger(Game.class);
 
@@ -59,6 +64,7 @@ public class Game extends Application {
     public void start(Stage primaryStage) {
         setupInterface(primaryStage);
         setupRabbit();
+        setupArchitectureManagementVisuals();
         setupArchitectureManagement();
 
         lastLog = System.currentTimeMillis();
@@ -164,7 +170,7 @@ public class Game extends Application {
         canvas.addGrid();
     }
 
-    private void setupArchitectureManagement() {
+    private void setupArchitectureManagementVisuals() {
         HBox buttons = new HBox();
 
         Button configButton = new Button("Config");
@@ -195,6 +201,23 @@ public class Game extends Application {
         stopButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.STOP, publisher));
         pauseButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.PAUSE, publisher));
         resumeButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.RESUME, publisher));
+    }
+
+    private void setupArchitectureManagement() {
+        this.discoverer = new EtcdDiscovererService();
+        this.discoverer.start();
+
+        this.architectureEventController = new ArchitectureEventControllerService(this.discoverer);
+        this.architectureEventController.start();
+
+        this.architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG,
+                (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+                    for(BaseEntity e : this.entities.values()) {
+                        e.delete();
+                    }
+                    this.entities.clear();
+                }
+        );
     }
 
     public static void main(String[] args) {

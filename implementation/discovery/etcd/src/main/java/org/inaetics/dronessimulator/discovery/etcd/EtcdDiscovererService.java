@@ -42,7 +42,10 @@ public class EtcdDiscovererService implements Discoverer {
         this.changeHandler = new EtcdChangeHandler(discoverer);
         this.changeHandler.start();
 
-        this.addConfigAdminHandlers();
+        // If discoverer is used outside of OSGI
+        if(m_configurationAdmin != null) {
+            this.addConfigAdminHandlers();
+        }
     }
 
     /**

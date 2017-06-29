@@ -29,9 +29,6 @@ public class Gun {
         return MAX_DISTANCE;
     }
 
-
-
-
     public long msSinceLastShot(){ return System.currentTimeMillis() - this.last_shot_at_ms; }
 
     public void fireBullet(D3PoolCoordinate direction){

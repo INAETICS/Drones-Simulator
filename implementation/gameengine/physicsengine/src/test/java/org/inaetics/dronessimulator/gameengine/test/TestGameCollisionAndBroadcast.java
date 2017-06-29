@@ -37,10 +37,12 @@ public class TestGameCollisionAndBroadcast {
         physicsEngine.addInsert(e2);
 
         physicsEngine.start();
+        physicsEngine.startEngine();
 
         try {
             Thread.sleep(1100);
             physicsEngine.stopEngine();
+            physicsEngine.destroy();
             physicsEngine.join();
         } catch (InterruptedException e) {
             e.printStackTrace();

@@ -3,7 +3,7 @@ package org.inaetics.dronessimulator.architecturemanager;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
-import org.inaetics.dronessimulator.common.protocol.ArchitectureMessage;
+import org.inaetics.dronessimulator.common.protocol.RequestArchitectureStateChangeMessage;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
@@ -84,8 +84,8 @@ public class ArchitectureManager {
 
             //Add subscriber handlers
             m_subscriber.addTopic(MessageTopic.ARCHITECTURE);
-            m_subscriber.addHandler(ArchitectureMessage.class, (Message _msg) -> {
-                ArchitectureMessage msg = (ArchitectureMessage) _msg;
+            m_subscriber.addHandler(RequestArchitectureStateChangeMessage.class, (Message _msg) -> {
+                RequestArchitectureStateChangeMessage msg = (RequestArchitectureStateChangeMessage) _msg;
                 SimulationAction action = msg.getAction();
                 SimulationState nextState = nextState(this.currentState, action);
 

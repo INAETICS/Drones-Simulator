@@ -5,7 +5,7 @@ import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
-import org.inaetics.dronessimulator.common.protocol.ArchitectureMessage;
+import org.inaetics.dronessimulator.common.protocol.RequestArchitectureStateChangeMessage;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 
@@ -24,7 +24,7 @@ public class ArchitectureButtonEventHandler implements EventHandler<MouseEvent> 
 
     @Override
     public void handle(MouseEvent event) {
-        ArchitectureMessage msg = new ArchitectureMessage();
+        RequestArchitectureStateChangeMessage msg = new RequestArchitectureStateChangeMessage();
         msg.setAction(action);
 
         try {

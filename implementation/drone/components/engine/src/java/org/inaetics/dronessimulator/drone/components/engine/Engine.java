@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.drone.components.engine;
 
+import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.MovementMessage;
@@ -8,10 +9,10 @@ import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 
 import java.io.IOException;
 
-/**
- * Created by mart on 17-5-17.
- */
+
 public class Engine {
+    private final static Logger logger = Logger.getLogger(Engine.class);
+
     private volatile Publisher m_publisher;
     private volatile DroneInit m_drone;
 
@@ -66,7 +67,8 @@ public class Engine {
         try {
             m_publisher.send(MessageTopic.MOVEMENTS, msg);
         } catch (IOException e) {
-            System.out.println("Exception");
+            logger.fatal(e);
+            e.printStackTrace();
         }
     }
 }

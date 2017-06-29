@@ -25,9 +25,9 @@ public class RemoveStrayBullets extends Processor {
                 if(entity instanceof Bullet) {
                     Bullet bullet = (Bullet) entity;
 
+                    // TODO Make range dependent on arena size
                     if(bullet.getPosition().length() >= 565) {
                         events.add(new DestroyBulletEvent(bullet.getEntityId()));
-                        System.out.println("STRAY BULLET: " + bullet.getEntityId() + " " + bullet.getPosition() + " " + bullet.getPosition().length());
                     }
 
                 }

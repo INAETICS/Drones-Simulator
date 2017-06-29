@@ -102,22 +102,16 @@ public abstract class RabbitConnection {
      * @throws IOException Error while setting up the connection.
      */
     public void connect() throws IOException {
-        System.out.println("RABBITMQ CONNECT!");
-        System.out.println(getLogger());
-        System.out.println(getLogger().getClass());
-        getLogger().info("TEST LOG");
         // Create a channel if not present
         if (!isConnected()) {
-            System.out.println("NOT CONNECTED YET!");
             int attempt = 0;
 
             while (connection == null) {
-                System.out.println("CONNECTING...");
                 attempt++;
 
                 try {
                     connection = connectionFactory.newConnection();
-                    System.out.println("CONNECTED!");
+
                     getLogger().info("Connected to RabbitMQ");
                 } catch (ConnectException | TimeoutException e) {
                     getLogger().error("Could not connect to RabbitMQ (attempt {}): {}", attempt, e.getMessage());

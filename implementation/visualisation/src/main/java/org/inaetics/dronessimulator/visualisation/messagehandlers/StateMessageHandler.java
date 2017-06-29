@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.visualisation.messagehandlers;
 
+import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
@@ -17,6 +18,7 @@ import java.util.concurrent.ConcurrentMap;
 
 
 public class StateMessageHandler implements MessageHandler {
+    private static final Logger logger = Logger.getLogger(StateMessageHandler.class);
     private final BlockingQueue<UIUpdate> uiUpdates;
     private final PannableCanvas canvas;
     private final ConcurrentMap<String, BaseEntity> entities;
@@ -105,7 +107,7 @@ public class StateMessageHandler implements MessageHandler {
                     createOrUpdateBullet(stateMessage);
                     break;
                 default:
-                    System.out.println("Unknown type");
+                    logger.error("Received state message with unknown entity type! " + message);
             }
     }
 }

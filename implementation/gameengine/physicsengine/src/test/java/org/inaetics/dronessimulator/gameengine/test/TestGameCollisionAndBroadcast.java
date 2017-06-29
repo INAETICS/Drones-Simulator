@@ -71,8 +71,7 @@ public class TestGameCollisionAndBroadcast {
         public void collisionStopHandler(Entity e1, Entity e2) {
             // Only expect it once
             Assert.assertEquals(false, hasEnded);
-            System.out.println(e1);
-            System.out.println(e2);
+
             if(e1.getId() == 1) {
                 Assert.assertEquals(2, e2.getId());
                 hasEnded = true;

@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.drone.droneinit;
 
 
+import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
@@ -14,6 +15,8 @@ import java.util.Map;
 import java.util.UUID;
 
 public class DroneInit {
+    private static final Logger logger = Logger.getLogger(DroneInit.class);
+
     private final BundleContext bundleContext;
     private String identifier;
     private volatile Discoverer m_discoverer;
@@ -44,7 +47,8 @@ public class DroneInit {
             m_discoverer.register(instance);
             this.registered_instance = instance;
         } catch (IOException e) {
-            System.out.println("IO Exception");
+            logger.fatal(e);
+            e.printStackTrace();
         }catch(DuplicateName e){
             this.setIdentifier(this.getIdentifier() + "-" + UUID.randomUUID().toString());
             this.registerDroneService();
@@ -56,7 +60,8 @@ public class DroneInit {
         try{
             this.m_discoverer.unregister(registered_instance);
         } catch (IOException e) {
-            System.out.println("IO Exception");
+            logger.fatal(e);
+            e.printStackTrace();
         }
     }
 

@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.drone.components.radar;
 
+import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
@@ -20,6 +21,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class Radar implements MessageHandler {
+    private static final Logger logger = Logger.getLogger(Radar.class);
+
     private volatile ArchitectureEventController m_architectureEventController;
     private volatile Subscriber m_subscriber;
     private volatile DroneInit m_drone;
@@ -35,7 +38,8 @@ public class Radar implements MessageHandler {
         try {
             this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
-            System.out.println("IO Exception add Topic");
+            logger.fatal(e);
+            e.printStackTrace();
         }
         this.m_subscriber.addHandler(StateMessage.class, this);
         this.m_subscriber.addHandler(KillMessage.class, this);

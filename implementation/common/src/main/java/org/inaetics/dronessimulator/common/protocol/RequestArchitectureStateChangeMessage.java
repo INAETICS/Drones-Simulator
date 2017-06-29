@@ -36,7 +36,7 @@ public class RequestArchitectureStateChangeMessage extends ProtocolMessage {
         this.action = action;
     }
 
-
+    @Override
     public String toString() {
         return "RequestArchitectureStateChangeMessage " + action;
     }

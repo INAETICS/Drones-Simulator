@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.gameengine.physicsenginedriver;
 
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
+import org.inaetics.dronessimulator.architectureevents.ArchitectureEventHandler;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
@@ -79,25 +80,15 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
             this.pauseEngine();
         });
 
-        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.GAMEOVER, SimulationState.DONE, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+        ArchitectureEventHandler stopHandler = (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
             logger.info("Stopping simulation!");
             this.stopEngine();
-        });
+        };
 
-        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.STOP, SimulationState.INIT, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
-            logger.info("Stopping simulation!");
-            this.stopEngine();
-        });
-
-       m_architectureEventController.addHandler(SimulationState.CONFIG, SimulationAction.STOP, SimulationState.INIT, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
-            logger.info("Stopping simulation!");
-            this.stopEngine();
-        });
-
-       m_architectureEventController.addHandler(SimulationState.PAUSED, SimulationAction.STOP, SimulationState.INIT, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
-            logger.info("Stopping simulation!");
-            this.stopEngine();
-        });
+        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.GAMEOVER, SimulationState.DONE, stopHandler);
+        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.STOP, SimulationState.INIT, stopHandler);
+        m_architectureEventController.addHandler(SimulationState.CONFIG, SimulationAction.STOP, SimulationState.INIT, stopHandler);
+        m_architectureEventController.addHandler(SimulationState.PAUSED, SimulationAction.STOP, SimulationState.INIT, stopHandler);
 
         logger.info("Started PhysicsEngine Driver!");
     }

@@ -94,8 +94,9 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
      * @param events The events to process.
      */
     public void processEventsForRules(List<GameEngineEvent> events) {
+        List<GameEngineEvent> allEvents = events;
         for(Processor rule : this.rules) {
-            events = this.processEventsForRule(events, rule);
+            allEvents = this.processEventsForRule(allEvents, rule);
         }
     }
 
@@ -135,5 +136,6 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
     @Override
     @Deprecated
     public void destroy() {
+        // Override destroy from thread to do nothing. Will be called as callback by Activator upon destroy of the bundle
     }
 }

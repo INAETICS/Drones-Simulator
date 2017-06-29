@@ -1,13 +1,14 @@
 package org.inaetics.dronessimulator.common;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * Three-dimensional vector implementation.
  */
 public class D3Vector implements Serializable {
     /** The unity vector. */
-    public transient static D3Vector UNIT = new D3Vector(1,1,1);
+    public transient final static D3Vector UNIT = new D3Vector(1,1,1);
 
     /** X coordinate of this vector. */
     private final double x;
@@ -137,6 +138,8 @@ public class D3Vector implements Serializable {
      */
     public D3PolarCoordinate toPoolCoordinate() {
         double angle1_x_y;
+        BigDecimal bigX = BigDecimal.valueOf(this.x);
+        BigDecimal bigY = BigDecimal.valueOf(this.y);
 
         // atan relation only available if x != 0!
         if(this.x > 0 && this.y > 0) {
@@ -147,7 +150,9 @@ public class D3Vector implements Serializable {
             angle1_x_y = Math.PI - Math.atan(this.y / Math.abs(this.x));
         } else if  (this.x < 0 && this.y < 0) {
             angle1_x_y = Math.PI + Math.atan(this.y / this.x);
-        } else if(this.x == 0 && this.y != 0) {
+        } else if(  bigX.equals(BigDecimal.ZERO)
+                && !bigY.equals(BigDecimal.ZERO)
+                 ) {
             // x == 0, so look where y is
             if(this.y > 0) {
                 angle1_x_y = 0.5 * Math.PI;
@@ -158,9 +163,7 @@ public class D3Vector implements Serializable {
             }
         } else {
             // y == 0, so look where x is
-            if(this.x > 0) {
-                angle1_x_y = 0;
-            } else if(this.x < 0) {
+            if(this.x < 0) {
                 angle1_x_y = Math.PI;
             } else {
                 angle1_x_y = 0;
@@ -170,7 +173,9 @@ public class D3Vector implements Serializable {
         double angle2_x_z;
 
         // atan relation only available if x != 0 || y != 0
-        if(this.x != 0 || this.y != 0) {
+        if( !bigX.equals(BigDecimal.ZERO)
+         || !bigY.equals(BigDecimal.ZERO)
+          ) {
             angle2_x_z = Math.atan(this.z / Math.sqrt(Math.pow(this.x,2) + Math.pow(this.y,2)));
         } else {
             // x + y == 0, look where z is pointing
@@ -208,15 +213,23 @@ public class D3Vector implements Serializable {
 
     /**
      * Tests whether the given object is equal to this vector.
-     * @param other The object to test.
+     * @param o The object to test.
      * @return Whether the given object is equal to this vector.
      */
-    public boolean equals(D3Vector other) {
-        return this.getX() == other.getX() && this.getY() == other.getY() && this.getZ() == other.getZ();
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof D3Vector) {
+            D3Vector other = (D3Vector) o;
+            return BigDecimal.valueOf(this.getX()).equals(BigDecimal.valueOf(other.getX()))
+                && BigDecimal.valueOf(this.getY()).equals(BigDecimal.valueOf(other.getY()))
+                && BigDecimal.valueOf(this.getZ()).equals(BigDecimal.valueOf(other.getZ()));
+        } else {
+            return false;
+        }
     }
 
     @Override
-    public boolean equals(Object other) {
-        return other instanceof D3Vector && this.equals((D3Vector) other);
+    public int hashCode() {
+        return (int) Math.round(this.getX() + this.getY() + this.getZ());
     }
 }

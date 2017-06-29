@@ -81,8 +81,6 @@ public class DiscoveryPath extends Path<DiscoveryPath> {
 
     @Override
     protected DiscoveryPath newChild(String delimiter, String[] segments) {
-        assert delimiter.equals(PATH_DELIMITER);
-
         return new DiscoveryPath(segments);
     }
 }

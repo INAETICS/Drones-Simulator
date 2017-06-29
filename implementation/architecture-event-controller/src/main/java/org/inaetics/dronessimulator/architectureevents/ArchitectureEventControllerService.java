@@ -37,8 +37,8 @@ public class ArchitectureEventControllerService implements ArchitectureEventCont
 
             if(  discoveredPath.isConfigPath()
               && discoveredPath.startsWith(DiscoveryPath.group(Type.SERVICE, Group.SERVICES))
-              && discoveredNode.getId().equals("architecture")
-              && changedValue.getKey().equals("current_life_cycle")
+              && "architecture".equals(discoveredNode.getId())
+              && "current_life_cycle".equals(changedValue.getKey())
               ) {
                 handleNewState(discoveredNode);
             }

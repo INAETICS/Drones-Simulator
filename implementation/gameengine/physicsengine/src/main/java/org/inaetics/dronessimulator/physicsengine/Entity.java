@@ -109,9 +109,11 @@ public class Entity implements Cloneable {
      * @return If the entities are colliding.
      */
     public boolean collides(Entity other) {
-        return (this.getMinX() <= other.getMaxX() && this.getMaxX() >= other.getMinX()) &&
-                (this.getMinY() <= other.getMaxY() && this.getMaxY() >= other.getMinY()) &&
-                (this.getMinZ() <= other.getMaxZ() && this.getMaxZ() >= other.getMinZ());
+        boolean xOverlap = (this.getMinX() <= other.getMaxX() && this.getMaxX() >= other.getMinX());
+        boolean yOverlap = (this.getMinY() <= other.getMaxY() && this.getMaxY() >= other.getMinY());
+        boolean zOverlap = (this.getMinZ() <= other.getMaxZ() && this.getMaxZ() >= other.getMinZ());
+
+        return  xOverlap && yOverlap && zOverlap;
     }
 
     /**
@@ -167,8 +169,14 @@ public class Entity implements Cloneable {
      * @param other The other entity.
      * @return Whether the entities are equal.
      */
-    public boolean equals(Entity other) {
-        return this.getId() == other.getId();
+     @Override
+    public boolean equals(Object other) {
+        return other instanceof Entity && this.getId() == ((Entity) other).getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return this.getId();
     }
 
     /**
@@ -178,5 +186,10 @@ public class Entity implements Cloneable {
      */
     public static Entity deepcopy(Entity entity) {
         return new Entity(entity.getId(), entity.getSize(), entity.getPosition(), entity.getVelocity(), entity.getAcceleration());
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        return super.clone();
     }
 }

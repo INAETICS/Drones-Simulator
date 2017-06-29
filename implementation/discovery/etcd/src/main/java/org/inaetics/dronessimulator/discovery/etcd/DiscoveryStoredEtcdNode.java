@@ -60,7 +60,7 @@ public class DiscoveryStoredEtcdNode extends DiscoveryStoredNode {
      */
     static String getNodeName(String key) {
         if(key != null) {
-            return key.substring(Math.max(0, key.lastIndexOf("/") + 1));
+            return key.substring(Math.max(0, key.lastIndexOf('/') + 1));
         } else {
             return DiscoveryPath.ROOT_PATH.toString();
         }

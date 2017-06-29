@@ -13,6 +13,7 @@ import java.io.IOException;
 
 
 public class ArchitectureButtonEventHandler implements EventHandler<MouseEvent> {
+    private final static Logger logger = Logger.getLogger(ArchitectureButtonEventHandler.class);
     private final Publisher publisher;
     private final SimulationAction action;
 
@@ -29,8 +30,7 @@ public class ArchitectureButtonEventHandler implements EventHandler<MouseEvent> 
         try {
             publisher.send(MessageTopic.ARCHITECTURE, msg);
         } catch (IOException e) {
-            Logger.getLogger(ArchitectureButtonEventHandler.class).fatal(e);
-            e.printStackTrace();
+            logger.fatal(e);
         }
     }
 }

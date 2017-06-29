@@ -61,7 +61,6 @@ public class ArchitectureManager {
                     try {
                         instance = m_discoverer.updateProperties(instance, getCurrentProperties());
                     } catch (IOException e) {
-                        e.printStackTrace();
                         logger.fatal(e);
                     }
 
@@ -72,7 +71,6 @@ public class ArchitectureManager {
 
         } catch(IOException | DuplicateName e) {
             logger.fatal(e);
-            e.printStackTrace();
         }
 
         logger.info("Started Architecture Manager!");
@@ -83,7 +81,6 @@ public class ArchitectureManager {
         try {
             m_discoverer.unregister(instance);
         } catch (IOException e) {
-            e.printStackTrace();
             logger.error(e);
         }
         logger.info("Stopped Architecture Manager!");
@@ -97,66 +94,137 @@ public class ArchitectureManager {
     }
 
     public static SimulationState nextState(SimulationState currentState, SimulationAction action) {
-        SimulationState nextState = null;
+        SimulationState nextState;
 
         switch(currentState) {
             case NOSTATE:
-                switch(action) {
-                    case INIT:
-                        nextState = SimulationState.INIT;
-                        break;
-                }
+                nextState = nextStateFromNoState(action);
                 break;
 
             case INIT:
-                switch(action) {
-                    case CONFIG:
-                        nextState = SimulationState.CONFIG;
-                        break;
-                }
+                nextState = nextStateFromInit(action);
+                break;
 
             case CONFIG:
-                switch(action) {
-                    case START:
-                        nextState = SimulationState.RUNNING;
-                        break;
-                    case STOP:
-                        nextState = SimulationState.INIT;
-                        break;
-                }
+                nextState = nextStateFromConfig(action);
                 break;
 
             case RUNNING:
-                switch(action) {
-                    case STOP:
-                        nextState = SimulationState.INIT;
-                        break;
-                    case PAUSE:
-                        nextState = SimulationState.PAUSED;
-                        break;
-                    case GAMEOVER:
-                        nextState = SimulationState.DONE;
-                        break;
-                }
+                nextState = nextStateFromRunning(action);
                 break;
 
             case PAUSED:
-                switch(action) {
-                    case RESUME:
-                        nextState = SimulationState.RUNNING;
-                        break;
-                    case STOP:
-                        nextState = SimulationState.INIT;
-                        break;
-                }
+                nextState = nextStateFromPaused(action);
                 break;
 
             case DONE:
-                switch(action) {
-                    case STOP:
-                        nextState = SimulationState.INIT;
-                        break;
-                }
+                nextState = nextStateFromDone(action);
+                break;
+
+            default:
+                nextState = null;
+                break;
+        }
+
+        return nextState;
+    }
+
+    private static SimulationState nextStateFromNoState(SimulationAction action) {
+        SimulationState nextState;
+
+        switch(action) {
+            case INIT:
+                nextState = SimulationState.INIT;
+                break;
+            default:
+                nextState = null;
+                break;
+        }
+
+        return nextState;
+    }
+
+    private static SimulationState nextStateFromInit(SimulationAction action) {
+        SimulationState nextState;
+
+        switch(action) {
+            case CONFIG:
+                nextState = SimulationState.CONFIG;
+                break;
+            default:
+                nextState = null;
+                break;
+        }
+
+        return nextState;
+    }
+
+    private static SimulationState nextStateFromConfig(SimulationAction action) {
+        SimulationState nextState;
+
+        switch(action) {
+            case START:
+                nextState = SimulationState.RUNNING;
+                break;
+            case STOP:
+                nextState = SimulationState.INIT;
+                break;
+            default:
+                nextState = null;
+                break;
+        }
+
+        return nextState;
+    }
+
+    private static SimulationState nextStateFromRunning(SimulationAction action) {
+        SimulationState nextState;
+
+        switch(action) {
+            case STOP:
+                nextState = SimulationState.INIT;
+                break;
+            case PAUSE:
+                nextState = SimulationState.PAUSED;
+                break;
+            case GAMEOVER:
+                nextState = SimulationState.DONE;
+                break;
+            default:
+                nextState = null;
+                break;
+        }
+
+        return nextState;
+    }
+
+    private static SimulationState nextStateFromPaused(SimulationAction action) {
+        SimulationState nextState;
+
+        switch(action) {
+            case RESUME:
+                nextState = SimulationState.RUNNING;
+                break;
+            case STOP:
+                nextState = SimulationState.INIT;
+                break;
+            default:
+                nextState = null;
+                break;
+        }
+
+        return nextState;
+    }
+
+    private static SimulationState nextStateFromDone(SimulationAction action) {
+        SimulationState nextState;
+
+        switch(action) {
+            case STOP:
+                nextState = SimulationState.INIT;
+                break;
+            default:
+                nextState = null;
                 break;
         }
 

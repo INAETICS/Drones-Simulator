@@ -83,7 +83,8 @@ public class Game extends Application {
                         UIUpdate uiUpdate = uiUpdates.take();
                         uiUpdate.execute(canvas);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        logger.fatal(e);
+                        Thread.currentThread().interrupt();
                     }
                 }
 
@@ -111,7 +112,7 @@ public class Game extends Application {
                 this.subscriber.connect();
                 this.publisher.connect();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.fatal(e);
             }
         }
 
@@ -124,7 +125,7 @@ public class Game extends Application {
         try {
             this.subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.fatal(e);
         }
     }
 

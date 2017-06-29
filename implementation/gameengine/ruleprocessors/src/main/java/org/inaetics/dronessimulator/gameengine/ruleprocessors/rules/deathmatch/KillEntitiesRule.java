@@ -13,7 +13,9 @@ import java.util.List;
 
 public class KillEntitiesRule extends Processor {
     @Override
-    public void configRule() {}
+    public void configRule() {
+        // Nothing to config
+    }
 
     @Override
     public List<GameEngineEvent> process(GameEngineEvent msg) {
@@ -21,23 +23,28 @@ public class KillEntitiesRule extends Processor {
 
         if(msg instanceof CurrentStateEvent) {
             CurrentStateEvent currentStateEvent = (CurrentStateEvent) msg;
-            results  = new ArrayList<>(currentStateEvent.getCurrentState().size());
 
-
-            for(GameEntity gameEntity : currentStateEvent.getCurrentState()) {
-                if(gameEntity instanceof HealthGameEntity) {
-                    HealthGameEntity healthGameEntity = (HealthGameEntity) gameEntity;
-
-                    if(healthGameEntity.getHP() <= 0) {
-                        DestroyHealthEntityEvent destroyEvent = new DestroyHealthEntityEvent(healthGameEntity);
-
-                        results.add(destroyEvent);
-                    }
-                }
-            }
-
+            results = killDeadEntities(currentStateEvent.getCurrentState());
         } else {
             results = Collections.emptyList();
+        }
+
+        return results;
+    }
+
+    private List<GameEngineEvent> killDeadEntities(List<GameEntity> gameEntities) {
+        List<GameEngineEvent> results = new ArrayList<>(gameEntities.size());
+
+        for(GameEntity gameEntity : gameEntities) {
+            if(gameEntity instanceof HealthGameEntity) {
+                HealthGameEntity healthGameEntity = (HealthGameEntity) gameEntity;
+
+                if(healthGameEntity.getHP() <= 0) {
+                    DestroyHealthEntityEvent destroyEvent = new DestroyHealthEntityEvent(healthGameEntity);
+
+                    results.add(destroyEvent);
+                }
+            }
         }
 
         return results;

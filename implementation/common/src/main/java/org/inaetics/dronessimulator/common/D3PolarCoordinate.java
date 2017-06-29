@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.common;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
 
 /**
  * Three-dimensional polar coordinate.
@@ -27,11 +28,14 @@ public class D3PolarCoordinate implements Serializable {
 
     /**
      * Instantiates a new three-dimensional polar coordinate with the given coordinates.
-     * @param angle1_x_y The angle between the x and y axis.
-     * @param angle2_x_z The angle between the x and z axis.
-     * @param length The distance to the coordinate.
+     * @param angle1_x_y_ The angle between the x and y axis.
+     * @param angle2_x_z_ The angle between the x and z axis.
+     * @param length_ The distance to the coordinate.
      */
-    public D3PolarCoordinate(double angle1_x_y, double angle2_x_z, double length) {
+    public D3PolarCoordinate(double angle1_x_y_, double angle2_x_z_, double length_) {
+        double angle1_x_y = angle1_x_y_;
+        double angle2_x_z = angle2_x_z_;
+        double length = length_;
         // Change angles to keep the length always positive.
         if(length < 0) {
             angle1_x_y = angle1_x_y + Math.PI;
@@ -188,11 +192,24 @@ public class D3PolarCoordinate implements Serializable {
 
     /**
      * Tests whether the given object is equal to this coordinate.
-     * @param other The object to test.
+     * @param o The object to test.
      * @return Whether the given object is equal to this coordinate.
      */
-    public boolean equals(D3PolarCoordinate other) {
-        return this.getAngle1() == other.getAngle1() && this.getAngle2() == other.getAngle2() && this.getLength() == other.getLength();
+    @Override
+    public boolean equals(Object o) {
+        if(o instanceof D3PolarCoordinate) {
+            D3PolarCoordinate other = (D3PolarCoordinate) o;
+            return BigDecimal.valueOf(this.getAngle1()).equals(BigDecimal.valueOf(other.getAngle1()))
+                && BigDecimal.valueOf(this.getAngle2()).equals(BigDecimal.valueOf(other.getAngle2()))
+                && BigDecimal.valueOf(this.getLength()).equals(BigDecimal.valueOf(other.getLength()));
+        } else {
+            return false;
+        }
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) Math.round(this.getAngle1() + this.getAngle2() + this.getLength());
     }
 
     /**

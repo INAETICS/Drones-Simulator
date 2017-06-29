@@ -77,7 +77,7 @@ public class EtcdDiscoverer {
         try {
             this.client.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.fatal(e);
         }
     }
 
@@ -156,7 +156,7 @@ public class EtcdDiscoverer {
     }
 
     /**
-     * (Re)registers all instances that were previously registered.
+     * (Re)registers all instances. Also ones that were previously registered.
      */
     public void registerAll() throws IOException {
         logger.info("Reregistering all {} known instances", this.myInstances.size());
@@ -164,7 +164,7 @@ public class EtcdDiscoverer {
         for (Instance instance : this.myInstances) {
             try {
                 this.register(instance);
-            } catch (DuplicateName ignored) {
+            } catch (DuplicateName e) {
                 // Already exists, but update the properties
                 this.registerProperties(instance);
             }
@@ -217,7 +217,7 @@ public class EtcdDiscoverer {
             }
         } catch (IOException | EtcdException | EtcdAuthenticationException | TimeoutException ignored) {
             // Just return null
-            logger.error("No data could be retrieved from etcd, returning null");
+            logger.error("No data could be retrieved from etcd, returning null", ignored);
         }
 
         return root;

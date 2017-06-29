@@ -34,11 +34,10 @@ class RabbitMessageConsumer extends DefaultConsumer {
                 Message message = serializer.deserialize(body);
                 this.getChannel().basicAck(envelope.getDeliveryTag(), false);
                 subscriber.receive(message);
-            } catch (ClassNotFoundException ignore) {
-                ignore.printStackTrace();
+            } catch (ClassNotFoundException e) {
                 // Reject the message since we cannot do anything useful with it
                 this.getChannel().basicNack(envelope.getDeliveryTag(), false, false);
-                subscriber.getLogger().warn("Received message of unknown type, message dropped");
+                subscriber.getLogger().warn("Received message of unknown type, message dropped", e);
             }
         }
     }

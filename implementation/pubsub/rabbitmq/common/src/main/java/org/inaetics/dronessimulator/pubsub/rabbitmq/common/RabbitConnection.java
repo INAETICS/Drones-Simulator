@@ -90,7 +90,7 @@ public abstract class RabbitConnection {
                 this.connectionFactory.setUri(uri);
                 this.getLogger().debug("Received configuration, RabbitMQ URI is {}", uri);
             } catch (URISyntaxException | NoSuchAlgorithmException | KeyManagementException e) {
-                this.getLogger().error("Invalid URI found in configuration");
+                this.getLogger().error("Invalid URI found in configuration", e);
             }
         } else {
             this.getLogger().debug("Unset RabbitMQ configuration");
@@ -114,16 +114,16 @@ public abstract class RabbitConnection {
 
                     getLogger().info("Connected to RabbitMQ");
                 } catch (ConnectException | TimeoutException e) {
-                    getLogger().error("Could not connect to RabbitMQ (attempt {}): {}", attempt, e.getMessage());
+                    getLogger().error("Could not connect to RabbitMQ (attempt {}): {}", attempt, e);
 
                     if (attempt >= MAX_CONNECTION_ATTEMPTS) {
                         throw new IOException(e);
                     } else {
                         try {
                             Thread.sleep(CONNECTION_ATTEMPT_TIMEOUT);
-                        } catch (InterruptedException ignored) {
-                            // Just quit
-                            return;
+                        } catch (InterruptedException e2) {
+                            getLogger().fatal(e2);
+                            Thread.currentThread().interrupt();
                         }
                     }
                 }
@@ -150,11 +150,11 @@ public abstract class RabbitConnection {
 
             connection.close();
             getLogger().info("RabbitMQ connection closed");
-        } catch (AlreadyClosedException ignored) {
+        } catch (AlreadyClosedException e) {
             // Good! We are already done.
-            getLogger().debug("Attempted to disconnect from RabbitMQ while already disconnected.");
+            getLogger().error("Attempted to disconnect from RabbitMQ while already disconnected.", e);
         } catch (TimeoutException e) {
-            getLogger().debug("Error while disconnecting from RabbitMQ: {}", e.getMessage());
+            getLogger().debug("Error while disconnecting from RabbitMQ: {}", e);
             throw new IOException(e);
         }
     }

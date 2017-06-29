@@ -18,14 +18,27 @@ public class NodeGestures {
 
     }
 
+    /**
+     * Get the handler which is used when the mouse button it pressed with the right mouse button
+     * @return
+     */
     public EventHandler<MouseEvent> getOnMousePressedEventHandler() {
         return onMousePressedEventHandler;
     }
 
+    /**
+     * Get the handler which is used when the mouse is clicked and dragged with the right mouse button
+     * @return
+     */
     public EventHandler<MouseEvent> getOnMouseDraggedEventHandler() {
         return onMouseDraggedEventHandler;
     }
 
+    /**
+     * Mouse event handler for clicking with the right mouse button
+     *
+     * This sets the x and y coordinates, which are used when dragging
+     */
     private EventHandler<MouseEvent> onMousePressedEventHandler = new EventHandler<MouseEvent>() {
 
         public void handle(MouseEvent event) {
@@ -47,6 +60,12 @@ public class NodeGestures {
 
     };
 
+    /**
+     * Mouse event handler for dragging with the right mouse button
+     *
+     * When dragging the scene follows the mouse cursor
+     * The coordinates are corrected to the scale on which is zoomed to
+     */
     private EventHandler<MouseEvent> onMouseDraggedEventHandler = new EventHandler<MouseEvent>() {
         public void handle(MouseEvent event) {
 

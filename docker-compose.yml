@@ -15,6 +15,7 @@ services:
       - etcd
     links:
       - "etcd:etcd"
+    env_file: docker.env
   game-engine:
     build: ./docker_images/game_engine
     depends_on:

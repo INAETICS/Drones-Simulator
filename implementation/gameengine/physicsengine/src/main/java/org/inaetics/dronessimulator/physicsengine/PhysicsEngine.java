@@ -314,6 +314,7 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
         logger.info("Stopping physics engine...");
         synchronized (quit) {
             this.quit.set(true);
+            resumeEngine();
         }
     }
 
@@ -327,7 +328,7 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
 
     @Override
     public void resumeEngine() {
-        logger.info("Reusming physics engine!");
+        logger.info("Resuming physics engine!");
         synchronized (pauseToken) {
             pauseToken.set(false);
             pauseToken.notifyAll();

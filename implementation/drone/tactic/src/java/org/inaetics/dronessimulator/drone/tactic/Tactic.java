@@ -208,6 +208,7 @@ public abstract class Tactic extends Thread implements MessageHandler {
     protected void stopSimulation() {
         synchronized (quit) {
             quit.set(true);
+            this.resumeSimulation();
         }
 
         unconfigSimulation();

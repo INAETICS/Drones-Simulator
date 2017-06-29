@@ -143,7 +143,7 @@ public class SimpleTactic extends Tactic {
         return output_acceleration;
     }
 
-    void calculateAcceleration(){
+    private void calculateAcceleration(){
         D3Vector output_acceleration = m_engine.maximize_acceleration(m_gps.getAcceleration());
         output_acceleration = this.accelerateByNoMovement(output_acceleration);
         output_acceleration = this.accelerateByEngine(output_acceleration);
@@ -153,7 +153,7 @@ public class SimpleTactic extends Tactic {
         m_engine.changeAcceleration(output_acceleration);
     }
 
-    void calculateGun(){
+    private void calculateGun(){
         Optional<D3Vector> target = m_radar.getNearestTarget();
         if(target.isPresent()){
             if(target.get().distance_between(m_gps.getPosition()) <= m_gun.getMaxDistance()){

@@ -3,7 +3,7 @@ package org.inaetics.dronessimulator.visualisation;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
-import org.inaetics.dronessimulator.common.D3PoolCoordinate;
+import org.inaetics.dronessimulator.common.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.visualisation.uiupdates.AddBaseEntity;
 import org.inaetics.dronessimulator.visualisation.uiupdates.RemoveBaseEntity;
@@ -20,7 +20,7 @@ public abstract class BaseEntity {
     ImageView imageView;
 
     D3Vector position;
-    private D3PoolCoordinate direction;
+    private D3PolarCoordinate direction;
 
     private double spriteX;
     private double spriteY;
@@ -97,7 +97,7 @@ public abstract class BaseEntity {
         this.position = position;
     }
 
-    public void setDirection(D3PoolCoordinate direction) {
+    public void setDirection(D3PolarCoordinate direction) {
         this.direction = direction;
     }
 

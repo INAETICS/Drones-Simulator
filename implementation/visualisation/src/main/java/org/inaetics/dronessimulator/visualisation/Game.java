@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.protocol.*;
+import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.publisher.RabbitPublisher;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitSubscriber;
@@ -43,9 +44,6 @@ public class Game extends Application {
 
     private final BlockingQueue<UIUpdate> uiUpdates;
 
-    private KillMessageHandler killMessageHandler;
-    private StateMessageHandler stateMessageHandler;
-
     public Game() {
         this.uiUpdates = new LinkedBlockingQueue<>();
     }
@@ -65,7 +63,6 @@ public class Game extends Application {
         setupArchitectureManagement();
 
         lastLog = System.currentTimeMillis();
-
         AnimationTimer gameLoop = new AnimationTimer() {
 
             @Override
@@ -119,14 +116,11 @@ public class Game extends Application {
             }
         }
 
-        this.stateMessageHandler = new StateMessageHandler(uiUpdates, this.canvas, this.entities);
-        this.killMessageHandler = new KillMessageHandler(this.entities);
-
         this.subscriber.addHandler(CollisionMessage.class, new CollisionMessageHandler());
         this.subscriber.addHandler(DamageMessage.class, new DamageMessageHandler());
         this.subscriber.addHandler(FireBulletMessage.class, new FireBulletMessageHandler());
-        this.subscriber.addHandler(KillMessage.class, this.killMessageHandler);
-        this.subscriber.addHandler(StateMessage.class, this.stateMessageHandler);
+        this.subscriber.addHandler(KillMessage.class, new KillMessageHandler(this.entities));
+        this.subscriber.addHandler(StateMessage.class, new StateMessageHandler(uiUpdates, this.canvas, this.entities));
 
         try {
             this.subscriber.addTopic(MessageTopic.STATEUPDATES);
@@ -152,28 +146,6 @@ public class Game extends Application {
         canvas.setTranslateX(0);
         canvas.setTranslateY(0);
 
-        // create sample nodes which can be dragged
-        // @todo: remove these before production, currently quite useful for position recognition when there are no drones
-        /*
-        NodeGestures nodeGestures = new NodeGestures(canvas);
-
-
-        Circle circle1 = new Circle(300, 300, 50);
-        circle1.setStroke(Color.ORANGE);
-        circle1.setFill(Color.ORANGE.deriveColor(1, 1, 1, 0.5));
-        circle1.addEventFilter(MouseEvent.MOUSE_PRESSED, nodeGestures.getOnMousePressedEventHandler());
-        circle1.addEventFilter(MouseEvent.MOUSE_DRAGGED, nodeGestures.getOnMouseDraggedEventHandler());
-
-        Rectangle rect1 = new Rectangle(100, 100);
-        rect1.setTranslateX(450);
-        rect1.setTranslateY(450);
-        rect1.setStroke(Color.BLUE);
-        rect1.setFill(Color.BLUE.deriveColor(1, 1, 1, 0.5));
-        rect1.addEventFilter(MouseEvent.MOUSE_PRESSED, nodeGestures.getOnMousePressedEventHandler());
-        rect1.addEventFilter(MouseEvent.MOUSE_DRAGGED, nodeGestures.getOnMouseDraggedEventHandler());
-
-        canvas.getChildren().addAll(circle1, rect1);
-        */
         root.getChildren().add(canvas);
 
         double width = Settings.SCENE_WIDTH > Settings.CANVAS_WIDTH ? Settings.CANVAS_WIDTH : Settings.SCENE_WIDTH;

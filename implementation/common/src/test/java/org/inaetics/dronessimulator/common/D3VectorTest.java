@@ -64,7 +64,7 @@ public class D3VectorTest {
 
     @Test
     public void testToPoolCoordinate() {
-        D3PoolCoordinate p;
+        D3PolarCoordinate p;
 
         // For zero,zero,zero
         p = v_zero_zero_zero.toPoolCoordinate().toVector().toPoolCoordinate();

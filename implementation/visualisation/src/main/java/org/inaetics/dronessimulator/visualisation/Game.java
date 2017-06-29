@@ -5,21 +5,23 @@ import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.protocol.*;
-import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
+import org.inaetics.dronessimulator.pubsub.rabbitmq.publisher.RabbitPublisher;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitSubscriber;
-import org.inaetics.dronessimulator.visualisation.messagehandlers.*;
-import org.inaetics.dronessimulator.visualisation.controls.NodeGestures;
 import org.inaetics.dronessimulator.visualisation.controls.PannableCanvas;
 import org.inaetics.dronessimulator.visualisation.controls.SceneGestures;
+import org.inaetics.dronessimulator.visualisation.messagehandlers.*;
 import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
 
 import java.io.IOException;
@@ -29,12 +31,15 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public class Game extends Application {
-    private volatile RabbitSubscriber subscriber;
+    private RabbitSubscriber subscriber;
+    private RabbitPublisher publisher;
+
     private static final Logger logger = Logger.getLogger(Game.class);
 
     private final ConcurrentMap<String, BaseEntity> entities = new ConcurrentHashMap<>();
 
     private PannableCanvas canvas;
+    private Group root;
 
     private final BlockingQueue<UIUpdate> uiUpdates;
 
@@ -54,6 +59,8 @@ public class Game extends Application {
     public void start(Stage primaryStage) {
         setupInterface(primaryStage);
         setupRabbit();
+        setupArchitectureManagement();
+
         lastLog = System.currentTimeMillis();
         AnimationTimer gameLoop = new AnimationTimer() {
 
@@ -76,7 +83,8 @@ public class Game extends Application {
                         UIUpdate uiUpdate = uiUpdates.take();
                         uiUpdate.execute(canvas);
                     } catch (InterruptedException e) {
-                        e.printStackTrace();
+                        logger.fatal(e);
+                        Thread.currentThread().interrupt();
                     }
                 }
 
@@ -98,11 +106,13 @@ public class Game extends Application {
             connectionFactory.setPassword("yourPass");
             // We can connect to localhost, since the visualization does not run within Docker
             this.subscriber = new RabbitSubscriber(connectionFactory, "visualisation", new JavaSerializer());
+            this.publisher = new RabbitPublisher(connectionFactory, new JavaSerializer());
 
             try {
                 this.subscriber.connect();
+                this.publisher.connect();
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.fatal(e);
             }
         }
 
@@ -115,7 +125,7 @@ public class Game extends Application {
         try {
             this.subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.fatal(e);
         }
     }
 
@@ -125,7 +135,7 @@ public class Game extends Application {
      * @param primaryStage - Stage as given by the start method
      */
     private void setupInterface(Stage primaryStage) {
-        Group group = new Group();
+        root = new Group();
 
         primaryStage.setTitle("Drone simulator");
         primaryStage.setResizable(false);
@@ -135,13 +145,14 @@ public class Game extends Application {
         canvas.setId("pane");
         canvas.setTranslateX(0);
         canvas.setTranslateY(0);
-        group.getChildren().add(canvas);
+
+        root.getChildren().add(canvas);
 
         double width = Settings.SCENE_WIDTH > Settings.CANVAS_WIDTH ? Settings.CANVAS_WIDTH : Settings.SCENE_WIDTH;
         double height = Settings.SCENE_HEIGHT > Settings.CANVAS_HEIGHT ? Settings.CANVAS_HEIGHT : Settings.SCENE_HEIGHT;
 
         // create scene which can be dragged and zoomed
-        Scene scene = new Scene(group, width, height);
+        Scene scene = new Scene(root, width, height);
         SceneGestures sceneGestures = new SceneGestures(canvas);
         scene.addEventFilter(MouseEvent.MOUSE_PRESSED, sceneGestures.getOnMousePressedEventHandler());
         scene.addEventFilter(MouseEvent.MOUSE_DRAGGED, sceneGestures.getOnMouseDraggedEventHandler());
@@ -151,6 +162,39 @@ public class Game extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
         canvas.addGrid();
+    }
+
+    private void setupArchitectureManagement() {
+        HBox buttons = new HBox();
+
+        Button configButton = new Button("Config");
+        Button startButton = new Button("Start");
+        Button pauseButton = new Button("Pause");
+        Button resumeButton = new Button("Resume");
+        Button stopButton = new Button("Stop");
+
+        buttons.getChildren().addAll(configButton, startButton, pauseButton, resumeButton, stopButton);
+
+        BorderPane borderPane = new BorderPane();
+        borderPane.setPrefHeight(canvas.getScene().getHeight());
+        borderPane.setPrefWidth(canvas.getScene().getWidth());
+
+        Pane space = new Pane();
+        space.setMinSize(1, 1);
+        HBox.setHgrow(space, Priority.ALWAYS);
+
+        HBox container = new HBox();
+        container.setPrefWidth(canvas.getScene().getWidth());
+
+        container.getChildren().addAll(space, buttons);
+        borderPane.setBottom(container);
+        root.getChildren().add(borderPane);
+
+        configButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.CONFIG, publisher));
+        startButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.START, publisher));
+        stopButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.STOP, publisher));
+        pauseButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.PAUSE, publisher));
+        resumeButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.RESUME, publisher));
     }
 
     public static void main(String[] args) {

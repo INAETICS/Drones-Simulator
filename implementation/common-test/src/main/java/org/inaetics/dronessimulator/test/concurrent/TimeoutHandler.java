@@ -1,5 +1,7 @@
 package org.inaetics.dronessimulator.test.concurrent;
 
+import org.apache.log4j.Logger;
+
 import java.util.concurrent.PriorityBlockingQueue;
 
 /**
@@ -7,6 +9,7 @@ import java.util.concurrent.PriorityBlockingQueue;
  * has a timeout. This handler keeps track of all timeouts and makes sure to interrupt the jobs which take too long.
  */
 public class TimeoutHandler extends Thread {
+    private static final Logger logger = Logger.getLogger(TimeoutHandler.class);
     private volatile boolean quit;
     private final PriorityBlockingQueue<TimeoutEntry> timeouts;
 
@@ -103,6 +106,16 @@ public class TimeoutHandler extends Thread {
         @Override
         public int compareTo(TimeoutEntry o) {
             return this.timeoutAt.compareTo(o.getTimeoutAt());
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            return o instanceof TimeoutEntry && this.timeoutAt.equals(((TimeoutEntry) o).getTimeoutAt());
+        }
+
+        @Override
+        public int hashCode() {
+            return this.timeoutAt.intValue();
         }
     }
 }

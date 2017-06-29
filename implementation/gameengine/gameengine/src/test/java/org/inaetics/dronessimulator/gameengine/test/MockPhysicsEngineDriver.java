@@ -110,4 +110,24 @@ public class MockPhysicsEngineDriver implements IPhysicsEngineDriver{
             this.changeAccelerationEntity(gameengineId.get(), newAcceleration);
         }
     }
+
+    @Override
+    public void startEngine() {
+
+    }
+
+    @Override
+    public void pauseEngine() {
+
+    }
+
+    @Override
+    public void resumeEngine() {
+
+    }
+
+    @Override
+    public void stopEngine() {
+
+    }
 }

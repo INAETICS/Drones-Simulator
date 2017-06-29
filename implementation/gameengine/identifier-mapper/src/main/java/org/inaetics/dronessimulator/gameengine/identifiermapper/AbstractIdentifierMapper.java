@@ -9,10 +9,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class AbstractIdentifierMapper<I1, I2> implements IAbstractIdentifierMapper<I1, I2> {
     /** Mappings from system one to system two. */
-    private final ConcurrentHashMap<I1, I2> oneToTwo;
+    protected final ConcurrentHashMap<I1, I2> oneToTwo;
 
     /** Mappings from system two to system one. */
-    private final ConcurrentHashMap<I2, I1> twoToOne;
+    protected final ConcurrentHashMap<I2, I1> twoToOne;
 
     /**
      * Instantiates a new abstract identifier mapper.

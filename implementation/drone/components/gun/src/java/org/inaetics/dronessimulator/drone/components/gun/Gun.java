@@ -1,8 +1,11 @@
 package org.inaetics.dronessimulator.drone.components.gun;
 
+import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
-import org.inaetics.dronessimulator.common.protocol.*;
+import org.inaetics.dronessimulator.common.protocol.EntityType;
+import org.inaetics.dronessimulator.common.protocol.FireBulletMessage;
+import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
@@ -14,6 +17,8 @@ import java.util.UUID;
 
 
 public class Gun {
+    private static final Logger logger = Logger.getLogger(Gun.class);
+
     private volatile Subscriber m_subscriber;
     private volatile Publisher m_publisher;
     private volatile DroneInit m_drone;
@@ -49,11 +54,10 @@ public class Gun {
             try{
                 m_publisher.send(MessageTopic.MOVEMENTS, msg);
             } catch(IOException e){
-                e.printStackTrace();
+                logger.fatal(e);
             }
 
-            System.out.println("FIRING BULLET!");
-            System.out.println("Next shot possible in " + ((double) (next_shot_at_ms - current_time_ms) / 1000) + " seconds.");
+            Logger.getLogger(Gun.class).info("Firing bullet! Next shot possible in " + ((double) (next_shot_at_ms - current_time_ms) / 1000) + " seconds.");
         }
     }
 }

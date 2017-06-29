@@ -1,13 +1,17 @@
 package org.inaetics.dronessimulator.gameengine;
 
 import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
+import org.inaetics.dronessimulator.common.D2Vector;
 import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.architecture.SimulationAction;
+import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.*;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
+import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
-import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
@@ -19,7 +23,6 @@ import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper
 import org.inaetics.dronessimulator.gameengine.messagehandlers.*;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.IRuleProcessors;
-import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.io.IOException;
@@ -34,6 +37,11 @@ import java.util.List;
  * discovery handler.
  */
 public class GameEngine {
+    public static final float ARENA_WIDTH = 200;
+    public static final float ARENA_DEPTH = 200;
+
+    private final static Logger logger = Logger.getLogger(GameEngine.class);
+
     /** Physics engine used in the game engine. */
     private volatile IPhysicsEngineDriver m_physicsEngineDriver;
 
@@ -51,6 +59,10 @@ public class GameEngine {
 
     /** The discoverer to use. */
     private volatile Discoverer m_discoverer;
+
+    private volatile ArchitectureEventController m_architectureEventListener;
+
+    private List<String> lobbiedDrones = new ArrayList<>();
 
     /** Concrete message handlers. */
     private CollisionMessageHandler collisionMessageHandler;
@@ -80,7 +92,7 @@ public class GameEngine {
             this.m_subscriber.addTopic(MessageTopic.MOVEMENTS);
             this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch(IOException e) {
-            Logger.getLogger(GameEngine.class).fatal("Could not subscribe to topic " + MessageTopic.MOVEMENTS + ".");
+            logger.fatal("Could not subscribe to topic " + MessageTopic.MOVEMENTS + ".", e);
         }
 
         this.m_subscriber.addHandler(CollisionMessage.class, this.collisionMessageHandler);
@@ -101,12 +113,9 @@ public class GameEngine {
             DiscoveryPath path = node.getPath();
 
             if( path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
-                String protocolId = node.getId();
-                int gameengineId = m_id_mapper.getNewGameEngineId();
-                D3Vector position = new D3Vector(100, 100, 50);
+                lobbiedDrones.add(node.getId());
 
-                this.m_physicsEngineDriver.addNewEntity(new Drone(gameengineId, Drone.DRONE_MAX_HEALTH, position, new D3Vector(), new D3Vector()), protocolId);
-                Logger.getLogger(GameEngine.class).info("Added new drone " + protocolId + " as " + gameengineId);
+                logger.info("Added new drone " + node.getId() + " in simulation/lobby");
             }
 
         });
@@ -120,22 +129,48 @@ public class GameEngine {
             if( path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
                 String protocolId = node.getId();
 
+                lobbiedDrones.remove(node.getId());
+
                 this.m_physicsEngineDriver.removeEntity(protocolId);
-                Logger.getLogger(GameEngine.class).info("Removed drone " + protocolId);
+                Logger.getLogger(GameEngine.class).info("Removed drone " + protocolId + " from simulation");
             }
         });
 
         m_discoverer.addHandlers(true, addHandlers, Collections.emptyList(), removeHandlers);
 
-        Logger.getLogger(GameEngine.class).info("Started Game Engine!");
+        // Setup Architecture Event listeners!
+        m_architectureEventListener.addHandler(SimulationState.CONFIG, SimulationAction.START, SimulationState.RUNNING, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            logger.info("Adding " + lobbiedDrones.size() + " drones to simulation");
+            int dronesInLobby = lobbiedDrones.size();
+            D2Vector center = new D2Vector(ARENA_WIDTH / 2, ARENA_DEPTH / 2);
+            double spawnRadius = (Math.min(ARENA_DEPTH, ARENA_WIDTH) / 2) * 0.9;
+            double spawnAngle = (2 * Math.PI) / dronesInLobby;
+
+            int numberSpawned = 0;
+            for(String protocolId : lobbiedDrones) {
+                int gameengineId = m_id_mapper.getNewGameEngineId();
+                D3Vector position = new D3Vector( Math.cos(spawnAngle * numberSpawned) * spawnRadius + center.getX()
+                                                , Math.sin(spawnAngle * numberSpawned) * spawnRadius + center.getY()
+                                                , 50);
+                numberSpawned++;
+
+                this.m_physicsEngineDriver.addNewEntity(new Drone(gameengineId, Drone.DRONE_MAX_HEALTH, position, new D3Vector(), new D3Vector()), protocolId);
+                logger.info("Added new drone " + protocolId + " as " + gameengineId);
+            }
+        });
+
+        logger.info("Started Game Engine!");
     }
 
     /**
      * Stops the wrapper. Kills the engine and rule processor threads.
-     * @throws Exception - Any exception which might happen during shutting down the wrapper.
      */
-    public void stop() throws Exception {
-        this.m_discoverer.unregister(discoveryInstance);
-        Logger.getLogger(GameEngine.class).info("Stopped Game Engine!");
+    public void stop() {
+        try {
+            this.m_discoverer.unregister(discoveryInstance);
+        } catch (IOException e) {
+            logger.fatal(e);
+        }
+        logger.info("Stopped Game Engine!");
     }
 }

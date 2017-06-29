@@ -90,4 +90,9 @@ public interface IPhysicsEngineDriver {
      * @param newAcceleration The new acceleration.
      */
     void changeAccelerationEntity(String protocolId, D3Vector newAcceleration);
+
+    void startEngine();
+    void pauseEngine();
+    void resumeEngine();
+    void stopEngine();
 }

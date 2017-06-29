@@ -1,6 +1,9 @@
 package org.inaetics.dronessimulator.gameengine.identifiermapper;
 
-import javax.swing.text.html.Option;
+import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
+import org.inaetics.dronessimulator.common.architecture.SimulationAction;
+import org.inaetics.dronessimulator.common.architecture.SimulationState;
+
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -8,6 +11,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * OSGi service for the identifier mapper.
  */
 public class IdentifierMapperService extends AbstractIdentifierMapper<Integer, String> implements IdentifierMapper {
+    private volatile ArchitectureEventController m_architectureEventController;
+
     /** The next used game engine id. */
     private final AtomicInteger nextGameEngineId;
 
@@ -51,5 +56,10 @@ public class IdentifierMapperService extends AbstractIdentifierMapper<Integer, S
         }
     }
 
-
+    public void start() {
+        m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            this.oneToTwo.clear();
+            this.twoToOne.clear();
+        });
+    }
 }

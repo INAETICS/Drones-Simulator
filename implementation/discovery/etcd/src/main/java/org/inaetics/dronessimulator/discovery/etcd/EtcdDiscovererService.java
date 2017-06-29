@@ -55,7 +55,8 @@ public class EtcdDiscovererService implements Discoverer {
         try {
             this.changeHandler.join();
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            logger.fatal(e);
+            Thread.currentThread().interrupt();
         }
     }
 
@@ -67,6 +68,11 @@ public class EtcdDiscovererService implements Discoverer {
     @Override
     public void unregister(Instance instance) throws IOException {
         this.discoverer.unregister(instance);
+    }
+
+    @Override
+    public Instance updateProperties(Instance instance, Map<String, String> properties) throws IOException {
+        return this.discoverer.updateProperties(instance, properties);
     }
 
     @Override
@@ -85,65 +91,71 @@ public class EtcdDiscovererService implements Discoverer {
         List<NodeEventHandler<RemovedNode>> removedHandlers = new ArrayList<>();
 
         // Register when added
-        addHandlers.add((AddedNode event) -> {
-            DiscoveryNode node = event.getNode();
-            DiscoveryPath path = node.getPath();
-
-            // Only do something with config paths
-            if (path.isConfigPath()) {
-                try {
-                    Configuration config = this.getConfig(path);
-                    logger.debug("Registering configuration {}", config.getPid());
-                    config.update(new Hashtable<>(node.getValues()));
-                } catch (IOException e) {
-                    logger.error("Error while registering configuration {}", path.toString());
-                }
-            }
-        });
+        addHandlers.add(this::handleAddDiscoveryNode);
 
         // Register when changed
-        changedValueHandlers.add((ChangedValue event) -> {
-            DiscoveryNode node = event.getNode();
-            DiscoveryPath path = node.getPath();
-
-            // Only do something with config paths
-            if (path.isConfigPath()) {
-                try {
-                    Configuration config = this.getConfig(path);
-                    logger.debug("Updating configuration {} with new value for key {} and value " + event.getNewValue(), config.getPid(), event.getKey());
-
-                    if(event.getNewValue() == null) {
-                        // Value should be removed
-                        config.getProperties().remove(event.getKey());
-                    } else {
-                        // Value should be set
-                        config.getProperties().put(event.getKey(), event.getNewValue());
-                    }
-                } catch (IOException e) {
-                    logger.error("Error while updating configuration {}", path.toString());
-                }
-            }
-        });
+        changedValueHandlers.add(this::handleChangeDiscoveryValue);
 
         // Register when removed
-        removedHandlers.add((RemovedNode event) -> {
-            DiscoveryNode node = event.getNode();
-            DiscoveryPath path = node.getPath();
-
-            // Only do something with config paths
-            if (path.isConfigPath()) {
-                try {
-                    Configuration config = this.getConfig(path);
-                    logger.debug("Removing configuration {}", config.getPid());
-                    config.delete();
-                } catch (IOException e) {
-                    logger.error("Error while removing configuration {}", path.toString());
-                }
-            }
-        });
+        removedHandlers.add(this::handleRemovedDiscoveryNode);
 
         // Actually add handlers, replay to populate config admin
         this.addHandlers(true, addHandlers, changedValueHandlers, removedHandlers);
+    }
+
+    private void handleAddDiscoveryNode(AddedNode event) {
+        DiscoveryNode node = event.getNode();
+        DiscoveryPath path = node.getPath();
+
+        // Only do something with config paths
+        if (path.isConfigPath()) {
+            try {
+                Configuration config = this.getConfig(path);
+                logger.debug("Registering configuration {}", config.getPid());
+                config.update(new Hashtable<>(node.getValues()));
+            } catch (IOException e) {
+                logger.error("Error while registering configuration {}", path.toString(), e);
+            }
+        }
+    }
+
+    private void handleChangeDiscoveryValue(ChangedValue event) {
+        DiscoveryNode node = event.getNode();
+        DiscoveryPath path = node.getPath();
+
+        // Only do something with config paths
+        if (path.isConfigPath()) {
+            try {
+                Configuration config = this.getConfig(path);
+                logger.debug("Updating configuration {} with new value for key {} and value " + event.getNewValue(), config.getPid(), event.getKey());
+
+                if(event.getNewValue() == null) {
+                    // Value should be removed
+                    config.getProperties().remove(event.getKey());
+                } else {
+                    // Value should be set
+                    config.getProperties().put(event.getKey(), event.getNewValue());
+                }
+            } catch (IOException e) {
+                logger.error("Error while updating configuration {}", path.toString(), e);
+            }
+        }
+    }
+
+    private void handleRemovedDiscoveryNode(RemovedNode event) {
+        DiscoveryNode node = event.getNode();
+        DiscoveryPath path = node.getPath();
+
+        // Only do something with config paths
+        if (path.isConfigPath()) {
+            try {
+                Configuration config = this.getConfig(path);
+                logger.debug("Removing configuration {}", config.getPid());
+                config.delete();
+            } catch (IOException e) {
+                logger.error("Error while removing configuration {}", path.toString(), e);
+            }
+        }
     }
 
     /**

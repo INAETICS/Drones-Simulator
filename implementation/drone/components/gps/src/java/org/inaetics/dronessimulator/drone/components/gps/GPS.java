@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.drone.components.gps;
 
+import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
@@ -12,6 +13,8 @@ import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import java.io.IOException;
 
 public class GPS implements MessageHandler {
+    private final static Logger logger = Logger.getLogger(GPS.class);
+
     private volatile Subscriber m_subscriber;
     private volatile DroneInit m_drone;
 
@@ -28,7 +31,7 @@ public class GPS implements MessageHandler {
         try {
             this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
-            System.out.println("IO Exception add Topic"); // todo logging
+            logger.fatal(e);
         }
         this.m_subscriber.addHandler(StateMessage.class, this);
     }

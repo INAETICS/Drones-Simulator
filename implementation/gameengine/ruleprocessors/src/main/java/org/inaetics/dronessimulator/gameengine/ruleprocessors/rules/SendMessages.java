@@ -28,6 +28,11 @@ public class SendMessages extends Processor {
     }
 
     @Override
+    public void configRule() {
+        // Nothing to config
+    }
+
+    @Override
     public List<GameEngineEvent> process(GameEngineEvent msg) {
         // Send Game event
         msg.getProtocolMessage(id_mapper).forEach(this::sendProtocolMessage);

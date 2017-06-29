@@ -13,7 +13,9 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 
@@ -75,7 +77,7 @@ public class EtcdDiscoverer {
         try {
             this.client.close();
         } catch (IOException e) {
-            e.printStackTrace();
+            logger.fatal(e);
         }
     }
 
@@ -154,7 +156,7 @@ public class EtcdDiscoverer {
     }
 
     /**
-     * (Re)registers all instances that were previously registered.
+     * (Re)registers all instances. Also ones that were previously registered.
      */
     public void registerAll() throws IOException {
         logger.info("Reregistering all {} known instances", this.myInstances.size());
@@ -162,7 +164,7 @@ public class EtcdDiscoverer {
         for (Instance instance : this.myInstances) {
             try {
                 this.register(instance);
-            } catch (DuplicateName ignored) {
+            } catch (DuplicateName e) {
                 // Already exists, but update the properties
                 this.registerProperties(instance);
             }
@@ -215,7 +217,7 @@ public class EtcdDiscoverer {
             }
         } catch (IOException | EtcdException | EtcdAuthenticationException | TimeoutException ignored) {
             // Just return null
-            logger.error("No data could be retrieved from etcd, returning null");
+            logger.error("No data could be retrieved from etcd, returning null", ignored);
         }
 
         return root;
@@ -259,5 +261,13 @@ public class EtcdDiscoverer {
      */
     static String buildInstancePath(String type, String group, String name) {
         return buildPath(INSTANCE_DIR, type, group, name);
+    }
+
+    public Instance updateProperties(Instance instance, Map<String, String> properties) throws IOException {
+        Instance newInstance = new Instance(instance.getType(), instance.getGroup(), instance.getName(), properties);
+
+        registerProperties(newInstance);
+
+        return newInstance;
     }
 }

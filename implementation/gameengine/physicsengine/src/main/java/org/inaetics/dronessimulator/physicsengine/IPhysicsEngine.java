@@ -63,4 +63,9 @@ public interface IPhysicsEngine {
      * @param entityIds The entities to remove.
      */
     void addRemovals(Collection<Integer> entityIds);
+
+    void startEngine();
+    void stopEngine();
+    void pauseEngine();
+    void resumeEngine();
 }

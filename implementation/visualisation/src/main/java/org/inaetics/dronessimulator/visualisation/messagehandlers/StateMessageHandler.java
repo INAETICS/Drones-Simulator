@@ -1,5 +1,7 @@
 package org.inaetics.dronessimulator.visualisation.messagehandlers;
 
+import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.common.D2Vector;
 import org.inaetics.dronessimulator.common.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
@@ -12,11 +14,13 @@ import org.inaetics.dronessimulator.visualisation.Drone;
 import org.inaetics.dronessimulator.visualisation.controls.PannableCanvas;
 import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
 
+import java.util.Optional;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentMap;
 
 
 public class StateMessageHandler implements MessageHandler {
+    private static final Logger logger = Logger.getLogger(StateMessageHandler.class);
     private final BlockingQueue<UIUpdate> uiUpdates;
     private final PannableCanvas canvas;
     private final ConcurrentMap<String, BaseEntity> entities;
@@ -63,17 +67,9 @@ public class StateMessageHandler implements MessageHandler {
     private void createOrUpdateDrone(StateMessage stateMessage) {
         Drone currentDrone = (Drone) entities.computeIfAbsent(stateMessage.getIdentifier(), k -> createPlayer(stateMessage.getIdentifier()));
 
-        if (stateMessage.getPosition().isPresent()) {
-            currentDrone.setPosition(stateMessage.getPosition().get());
-        }
-
-        if (stateMessage.getDirection().isPresent()) {
-            currentDrone.setDirection(stateMessage.getDirection().get());
-        }
-
-        if(stateMessage.getHp().isPresent()) {
-            currentDrone.setCurrentHP(stateMessage.getHp().get());
-        }
+        stateMessage.getPosition().ifPresent(currentDrone::setPosition);
+        stateMessage.getDirection().ifPresent(currentDrone::setDirection);
+        stateMessage.getHp().ifPresent(currentDrone::setCurrentHP);
     }
 
     /**
@@ -84,28 +80,23 @@ public class StateMessageHandler implements MessageHandler {
     private void createOrUpdateBullet(StateMessage stateMessage) {
         BaseEntity currentBullet = entities.computeIfAbsent(stateMessage.getIdentifier(), k -> createBullet(stateMessage.getIdentifier()));
 
-        if (stateMessage.getPosition().isPresent()) {
-            currentBullet.setPosition(stateMessage.getPosition().get());
-        }
-
-        if (stateMessage.getDirection().isPresent()) {
-            currentBullet.setDirection(stateMessage.getDirection().get());
-        }
+        stateMessage.getPosition().ifPresent(currentBullet::setPosition);
+        stateMessage.getDirection().ifPresent(currentBullet::setDirection);
     }
 
     @Override
     public void handleMessage(Message message) {
         StateMessage stateMessage = (StateMessage) message;
 
-            switch (stateMessage.getType()) {
-                case DRONE:
-                    createOrUpdateDrone(stateMessage);
-                    break;
-                case BULLET:
-                    createOrUpdateBullet(stateMessage);
-                    break;
-                default:
-                    System.out.println("Unknown type");
-            }
+        switch (stateMessage.getType()) {
+            case DRONE:
+                createOrUpdateDrone(stateMessage);
+                break;
+            case BULLET:
+                createOrUpdateBullet(stateMessage);
+                break;
+            default:
+                logger.error("Received state message with unknown entity type! " + message);
+        }
     }
 }

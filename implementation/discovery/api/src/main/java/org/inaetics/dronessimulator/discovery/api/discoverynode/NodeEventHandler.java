@@ -7,6 +7,7 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.N
  *
  * @param <T> The node event this handler should handle.
  */
+ @FunctionalInterface
 public interface NodeEventHandler<T extends NodeEvent> {
     /**
      * Handle the given event.

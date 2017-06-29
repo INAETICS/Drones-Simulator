@@ -4,13 +4,22 @@ import org.inaetics.dronessimulator.gameengine.common.gameevent.CurrentStateEven
 import org.inaetics.dronessimulator.gameengine.common.gameevent.DestroyBulletEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.DestroyHealthEntityEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
-import java.util.*;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 public class RemoveStaleStateData extends Processor {
     private final Set<Integer> killedEntities;
 
     public RemoveStaleStateData() {
         this.killedEntities = new HashSet<>();
+    }
+
+    @Override
+    public void configRule() {
+        killedEntities.clear();
     }
 
     @Override

@@ -2,6 +2,9 @@ package org.inaetics.dronessimulator.gameengine.gamestatemanager;
 
 import lombok.Getter;
 import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
+import org.inaetics.dronessimulator.common.architecture.SimulationAction;
+import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 
@@ -15,6 +18,8 @@ import java.util.stream.Collectors;
  */
 @Getter
 public class GameStateManager implements IGameStateManager {
+    private volatile ArchitectureEventController m_architectureEventController;
+
     /** State by id. */
     private final ConcurrentHashMap<Integer, GameEntity> state;
 
@@ -68,6 +73,10 @@ public class GameStateManager implements IGameStateManager {
      * Starts the game state manager service.
      */
     public void start() {
+        m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            this.state.clear();
+        });
+
         Logger.getLogger(GameStateManager.class).info("Started GameState Manager!");
     }
 

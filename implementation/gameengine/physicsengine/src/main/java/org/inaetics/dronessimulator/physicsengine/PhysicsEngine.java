@@ -4,7 +4,10 @@ import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.EntityUpdate;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -16,6 +19,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @threadsafe
  */
 public class PhysicsEngine extends Thread implements IPhysicsEngine {
+    private static final Logger logger = Logger.getLogger(PhysicsEngine.class);
+
     /** Gravity in meters/second^2. */
     public static final D3Vector GRAVITY = new D3Vector(0, 0, 0); // TODO: Fix gravity (-9.81)
 
@@ -29,7 +34,7 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
     private long broadcast_state_every_ms;
 
     /** Whether the physics engine has quit. (Only true if the engine has started and then quit.) */
-    private volatile boolean quit;
+    private final AtomicBoolean quit;
 
     /** Whether the physics engine is started. */
     private final AtomicBoolean started;
@@ -43,6 +48,8 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
     /** The observer to which any events are sent. */
     private PhysicsEngineEventObserver observer;
 
+    private final AtomicBoolean pauseToken;
+
     /**
      * Creates the physics engine object.
      * Before you start the engine, you MUST set an observer using the setObserver method.
@@ -52,13 +59,14 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
         this.last_state_broadcast_at_ms = this.current_step_started_at_ms;
         this.broadcast_state_every_ms = -1;
 
-        this.quit = false;
+        this.quit = new AtomicBoolean(false);
         this.started = new AtomicBoolean(false);
 
         this.currentCollisions = new HashMap<>();
         this.entityManager = new EntityManager(this.currentCollisions);
 
         this.observer = null;
+        this.pauseToken = new AtomicBoolean(false);
     }
 
     /**
@@ -111,7 +119,6 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
 
         for(Map.Entry<Integer, Entity> e1 : entities.entrySet()) {
             Entity entity = e1.getValue();
-            int e1Id = entity.getId();
 
             // Set the next place the entity will move to with new velocity
             D3Vector nextAcceleration = entity.getAcceleration();
@@ -123,49 +130,63 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
             entity.setPosition(nextPosition);
 
             // Check for collisions for this entity
-            for(Map.Entry<Integer, Entity> e2 : entities.entrySet()) {
-                Entity otherEntity = e2.getValue();
-                int e2Id = otherEntity.getId();
+            stageCollision(entity, entities);
+        }
+    }
 
-                if(entity.getId() != otherEntity.getId()) {
-                    // If the entity is colliding with another entity
-                    Set<Integer> collisionsE1 = currentCollisions.get(e1Id);
-                    Set<Integer> collisionsE2 = currentCollisions.get(e2Id);
+    private void stageCollision(Entity entity, Map<Integer, Entity> allEntities) {
+        int e1Id = entity.getId();
 
-                    if(entity.collides(otherEntity)) {
-                        boolean startedE1WithE2 = false;
-                        boolean startedE2WithE1 = false;
+        for(Map.Entry<Integer, Entity> e2 : allEntities.entrySet()) {
+            Entity otherEntity = e2.getValue();
+            int e2Id = otherEntity.getId();
 
-                        // Only add to hashmap if the collision was not present yet
-                        if(!collisionsE1.contains(e2Id)) {
-                            collisionsE1.add(e2Id);
-                            startedE1WithE2 = true;
-                        }
-
-                        if(!collisionsE2.contains(e1Id)) {
-                            collisionsE2.add(e1Id);
-                            startedE2WithE1 = true;
-                        }
-
-                        // If the collision wasn't happening yet
-                        if(observer != null && (startedE1WithE2 || startedE2WithE1)) {
-                            //This collision is new and has just started
-                            observer.collisionStartHandler(Entity.deepcopy(entity), Entity.deepcopy(otherEntity));
-                        }
-                    } else {
-                        //These entities are not colliding, so remove any collisions if there were any
-                        boolean e1CollidedWithe2 = collisionsE1.remove(e2Id);
-                        boolean e2CollidedWithe1 = collisionsE2.remove(e1Id);
-
-                        if(observer != null && (e1CollidedWithe2 || e2CollidedWithe1)) {
-                            //This collision has just ended
-                            observer.collisionStopHandler(Entity.deepcopy(entity), Entity.deepcopy(otherEntity));
-                        }
-                    }
+            if(entity.getId() != otherEntity.getId()) {
+                if(entity.collides(otherEntity)) {
+                    startCollision(e1Id, entity, e2Id, otherEntity);
+                } else {
+                    //These entities are not colliding, so remove any collisions if there were any
+                    removeCollision(e1Id, entity, e2Id, otherEntity);
                 }
             }
+        }
+    }
 
+    private void startCollision(int e1Id, Entity entity1, int e2Id, Entity entity2) {
+        boolean startedE1WithE2 = false;
+        boolean startedE2WithE1 = false;
 
+        Set<Integer> collisionsE1 = currentCollisions.get(e1Id);
+        Set<Integer> collisionsE2 = currentCollisions.get(e2Id);
+
+        // Only add to hashmap if the collision was not present yet
+        if(!collisionsE1.contains(e2Id)) {
+            collisionsE1.add(e2Id);
+            startedE1WithE2 = true;
+        }
+
+        if(!collisionsE2.contains(e1Id)) {
+            collisionsE2.add(e1Id);
+            startedE2WithE1 = true;
+        }
+
+        // If the collision wasn't happening yet
+        if(observer != null && (startedE1WithE2 || startedE2WithE1)) {
+            //This collision is new and has just started
+            observer.collisionStartHandler(Entity.deepcopy(entity1), Entity.deepcopy(entity2));
+        }
+    }
+
+    private void removeCollision(int e1Id, Entity entity1, int e2Id, Entity entity2) {
+        Set<Integer> collisionsE1 = currentCollisions.get(e1Id);
+        Set<Integer> collisionsE2 = currentCollisions.get(e2Id);
+
+        boolean e1CollidedWithe2 = collisionsE1.remove(e2Id);
+        boolean e2CollidedWithe1 = collisionsE2.remove(e1Id);
+
+        if(observer != null && (e1CollidedWithe2 || e2CollidedWithe1)) {
+            //This collision has just ended
+            observer.collisionStopHandler(Entity.deepcopy(entity1), Entity.deepcopy(entity2));
         }
     }
 
@@ -182,42 +203,66 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
 
     }
 
+    private void stagePause() throws InterruptedException {
+       synchronized (pauseToken) {
+            while(pauseToken.get()) {
+                pauseToken.wait();
+                this.current_step_started_at_ms = System.currentTimeMillis();
+            }
+        }
+    }
+
     /**
      * Starts the current physics engine. If it is already started, no action is taken.
      * @threadsafe
      */
     private void runServer() {
-        Thread t = Thread.currentThread();
+        while(!this.isInterrupted()) {
+            try {
+                // Wait to start
+                synchronized (started) {
+                    while(!started.get()) {
+                        started.wait();
+                    }
+                }
 
-        if(started.compareAndSet(false, true)) {
-            Logger.getLogger(PhysicsEngine.class).info("Started PhysicsEngine!");
+                Logger.getLogger(PhysicsEngine.class).info("Started PhysicsEngine!");
 
-            quit = false;
+                quit.set(false);
+                pauseToken.set(false);
+                this.current_step_started_at_ms = System.currentTimeMillis();
+                this.last_state_broadcast_at_ms = this.current_step_started_at_ms;
 
-            this.current_step_started_at_ms = System.currentTimeMillis();
-            this.last_state_broadcast_at_ms = this.current_step_started_at_ms;
-            
-            while(!t.isInterrupted()) {
-                double timestep_s = this.stageTimeStep();
-                this.entityManager.processChanges();
-                this.stageMove(timestep_s);
-                this.stageBroadcastState();
+                while(!quit.get()) {
+                    double timestep_s = this.stageTimeStep();
+                    this.entityManager.processChanges();
+                    this.stageMove(timestep_s);
+                    this.stageBroadcastState();
+
+                    this.stagePause();
+                }
+
+                this.entityManager.clear();
+
+                started.set(false);
+
+                Logger.getLogger(PhysicsEngine.class).info("PhysicsEngine has shutdown");
+            } catch(InterruptedException e) {
+                this.interrupt();
             }
-
-            started.set(false);
-            quit = true;
-
-            Logger.getLogger(PhysicsEngine.class).info("PhysicsEngine has shutdown");
         }
     }
 
     /**
      * Starts the physics engine thread.
      */
-    public void start() {
-        Logger.getLogger(PhysicsEngine.class).info("Starting PhysicsEngine...");
+    public void startEngine() {
+        logger.info("Starting PhysicsEngine...");
 
-        super.start();
+        synchronized (started) {
+            this.started.set(true);
+            started.notifyAll();
+        }
     }
 
     /**
@@ -265,9 +310,29 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
      * Tell the engine thread to quit.
      * @threadsafe
      */
-    public void quit() {
-        Logger.getLogger(PhysicsEngine.class).info("Turning off physics engine...");
-        this.interrupt();
+    public void stopEngine() {
+        logger.info("Stopping physics engine...");
+        synchronized (quit) {
+            this.quit.set(true);
+            resumeEngine();
+        }
+    }
+
+    @Override
+    public void pauseEngine() {
+        logger.info("Pausing physics engine!");
+        synchronized (pauseToken) {
+            pauseToken.set(true);
+        }
+    }
+
+    @Override
+    public void resumeEngine() {
+        logger.info("Resuming physics engine!");
+        synchronized (pauseToken) {
+            pauseToken.set(false);
+            pauseToken.notifyAll();
+        }
     }
 
     /**
@@ -285,11 +350,11 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
      * @return Whether the physics engine has quit.
      */
     public boolean hasQuit() {
-        return this.quit;
+        return this.quit.get();
     }
 
     @Override
-    @Deprecated
     public void destroy() {
+        this.interrupt();
     }
 }

@@ -1,7 +1,11 @@
 package org.inaetics.dronessimulator.gameengine.physicsenginedriver;
 
 import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
+import org.inaetics.dronessimulator.architectureevents.ArchitectureEventHandler;
 import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.architecture.SimulationAction;
+import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
@@ -22,6 +26,8 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Driver for the simple physics engine shipped with the game engine.
  */
 public class PhysicsEngineDriver implements IPhysicsEngineDriver {
+    private final static Logger logger = Logger.getLogger(PhysicsEngineDriver.class);
+
     /** The physics engine instance to use. */
     private transient volatile IPhysicsEngine m_physicsEngine;
 
@@ -30,6 +36,7 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
 
     /** The identifier mapper to use. */
     private transient volatile IdentifierMapper m_id_mapper;
+    private transient volatile ArchitectureEventController m_architectureEventController;
 
     /** Event queue for events produced by the physics engine. */
     private final LinkedBlockingQueue<GameEngineEvent> outgoingQueue;
@@ -58,14 +65,39 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
         m_physicsEngine.setObserver(engineObserver);
         m_physicsEngine.setTimeBetweenBroadcastms(20L);
 
-        Logger.getLogger(PhysicsEngineDriver.class).info("Started PhysicsEngine Driver!");
+        m_architectureEventController.addHandler(SimulationState.CONFIG, SimulationAction.START, SimulationState.RUNNING, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            logger.info("Starting simulation!");
+            this.startEngine();
+        });
+
+        m_architectureEventController.addHandler(SimulationState.PAUSED, SimulationAction.RESUME, SimulationState.RUNNING, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            logger.info("Resuming simulation!");
+            this.resumeEngine();
+        });
+
+        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.PAUSE, SimulationState.PAUSED, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            logger.info("Pausing simulation!");
+            this.pauseEngine();
+        });
+
+        ArchitectureEventHandler stopHandler = (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+            logger.info("Stopping simulation!");
+            this.stopEngine();
+        };
+
+        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.GAMEOVER, SimulationState.DONE, stopHandler);
+        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.STOP, SimulationState.INIT, stopHandler);
+        m_architectureEventController.addHandler(SimulationState.CONFIG, SimulationAction.STOP, SimulationState.INIT, stopHandler);
+        m_architectureEventController.addHandler(SimulationState.PAUSED, SimulationAction.STOP, SimulationState.INIT, stopHandler);
+
+        logger.info("Started PhysicsEngine Driver!");
     }
 
     /**
      * Stops the physics engine driver.
      */
     public void stop() {
-        Logger.getLogger(PhysicsEngineDriver.class).info("Stopped PhysicsEngine Driver!");
+        logger.info("Stopped PhysicsEngine Driver!");
     }
 
     @Override
@@ -153,6 +185,26 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
         if(gameEngineId.isPresent()) {
             this.changeAccelerationEntity(gameEngineId.get(), newAcceleration);
         }
+    }
+
+    @Override
+    public void startEngine() {
+        m_physicsEngine.startEngine();
+    }
+
+    @Override
+    public void pauseEngine() {
+        m_physicsEngine.pauseEngine();
+    }
+
+    @Override
+    public void resumeEngine() {
+        m_physicsEngine.resumeEngine();
+    }
+
+    @Override
+    public void stopEngine() {
+        m_physicsEngine.stopEngine();
     }
 
     /**

@@ -17,15 +17,39 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Architecture Event controller bundle
+ * Listens to discovery for any changes to the current state
+ * If a change occurs, calls the registered handlers for the lifecycle step
+ */
 public class ArchitectureEventControllerService implements ArchitectureEventController {
+    /**
+     * Reference to Discovery bundle
+     */
     private volatile Discoverer m_discovery;
 
+    /**
+     * The previous state of the architecture
+     */
     private SimulationState currentFromState;
+    /**
+     * The last taken action of the architecture
+     */
     private SimulationAction currentAction;
+    /**
+     * The current state of the architecture
+     */
     private SimulationState currentToState;
 
+    /**
+     * The registered handlers
+     */
     private final Map<LifeCycleStep, List<ArchitectureEventHandler>> handlers = new HashMap<>();
 
+    /**
+     * Start this bundle
+     * Adds a change value handler to discovery for any state changes
+     */
     public void start() {
         List<NodeEventHandler<AddedNode>> addHandlers = new ArrayList<>();
         List<NodeEventHandler<ChangedValue>> changedValueHandlers = new ArrayList<>();
@@ -48,7 +72,11 @@ public class ArchitectureEventControllerService implements ArchitectureEventCont
         m_discovery.addHandlers(true, addHandlers, changedValueHandlers, removedHandlers);
     }
 
-    public void handleNewState(DiscoveryNode architectureNode) {
+    /**
+     * Handles the state change. The architectureNode should contain the new current state
+     * @param architectureNode The node containing the new state
+     */
+    private void handleNewState(DiscoveryNode architectureNode) {
         String currentLifeCycle = architectureNode.getValue("current_life_cycle");
 
         if(currentLifeCycle != null) {
@@ -74,7 +102,7 @@ public class ArchitectureEventControllerService implements ArchitectureEventCont
         }
     }
 
-
+    @Override
     public ArchitectureEventController addHandler(SimulationState fromState, SimulationAction action, SimulationState toState, ArchitectureEventHandler handler) {
         LifeCycleStep lifeCycleStep = new LifeCycleStep(fromState, action, toState);
 

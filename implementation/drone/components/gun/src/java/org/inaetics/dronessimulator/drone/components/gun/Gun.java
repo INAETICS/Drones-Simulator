@@ -17,6 +17,8 @@ import java.util.UUID;
 
 
 public class Gun {
+    private static final Logger logger = Logger.getLogger(Gun.class);
+
     private volatile Subscriber m_subscriber;
     private volatile Publisher m_publisher;
     private volatile DroneInit m_drone;
@@ -52,7 +54,7 @@ public class Gun {
             try{
                 m_publisher.send(MessageTopic.MOVEMENTS, msg);
             } catch(IOException e){
-                e.printStackTrace();
+                logger.fatal(e);
             }
 
             Logger.getLogger(Gun.class).info("Firing bullet! Next shot possible in " + ((double) (next_shot_at_ms - current_time_ms) / 1000) + " seconds.");

@@ -3,7 +3,7 @@ package org.inaetics.dronessimulator.architecturemanager;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
-import org.inaetics.dronessimulator.common.protocol.ArchitectureMessage;
+import org.inaetics.dronessimulator.common.protocol.RequestArchitectureStateChangeMessage;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
@@ -17,18 +17,51 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Architecture Manager service
+ * Manages architecture wide concerns.
+ * Currently this only consists of the current lifecycle state of the architecture
+ * Uses Discovery and Subscriber to publish current state and receive requested state updates
+ */
 public class ArchitectureManager {
+    /**
+     * Reference to discovery bundle to publish state information
+     */
     private volatile Discoverer m_discoverer;
+    /**
+     * Reference to subscriber to listen for state update requests
+     */
     private volatile Subscriber m_subscriber;
 
+    /**
+     * The logger
+     */
     private final static Logger logger = Logger.getLogger(ArchitectureManager.class);
 
+    /**
+     * The instance published in Discovery
+     */
     private Instance instance;
 
+    /**
+     * The current previous state of the architecture
+     */
     private SimulationState previousState;
+
+    /**
+     * The last action taken by the architecture
+     */
     private SimulationAction previousAction;
+
+    /**
+     * The current state of the architecture
+     */
     private SimulationState currentState;
 
+    /**
+     * Construct a new Architecture Manager
+     * Sets the begin state of the architecture and created the instance for Discovery
+     */
     public ArchitectureManager() {
         previousState = SimulationState.NOSTATE;
         previousAction = SimulationAction.INIT;
@@ -37,6 +70,12 @@ public class ArchitectureManager {
         this.instance = new Instance(Type.SERVICE, Group.SERVICES, "architecture", getCurrentProperties());
     }
 
+    /**
+     * Start the Architecture Manager service
+     * Registers the begin state in Discovery and
+     * adds a handler to the subscriber to listen for
+     * Architecture state change requests
+     */
     public void start() {
         logger.info("Starting Architecture Manager...");
         try {
@@ -45,8 +84,8 @@ public class ArchitectureManager {
 
             //Add subscriber handlers
             m_subscriber.addTopic(MessageTopic.ARCHITECTURE);
-            m_subscriber.addHandler(ArchitectureMessage.class, (Message _msg) -> {
-                ArchitectureMessage msg = (ArchitectureMessage) _msg;
+            m_subscriber.addHandler(RequestArchitectureStateChangeMessage.class, (Message _msg) -> {
+                RequestArchitectureStateChangeMessage msg = (RequestArchitectureStateChangeMessage) _msg;
                 SimulationAction action = msg.getAction();
                 SimulationState nextState = nextState(this.currentState, action);
 
@@ -76,6 +115,10 @@ public class ArchitectureManager {
         logger.info("Started Architecture Manager!");
     }
 
+    /**
+     * Stops the Architecture Manager service
+     * Unregisters the current state in Discovery
+     */
     public void stop() {
         logger.info("Stopping Architecture Manager...");
         try {
@@ -86,6 +129,11 @@ public class ArchitectureManager {
         logger.info("Stopped Architecture Manager!");
     }
 
+    /**
+     * Get the current lifecycle state in a map
+     * which can be used by Discovery Instance
+     * @return The map to be published with the Instance
+     */
     public Map<String, String> getCurrentProperties() {
         Map<String, String> properties = new HashMap<>();
         properties.put("current_life_cycle", String.format("%s.%s.%s", previousState.toString(), previousAction.toString(), currentState.toString()));
@@ -93,6 +141,12 @@ public class ArchitectureManager {
         return properties;
     }
 
+    /**
+     * The next state of the architecture based on the current state and the taken action
+     * @param currentState The current state of the architecture
+     * @param action The action to take for the architecture
+     * @return The new state after the action is taken
+     */
     public static SimulationState nextState(SimulationState currentState, SimulationAction action) {
         SimulationState nextState;
 

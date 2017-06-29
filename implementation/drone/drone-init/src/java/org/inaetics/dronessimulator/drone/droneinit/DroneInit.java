@@ -48,7 +48,6 @@ public class DroneInit {
             this.registered_instance = instance;
         } catch (IOException e) {
             logger.fatal(e);
-            e.printStackTrace();
         }catch(DuplicateName e){
             this.setIdentifier(this.getIdentifier() + "-" + UUID.randomUUID().toString());
             this.registerDroneService();
@@ -61,7 +60,6 @@ public class DroneInit {
             this.m_discoverer.unregister(registered_instance);
         } catch (IOException e) {
             logger.fatal(e);
-            e.printStackTrace();
         }
     }
 

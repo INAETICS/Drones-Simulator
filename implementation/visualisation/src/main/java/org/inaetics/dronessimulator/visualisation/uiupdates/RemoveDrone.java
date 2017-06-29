@@ -8,6 +8,11 @@ public class RemoveDrone extends UIUpdate {
     public final ImageView imageView;
     public final Text heightText;
 
+    /**
+     * Instantiates an update to remove a drone and the height text
+     * @param imageView
+     * @param heightText
+     */
     public RemoveDrone(ImageView imageView, Text heightText) {
         this.imageView = imageView;
         this.heightText = heightText;

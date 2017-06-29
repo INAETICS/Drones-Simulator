@@ -33,11 +33,15 @@ import org.inaetics.dronessimulator.visualisation.messagehandlers.*;
 import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Game extends Application {
     private RabbitSubscriber subscriber;
@@ -55,6 +59,7 @@ public class Game extends Application {
     private Group root;
 
     private final BlockingQueue<UIUpdate> uiUpdates;
+    private AtomicBoolean rabbitConnected = new AtomicBoolean(false);
 
     public Game() {
         this.uiUpdates = new LinkedBlockingQueue<>();
@@ -73,14 +78,17 @@ public class Game extends Application {
         setupInterface(primaryStage);
         setupDiscovery();
         setupRabbit();
-        setupArchitectureManagementVisuals();
-        setupArchitectureManagement();
 
         lastLog = System.currentTimeMillis();
         AnimationTimer gameLoop = new AnimationTimer() {
 
             @Override
             public void handle(long now) {
+                if(rabbitConnected.get()) {
+                    onRabbitConnect();
+                    rabbitConnected.set(false);
+                }
+
                 i++;
                 if (i == 100) {
                     long current = System.currentTimeMillis();
@@ -125,9 +133,12 @@ public class Game extends Application {
         changedValueHandlers.add((ChangedValue e) -> {
             DiscoveryNode node = e.getNode();
             DiscoveryPath path = node.getPath();
-
-            if(path.startsWith(DiscoveryPath.config(Type.RABBITMQ, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.BROKER, "default"))) {
+            System.out.println("CHANGED VALUE! " + node + " " + path);
+            System.out.println(DiscoveryPath.config(Type.RABBITMQ, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.BROKER, "default"));
+            if(path.equals(DiscoveryPath.config(Type.RABBITMQ, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.BROKER, "default"))) {
+                System.out.println("CHANGED NODE! " + node);
                 if(node.getValue("username") != null) {
+                    System.out.println("USERNAME: " + node.getValue("username"));
                     rabbitConfig.put("username", node.getValue("username"));
                 }
 
@@ -156,7 +167,11 @@ public class Game extends Application {
             ConnectionFactory connectionFactory = new ConnectionFactory();
             connectionFactory.setUsername(rabbitConfig.get("username"));
             connectionFactory.setPassword(rabbitConfig.get("password"));
-            connectionFactory.setHost(rabbitConfig.get("uri"));
+            try {
+                connectionFactory.setUri(rabbitConfig.get("uri"));
+            } catch (URISyntaxException | NoSuchAlgorithmException | KeyManagementException e) {
+                logger.fatal(e);
+            }
 
             // We can connect to localhost, since the visualization does not run within Docker
             this.subscriber = new RabbitSubscriber(connectionFactory, "visualisation", new JavaSerializer());
@@ -169,19 +184,27 @@ public class Game extends Application {
             } catch (IOException e) {
                 logger.fatal(e);
             }
-        }
 
-        this.subscriber.addHandler(CollisionMessage.class, new CollisionMessageHandler());
-        this.subscriber.addHandler(DamageMessage.class, new DamageMessageHandler());
-        this.subscriber.addHandler(FireBulletMessage.class, new FireBulletMessageHandler());
-        this.subscriber.addHandler(KillMessage.class, new KillMessageHandler(this.entities));
-        this.subscriber.addHandler(StateMessage.class, new StateMessageHandler(uiUpdates, this.canvas, this.entities));
 
-        try {
-            this.subscriber.addTopic(MessageTopic.STATEUPDATES);
-        } catch (IOException e) {
-            logger.fatal(e);
+            this.subscriber.addHandler(CollisionMessage.class, new CollisionMessageHandler());
+            this.subscriber.addHandler(DamageMessage.class, new DamageMessageHandler());
+            this.subscriber.addHandler(FireBulletMessage.class, new FireBulletMessageHandler());
+            this.subscriber.addHandler(KillMessage.class, new KillMessageHandler(this.entities));
+            this.subscriber.addHandler(StateMessage.class, new StateMessageHandler(uiUpdates, this.canvas, this.entities));
+
+            try {
+                this.subscriber.addTopic(MessageTopic.STATEUPDATES);
+            } catch (IOException e) {
+                logger.fatal(e);
+            }
+
+            rabbitConnected.set(true);
         }
+    }
+
+    private void onRabbitConnect() {
+        setupArchitectureManagementVisuals();
+        setupArchitectureManagement();
     }
 
     /**

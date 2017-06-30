@@ -63,20 +63,22 @@ public class Radar implements MessageHandler {
     public List<D3Vector> getRadar(){
         List<D3Vector> results;
 
-        synchronized (all_positions)  {
-            results = all_positions.entrySet()
-                                   .stream()
-                                   .map(e -> e.getValue())
-                                   .filter(object_position -> {
-                                        boolean result;
+        if (position != null) {
+            synchronized (all_positions) {
+                results = all_positions.entrySet()
+                        .stream()
+                        .map(e -> e.getValue())
+                        .filter(object_position -> {
+                            boolean result;
 
-                                        synchronized (positionLock) {
-                                           result = position.distance_between(object_position) <= RADAR_RANGE;
-                                        }
+                            synchronized (positionLock) {
+                                result = position.distance_between(object_position) <= RADAR_RANGE;
+                            }
 
-                                        return result;
-                                   })
-                                   .collect(Collectors.toList());
+                            return result;
+                        })
+                        .collect(Collectors.toList());
+            }
         }
 
         return results;

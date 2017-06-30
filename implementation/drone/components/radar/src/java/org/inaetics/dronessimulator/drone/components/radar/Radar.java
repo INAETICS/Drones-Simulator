@@ -15,6 +15,7 @@ import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -79,6 +80,8 @@ public class Radar implements MessageHandler {
                         })
                         .collect(Collectors.toList());
             }
+        } else {
+            results = Collections.emptyList();
         }
 
         return results;

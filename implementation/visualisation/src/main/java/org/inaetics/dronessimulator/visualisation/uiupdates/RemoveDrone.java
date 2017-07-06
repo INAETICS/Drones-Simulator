@@ -5,8 +5,14 @@ import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 
 public class RemoveDrone extends UIUpdate {
-    public final ImageView imageView;
-    public final Text heightText;
+    /**
+     * The image of the drone to remove
+     */
+    private final ImageView imageView;
+    /**
+     * The height text of the drone to remove
+     */
+    private final Text heightText;
 
     /**
      * Instantiates an update to remove a drone and the height text
@@ -18,6 +24,10 @@ public class RemoveDrone extends UIUpdate {
         this.heightText = heightText;
     }
 
+        /**
+         * Remove the drone image and the height text from a pane
+         * @param pane
+         */
     @Override
     public void execute(Pane pane) {
         pane.getChildren().remove(imageView);

@@ -9,29 +9,18 @@ import javafx.scene.input.MouseEvent;
  */
 public class NodeGestures {
 
+    /** mouse drag context */
     private DragContext nodeDragContext = new DragContext();
+    /** Canvas that can be zoomed and panned */
+    private PannableCanvas canvas;
 
-    PannableCanvas canvas;
-
+    /**
+     * Instantiates the listeners for making the canvas pannable and zoomable
+     * @param canvas - canvas
+     */
     public NodeGestures(PannableCanvas canvas) {
         this.canvas = canvas;
 
-    }
-
-    /**
-     * Get the handler which is used when the mouse button it pressed with the right mouse button
-     * @return
-     */
-    public EventHandler<MouseEvent> getOnMousePressedEventHandler() {
-        return onMousePressedEventHandler;
-    }
-
-    /**
-     * Get the handler which is used when the mouse is clicked and dragged with the right mouse button
-     * @return
-     */
-    public EventHandler<MouseEvent> getOnMouseDraggedEventHandler() {
-        return onMouseDraggedEventHandler;
     }
 
     /**

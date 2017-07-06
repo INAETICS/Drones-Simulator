@@ -8,12 +8,19 @@ import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
 public class SpriteAnimation extends Transition {
+    /** Image of the animation */
     private final ImageView imageView;
+    /** Number of images in the sprite */
     private final int count;
+    /** Number of columns in the sprite */
     private final int columns;
+    /** X offset in pixels */
     private int offsetX;
+    /** Y offset in pixels */
     private int offsetY;
+    /** Width on an image in the sprite */
     private final int width;
+    /** height of an image in the sprite */
     private final int height;
 
     /**
@@ -50,14 +57,10 @@ public class SpriteAnimation extends Transition {
 
     }
 
-    public void setOffsetX(int x) {
-        this.offsetX = x;
-    }
-
-    public void setOffsetY(int y) {
-        this.offsetY = y;
-    }
-
+    /**
+     * Change the viewport to the new image in the sprite
+     * @param frac - frac
+     */
     protected void interpolate(double frac) {
         final int index = Math.min((int) Math.floor(count * frac), count - 1);
         final int x = (index % columns) * width + offsetX;

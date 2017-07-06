@@ -5,6 +5,9 @@ import javafx.scene.text.Text;
 
 
 public class AddDrone extends UIUpdate {
+    /**
+     * Height text to add together with the drone
+     */
     private final Text heightText;
 
     /**
@@ -16,6 +19,10 @@ public class AddDrone extends UIUpdate {
         this.heightText = heightText;
     }
 
+    /**
+     * Add the drone height text to a pane
+     * @param pane
+     */
     @Override
     public void execute(Pane pane) {
         pane.getChildren().addAll(heightText);

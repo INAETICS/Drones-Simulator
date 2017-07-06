@@ -14,17 +14,18 @@ import java.util.concurrent.BlockingQueue;
 import static org.inaetics.dronessimulator.visualisation.Settings.DRONE_SPRITE_COLUMNS;
 
 public abstract class Drone extends BaseEntity {
+    /** Current hitpoints of a drone */
     private int currentHP;
+    /** Text attribute containing the height */
     private Text heightText;
 
     /**
      * Creates a drone based on a sprite
-     *
-     * @param pane - Pane to add the drone to
+     * @param uiUpdates - uiupdates
      * @param image - Path to the sprite image
      */
-    Drone(BlockingQueue<UIUpdate> uiUpdates, Pane pane, String image) {
-        super(uiUpdates, pane, image);
+    Drone(BlockingQueue<UIUpdate> uiUpdates, String image) {
+        super(uiUpdates, image);
         new SpriteAnimation(imageView, Duration.millis(200), DRONE_SPRITE_COLUMNS, DRONE_SPRITE_COLUMNS, 0, 0, Settings.SPRITE_WIDTH, Settings.SPRITE_HEIGTH).play();
         heightText = new Text(0, 20, "Height: 0");
         heightText.setFill(Color.WHITE);
@@ -46,6 +47,7 @@ public abstract class Drone extends BaseEntity {
 
     /**
      * Removes the drone and initiates the explosion
+     * Adds an uiupdate telling the drone to be removed
      */
     @Override
     public void delete() {
@@ -53,14 +55,25 @@ public abstract class Drone extends BaseEntity {
         getUiUpdates().add(new RemoveDrone(imageView, heightText));
     }
 
+    /**
+     * Adds an update to uiupdates telling the drone to explode
+     */
     private void explode() {
         getUiUpdates().add(new Explosion(getScale(), imageView));
     }
 
+    /**
+     * Get the current hitpoints
+     * @return - currentHP
+     */
     public int getCurrentHP() {
         return currentHP;
     }
 
+    /**
+     * Set the number of hitpoints
+     * @param currentHP - number of hitpoints
+     */
     public void setCurrentHP(int currentHP) {
         this.currentHP = currentHP;
     }

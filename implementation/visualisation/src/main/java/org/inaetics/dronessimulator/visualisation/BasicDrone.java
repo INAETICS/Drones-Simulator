@@ -7,14 +7,14 @@ import java.util.concurrent.BlockingQueue;
 
 public class BasicDrone extends Drone {
 
+    /** Image of the drone */
     private static final String IMAGE = "/drones/drone_sprite.png";
 
     /**
-     * Creates a basic drone based on an image
-     *
-     * @param pane - Pane to add the drone to
+     * Instantiates a basic drone based on an image
+     * @param uiUpdates - uiupdates
      */
-    public BasicDrone(BlockingQueue<UIUpdate> uiUpdates, Pane pane) {
-        super(uiUpdates, pane, IMAGE);
+    public BasicDrone(BlockingQueue<UIUpdate> uiUpdates) {
+        super(uiUpdates, IMAGE);
     }
 }

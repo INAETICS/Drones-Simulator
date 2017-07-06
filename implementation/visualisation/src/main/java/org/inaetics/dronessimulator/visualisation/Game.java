@@ -44,28 +44,41 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Game extends Application {
+    /** Subscriber for rabbitmq */
     private RabbitSubscriber subscriber;
+    /** Publisher for rabbitmq */
     private RabbitPublisher publisher;
+    /** Discoverer for etcd */
     private EtcdDiscovererService discoverer;
-    private ArchitectureEventControllerService architectureEventController;
 
+    /** Logger */
     private static final Logger logger = Logger.getLogger(Game.class);
 
+    /** All the entities in the game */
     private final ConcurrentMap<String, BaseEntity> entities = new ConcurrentHashMap<>();
 
+    /** Rabbitmq configuration */
     private final Map<String, String> rabbitConfig = new HashMap<>();
 
+    /** The pannable and zommable canvas */
     private PannableCanvas canvas;
+    /** Group for all entities */
     private Group root;
 
+    /** UI updates */
     private final BlockingQueue<UIUpdate> uiUpdates;
     private AtomicBoolean rabbitConnected = new AtomicBoolean(false);
 
+    /**
+     * Instantiates a new game object
+     */
     public Game() {
         this.uiUpdates = new LinkedBlockingQueue<>();
     }
 
+    /** counter for the logger to output once every 100 times */
     private int i = 0;
+    /** Time is ms of the last log */
     private long lastLog = -1;
 
     /**
@@ -119,6 +132,10 @@ public class Game extends Application {
         gameLoop.start();
     }
 
+    /**
+     * Setup discovery
+     * Create new discoverer object and start
+     */
     private void setupDiscovery() {
         this.discoverer = new EtcdDiscovererService();
         this.discoverer.start();
@@ -159,6 +176,10 @@ public class Game extends Application {
 
     }
 
+    /**
+     * Connect to rabbitmq using the rabbitconfig, then connect the publisher and subscriber
+     * Adds the handlers for listening to incoming game messages
+     */
     private void connectRabbit() {
         if (this.subscriber == null) {
             logger.info("Connecting RabbitMQ...");
@@ -188,7 +209,7 @@ public class Game extends Application {
             this.subscriber.addHandler(DamageMessage.class, new DamageMessageHandler());
             this.subscriber.addHandler(FireBulletMessage.class, new FireBulletMessageHandler());
             this.subscriber.addHandler(KillMessage.class, new KillMessageHandler(this.entities));
-            this.subscriber.addHandler(StateMessage.class, new StateMessageHandler(uiUpdates, this.canvas, this.entities));
+            this.subscriber.addHandler(StateMessage.class, new StateMessageHandler(uiUpdates, this.entities));
 
             try {
                 this.subscriber.addTopic(MessageTopic.STATEUPDATES);
@@ -200,6 +221,9 @@ public class Game extends Application {
         }
     }
 
+    /**
+     * Setup the architecture management buttons when rabbit is connected
+     */
     private void onRabbitConnect() {
         setupArchitectureManagementVisuals();
         setupArchitectureManagement();
@@ -240,6 +264,9 @@ public class Game extends Application {
         canvas.addGrid();
     }
 
+    /**
+     * Create the different buttons for the architecture management and add the desired actions to them
+     */
     private void setupArchitectureManagementVisuals() {
         HBox buttons = new HBox();
 
@@ -273,11 +300,15 @@ public class Game extends Application {
         resumeButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.RESUME, publisher));
     }
 
+    /**
+     * Responds to incoming architecture lifecycle messages
+     */
     private void setupArchitectureManagement() {
-        this.architectureEventController = new ArchitectureEventControllerService(this.discoverer);
-        this.architectureEventController.start();
+        ArchitectureEventControllerService architectureEventController;
+        architectureEventController = new ArchitectureEventControllerService(this.discoverer);
+        architectureEventController.start();
 
-        this.architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG,
+        architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG,
                 (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
                     for(BaseEntity e : this.entities.values()) {
                         e.delete();
@@ -287,6 +318,10 @@ public class Game extends Application {
         );
     }
 
+    /**
+     * Main method of the visualisation
+     * @param args - args
+     */
     public static void main(String[] args) {
         launch(args);
     }

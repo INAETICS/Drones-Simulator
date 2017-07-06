@@ -13,15 +13,27 @@ import java.io.IOException;
 
 
 public class ArchitectureButtonEventHandler implements EventHandler<MouseEvent> {
+    /** The Logger */
     private final static Logger logger = Logger.getLogger(ArchitectureButtonEventHandler.class);
+    /** The publisher */
     private final Publisher publisher;
+    /** Action that will be taken when clicking the button */
     private final SimulationAction action;
 
-    public ArchitectureButtonEventHandler(SimulationAction action, Publisher publisher) {
+    /**
+     * Instantiates a button that will send a architecture change message based on its action
+     * @param action Action the button has to send
+     * @param publisher Publisher that will publish the action to rabbitmq
+     */
+    ArchitectureButtonEventHandler(SimulationAction action, Publisher publisher) {
         this.action = action;
         this.publisher = publisher;
     }
 
+    /**
+     * Sends an architecture change message when the button is clicked
+     * @param event
+     */
     @Override
     public void handle(MouseEvent event) {
         RequestArchitectureStateChangeMessage msg = new RequestArchitectureStateChangeMessage();

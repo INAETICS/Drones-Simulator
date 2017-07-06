@@ -4,6 +4,9 @@ import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
 
 import java.util.concurrent.BlockingQueue;
 
+/**
+ * The BasicDrone class extends the drone class. It represents a drone and has an image as its view.
+ */
 public class BasicDrone extends Drone {
 
     /** Image of the drone */

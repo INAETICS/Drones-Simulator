@@ -150,8 +150,8 @@ public class D3Vector implements Serializable {
             angle1_x_y = Math.PI - Math.atan(this.y / Math.abs(this.x));
         } else if  (this.x < 0 && this.y < 0) {
             angle1_x_y = Math.PI + Math.atan(this.y / this.x);
-        } else if(  bigX.equals(BigDecimal.ZERO)
-                && !bigY.equals(BigDecimal.ZERO)
+        } else if(  bigX.compareTo(BigDecimal.ZERO) == 0
+                && bigY.compareTo(BigDecimal.ZERO) != 0
                  ) {
             // x == 0, so look where y is
             if(this.y > 0) {
@@ -173,8 +173,8 @@ public class D3Vector implements Serializable {
         double angle2_x_z;
 
         // atan relation only available if x != 0 || y != 0
-        if( !bigX.equals(BigDecimal.ZERO)
-         || !bigY.equals(BigDecimal.ZERO)
+        if( bigX.compareTo(BigDecimal.ZERO) != 0
+         || bigY.compareTo(BigDecimal.ZERO) != 0
           ) {
             angle2_x_z = Math.atan(this.z / Math.sqrt(Math.pow(this.x,2) + Math.pow(this.y,2)));
         } else {
@@ -220,9 +220,9 @@ public class D3Vector implements Serializable {
     public boolean equals(Object o) {
         if(o instanceof D3Vector) {
             D3Vector other = (D3Vector) o;
-            return BigDecimal.valueOf(this.getX()).equals(BigDecimal.valueOf(other.getX()))
-                && BigDecimal.valueOf(this.getY()).equals(BigDecimal.valueOf(other.getY()))
-                && BigDecimal.valueOf(this.getZ()).equals(BigDecimal.valueOf(other.getZ()));
+            return BigDecimal.valueOf(this.getX()).compareTo(BigDecimal.valueOf(other.getX())) == 0
+                && BigDecimal.valueOf(this.getY()).compareTo(BigDecimal.valueOf(other.getY())) == 0
+                && BigDecimal.valueOf(this.getZ()).compareTo(BigDecimal.valueOf(other.getZ())) == 0;
         } else {
             return false;
         }

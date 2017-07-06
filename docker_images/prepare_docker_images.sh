@@ -1,10 +1,8 @@
 #!/bin/bash
-
 ROOT=".."
 
 #./../bundles/bundle.sh
 docker build ./base_image/ -t dronesim/base
-
 
 # Remove possible old bundles
 rm -rf "game_engine/files/bundles/*.jar"

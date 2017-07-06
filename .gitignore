@@ -73,3 +73,5 @@ fabric.properties
 # Docker images
 docker_images/
 
+# Docker environment config
+docker.env

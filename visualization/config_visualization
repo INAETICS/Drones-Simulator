@@ -1,4 +1,4 @@
-ETCD_HOST=localhost
+ETCD_HOST=123.123.123.123
 ETCD_PORT=4001
 
 # Sets the debug level

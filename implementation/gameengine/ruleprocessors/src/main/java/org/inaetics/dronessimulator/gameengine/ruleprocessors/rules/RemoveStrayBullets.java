@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.ruleprocessors.rules;
 
-import org.inaetics.dronessimulator.common.D2Vector;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.CurrentStateEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.DestroyBulletEvent;

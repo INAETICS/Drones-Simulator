@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.visualisation;
 
-import javafx.scene.layout.Pane;
 import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
 
 import java.util.concurrent.BlockingQueue;

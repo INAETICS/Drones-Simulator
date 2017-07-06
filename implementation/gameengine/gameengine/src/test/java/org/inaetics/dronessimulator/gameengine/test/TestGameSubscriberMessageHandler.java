@@ -1,11 +1,30 @@
 package org.inaetics.dronessimulator.gameengine.test;
 
+import org.inaetics.dronessimulator.common.protocol.*;
+import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
+import org.inaetics.dronessimulator.gameengine.common.state.Bullet;
+import org.inaetics.dronessimulator.gameengine.common.state.Drone;
+import org.inaetics.dronessimulator.gameengine.gamestatemanager.GameStateManager;
+import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapperService;
+import org.inaetics.dronessimulator.gameengine.messagehandlers.DamageMessageHandler;
+import org.inaetics.dronessimulator.gameengine.messagehandlers.FireBulletMessageHandler;
+import org.inaetics.dronessimulator.gameengine.messagehandlers.KillMessageHandler;
+import org.inaetics.dronessimulator.gameengine.messagehandlers.MovementMessageHandler;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
+
 public class TestGameSubscriberMessageHandler {
-    /*
+
     private MockPhysicsEngineDriver mockDriver;
-    private SubscriberMessageHandler msgHandler;
     private IdentifierMapperService id_mapper;
     private GameStateManager stateManager;
+
+    private DamageMessageHandler damageMessageHandler;
+    private FireBulletMessageHandler fireBulletMessageHandler;
+    private KillMessageHandler killMessageHandler;
+    private MovementMessageHandler movementMessageHandler;
 
     private Drone drone;
 
@@ -14,11 +33,14 @@ public class TestGameSubscriberMessageHandler {
         this.id_mapper = new IdentifierMapperService();
         this.stateManager = new GameStateManager();
         this.mockDriver = new MockPhysicsEngineDriver(this.id_mapper);
-        this.msgHandler = new SubscriberMessageHandler(this.mockDriver, this.id_mapper, this.stateManager);
+        this.damageMessageHandler = new DamageMessageHandler(this.mockDriver, this.id_mapper, this.stateManager);
+        this.fireBulletMessageHandler = new FireBulletMessageHandler(this.mockDriver, this.id_mapper, this.stateManager);
+        this.killMessageHandler = new KillMessageHandler(this.mockDriver, this.id_mapper, this.stateManager);
+        this.movementMessageHandler = new MovementMessageHandler(this.mockDriver, this.id_mapper, this.stateManager);
 
         int gameengineId = this.id_mapper.getNewGameEngineId();
         String protocolId = "1";
-        this.drone = new Drone(gameengineId, new D3Vector(), new D3Vector(), new D3Vector());
+        this.drone = new Drone(gameengineId, new D3Vector(), new D3Vector(), new D3Vector(), new D3PolarCoordinate());
 
         this.id_mapper.setMapping(gameengineId, protocolId);
         this.stateManager.addEntityState(drone);
@@ -29,21 +51,21 @@ public class TestGameSubscriberMessageHandler {
         // Do not set acceleration
         MovementMessage msgNoAccell = new MovementMessage();
         msgNoAccell.setIdentifier("1");
-        msgNoAccell.setDirection(new D3PoolCoordinate());
+        msgNoAccell.setDirection(new D3PolarCoordinate());
 
-        msgHandler.handleMessage(msgNoAccell);
+        movementMessageHandler.handleMessage(msgNoAccell);
 
         Assert.assertEquals(this.mockDriver.getNewAcceleration(), null);
 
         // Change acceleration
         MovementMessage msg = new MovementMessage();
         msg.setIdentifier("1");
-        msg.setDirection(new D3PoolCoordinate());
+        msg.setDirection(new D3PolarCoordinate());
         msg.setAcceleration(new D3Vector(1,2,3));
 
         Assert.assertEquals(null, this.mockDriver.getNewAcceleration());
 
-        msgHandler.handleMessage(msg);
+        movementMessageHandler.handleMessage(msg);
 
         Assert.assertEquals(new D3Vector(1,2,3), this.mockDriver.getNewAcceleration());
     }
@@ -59,7 +81,7 @@ public class TestGameSubscriberMessageHandler {
         Assert.assertEquals(-1, mockDriver.getDamaged());
         Assert.assertEquals(-1, mockDriver.getDamage());
 
-        msgHandler.handleMessage(damageMessage);
+        damageMessageHandler.handleMessage(damageMessage);
 
         Assert.assertEquals(1, mockDriver.getDamaged());
         Assert.assertEquals(100, mockDriver.getDamage());
@@ -74,7 +96,7 @@ public class TestGameSubscriberMessageHandler {
 
         Assert.assertEquals(-1, mockDriver.getRemoved());
 
-        msgHandler.handleMessage(killMessage);
+        killMessageHandler.handleMessage(killMessage);
 
         Assert.assertEquals(1, mockDriver.getRemoved());
     }
@@ -88,14 +110,14 @@ public class TestGameSubscriberMessageHandler {
         fireBulletMessage.setPosition(new D3Vector(3,2,1));
         fireBulletMessage.setVelocity(new D3Vector(2,3,1));
         fireBulletMessage.setAcceleration(new D3Vector(1,2,3));
+        fireBulletMessage.setDirection(new D3PolarCoordinate());
         fireBulletMessage.setDamage(50);
         fireBulletMessage.setFiredById("1");
 
         Assert.assertEquals(null, mockDriver.getAdded());
 
-        msgHandler.handleMessage(fireBulletMessage);
+        fireBulletMessageHandler.handleMessage(fireBulletMessage);
 
-        Assert.assertEquals(new Bullet(2, 50, drone, new D3Vector(3,2,1), new D3Vector(2,3,1), new D3Vector(1,2,3)), mockDriver.getAdded());
+        Assert.assertEquals(new Bullet(2, 50, drone, new D3Vector(3,2,1), new D3Vector(2,3,1), new D3Vector(1,2,3), new D3PolarCoordinate()), mockDriver.getAdded());
     }
-    */
 }

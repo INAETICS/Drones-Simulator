@@ -1,0 +1,6 @@
+ETCD_HOST=123.123.123.123
+ETCD_PORT=4001
+
+# Sets the debug level
+# Possible values: DEBUG, INFO, OFF
+DEBUG_LEVEL=OFF

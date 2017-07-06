@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.gameengine.test;
 
 import lombok.Getter;
+import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
@@ -22,6 +23,7 @@ public class MockPhysicsEngineDriver implements IPhysicsEngineDriver{
     private D3Vector newPosition = null;
     private D3Vector newVelocity = null;
     private D3Vector newAcceleration = null;
+    private D3PolarCoordinate newDirection = null;
 
     public MockPhysicsEngineDriver(IdentifierMapper id_mapper) {
         this.id_mapper = id_mapper;
@@ -108,6 +110,21 @@ public class MockPhysicsEngineDriver implements IPhysicsEngineDriver{
 
         if(gameengineId.isPresent()) {
             this.changeAccelerationEntity(gameengineId.get(), newAcceleration);
+        }
+    }
+
+    @Override
+    public void changeDirectionEntity(int entityId, D3PolarCoordinate newDirection) {
+        this.newDirection = newDirection;
+        this.moved = entityId;
+    }
+
+    @Override
+    public void changeDirectionEntity(String protocolId, D3PolarCoordinate newDirection) {
+        Optional<Integer> gameengineId = this.id_mapper.fromProtocolToGameEngineId(protocolId);
+
+        if(gameengineId.isPresent()) {
+            this.changeDirectionEntity(gameengineId.get(), newDirection);
         }
     }
 

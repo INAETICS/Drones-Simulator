@@ -274,7 +274,6 @@ public class PhysicsEngine extends ManagedThread implements IPhysicsEngine {
 
     @Override
     public void destroy() {
-        this.stopThread();
     }
 
     @Override

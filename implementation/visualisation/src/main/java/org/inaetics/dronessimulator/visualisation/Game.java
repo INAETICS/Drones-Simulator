@@ -26,6 +26,7 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
 import org.inaetics.dronessimulator.discovery.etcd.EtcdDiscovererService;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.publisher.RabbitPublisher;
@@ -33,6 +34,7 @@ import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitSubscriber;
 import org.inaetics.dronessimulator.visualisation.controls.PannableCanvas;
 import org.inaetics.dronessimulator.visualisation.controls.SceneGestures;
 import org.inaetics.dronessimulator.visualisation.messagehandlers.*;
+import org.inaetics.dronessimulator.visualisation.uiupdates.RemoveDrone;
 import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
 
 import java.io.IOException;
@@ -84,6 +86,10 @@ public class Game extends Application {
     /** Time is ms of the last log */
     private long lastLog = -1;
 
+    /**
+     * Close event handler
+     * When the window closes, rabbitmq and the discoverer disconnect
+     */
     private EventHandler onCloseEventHandler = new EventHandler<WindowEvent>() {
         @Override
         public void handle(WindowEvent t) {
@@ -163,6 +169,31 @@ public class Game extends Application {
     /**
      * Sets up the connection to the message broker and subscribes to the necessary channels and sets the required handlers
      */
+    private void setupGameEventListener() {
+        List<NodeEventHandler<RemovedNode>> removeHandlers = new ArrayList<>();
+
+        removeHandlers.add((RemovedNode removedNodeEvent) -> {
+            DiscoveryNode node = removedNodeEvent.getNode();
+            DiscoveryPath path = node.getPath();
+
+            if( path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
+                String protocolId = node.getId();
+                BaseEntity baseEntity = entities.get(protocolId);
+
+                if(baseEntity != null) {
+                    baseEntity.delete();
+                    entities.remove(protocolId);
+                }
+                logger.info("Removed drone " + protocolId + " from visualisation");
+            }
+        });
+
+        this.discoverer.addHandlers(true, Collections.emptyList(), Collections.emptyList(), removeHandlers);
+    }
+
+    /**
+     * Sets up the connection to the message broker and subscribes to the necessary channels and sets the required handlers
+     */
     private void setupRabbit() {
         List<NodeEventHandler<ChangedValue>> changedValueHandlers = new ArrayList<>();
 
@@ -191,8 +222,6 @@ public class Game extends Application {
         });
 
         this.discoverer.addHandlers(true, Collections.emptyList(), changedValueHandlers, Collections.emptyList());
-
-
     }
 
     /**

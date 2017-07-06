@@ -10,11 +10,6 @@ import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.Rule;
-import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.RemoveStaleStateData;
-import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.RemoveStrayBullets;
-import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.SendMessages;
-import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch.CollisionRule;
-import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch.KillEntitiesRule;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 
 import java.util.ArrayList;

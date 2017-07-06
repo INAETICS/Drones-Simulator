@@ -2,7 +2,6 @@ package org.inaetics.dronessimulator.gameengine.common.gameevent;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import org.inaetics.dronessimulator.common.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;

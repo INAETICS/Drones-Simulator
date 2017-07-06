@@ -6,7 +6,6 @@ import org.inaetics.dronessimulator.gameengine.common.gameevent.CollisionEndEven
 import org.inaetics.dronessimulator.gameengine.common.gameevent.CollisionStartEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.CurrentStateEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
-import org.inaetics.dronessimulator.gameengine.common.state.Bullet;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.GameStateManager;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;

@@ -2,17 +2,12 @@ package org.inaetics.dronessimulator.gameengine.messagehandlers;
 
 
 import lombok.AllArgsConstructor;
-import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.common.D3PolarCoordinate;
-import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.MovementMessage;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
-
-import java.util.Optional;
 
 @AllArgsConstructor
 public class MovementMessageHandler implements MessageHandler {

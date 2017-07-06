@@ -25,8 +25,9 @@ public class KillEntitiesRule extends Processor {
             CurrentStateEvent currentStateEvent = (CurrentStateEvent) msg;
 
             results = killDeadEntities(currentStateEvent.getCurrentState());
+            results.add(0, msg);
         } else {
-            results = Collections.emptyList();
+            results = Collections.singletonList(msg);
         }
 
         return results;

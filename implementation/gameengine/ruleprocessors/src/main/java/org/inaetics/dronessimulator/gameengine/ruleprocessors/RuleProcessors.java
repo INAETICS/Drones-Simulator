@@ -110,10 +110,7 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
         List<GameEngineEvent> result = new ArrayList<>(events.size() * 2);
 
         for(GameEngineEvent event : events) {
-            List<GameEngineEvent> newEvents = rule.process(event);
-
-            result.add(event);
-            result.addAll(newEvents);
+            result.addAll(rule.process(event));
         }
 
         return result;

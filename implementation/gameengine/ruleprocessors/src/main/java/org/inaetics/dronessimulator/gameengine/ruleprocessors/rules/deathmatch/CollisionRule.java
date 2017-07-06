@@ -33,8 +33,9 @@ public class CollisionRule extends Processor {
             GameEntity e2 = collision.getE2();
 
             results = handleCollision(e1, e2);
+            results.add(0, msg);
         } else {
-            results = Collections.emptyList();
+            results = Collections.singletonList(msg);
         }
 
         return results;

@@ -30,8 +30,9 @@ public class RemoveStrayBullets extends Processor {
             CurrentStateEvent currentStateEvent = (CurrentStateEvent) event;
 
             events = this.removeStaleBullets(currentStateEvent);
+            events.add(0, event);
         } else {
-            events = Collections.emptyList();
+            events = Collections.singletonList(event);
         }
 
 

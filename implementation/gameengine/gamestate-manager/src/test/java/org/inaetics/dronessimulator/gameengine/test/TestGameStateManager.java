@@ -1,7 +1,7 @@
 package org.inaetics.dronessimulator.gameengine.test;
 
 
-import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.gameengine.common.state.Bullet;
 import org.inaetics.dronessimulator.gameengine.common.state.Drone;

@@ -1,7 +1,7 @@
 package org.inaetics.dronessimulator.gameengine.test;
 
 import lombok.Getter;
-import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;

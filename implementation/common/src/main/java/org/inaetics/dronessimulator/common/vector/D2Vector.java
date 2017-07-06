@@ -1,4 +1,4 @@
-package org.inaetics.dronessimulator.common;
+package org.inaetics.dronessimulator.common.vector;
 
 /**
  * Two-dimensional vector implementation.

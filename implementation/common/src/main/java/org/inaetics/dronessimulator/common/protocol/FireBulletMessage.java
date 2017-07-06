@@ -1,7 +1,16 @@
 package org.inaetics.dronessimulator.common.protocol;
 
+/**
+ * Message specifying a bullet is fired
+ */
 public class FireBulletMessage extends CreateEntityMessage {
+    /**
+     * The damage of the bullet
+     */
     private int damage;
+    /**
+     * Who fired the bullet
+     */
     private String firedById;
 
     public int getDamage() {

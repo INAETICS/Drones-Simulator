@@ -2,7 +2,7 @@ package org.inaetics.dronessimulator.physicsengine.entityupdate;
 
 
 import lombok.AllArgsConstructor;
-import org.inaetics.dronessimulator.common.D3PolarCoordinate;
+import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.physicsengine.Entity;
 
 /**

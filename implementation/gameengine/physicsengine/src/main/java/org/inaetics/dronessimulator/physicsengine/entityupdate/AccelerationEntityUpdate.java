@@ -1,7 +1,7 @@
 package org.inaetics.dronessimulator.physicsengine.entityupdate;
 
 import lombok.AllArgsConstructor;
-import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.physicsengine.Entity;
 
 /**

@@ -2,7 +2,7 @@ package org.inaetics.dronessimulator.drone.tactic;
 
 import org.apache.felix.dm.DependencyManager;
 import org.apache.felix.dm.ServiceDependency;
-import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.components.engine.Engine;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.components.gun.Gun;
@@ -56,6 +56,7 @@ public class SimpleTactic extends Tactic {
     private D3Vector accelerateByNoMovement(D3Vector input_acceleration){
         D3Vector output_acceleration = input_acceleration;
         if (m_gps.getAcceleration().length() == 0 && m_gps.getVelocity().length() == 0){
+
             double x = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
             double y = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
             double z = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());

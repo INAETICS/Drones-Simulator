@@ -2,7 +2,7 @@ package org.inaetics.dronessimulator.drone.components.radar;
 
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
-import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.EntityType;

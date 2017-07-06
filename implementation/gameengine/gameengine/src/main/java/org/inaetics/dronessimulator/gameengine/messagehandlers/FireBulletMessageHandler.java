@@ -2,8 +2,8 @@ package org.inaetics.dronessimulator.gameengine.messagehandlers;
 
 import lombok.AllArgsConstructor;
 import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.common.D3PolarCoordinate;
-import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.protocol.FireBulletMessage;
 import org.inaetics.dronessimulator.gameengine.common.state.Bullet;

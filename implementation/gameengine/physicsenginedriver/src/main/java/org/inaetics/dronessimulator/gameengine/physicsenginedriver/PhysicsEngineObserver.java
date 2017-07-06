@@ -6,6 +6,7 @@ import org.inaetics.dronessimulator.gameengine.common.gameevent.CollisionEndEven
 import org.inaetics.dronessimulator.gameengine.common.gameevent.CollisionStartEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.CurrentStateEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
+import org.inaetics.dronessimulator.gameengine.common.state.Bullet;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.GameStateManager;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
@@ -91,6 +92,7 @@ public class PhysicsEngineObserver implements PhysicsEngineEventObserver {
             gameEntity.setPosition(physicsEntity.getPosition());
             gameEntity.setVelocity(physicsEntity.getVelocity());
             gameEntity.setAcceleration(physicsEntity.getAcceleration());
+            gameEntity.setDirection(physicsEntity.getDirection());
         } else {
             Logger.getLogger(GameEntity.class).fatal("Tried to update state from entity, but ids did not match. Received: " + physicsEntity.getId() + ". Needed: " + gameEntity.getEntityId());
         }

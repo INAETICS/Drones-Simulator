@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.gameengine.common.state;
 
 import lombok.EqualsAndHashCode;
+import org.inaetics.dronessimulator.common.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 
@@ -18,9 +19,10 @@ public class Drone extends HealthGameEntity<Drone> {
      * @param position Position of the new drone.
      * @param velocity Velocity of the new drone.
      * @param acceleration Acceleration of the new drone.
+     * @param direction Direction of the new drone.
      */
-    public Drone(int id, D3Vector position, D3Vector velocity, D3Vector acceleration) {
-        super(id, DRONE_MAX_HEALTH, position, velocity, acceleration);
+    public Drone(int id, D3Vector position, D3Vector velocity, D3Vector acceleration, D3PolarCoordinate direction) {
+        super(id, DRONE_MAX_HEALTH, position, velocity, acceleration, direction);
     }
 
     /**
@@ -30,9 +32,10 @@ public class Drone extends HealthGameEntity<Drone> {
      * @param position Position of the new drone.
      * @param velocity Velocity of the new drone.
      * @param acceleration Acceleration of the new drone.
+     * @param direction Direction of the new drone.
      */
-    public Drone(int id, int currentHP, D3Vector position, D3Vector velocity, D3Vector acceleration) {
-        super(id, currentHP, position, velocity, acceleration);
+    public Drone(int id, int currentHP, D3Vector position, D3Vector velocity, D3Vector acceleration, D3PolarCoordinate direction) {
+        super(id, currentHP, position, velocity, acceleration, direction);
     }
 
     /**
@@ -46,6 +49,6 @@ public class Drone extends HealthGameEntity<Drone> {
 
     @Override
     public synchronized Drone deepCopy() {
-        return new Drone(this.getEntityId(), this.getHP(), this.getPosition(), this.getVelocity(), this.getAcceleration());
+        return new Drone(this.getEntityId(), this.getHP(), this.getPosition(), this.getVelocity(), this.getAcceleration(), this.getDirection());
     }
 }

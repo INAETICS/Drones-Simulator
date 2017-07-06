@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.gameengine.common.state;
 
 import lombok.EqualsAndHashCode;
+import org.inaetics.dronessimulator.common.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 
@@ -23,9 +24,10 @@ public class Bullet extends GameEntity<Bullet> {
      * @param position The starting position of the bullet.
      * @param velocity The velocity of the bullet.
      * @param acceleration The acceleration of the bullet.
+     * @param direction The direction of the bullet.
      */
-    public Bullet(int id, int dmg, GameEntity firedBy, D3Vector position, D3Vector velocity, D3Vector acceleration) {
-        super(id, position, velocity, acceleration);
+    public Bullet(int id, int dmg, GameEntity firedBy, D3Vector position, D3Vector velocity, D3Vector acceleration, D3PolarCoordinate direction) {
+        super(id, position, velocity, acceleration, direction);
 
         this.firedBy = firedBy;
         this.dmg = dmg;
@@ -42,7 +44,7 @@ public class Bullet extends GameEntity<Bullet> {
 
     @Override
     public Bullet deepCopy() {
-        return new Bullet(this.getEntityId(), this.getDmg(), this.getFiredBy(), this.getPosition(), this.getVelocity(), this.getAcceleration());
+        return new Bullet(this.getEntityId(), this.getDmg(), this.getFiredBy(), this.getPosition(), this.getVelocity(), this.getAcceleration(), this.getDirection());
     }
 
     /**

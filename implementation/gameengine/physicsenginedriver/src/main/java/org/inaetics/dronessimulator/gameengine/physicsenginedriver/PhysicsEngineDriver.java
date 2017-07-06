@@ -106,7 +106,6 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
     public void addNewEntity(GameEntity gameEntity, String protocolId) {
         this.m_stateManager.addEntityState(gameEntity);
         this.m_physicsEngine.addInsert(PhysicsEngineDriver.gameEntityToPhysicsEntity(gameEntity));
-
         this.m_id_mapper.setMapping(gameEntity.getEntityId(), protocolId);
     }
 

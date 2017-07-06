@@ -11,7 +11,7 @@ import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
 import java.util.concurrent.BlockingQueue;
 
 /**
- * Base class for each entity inside the visualitation
+ * Base class for each entity inside the visualisation
  * This class can be extended by e.g.: drones, bullets, gamified objects
  */
 public abstract class BaseEntity {

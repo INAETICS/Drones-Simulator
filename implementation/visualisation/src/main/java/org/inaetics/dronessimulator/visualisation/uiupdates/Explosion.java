@@ -6,6 +6,9 @@ import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 import org.inaetics.dronessimulator.visualisation.SpriteAnimation;
 
+/**
+ * Explosion extends UIUpdate and is a class representation used when adding a new explosion
+ */
 public class Explosion extends UIUpdate {
     /**
      * Scale of the explosion, regulates the size

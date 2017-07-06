@@ -7,7 +7,9 @@ import org.inaetics.dronessimulator.visualisation.BaseEntity;
 
 import java.util.concurrent.ConcurrentMap;
 
-
+/**
+ * The kill message handler class. Implements what to do when an entity (bullet, drone) is killed/removed.
+ */
 public class KillMessageHandler implements MessageHandler {
     /** all the entities in the game */
     private final ConcurrentMap<String, BaseEntity> entities;

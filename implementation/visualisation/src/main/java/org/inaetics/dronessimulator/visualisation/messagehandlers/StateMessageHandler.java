@@ -15,7 +15,9 @@ import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentMap;
 
-
+/**
+ * The state message handler class. Implements what to do when a new state is send of the entities (drone, bullet)
+ */
 public class StateMessageHandler implements MessageHandler {
     /** Logger */
     private static final Logger logger = Logger.getLogger(StateMessageHandler.class);
@@ -32,20 +34,6 @@ public class StateMessageHandler implements MessageHandler {
     public StateMessageHandler(BlockingQueue<UIUpdate> uiUpdates, ConcurrentMap<String, BaseEntity> entities) {
         this.uiUpdates = uiUpdates;
         this.entities = entities;
-    }
-
-    /**
-     * Creates a new drone and returns it
-     *
-     * @param id String - Identifier of the new drone
-     * @return drone Drone - The newly created drone
-     */
-    private Drone createPlayer(String id) {
-        BasicDrone drone = new BasicDrone(uiUpdates);
-        drone.setPosition(new D3Vector(500, 400, 1000));
-        drone.setDirection(new D3PolarCoordinate(0, 0, 0));
-
-        return drone;
     }
 
     /**
@@ -67,12 +55,13 @@ public class StateMessageHandler implements MessageHandler {
      *
      * @param stateMessage - Message containing the state of the drone
      */
-    private void createOrUpdateDrone(StateMessage stateMessage) {
-        Drone currentDrone = (Drone) entities.computeIfAbsent(stateMessage.getIdentifier(), k -> createPlayer(stateMessage.getIdentifier()));
-
-        stateMessage.getPosition().ifPresent(currentDrone::setPosition);
-        stateMessage.getDirection().ifPresent(currentDrone::setDirection);
-        stateMessage.getHp().ifPresent(currentDrone::setCurrentHP);
+    private void updateDrone(StateMessage stateMessage) {
+        Drone currentDrone = (Drone) entities.get(stateMessage.getIdentifier());
+        if(currentDrone != null) {
+            stateMessage.getPosition().ifPresent(currentDrone::setPosition);
+            stateMessage.getDirection().ifPresent(currentDrone::setDirection);
+            stateMessage.getHp().ifPresent(currentDrone::setCurrentHP);
+        }
     }
 
     /**
@@ -88,7 +77,7 @@ public class StateMessageHandler implements MessageHandler {
     }
 
     /**
-     * Creates a new drone or bullet based on the message
+     * Updates a drone or creates and/or updates a bullet based on the message
      * @param message The received message.
      */
     @Override
@@ -97,7 +86,7 @@ public class StateMessageHandler implements MessageHandler {
 
         switch (stateMessage.getType()) {
             case DRONE:
-                createOrUpdateDrone(stateMessage);
+                updateDrone(stateMessage);
                 break;
             case BULLET:
                 createOrUpdateBullet(stateMessage);

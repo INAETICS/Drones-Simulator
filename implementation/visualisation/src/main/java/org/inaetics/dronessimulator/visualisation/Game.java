@@ -37,7 +37,6 @@ import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitSubscriber;
 import org.inaetics.dronessimulator.visualisation.controls.PannableCanvas;
 import org.inaetics.dronessimulator.visualisation.controls.SceneGestures;
 import org.inaetics.dronessimulator.visualisation.messagehandlers.*;
-import org.inaetics.dronessimulator.visualisation.uiupdates.RemoveDrone;
 import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
 
 import java.io.IOException;
@@ -51,6 +50,10 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/**
+ * Instances of the game class create a new javafx application. This class provides a connection with etcd, rabbitmq and
+ * contain all the game elements.
+ */
 public class Game extends Application {
     /** Subscriber for rabbitmq */
     private RabbitSubscriber subscriber;
@@ -75,6 +78,7 @@ public class Game extends Application {
 
     /** UI updates */
     private final BlockingQueue<UIUpdate> uiUpdates;
+    /** check to see if rabbit is connected */
     private AtomicBoolean rabbitConnected = new AtomicBoolean(false);
 
     /**
@@ -126,7 +130,7 @@ public class Game extends Application {
 
             @Override
             public void handle(long now) {
-                if(rabbitConnected.get()) {
+                if (rabbitConnected.get()) {
                     onRabbitConnect();
                     rabbitConnected.set(false);
                 }
@@ -143,7 +147,7 @@ public class Game extends Application {
                     i = 0;
                 }
 
-                while(!uiUpdates.isEmpty()) {
+                while (!uiUpdates.isEmpty()) {
                     try {
                         UIUpdate uiUpdate = uiUpdates.take();
                         uiUpdate.execute(canvas);
@@ -181,11 +185,11 @@ public class Game extends Application {
             DiscoveryNode node = addedNodeEvent.getNode();
             DiscoveryPath path = node.getPath();
 
-            if( path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
+            if (path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
                 String protocolId = node.getId();
                 BaseEntity baseEntity = entities.get(protocolId);
 
-                if(baseEntity == null) {
+                if (baseEntity == null) {
                     createDrone(protocolId);
                 }
                 logger.info("Added drone " + protocolId + " to visualisation");
@@ -196,11 +200,11 @@ public class Game extends Application {
             DiscoveryNode node = removedNodeEvent.getNode();
             DiscoveryPath path = node.getPath();
 
-            if( path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
+            if (path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
                 String protocolId = node.getId();
                 BaseEntity baseEntity = entities.get(protocolId);
 
-                if(baseEntity != null) {
+                if (baseEntity != null) {
                     baseEntity.delete();
                     entities.remove(protocolId);
                 }
@@ -221,20 +225,20 @@ public class Game extends Application {
             DiscoveryNode node = e.getNode();
             DiscoveryPath path = node.getPath();
 
-            if(path.equals(DiscoveryPath.config(Type.RABBITMQ, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.BROKER, "default"))) {
-                if(node.getValue("username") != null) {
+            if (path.equals(DiscoveryPath.config(Type.RABBITMQ, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.BROKER, "default"))) {
+                if (node.getValue("username") != null) {
                     rabbitConfig.put("username", node.getValue("username"));
                 }
 
-                if(node.getValue("password") != null) {
+                if (node.getValue("password") != null) {
                     rabbitConfig.put("password", node.getValue("password"));
                 }
 
-                if(node.getValue("uri") != null) {
+                if (node.getValue("uri") != null) {
                     rabbitConfig.put("uri", node.getValue("uri"));
                 }
 
-                if(rabbitConfig.size() == 3) {
+                if (rabbitConfig.size() == 3) {
                     connectRabbit();
                 }
             }
@@ -378,7 +382,7 @@ public class Game extends Application {
 
         architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG,
                 (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
-                    for(BaseEntity e : this.entities.values()) {
+                    for (BaseEntity e : this.entities.values()) {
                         e.delete();
                     }
                     this.entities.clear();
@@ -400,6 +404,7 @@ public class Game extends Application {
 
     /**
      * Main method of the visualisation
+     *
      * @param args - args
      */
     public static void main(String[] args) {

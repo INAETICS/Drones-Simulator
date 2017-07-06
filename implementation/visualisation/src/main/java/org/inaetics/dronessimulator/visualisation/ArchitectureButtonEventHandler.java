@@ -11,7 +11,9 @@ import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 
 import java.io.IOException;
 
-
+/**
+ * This class is a handler for a button. Handling a specific action when the button is clicked
+ */
 public class ArchitectureButtonEventHandler implements EventHandler<MouseEvent> {
     /** The Logger */
     private final static Logger logger = Logger.getLogger(ArchitectureButtonEventHandler.class);

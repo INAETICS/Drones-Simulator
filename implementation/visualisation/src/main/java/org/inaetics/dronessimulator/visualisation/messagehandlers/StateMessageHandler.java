@@ -15,7 +15,9 @@ import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentMap;
 
-
+/**
+ * The state message handler class. Implements what to do when a new state is send of the entities (drone, bullet)
+ */
 public class StateMessageHandler implements MessageHandler {
     /** Logger */
     private static final Logger logger = Logger.getLogger(StateMessageHandler.class);

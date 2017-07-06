@@ -4,6 +4,9 @@ import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
 
 import java.util.concurrent.BlockingQueue;
 
+/**
+ * The bullet class is a subclass of a base entity representing a bullet.
+ */
 public class Bullet extends BaseEntity {
 
     /** Image of the bullet */

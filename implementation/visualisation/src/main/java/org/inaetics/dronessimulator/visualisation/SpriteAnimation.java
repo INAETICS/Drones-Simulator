@@ -7,6 +7,9 @@ import javafx.geometry.Rectangle2D;
 import javafx.scene.image.ImageView;
 import javafx.util.Duration;
 
+/**
+ * Provides a means of creating an animation of a sprite image
+ */
 public class SpriteAnimation extends Transition {
     /** Image of the animation */
     private final ImageView imageView;

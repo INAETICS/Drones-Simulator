@@ -21,7 +21,6 @@ public class AddDrone extends UIUpdate {
 
     /**
      * Add the drone height text to a pane
-     * @param pane
      */
     @Override
     public void execute(Pane pane) {

@@ -16,8 +16,8 @@ public class RemoveDrone extends UIUpdate {
 
     /**
      * Instantiates an update to remove a drone and the height text
-     * @param imageView
-     * @param heightText
+     * @param imageView - The image view to remove. This is the image of the drone.
+     * @param heightText - The heighttext to remove
      */
     public RemoveDrone(ImageView imageView, Text heightText) {
         this.imageView = imageView;
@@ -26,7 +26,6 @@ public class RemoveDrone extends UIUpdate {
 
         /**
          * Remove the drone image and the height text from a pane
-         * @param pane
          */
     @Override
     public void execute(Pane pane) {

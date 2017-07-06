@@ -19,7 +19,6 @@ public class AddBaseEntity extends UIUpdate {
 
     /**
      * Add the base entity image to a pane
-     * @param pane
      */
     @Override
     public void execute(Pane pane) {

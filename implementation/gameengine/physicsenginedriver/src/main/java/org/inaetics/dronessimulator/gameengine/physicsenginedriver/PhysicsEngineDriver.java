@@ -3,6 +3,7 @@ package org.inaetics.dronessimulator.gameengine.physicsenginedriver;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventHandler;
+import org.inaetics.dronessimulator.common.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
@@ -16,6 +17,7 @@ import org.inaetics.dronessimulator.physicsengine.Entity;
 import org.inaetics.dronessimulator.physicsengine.IPhysicsEngine;
 import org.inaetics.dronessimulator.physicsengine.Size;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.AccelerationEntityUpdate;
+import org.inaetics.dronessimulator.physicsengine.entityupdate.DirectionEntityUpdate;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.PositionEntityUpdate;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.VelocityEntityUpdate;
 
@@ -188,6 +190,19 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
     }
 
     @Override
+    public void changeDirectionEntity(int entityId, D3PolarCoordinate newDirection) {
+        this.m_physicsEngine.addUpdate(entityId, new DirectionEntityUpdate(newDirection));
+    }
+
+    @Override
+    public void changeDirectionEntity(String protocolId, D3PolarCoordinate newDirection) {
+        Optional<Integer> gameEngineId = m_id_mapper.fromProtocolToGameEngineId(protocolId);
+        if(gameEngineId.isPresent()) {
+            this.changeDirectionEntity(gameEngineId.get(), newDirection);
+        }
+    }
+
+    @Override
     public void startEngine() {
         m_physicsEngine.startEngine();
     }
@@ -223,6 +238,6 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
             size = new Size(100, 100, 100);
         }
 
-        return new Entity(g.getEntityId(), size, g.getPosition(), g.getVelocity(), g.getAcceleration());
+        return new Entity(g.getEntityId(), size, g.getPosition(), g.getVelocity(), g.getAcceleration(), g.getDirection());
     }
 }

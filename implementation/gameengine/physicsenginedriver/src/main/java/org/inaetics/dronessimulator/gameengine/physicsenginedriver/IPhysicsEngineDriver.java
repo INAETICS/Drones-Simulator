@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.gameengine.physicsenginedriver;
 
+import org.inaetics.dronessimulator.common.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
@@ -90,6 +91,20 @@ public interface IPhysicsEngineDriver {
      * @param newAcceleration The new acceleration.
      */
     void changeAccelerationEntity(String protocolId, D3Vector newAcceleration);
+
+    /**
+     * Change the direction of the given name entity.
+     * @param entityId The id of the entity.
+     * @param newDirection The new direction.
+     */
+    void changeDirectionEntity(int entityId, D3PolarCoordinate newDirection);
+
+    /**
+     * Change the direction of the given name entity.
+     * @param protocolId The protocol id of the entity.
+     * @param newDirection The new direction.
+     */
+    void changeDirectionEntity(String protocolId, D3PolarCoordinate newDirection);
 
     void startEngine();
     void pauseEngine();

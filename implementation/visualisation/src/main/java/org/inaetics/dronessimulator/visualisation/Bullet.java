@@ -19,6 +19,4 @@ public class Bullet extends BaseEntity {
         this.imageView.setFitHeight(Settings.BULLET_HEIGHT);
         this.imageView.setId("bullet");
     }
-
-
 }

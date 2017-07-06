@@ -18,6 +18,8 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventControllerService;
+import org.inaetics.dronessimulator.common.D3PolarCoordinate;
+import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.*;
@@ -25,6 +27,7 @@ import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
 import org.inaetics.dronessimulator.discovery.etcd.EtcdDiscovererService;
@@ -116,6 +119,7 @@ public class Game extends Application {
         setupInterface(primaryStage);
         setupDiscovery();
         setupRabbit();
+        setupGameEventListener();
 
         lastLog = System.currentTimeMillis();
         AnimationTimer gameLoop = new AnimationTimer() {
@@ -171,6 +175,22 @@ public class Game extends Application {
      */
     private void setupGameEventListener() {
         List<NodeEventHandler<RemovedNode>> removeHandlers = new ArrayList<>();
+        List<NodeEventHandler<AddedNode>> addHandlers = new ArrayList<>();
+
+        addHandlers.add((AddedNode addedNodeEvent) -> {
+            DiscoveryNode node = addedNodeEvent.getNode();
+            DiscoveryPath path = node.getPath();
+
+            if( path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
+                String protocolId = node.getId();
+                BaseEntity baseEntity = entities.get(protocolId);
+
+                if(baseEntity == null) {
+                    createDrone(protocolId);
+                }
+                logger.info("Added drone " + protocolId + " to visualisation");
+            }
+        });
 
         removeHandlers.add((RemovedNode removedNodeEvent) -> {
             DiscoveryNode node = removedNodeEvent.getNode();
@@ -188,7 +208,7 @@ public class Game extends Application {
             }
         });
 
-        this.discoverer.addHandlers(true, Collections.emptyList(), Collections.emptyList(), removeHandlers);
+        this.discoverer.addHandlers(true, addHandlers, Collections.emptyList(), removeHandlers);
     }
 
     /**
@@ -203,7 +223,6 @@ public class Game extends Application {
 
             if(path.equals(DiscoveryPath.config(Type.RABBITMQ, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.BROKER, "default"))) {
                 if(node.getValue("username") != null) {
-                    System.out.println("USERNAME: " + node.getValue("username"));
                     rabbitConfig.put("username", node.getValue("username"));
                 }
 
@@ -365,6 +384,18 @@ public class Game extends Application {
                     this.entities.clear();
                 }
         );
+    }
+
+    /**
+     * Creates a new drone and returns it
+     *
+     * @param id String - Identifier of the new drone
+     */
+    private void createDrone(String id) {
+        BasicDrone drone = new BasicDrone(uiUpdates);
+        drone.setPosition(new D3Vector(-9999, -9999, -9999));
+        drone.setDirection(new D3PolarCoordinate(-9999, -9999, -9999));
+        entities.putIfAbsent(id, drone);
     }
 
     /**

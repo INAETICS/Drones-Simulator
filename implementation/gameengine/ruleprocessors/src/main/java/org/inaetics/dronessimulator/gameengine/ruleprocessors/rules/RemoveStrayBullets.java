@@ -33,8 +33,9 @@ public class RemoveStrayBullets extends Rule {
             CurrentStateEvent currentStateEvent = (CurrentStateEvent) event;
             List<DestroyBulletEvent> destroyedBullets = this.removeStaleBullets(currentStateEvent);
 
-            events = new ArrayList(destroyedBullets.size() + 1);
+            events = new ArrayList<>(destroyedBullets.size() + 1);
             events.add(event);
+            events.addAll(destroyedBullets);
         } else {
             events = Collections.singletonList(event);
         }

@@ -20,7 +20,6 @@ public class NodeGestures {
      */
     public NodeGestures(PannableCanvas canvas) {
         this.canvas = canvas;
-
     }
 
     /**

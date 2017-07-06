@@ -3,6 +3,8 @@ package org.inaetics.dronessimulator.visualisation;
 import com.rabbitmq.client.ConnectionFactory;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -13,8 +15,11 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventControllerService;
+import org.inaetics.dronessimulator.common.D3PolarCoordinate;
+import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.*;
@@ -22,7 +27,9 @@ import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
 import org.inaetics.dronessimulator.discovery.etcd.EtcdDiscovererService;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.publisher.RabbitPublisher;
@@ -30,6 +37,7 @@ import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitSubscriber;
 import org.inaetics.dronessimulator.visualisation.controls.PannableCanvas;
 import org.inaetics.dronessimulator.visualisation.controls.SceneGestures;
 import org.inaetics.dronessimulator.visualisation.messagehandlers.*;
+import org.inaetics.dronessimulator.visualisation.uiupdates.RemoveDrone;
 import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
 
 import java.io.IOException;
@@ -82,6 +90,26 @@ public class Game extends Application {
     private long lastLog = -1;
 
     /**
+     * Close event handler
+     * When the window closes, rabbitmq and the discoverer disconnect
+     */
+    private EventHandler onCloseEventHandler = new EventHandler<WindowEvent>() {
+        @Override
+        public void handle(WindowEvent t) {
+            logger.info("Closing the application gracefully");
+            try {
+                subscriber.disconnect();
+                publisher.disconnect();
+                discoverer.stop();
+            } catch (IOException e) {
+                logger.fatal(e);
+            }
+            Platform.exit();
+            System.exit(0);
+        }
+    };
+
+    /**
      * Main entry point for a JavaFX application
      *
      * @param primaryStage - the primary stage for this application
@@ -91,6 +119,7 @@ public class Game extends Application {
         setupInterface(primaryStage);
         setupDiscovery();
         setupRabbit();
+        setupGameEventListener();
 
         lastLog = System.currentTimeMillis();
         AnimationTimer gameLoop = new AnimationTimer() {
@@ -144,6 +173,47 @@ public class Game extends Application {
     /**
      * Sets up the connection to the message broker and subscribes to the necessary channels and sets the required handlers
      */
+    private void setupGameEventListener() {
+        List<NodeEventHandler<RemovedNode>> removeHandlers = new ArrayList<>();
+        List<NodeEventHandler<AddedNode>> addHandlers = new ArrayList<>();
+
+        addHandlers.add((AddedNode addedNodeEvent) -> {
+            DiscoveryNode node = addedNodeEvent.getNode();
+            DiscoveryPath path = node.getPath();
+
+            if( path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
+                String protocolId = node.getId();
+                BaseEntity baseEntity = entities.get(protocolId);
+
+                if(baseEntity == null) {
+                    createDrone(protocolId);
+                }
+                logger.info("Added drone " + protocolId + " to visualisation");
+            }
+        });
+
+        removeHandlers.add((RemovedNode removedNodeEvent) -> {
+            DiscoveryNode node = removedNodeEvent.getNode();
+            DiscoveryPath path = node.getPath();
+
+            if( path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
+                String protocolId = node.getId();
+                BaseEntity baseEntity = entities.get(protocolId);
+
+                if(baseEntity != null) {
+                    baseEntity.delete();
+                    entities.remove(protocolId);
+                }
+                logger.info("Removed drone " + protocolId + " from visualisation");
+            }
+        });
+
+        this.discoverer.addHandlers(true, addHandlers, Collections.emptyList(), removeHandlers);
+    }
+
+    /**
+     * Sets up the connection to the message broker and subscribes to the necessary channels and sets the required handlers
+     */
     private void setupRabbit() {
         List<NodeEventHandler<ChangedValue>> changedValueHandlers = new ArrayList<>();
 
@@ -171,8 +241,6 @@ public class Game extends Application {
         });
 
         this.discoverer.addHandlers(true, Collections.emptyList(), changedValueHandlers, Collections.emptyList());
-
-
     }
 
     /**
@@ -238,6 +306,7 @@ public class Game extends Application {
 
         primaryStage.setTitle("Drone simulator");
         primaryStage.setResizable(false);
+        primaryStage.setOnCloseRequest(onCloseEventHandler);
 
         // create canvas
         canvas = new PannableCanvas(Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT);
@@ -315,6 +384,18 @@ public class Game extends Application {
                     this.entities.clear();
                 }
         );
+    }
+
+    /**
+     * Creates a new drone and returns it
+     *
+     * @param id String - Identifier of the new drone
+     */
+    private void createDrone(String id) {
+        BasicDrone drone = new BasicDrone(uiUpdates);
+        drone.setPosition(new D3Vector(-9999, -9999, -9999));
+        drone.setDirection(new D3PolarCoordinate(-9999, -9999, -9999));
+        entities.putIfAbsent(id, drone);
     }
 
     /**

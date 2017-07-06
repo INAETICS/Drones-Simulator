@@ -98,18 +98,22 @@ public class Game extends Application {
      * When the window closes, rabbitmq and the discoverer disconnect
      */
     private EventHandler onCloseEventHandler = new EventHandler<WindowEvent>() {
+        boolean isClosed = false;
+
         @Override
         public void handle(WindowEvent t) {
-            logger.info("Closing the application gracefully");
-            try {
-                subscriber.disconnect();
-                publisher.disconnect();
-                discoverer.stop();
-            } catch (IOException e) {
-                logger.fatal(e);
+            if(!isClosed) {
+                logger.info("Closing the application gracefully");
+                try {
+                    subscriber.disconnect();
+                    publisher.disconnect();
+                    discoverer.stop();
+                    isClosed = true;
+                } catch (IOException e) {
+                    logger.fatal(e);
+                }
+                Platform.exit();
             }
-            Platform.exit();
-            System.exit(0);
         }
     };
 
@@ -327,6 +331,8 @@ public class Game extends Application {
         primaryStage.setTitle("Drone simulator");
         primaryStage.setResizable(false);
         primaryStage.setOnCloseRequest(onCloseEventHandler);
+
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> onCloseEventHandler.handle(null)));
 
         // create canvas
         canvas = new PannableCanvas(Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT);

@@ -3,6 +3,8 @@ package org.inaetics.dronessimulator.visualisation;
 import com.rabbitmq.client.ConnectionFactory;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.event.EventHandler;
 import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -13,6 +15,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventControllerService;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
@@ -80,6 +83,22 @@ public class Game extends Application {
     private int i = 0;
     /** Time is ms of the last log */
     private long lastLog = -1;
+
+    private EventHandler onCloseEventHandler = new EventHandler<WindowEvent>() {
+        @Override
+        public void handle(WindowEvent t) {
+            logger.info("Closing the application gracefully");
+            try {
+                subscriber.disconnect();
+                publisher.disconnect();
+                discoverer.stop();
+            } catch (IOException e) {
+                logger.fatal(e);
+            }
+            Platform.exit();
+            System.exit(0);
+        }
+    };
 
     /**
      * Main entry point for a JavaFX application
@@ -239,6 +258,7 @@ public class Game extends Application {
 
         primaryStage.setTitle("Drone simulator");
         primaryStage.setResizable(false);
+        primaryStage.setOnCloseRequest(onCloseEventHandler);
 
         // create canvas
         canvas = new PannableCanvas(Settings.CANVAS_WIDTH, Settings.CANVAS_HEIGHT);

@@ -3,9 +3,9 @@ package org.inaetics.dronessimulator.gameengine.common.state;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
-import org.inaetics.dronessimulator.common.protocol.EntityType;
 
 /**
  * An entity in the physics engine with some added game state.

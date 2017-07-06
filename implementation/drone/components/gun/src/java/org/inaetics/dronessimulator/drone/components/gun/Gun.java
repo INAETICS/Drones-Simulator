@@ -1,11 +1,11 @@
 package org.inaetics.dronessimulator.drone.components.gun;
 
 import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
-import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.protocol.FireBulletMessage;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
+import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;

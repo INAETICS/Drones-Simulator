@@ -1,9 +1,9 @@
 package org.inaetics.dronessimulator.drone.components.engine;
 
 import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.MovementMessage;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 

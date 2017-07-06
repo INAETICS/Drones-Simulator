@@ -30,14 +30,23 @@ public class DroneInit {
     /**
      * FELIX CALLBACKS
      */
+    /**
+     * On startup register Drone in Discovery.
+     */
     public void start() throws IOException{
         this.registerDroneService();
     }
 
+    /**
+     * On startup unregister Drone in Discovery.
+     */
     public void stop() throws IOException {
         this.unregisterDroneService();
     }
 
+    /**
+     * Registers the Drone in Discovery
+     */
     private void registerDroneService(){
         Map<String, String> properties = new HashMap<>();
 
@@ -55,6 +64,9 @@ public class DroneInit {
 
     }
 
+    /**
+     * Unregisters the Drone in Discovery
+     */
     private void unregisterDroneService(){
         try{
             this.m_discoverer.unregister(registered_instance);
@@ -63,14 +75,25 @@ public class DroneInit {
         }
     }
 
+    /**
+     * Returns the indentifier from the drone
+     * @return
+     */
     public String getIdentifier(){
         return this.identifier;
     }
 
+    /**
+     * Changes the indentifier to a new value
+     * @param new_identifier
+     */
     public void setIdentifier(String new_identifier){
         this.identifier = new_identifier;
     }
 
+    /**
+     * Generates a new indentifier based on enviroment variables
+     */
     public void initIdentifier(){
         Map<String, String> env = System.getenv();
         if(env.containsKey("DRONENAME"))

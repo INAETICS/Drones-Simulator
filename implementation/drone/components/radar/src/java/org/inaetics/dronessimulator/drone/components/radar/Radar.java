@@ -9,12 +9,20 @@ import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.protocol.KillMessage;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
+import org.inaetics.dronessimulator.discovery.api.Discoverer;
+import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -27,6 +35,7 @@ public class Radar implements MessageHandler {
     private volatile ArchitectureEventController m_architectureEventController;
     private volatile Subscriber m_subscriber;
     private volatile DroneInit m_drone;
+    private volatile Discoverer m_discoverer;
 
     private volatile D3Vector position;
     private final ConcurrentHashMap<String, D3Vector> all_positions = new ConcurrentHashMap<>();
@@ -35,7 +44,22 @@ public class Radar implements MessageHandler {
     /**
      * FELIX CALLBACKS
      */
+    /**
+     * Adds handlers for discovery, architectureEventController and subscribes on stateUpdates in subscriber.
+     */
     public void start() {
+        List<NodeEventHandler<RemovedNode>> removedNodeHandlers = new ArrayList<>();
+
+        removedNodeHandlers.add((RemovedNode e) -> {
+            DiscoveryNode node = e.getNode();
+            DiscoveryPath path = node.getPath();
+
+            if(path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
+                String protocolId = node.getId();
+                this.all_positions.remove(protocolId);
+            }
+        });
+        this.m_discoverer.addHandlers(true, Collections.emptyList(), Collections.emptyList(), removedNodeHandlers);
         try {
             this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
@@ -54,10 +78,10 @@ public class Radar implements MessageHandler {
     /**
      * -- GETTERS
      */
-    public D3Vector getPosition(){
-        return position;
-    }
-
+    /**
+     * Retrieves the radar status. All the locations of the objects in the range of the radar.
+     * @return
+     */
     public List<D3Vector> getRadar(){
         List<D3Vector> results;
 
@@ -74,6 +98,10 @@ public class Radar implements MessageHandler {
         return results;
     }
 
+    /**
+     * Retrieves location of the nearest Drone.
+     * @return D3Vector of the nearest target
+     */
     public Optional<D3Vector> getNearestTarget(){
         return getRadar()
                 .stream()
@@ -88,8 +116,11 @@ public class Radar implements MessageHandler {
         position = new_position;
     }
 
+    //-- MESSAGEHANDLERS
+
     /**
-     * -- MESSAGEHANDLERS
+     * Handles a recieved message and calls the messagehandlers.
+     * @param message The received message.
      */
     public void handleMessage(Message message) {
         if (message instanceof StateMessage){
@@ -99,7 +130,11 @@ public class Radar implements MessageHandler {
         }
     }
 
-    public void handleStateMessage(StateMessage stateMessage){
+    /**
+     * Handles a stateMessage
+     * @param stateMessage the received stateMessage
+     */
+    private void handleStateMessage(StateMessage stateMessage){
         if (stateMessage.getIdentifier().equals(this.m_drone.getIdentifier())){
             if (stateMessage.getPosition().isPresent()) {
                 this.setPosition(stateMessage.getPosition().get());
@@ -111,7 +146,11 @@ public class Radar implements MessageHandler {
         }
     }
 
-    public void handleKillMessage(KillMessage killMessage){
+    /**
+     * Handles a killMessage
+     * @param killMessage the received killMessage
+     */
+    private void handleKillMessage(KillMessage killMessage){
         if(killMessage.getEntityType().equals(EntityType.DRONE)) {
             this.all_positions.remove(killMessage.getIdentifier());
         }

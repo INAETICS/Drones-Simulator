@@ -81,6 +81,9 @@ public abstract class Tactic extends Thread implements MessageHandler {
         }
     }
 
+    /**
+     * Registers the handlers for the architectureEventController on startup. And registers the subscriber. Starts the tactic.
+     */
     public void startTactic() {
         m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG,
                 (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
@@ -176,6 +179,9 @@ public abstract class Tactic extends Thread implements MessageHandler {
         }
     }
 
+    /**
+     * Start the simulation.
+     */
     protected void startSimulation() {
         synchronized (started) {
             started.set(true);
@@ -185,6 +191,9 @@ public abstract class Tactic extends Thread implements MessageHandler {
         logger.info("Started simulation!");
     }
 
+    /**
+     * Pauses the simulation.
+     */
     protected void pauseSimulation() {
         synchronized (pauseToken) {
             pauseToken.set(true);
@@ -193,6 +202,9 @@ public abstract class Tactic extends Thread implements MessageHandler {
         logger.info("Paused drone!");
     }
 
+    /**
+     * Resumes the simulation.
+     */
     protected void resumeSimulation() {
         synchronized (pauseToken) {
             pauseToken.set(false);
@@ -202,6 +214,9 @@ public abstract class Tactic extends Thread implements MessageHandler {
         logger.info("Resumed drone!");
     }
 
+    /**
+     * Stops the simulation.
+     */
     protected void stopSimulation() {
         synchronized (quit) {
             quit.set(true);
@@ -213,8 +228,11 @@ public abstract class Tactic extends Thread implements MessageHandler {
         logger.info("Stopped drone!");
     }
 
-        /**
-     * -- MESSAGEHANDLERS
+    //-- MESSAGEHANDLERS
+
+    /**
+     * Handles a recieved message and calls the messagehandlers.
+     * @param message The received message.
      */
     public void handleMessage(Message message) {
         if (message instanceof KillMessage){
@@ -222,6 +240,10 @@ public abstract class Tactic extends Thread implements MessageHandler {
         }
     }
 
+    /**
+     * Handles a killMessage
+     * @param killMessage the received killMessage
+     */
     public void handleKillMessage(KillMessage killMessage){
         if(killMessage.getIdentifier().equals(m_drone.getIdentifier())){
             Logger.getLogger(Tactic.class).info("Found kill message! Quitting for now...");
@@ -232,6 +254,9 @@ public abstract class Tactic extends Thread implements MessageHandler {
 
     /**
      * -- Abstract metods
+     */
+    /**
+     * Method which is called to calculate and perform the new tactics. A tactic should implement this method with its own logic.
      */
     abstract void calculateTactics();
 

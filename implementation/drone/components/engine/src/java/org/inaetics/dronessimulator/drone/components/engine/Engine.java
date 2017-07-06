@@ -11,27 +11,43 @@ import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 import java.io.IOException;
 
 public class Engine {
+    //-- Variable
     private final static Logger logger = Logger.getLogger(Engine.class);
-
     private volatile Publisher m_publisher;
     private volatile DroneInit m_drone;
     private volatile GPS m_gps;
 
+    /**
+     * Maximum velocity of the engine
+     */
     private static final int MAX_VELOCITY = 20;
+    /**
+     * Maximum acceleration of the engine
+     */
     private static final int MAX_ACCELERATION = 10;
 
+    //-- GETTERS
+    /**
+     * Returns the maximum velocity of the engine
+     * @return
+     */
     public int getMaxVelocity(){
         return MAX_VELOCITY;
     }
 
+    /**
+     * Returns the maximum acceleration of the engine
+     * @return
+     */
     public int getMaxAcceleration(){
         return MAX_ACCELERATION;
     }
 
+    //-- CONVERTER FUNCTIONS
     /**
      * Prevents that the acceleration exteeds the maximum value
-     * @param input
-     * @return
+     * @param input acceleration as a D3Vector
+     * @return optimized acceleration as a D3Vector
      */
     public D3Vector limit_acceleration(D3Vector input){
         D3Vector output = input;
@@ -61,7 +77,7 @@ public class Engine {
     /**
      * Limits the velocity when the maximum velocity is archieved.
      * @param input acceleration as a D3Vector
-     * @return
+     * @return optimized acceleration as a D3Vector
      */
     private D3Vector limit_velocity(D3Vector input){
         D3Vector output = input;
@@ -72,11 +88,10 @@ public class Engine {
         return output;
     }
 
-
     /**
      * Stagnate the acceleration when the velocity is at 90% of the maximum velocity.
      * @param input acceleration as a D3Vector
-     * @return
+     * @return optimized acceleration as a D3Vector
      */
     public D3Vector stagnate_acceleration(D3Vector input){
         D3Vector output = input;
@@ -91,7 +106,10 @@ public class Engine {
         return output;
     }
 
-
+    /**
+     * Changes the acceleration of the engine. Corrects the acceleration when necessary to the bounds of the engine before sending it.
+     * @param input_acceleration the requested acceleration as a D3Vector
+     */
     public void changeAcceleration(D3Vector input_acceleration){
         D3Vector acceleration = input_acceleration;
 

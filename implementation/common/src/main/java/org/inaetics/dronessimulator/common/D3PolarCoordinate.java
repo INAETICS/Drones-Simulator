@@ -199,9 +199,9 @@ public class D3PolarCoordinate implements Serializable {
     public boolean equals(Object o) {
         if(o instanceof D3PolarCoordinate) {
             D3PolarCoordinate other = (D3PolarCoordinate) o;
-            return BigDecimal.valueOf(this.getAngle1()).equals(BigDecimal.valueOf(other.getAngle1()))
-                && BigDecimal.valueOf(this.getAngle2()).equals(BigDecimal.valueOf(other.getAngle2()))
-                && BigDecimal.valueOf(this.getLength()).equals(BigDecimal.valueOf(other.getLength()));
+            return BigDecimal.valueOf(this.getAngle1()).compareTo(BigDecimal.valueOf(other.getAngle1())) == 0
+                && BigDecimal.valueOf(this.getAngle2()).compareTo(BigDecimal.valueOf(other.getAngle2())) == 0
+                && BigDecimal.valueOf(this.getLength()).compareTo(BigDecimal.valueOf(other.getLength())) == 0;
         } else {
             return false;
         }

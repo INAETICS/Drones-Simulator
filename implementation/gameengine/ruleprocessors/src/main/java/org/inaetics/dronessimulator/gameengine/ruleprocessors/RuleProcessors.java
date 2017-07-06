@@ -3,12 +3,13 @@ package org.inaetics.dronessimulator.gameengine.ruleprocessors;
 
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
+import org.inaetics.dronessimulator.common.GameMode;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
-import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.Processor;
+import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.Rule;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.RemoveStaleStateData;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.RemoveStrayBullets;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.SendMessages;
@@ -25,6 +26,8 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Rule processors service. The rule processors listen on events and act on them based on predefined rules.
  */
 public class RuleProcessors extends Thread implements IRuleProcessors {
+    public static final GameMode GAME_MODE = GameMode.DEATHMATCH;
+
     private ArchitectureEventController m_architectureEventController;
 
     /** The physics engine driver to get events from. */
@@ -40,7 +43,7 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
     private LinkedBlockingQueue<GameEngineEvent> incomingEvents;
 
     /** Active rules. Should end SendMessages to broadcast the messages to other subsystems. */
-    private Processor[] rules;
+    private Rule[] rules;
 
     @Override
     public void start() {
@@ -50,12 +53,7 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
 
         this.incomingEvents = this.m_driver.getOutgoingQueue();
 
-        this.rules = new Processor[]{ new CollisionRule()
-                                    , new KillEntitiesRule()
-                                    , new RemoveStrayBullets()
-                                    , new RemoveStaleStateData()
-                                    , new SendMessages(this.m_publisher, this.m_id_mapper)
-                                    };
+        this.rules = RuleSets.getRulesForGameMode(GAME_MODE, this.m_publisher, this.m_id_mapper);
 
         m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG,
                 (SimulationState from, SimulationAction action, SimulationState to) -> {
@@ -95,7 +93,7 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
      */
     public void processEventsForRules(List<GameEngineEvent> events) {
         List<GameEngineEvent> allEvents = events;
-        for(Processor rule : this.rules) {
+        for(Rule rule : this.rules) {
             allEvents = this.processEventsForRule(allEvents, rule);
         }
     }
@@ -106,7 +104,7 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
      * @param rule The rule to apply.
      * @return The list of events to pass to the next rule.
      */
-    public List<GameEngineEvent> processEventsForRule(List<GameEngineEvent> events, Processor rule) {
+    public List<GameEngineEvent> processEventsForRule(List<GameEngineEvent> events, Rule rule) {
         List<GameEngineEvent> result = new ArrayList<>(events.size() * 2);
 
         for(GameEngineEvent event : events) {
@@ -117,7 +115,7 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
     }
 
     public void configRules() {
-        for(Processor rule : rules) {
+        for(Rule rule : rules) {
             rule.configRule();
         }
     }

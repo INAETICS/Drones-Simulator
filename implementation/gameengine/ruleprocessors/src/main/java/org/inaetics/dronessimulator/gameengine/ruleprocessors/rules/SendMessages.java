@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 @AllArgsConstructor
-public class SendMessages extends Processor {
+public class SendMessages extends Rule {
     private final Publisher publisher;
     private final IdentifierMapper id_mapper;
 

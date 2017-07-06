@@ -5,13 +5,13 @@ import org.inaetics.dronessimulator.gameengine.common.gameevent.DestroyHealthEnt
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 import org.inaetics.dronessimulator.gameengine.common.state.HealthGameEntity;
-import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.Processor;
+import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.Rule;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class KillEntitiesRule extends Processor {
+public class KillEntitiesRule extends Rule {
     @Override
     public void configRule() {
         // Nothing to config

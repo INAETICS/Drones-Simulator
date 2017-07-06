@@ -33,7 +33,6 @@ The docker images will be added to your local docker. Start the docker container
 # Multiple drones
 If you would like to start multiple drones on the same host, run the following after compiling the docker images:
 ```
-cd docker_images/
 docker-compose up --scale drone=<DRONE AMOUNT> drone
 ``` 
 

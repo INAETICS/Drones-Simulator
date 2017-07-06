@@ -2,7 +2,6 @@ package org.inaetics.dronessimulator.visualisation;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
 import org.inaetics.dronessimulator.common.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.visualisation.uiupdates.AddBaseEntity;

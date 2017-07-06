@@ -19,7 +19,6 @@ public class RemoveBaseEntity extends UIUpdate {
 
     /**
      * Remove the base entity image from a pane
-     * @param pane
      */
     @Override
     public void execute(Pane pane) {

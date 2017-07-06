@@ -13,7 +13,7 @@ public class AddDrone extends UIUpdate {
     /**
      * Instantiates an update to add a drone
      * Height text is the only thing that is specific for a drone, the drone itself it a base entity
-     * @param heightText
+     * @param heightText - The new initial height text shown above the drone
      */
     public AddDrone(Text heightText) {
         this.heightText = heightText;
@@ -21,7 +21,6 @@ public class AddDrone extends UIUpdate {
 
     /**
      * Add the drone height text to a pane
-     * @param pane
      */
     @Override
     public void execute(Pane pane) {

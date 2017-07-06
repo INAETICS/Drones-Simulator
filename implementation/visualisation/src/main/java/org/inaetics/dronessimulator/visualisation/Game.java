@@ -150,10 +150,8 @@ public class Game extends Application {
         changedValueHandlers.add((ChangedValue e) -> {
             DiscoveryNode node = e.getNode();
             DiscoveryPath path = node.getPath();
-            System.out.println("CHANGED VALUE! " + node + " " + path);
-            System.out.println(DiscoveryPath.config(Type.RABBITMQ, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.BROKER, "default"));
+
             if(path.equals(DiscoveryPath.config(Type.RABBITMQ, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.BROKER, "default"))) {
-                System.out.println("CHANGED NODE! " + node);
                 if(node.getValue("username") != null) {
                     System.out.println("USERNAME: " + node.getValue("username"));
                     rabbitConfig.put("username", node.getValue("username"));

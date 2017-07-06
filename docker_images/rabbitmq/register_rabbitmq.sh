@@ -12,7 +12,7 @@ while ! nc -z localhost 5672; do
   sleep 0.1 # wait for 1/10 of the second before check again
 done
 
-echo "RabbitMQ is gestart"
+echo "RabbitMQ has started!"
 
 USERNAME=yourUser
 PASSWORD=yourPass
@@ -22,7 +22,7 @@ rabbitmqctl add_user $USERNAME $PASSWORD
 rabbitmqctl set_permissions -p / $USERNAME ".*" ".*" ".*"
 rabbitmqctl set_user_tags $USERNAME administrator
 
-echo "User $USERNAME toegevoegd aan RabbitMQ"
+echo "User $USERNAME is added to RabbitMQ"
 
 # etcd paths
 INSTANCE_DIR="/instances/rabbitmq/broker/default"
@@ -55,10 +55,10 @@ function finish {
   curl http://$ETCD_HOST:$ETCD_PORT/v2/keys$INSTANCE_DIR/username -XDELETE
   curl http://$ETCD_HOST:$ETCD_PORT/v2/keys$INSTANCE_DIR/password -XDELETE
 
-  echo "Stop RabbitMQ server"
+  echo "Stopping RabbitMQ server..."
   SCRIPT_RUNNING=false;
   rabbitmqctl stop
-  
+  echo "Stopped RabbitMQ server!"   
 }
 
 trap finish SIGINT SIGTERM SIGQUIT

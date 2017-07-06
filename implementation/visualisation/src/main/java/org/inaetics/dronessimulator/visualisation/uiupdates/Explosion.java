@@ -29,7 +29,6 @@ public class Explosion extends UIUpdate {
      * Add an explosion to a pane
      * Creates an explosion from an image and animates it.
      * The explosion removes itself after the animation finishes
-     * @param pane
      */
     @Override
     public void execute(Pane pane) {

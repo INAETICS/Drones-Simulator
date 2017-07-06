@@ -1,24 +1,24 @@
 version: '3'
 services:
   etcd:
-    build: ./docker_images/etcd
+    build: ./docker_images2/etcd
     ports:
       - "2379:2379"
       - "2380:2380"
       - "4001:4001"
   rabbitmq:
-    build: ./docker_images/rabbitmq
+    build: ./docker_images2/rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
     env_file: docker.env
   game-engine:
-    build: ./docker_images/game_engine
+    build: ./docker_images2/game_engine
     env_file: docker.env
     tty: true
   drone:
-    build: ./docker_images/drone
+    build: ./docker_images2/drone
     env_file: docker.env
   architecture-manager:
-    build: ./docker_images/architecture_manager
+    build: ./docker_images2/architecture_manager
     env_file: docker.env

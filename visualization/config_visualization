@@ -1,0 +1,2 @@
+ETCD_HOST=localhost
+ETCD_PORT=4001

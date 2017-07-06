@@ -1,5 +1,7 @@
 package org.inaetics.dronessimulator.common;
 
+import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.junit.Assert;
 import org.junit.Test;
 

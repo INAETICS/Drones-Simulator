@@ -4,14 +4,15 @@ package org.inaetics.dronessimulator.visualisation.controls;
  * Mouse drag context used for scene and nodes.
  */
 class DragContext {
-
-    /** X position of the mouse */
+    /** Where the mouse is anchored on the x axis */
     double mouseAnchorX;
-    /** Y position of the mouse */
+
+    /** Where the mouse is anchored on the y axis */
     double mouseAnchorY;
 
-    /** X position relative to a canvas (also with zoom and pan) */
+    /** Where the dragged object is anchored on the x axis */
     double translateAnchorX;
-    /** Y position relative to a canvas (also with zoom and pan) */
+
+    /** Where the dragged object is anchored on the y axis */
     double translateAnchorY;
 }

@@ -1,4 +1,4 @@
-package org.inaetics.dronessimulator.common;
+package org.inaetics.dronessimulator.common.vector;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

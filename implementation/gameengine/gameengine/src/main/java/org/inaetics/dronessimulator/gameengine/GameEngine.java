@@ -2,12 +2,12 @@ package org.inaetics.dronessimulator.gameengine;
 
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
-import org.inaetics.dronessimulator.common.D2Vector;
-import org.inaetics.dronessimulator.common.D3PolarCoordinate;
-import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.*;
+import org.inaetics.dronessimulator.common.vector.D2Vector;
+import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;

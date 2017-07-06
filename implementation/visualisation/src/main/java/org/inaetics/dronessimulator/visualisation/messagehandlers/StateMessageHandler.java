@@ -1,13 +1,12 @@
 package org.inaetics.dronessimulator.visualisation.messagehandlers;
 
 import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.common.D3PolarCoordinate;
-import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
+import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.visualisation.BaseEntity;
-import org.inaetics.dronessimulator.visualisation.BasicDrone;
 import org.inaetics.dronessimulator.visualisation.Bullet;
 import org.inaetics.dronessimulator.visualisation.Drone;
 import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;

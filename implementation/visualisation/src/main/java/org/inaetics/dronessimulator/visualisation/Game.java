@@ -18,11 +18,11 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventControllerService;
-import org.inaetics.dronessimulator.common.D3PolarCoordinate;
-import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.*;
+import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
@@ -130,7 +130,9 @@ public class Game extends Application {
 
             @Override
             public void handle(long now) {
-                if (rabbitConnected.get()) {
+                long current_step_started_at_ms = System.currentTimeMillis();
+
+                if(rabbitConnected.get()) {
                     onRabbitConnect();
                     rabbitConnected.set(false);
                 }
@@ -159,6 +161,20 @@ public class Game extends Application {
 
                 // update sprites in scene
                 entities.forEach((id, entity) -> entity.updateUI());
+
+
+                long current_step_ended_at_ms = System.currentTimeMillis();
+                long current_step_took_ms = current_step_ended_at_ms - current_step_started_at_ms;
+                long diff = 10 - current_step_took_ms;
+
+                if(diff > 0) {
+                    try {
+                        Thread.sleep(diff);
+                    } catch (InterruptedException e) {
+                        logger.fatal(e);
+                        Thread.currentThread().interrupt();
+                    }
+                }
             }
 
         };

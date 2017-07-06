@@ -17,7 +17,6 @@ import java.net.URI;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -181,7 +180,7 @@ public class EtcdDiscoverer {
      * @param modifiedIndex The last seen modified index. Used to wait for new changes. May be null to not take changes
      *                      into account.
      * @param wait Whether to wait for changes.
-     * @return Tuple containing the root node of the tree and the modified index, or null if the tree is empty or when
+     * @return Tuple containing the root node of the tree and the next modified index, or null if the tree is empty or when
      *         an error occurred.
      */
     Tuple<EtcdKeysResponse.EtcdNode, Long> getFromRoot(Long modifiedIndex, boolean wait) {
@@ -210,7 +209,7 @@ public class EtcdDiscoverer {
             }
 
             EtcdKeysResponse.EtcdNode root = getResponse.getNode();
-            Long index = getResponse.etcdIndex;
+            Long index = getResponse.etcdIndex + 1;
 
             returnValue = new Tuple<>(root, index);
         } catch (IOException | EtcdException | EtcdAuthenticationException | TimeoutException ignored) {

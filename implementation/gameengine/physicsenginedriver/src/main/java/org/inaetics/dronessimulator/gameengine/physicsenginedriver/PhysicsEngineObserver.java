@@ -6,9 +6,7 @@ import org.inaetics.dronessimulator.gameengine.common.gameevent.CollisionEndEven
 import org.inaetics.dronessimulator.gameengine.common.gameevent.CollisionStartEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.CurrentStateEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
-import org.inaetics.dronessimulator.gameengine.common.state.Bullet;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
-import org.inaetics.dronessimulator.gameengine.gamestatemanager.GameStateManager;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
 import org.inaetics.dronessimulator.physicsengine.Entity;
 import org.inaetics.dronessimulator.physicsengine.PhysicsEngineEventObserver;
@@ -45,10 +43,12 @@ public class PhysicsEngineObserver implements PhysicsEngineEventObserver {
         GameEntity g1 = this.stateManager.getById(e1.getId());
         GameEntity g2 = this.stateManager.getById(e2.getId());
 
-        this.updateGameEntityFromPhysicsEngine(e1, g1);
-        this.updateGameEntityFromPhysicsEngine(e2, g2);
+        if(g1 != null && g2 != null) {
+            this.updateGameEntityFromPhysicsEngine(e1, g1);
+            this.updateGameEntityFromPhysicsEngine(e2, g2);
 
-        this.outgoingQueue.add(new CollisionStartEvent(g1.deepCopy(), g2.deepCopy()));
+            this.outgoingQueue.add(new CollisionStartEvent(g1.deepCopy(), g2.deepCopy()));
+        }
     }
 
     @Override
@@ -56,10 +56,12 @@ public class PhysicsEngineObserver implements PhysicsEngineEventObserver {
         GameEntity g1 = this.stateManager.getById(e1.getId());
         GameEntity g2 = this.stateManager.getById(e2.getId());
 
-        this.updateGameEntityFromPhysicsEngine(e1, g1);
-        this.updateGameEntityFromPhysicsEngine(e2, g2);
+        if(g1 != null && g2 != null) {
+            this.updateGameEntityFromPhysicsEngine(e1, g1);
+            this.updateGameEntityFromPhysicsEngine(e2, g2);
 
-        this.outgoingQueue.add(new CollisionEndEvent(g1.deepCopy(), g2.deepCopy()));
+            this.outgoingQueue.add(new CollisionEndEvent(g1.deepCopy(), g2.deepCopy()));
+        }
     }
 
     @Override
@@ -74,8 +76,6 @@ public class PhysicsEngineObserver implements PhysicsEngineEventObserver {
                 this.updateGameEntityFromPhysicsEngine(physicsEntity, gameEntity);
 
                 stateCopy.add(gameEntity.deepCopy());
-            } else {
-                Logger.getLogger(GameStateManager.class).fatal("Tried to update complete state. Found entity in engine which is not in state. Engine id: " + id);
             }
         }
 

@@ -7,9 +7,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Remove data from messages which reference already killed entities
+ */
 public class RemoveStaleStateData extends Rule {
+    /** The cached ids of already killed entities */
     private final Set<Integer> killedEntities;
 
+    /**
+     * Construct the rule
+     */
     public RemoveStaleStateData() {
         this.killedEntities = new HashSet<>();
     }
@@ -65,7 +72,12 @@ public class RemoveStaleStateData extends Rule {
         return result;
     }
 
-    public boolean isAlreadyDead(Integer entityId) {
+    /**
+     * Checks if the entity associated with the id already died
+     * @param entityId The entity id to check
+     * @return True if entity has already died, otherwise false
+     */
+    private boolean isAlreadyDead(Integer entityId) {
         return killedEntities.contains(entityId);
     }
 }

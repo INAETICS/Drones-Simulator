@@ -16,8 +16,11 @@ import java.util.List;
  */
 public class RemoveStrayBullets extends Rule {
     // TODO Make arena dimensions via config
+    /** The width of the arena (x-axis) */
     private static final int ARENA_WIDTH = 1024;
+    /** The height of the arena (z-axis) */
     private static final int ARENA_HEIGHT = 100;
+    /** The depth of the arena (y-axis) */
     private static final int ARENA_DEPTH = 1024;
 
     @Override

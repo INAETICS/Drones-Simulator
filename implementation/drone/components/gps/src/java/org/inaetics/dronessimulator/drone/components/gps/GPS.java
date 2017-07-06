@@ -12,15 +12,39 @@ import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.io.IOException;
 
+/**
+ * The GPS drone component
+ */
 public class GPS implements MessageHandler {
+    /**
+     * The logger
+     */
     private final static Logger logger = Logger.getLogger(GPS.class);
 
+    /**
+     * Reference to the Subscriber bundle
+     */
     private volatile Subscriber m_subscriber;
+    /**
+     * Reference to the Drone Init bundle
+     */
     private volatile DroneInit m_drone;
 
+    /**
+     * Last known position of this drone in the architecture
+     */
     private volatile D3Vector position = new D3Vector();
+    /**
+     * Last known velocity of this drone in the architecture
+     */
     private volatile D3Vector velocity = new D3Vector();
+    /**
+     * Last known acceleration of this drone in the architecture
+     */
     private volatile D3Vector acceleration = new D3Vector();
+    /**
+     * Last known direction of this drone in the architecture
+     */
     private volatile D3PolarCoordinate direction = new D3PolarCoordinate();
 
 

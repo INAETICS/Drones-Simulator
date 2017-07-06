@@ -10,6 +10,7 @@ import java.io.*;
  * Serializer implementation using the default Java serialization.
  */
 public class JavaSerializer implements Serializer {
+    /** The logger */
     private static final Logger logger = Logger.getLogger(JavaSerializer.class);
 
     /**

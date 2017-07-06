@@ -87,15 +87,32 @@ public class ConcurrentJobEntry {
 
     /**
      * While the outer class {@link ConcurrentJobEntry} is a template to be instantiated amount times, this class represents
-     * a single instance of the template
+     * a single instance of the template. In other words, this is a specific job while the ConcurrentJobEntry is a template
+     * of a job.
      */
     public class ConcurrentJob implements Runnable {
+        /**
+         * The subid of this specific job
+         */
         private final int subid;
+        /**
+         * If this job has run
+         */
         private boolean hasRun;
+        /**
+         * If this job was a success
+         */
         private boolean success;
 
+        /**
+         * Which thread executes this job
+         */
         private Thread executingThread;
 
+        /**
+         * Create a specific job
+         * @param subid The subid of this job
+         */
         public ConcurrentJob(int subid) {
             this.subid = subid;
             this.hasRun = false;
@@ -116,6 +133,9 @@ public class ConcurrentJobEntry {
             return this.success;
         }
 
+        /**
+         * Run the job. Should not be called directly as this is a Thread!
+         */
         public void run() {
             this.executingThread = Thread.currentThread();
             timeoutHandler.addTimeoutFromNow(timeoutMs, this);
@@ -125,6 +145,9 @@ public class ConcurrentJobEntry {
             this.success = true;
         }
 
+        /**
+         * Timeout this job
+         */
         public void timeout() {
             this.hasRun = true;
             this.success = false;

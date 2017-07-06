@@ -16,7 +16,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Rule to determine what happens on a collision
+ * Bullets destroy each other
+ * Bullet with drone damages the drone and kills the bullet
+ * Drones colliding damages both drones
+ */
 public class CollisionRule extends Rule {
+    /** How much damage a collision between drones causes */
     public static final int COLLISION_DAMAGE = Drone.DRONE_MAX_HEALTH;
 
     @Override
@@ -24,6 +31,7 @@ public class CollisionRule extends Rule {
         // Nothing to config
     }
 
+    @Override
     public List<GameEngineEvent> process(GameEngineEvent msg) {
         List<GameEngineEvent> results;
 
@@ -41,6 +49,12 @@ public class CollisionRule extends Rule {
         return results;
     }
 
+    /**
+     * How to handle a collision
+     * @param e1 Entity colliding
+     * @param e2 Entity colliding
+     * @return The events due to the collision
+     */
     private List<GameEngineEvent> handleCollision(GameEntity e1, GameEntity e2) {
         List<GameEngineEvent> results = new ArrayList<>();
 

@@ -11,33 +11,14 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
-    depends_on:
-      - etcd
-    links:
-      - "etcd:etcd"
     env_file: docker.env
   game-engine:
     build: ./docker_images/game_engine
-    depends_on:
-      - etcd
-    links:
-      - "rabbitmq:rabbitmq"
-      - "etcd:etcd"
     env_file: docker.env
     tty: true
   drone:
     build: ./docker_images/drone
-    depends_on:
-      - etcd
-    links:
-      - "rabbitmq:rabbitmq"
-      - "etcd:etcd"
     env_file: docker.env
   architecture-manager:
     build: ./docker_images/architecture_manager
-    depends_on:
-      - etcd
-    links:
-      - "rabbitmq:rabbitmq"
-      - "etcd:etcd"
     env_file: docker.env

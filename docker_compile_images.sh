@@ -8,12 +8,17 @@ set -e
 (cd $ROOT && mvn clean)
 (cd $ROOT && mvn package -Dmaven.test.skip=true)
 
-DOCKER_IMAGES="docker_images2"
+DOCKER_IMAGES="docker_images"
 BASE_IMAGE="$DOCKER_IMAGES/base_image"
 GAME_ENGINE_IMAGE="$DOCKER_IMAGES/game_engine"
 DRONE_IMAGE="$DOCKER_IMAGES/drone"
 ARCHITECTURE_MANAGER_IMAGE="$DOCKER_IMAGES/architecture_manager"
 
+# Remove old images if exists
+if [ -d "$DOCKER_IMAGES" ]; then
+	echo "Removing old docker images! At: $DOCKER_IMAGES"
+	rm -R "$DOCKER_IMAGES"
+fi
 
 # Setup image dirs
 BASE_IMAGE_DEPENDENCIES="$BASE_IMAGE/files/dependencies"
@@ -56,7 +61,7 @@ cp -r "$STATIC/etcd_docker_image" "$DOCKER_IMAGES/etcd"
 ############
 
 # Copy rabbitmq image
-cp -r "$STATIC/rabbitmq_docker_image" "$DOCKER_IMAGER/rabbitmq"
+cp -r "$STATIC/rabbitmq_docker_image" "$DOCKER_IMAGES/rabbitmq"
 
 
 # GAME ENGINE #

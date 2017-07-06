@@ -14,7 +14,7 @@ RUN mkdir -p /opt/felix && \
 # We set up configuration here
 ADD files/config.properties /opt/felix/current/conf/
 
-# Add the dependencies to image
+# Add the dependencies
 ADD files/dependencies/*.jar /opt/felix/current/bundle/
 
 WORKDIR /opt/felix/current

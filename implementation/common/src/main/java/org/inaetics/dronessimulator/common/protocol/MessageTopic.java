@@ -6,8 +6,10 @@ import org.inaetics.dronessimulator.pubsub.api.Topic;
  * Different topics.
  */
 public enum MessageTopic implements Topic {
+    RADIO("RADIO"),
     STATEUPDATES ("StateUpdates"),
     MOVEMENTS ("Movements");
+
 
     private String name;
 

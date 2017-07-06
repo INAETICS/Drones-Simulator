@@ -20,7 +20,6 @@ public abstract class ManagedThread extends Thread {
     public void run() {
         while(!this.isInterrupted()){
             try {
-                System.out.println("WAITING FOR START!");
                 //Wait for start
                 synchronized (started) {
                     while(!started.get()) {
@@ -28,7 +27,6 @@ public abstract class ManagedThread extends Thread {
                     }
                 }
 
-                System.out.println("STARTED!");
                 this.onStart();
                 quit.set(false);
                 pauseToken.set(false);
@@ -41,24 +39,19 @@ public abstract class ManagedThread extends Thread {
                         if(pauseToken.get()) {
                             onPause();
                             while(pauseToken.get()) {
-                                System.out.println("PAUSED!");
-
                                 pauseToken.wait();
-                                System.out.println("RESUMED!");
                             }
                             onResume();
                         }
                     }
                 }
 
-                System.out.println("STOPPED!");
                 this.onStop();
                 started.set(false);
             } catch(InterruptedException e) {
                 this.interrupt();
             }
         }
-
     }
 
     public void startThread() {

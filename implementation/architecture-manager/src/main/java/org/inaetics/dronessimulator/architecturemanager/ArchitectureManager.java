@@ -71,6 +71,17 @@ public class ArchitectureManager {
     }
 
     /**
+     * Construct a new Architecture Manager for testing purposes
+     * @param discoverer The discoverer to use
+     * @param subscriber The subscriber to use
+     */
+    public ArchitectureManager(Discoverer discoverer, Subscriber subscriber) {
+        this();
+        m_discoverer = discoverer;
+        m_subscriber = subscriber;
+    }
+
+    /**
      * Start the Architecture Manager service
      * Registers the begin state in Discovery and
      * adds a handler to the subscriber to listen for

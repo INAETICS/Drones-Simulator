@@ -194,11 +194,19 @@ public class PhysicsEngine extends ManagedThread implements IPhysicsEngine {
      * Starts the current physics engine. If it is already started, no action is taken.
      * @threadsafe
      */
-    protected void work() {
+    protected void work() throws InterruptedException {
         double timestep_s = this.stageTimeStep();
         this.entityManager.processChanges();
         this.stageMove(timestep_s);
         this.stageBroadcastState();
+
+        long current_step_ended_at_ms = System.currentTimeMillis();
+        long current_step_took_ms = current_step_ended_at_ms - current_step_started_at_ms;
+        long diff = 10 - current_step_took_ms;
+
+        if(diff > 0) {
+            Thread.sleep(diff);
+        }
     }
 
     @Override

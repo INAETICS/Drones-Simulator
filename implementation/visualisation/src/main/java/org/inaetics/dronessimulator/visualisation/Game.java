@@ -97,6 +97,8 @@ public class Game extends Application {
 
             @Override
             public void handle(long now) {
+                long current_step_started_at_ms = System.currentTimeMillis();
+
                 if(rabbitConnected.get()) {
                     onRabbitConnect();
                     rabbitConnected.set(false);
@@ -126,6 +128,20 @@ public class Game extends Application {
 
                 // update sprites in scene
                 entities.forEach((id, entity) -> entity.updateUI());
+
+
+                long current_step_ended_at_ms = System.currentTimeMillis();
+                long current_step_took_ms = current_step_ended_at_ms - current_step_started_at_ms;
+                long diff = 10 - current_step_took_ms;
+
+                if(diff > 0) {
+                    try {
+                        Thread.sleep(diff);
+                    } catch (InterruptedException e) {
+                        logger.fatal(e);
+                        Thread.currentThread().interrupt();
+                    }
+                }
             }
 
         };

@@ -2,11 +2,21 @@ package org.inaetics.dronessimulator.gameengine.identifiermapper;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Abstract identifier mapper implementation.
+ * @param <I1> The type of identifiers from the first system.
+ * @param <I2> The type of identifiers from the second system.
+ */
 public class AbstractIdentifierMapper<I1, I2> implements IAbstractIdentifierMapper<I1, I2> {
-    private final ConcurrentHashMap<I1, I2> oneToTwo;
-    private final ConcurrentHashMap<I2, I1> twoToOne;
+    /** Mappings from system one to system two. */
+    protected final ConcurrentHashMap<I1, I2> oneToTwo;
 
+    /** Mappings from system two to system one. */
+    protected final ConcurrentHashMap<I2, I1> twoToOne;
 
+    /**
+     * Instantiates a new abstract identifier mapper.
+     */
     public AbstractIdentifierMapper() {
         this.oneToTwo = new ConcurrentHashMap<>();
         this.twoToOne = new ConcurrentHashMap<>();
@@ -30,7 +40,12 @@ public class AbstractIdentifierMapper<I1, I2> implements IAbstractIdentifierMapp
 
     @Override
     public synchronized void removeMapping(I1 id1, I2 id2) {
-        this.oneToTwo.remove(id1);
-        this.twoToOne.remove(id2);
+        if(id1 != null) {
+            this.oneToTwo.remove(id1);
+        }
+
+        if(id2 != null) {
+            this.twoToOne.remove(id2);
+        }
     }
 }

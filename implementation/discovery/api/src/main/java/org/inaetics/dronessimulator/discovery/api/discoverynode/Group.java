@@ -8,6 +8,7 @@ package org.inaetics.dronessimulator.discovery.api.discoverynode;
 public class Group {
     public static final Group DRONE = new Group("drone");
     public static final Group SERVICES = new Group("services");
+    public static final Group BROKER = new Group("broker");
 
     /** String representation of this group. */
     private final String str;

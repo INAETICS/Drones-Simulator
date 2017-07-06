@@ -26,8 +26,23 @@
             <version>0.1</version>
         </dependency>
         <dependency>
+            <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
+            <artifactId>rabbitmq-publisher</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.inaetics.dronessimulator.pubsub</groupId>
             <artifactId>java-serializer</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.discovery</groupId>
+            <artifactId>etcd</artifactId>
+            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator</groupId>
+            <artifactId>architecture-event-controller</artifactId>
             <version>0.1</version>
         </dependency>
 
@@ -67,6 +82,15 @@
                                 <mainClass>org.inaetics.dronessimulator.visualisation.Game</mainClass>
                             </transformer>
                         </transformers>
+                        <filters>
+                            <filter>
+                                <artifact>org.ops4j.pax.logging:pax-logging-api</artifact>
+                                <excludes>
+                                    <exclude>org/apache/logging/log4j/**</exclude>
+                                    <exclude>org/slf4j/**</exclude>
+                                </excludes>
+                            </filter>
+                        </filters>
                     </configuration>
                   </execution>
                 </executions>

@@ -38,7 +38,7 @@
                     <instructions>
                         <Export-Package>org.inaetics.dronessimulator.pubsub.javaserializer</Export-Package>
                         <Bundle-Activator>org.inaetics.dronessimulator.pubsub.javaserializer.Activator</Bundle-Activator>
-                        <Import-Package>org.inaetics.dronessimulator.common,org.inaetics.dronessimulator.common.protocol,*</Import-Package>
+                        <Import-Package>*,org.inaetics.dronessimulator.common,org.inaetics.dronessimulator.common.protocol,org.inaetics.dronessimulator.common.architecture</Import-Package>
                     </instructions>
                 </configuration>
             </plugin>

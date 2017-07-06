@@ -44,6 +44,11 @@ public class CollisionMessage extends ProtocolMessage {
     }
 
     @Override
+    public String toString() {
+        return String.format("(CollisionMessage %s %s, %s, %s)", this.e1Identifier, this.e1Type, this.e2Identifier, this.e2Type);
+    }
+
+    @Override
     public List<MessageTopic> getTopics() {
         List<MessageTopic> topics = new ArrayList<>();
 

@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.gameengine.gamestatemanager;
 
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
+import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.osgi.framework.BundleContext;
 
 public class Activator extends DependencyActivatorBase {
@@ -11,6 +12,10 @@ public class Activator extends DependencyActivatorBase {
             createComponent()
             .setInterface(IGameStateManager.class.getName(), null)
             .setImplementation(GameStateManager.class)
+            .add(createServiceDependency()
+                .setService(ArchitectureEventController.class)
+                .setRequired(true)
+            )
         );
     }
 }

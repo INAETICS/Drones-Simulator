@@ -10,7 +10,6 @@ public class Activator extends DependencyActivatorBase {
         dependencyManager.add(createComponent()
             .setInterface(IPhysicsEngine.class.getName(), null)
             .setImplementation(PhysicsEngine.class)
-            .setCallbacks("init", "start", "quit", "destroy")
         );
     }
 }

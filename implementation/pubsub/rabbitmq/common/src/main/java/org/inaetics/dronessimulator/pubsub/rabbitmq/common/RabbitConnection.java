@@ -22,6 +22,12 @@ import java.util.concurrent.TimeoutException;
  * related to the connection to the broker.
  */
 public abstract class RabbitConnection {
+    /** The maximum number of connection attempts. */
+    private static final int MAX_CONNECTION_ATTEMPTS = 100;
+
+    /** The timeout between connection attempts in milliseconds. */
+    private static final long CONNECTION_ATTEMPT_TIMEOUT = 2000;
+
     /** The connection factory used for setting up a connection. */
     private ConnectionFactory connectionFactory;
 
@@ -84,7 +90,7 @@ public abstract class RabbitConnection {
                 this.connectionFactory.setUri(uri);
                 this.getLogger().debug("Received configuration, RabbitMQ URI is {}", uri);
             } catch (URISyntaxException | NoSuchAlgorithmException | KeyManagementException e) {
-                this.getLogger().error("Invalid URI found in configuration");
+                this.getLogger().error("Invalid URI found in configuration", e);
             }
         } else {
             this.getLogger().debug("Unset RabbitMQ configuration");
@@ -98,12 +104,29 @@ public abstract class RabbitConnection {
     public void connect() throws IOException {
         // Create a channel if not present
         if (!isConnected()) {
-            try {
-                connection = connectionFactory.newConnection();
-                getLogger().info("Connected to RabbitMQ");
-            } catch (ConnectException | TimeoutException e) {
-                getLogger().error("Could not connect to RabbitMQ: {}", e.getMessage());
-                throw new IOException(e);
+            int attempt = 0;
+
+            while (connection == null) {
+                attempt++;
+
+                try {
+                    connection = connectionFactory.newConnection();
+
+                    getLogger().info("Connected to RabbitMQ");
+                } catch (ConnectException | TimeoutException e) {
+                    getLogger().error("Could not connect to RabbitMQ (attempt {}): {}", attempt, e);
+
+                    if (attempt >= MAX_CONNECTION_ATTEMPTS) {
+                        throw new IOException(e);
+                    } else {
+                        try {
+                            Thread.sleep(CONNECTION_ATTEMPT_TIMEOUT);
+                        } catch (InterruptedException e2) {
+                            getLogger().fatal(e2);
+                            Thread.currentThread().interrupt();
+                        }
+                    }
+                }
             }
 
             channel = connection.createChannel();
@@ -127,11 +150,11 @@ public abstract class RabbitConnection {
 
             connection.close();
             getLogger().info("RabbitMQ connection closed");
-        } catch (AlreadyClosedException ignored) {
+        } catch (AlreadyClosedException e) {
             // Good! We are already done.
-            getLogger().debug("Attempted to disconnect from RabbitMQ while already disconnected.");
+            getLogger().error("Attempted to disconnect from RabbitMQ while already disconnected.", e);
         } catch (TimeoutException e) {
-            getLogger().debug("Error while disconnecting from RabbitMQ: {}", e.getMessage());
+            getLogger().debug("Error while disconnecting from RabbitMQ: {}", e);
             throw new IOException(e);
         }
     }

@@ -10,20 +10,31 @@ import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
+/**
+ * A game engine message which signals the end of a bullet's life time.
+ */
 @AllArgsConstructor
 @Getter
 @ToString
 public class DestroyBulletEvent extends GameEngineEvent {
+    /** The id of the bullet. */
     private final int id;
 
     @Override
     public List<ProtocolMessage> getProtocolMessage(IdentifierMapper id_mapper) {
-        KillMessage msg = new KillMessage();
+        Optional<String> maybeProtocolId = id_mapper.fromGameEngineToProtocolId(id);
 
-        msg.setIdentifier(id_mapper.fromGameEngineToProtocolId(id));
-        msg.setEntityType(EntityType.BULLET);
+        if(maybeProtocolId.isPresent()) {
+            KillMessage msg = new KillMessage();
 
-        return Collections.emptyList();
+            msg.setIdentifier(maybeProtocolId.get());
+            msg.setEntityType(EntityType.BULLET);
+
+            return Collections.singletonList(msg);
+        } else {
+            return Collections.emptyList();
+        }
     }
 }

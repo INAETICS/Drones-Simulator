@@ -23,23 +23,22 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 @Getter
 public class PhysicsEngineObserver implements PhysicsEngineEventObserver {
+    /** Event queue for game engine events. */
     private final LinkedBlockingQueue<GameEngineEvent> outgoingQueue;
+
+    /** Game state manager to use. */
     private final IGameStateManager stateManager;
 
     /**
-     * Create an observer and send all events to the outgoingQueue
-     * @param outgoingQueue Send all events to this queue
+     * Creates an observer and send all events to the given queue.
+     * @param outgoingQueue The queue to send events to.
+     * @param stateManager The game state manager containing the game entities.
      */
     public PhysicsEngineObserver(LinkedBlockingQueue<GameEngineEvent> outgoingQueue, IGameStateManager stateManager) {
         this.outgoingQueue = outgoingQueue;
         this.stateManager = stateManager;
     }
 
-    /**
-     * How to handle a collision start event. Send to outgoingqueue.
-     * @param e1 First entity in the collision
-     * @param e2 Second entity in the collision
-     */
     @Override
     public void collisionStartHandler(Entity e1, Entity e2) {
         GameEntity g1 = this.stateManager.getById(e1.getId());
@@ -51,11 +50,6 @@ public class PhysicsEngineObserver implements PhysicsEngineEventObserver {
         this.outgoingQueue.add(new CollisionStartEvent(g1.deepCopy(), g2.deepCopy()));
     }
 
-    /**
-     * How to handle a collision stop event. Send to outgoingqueue.
-     * @param e1 First entity in the ended collision
-     * @param e2 Second entity in the ended collision
-     */
     @Override
     public void collisionStopHandler(Entity e1, Entity e2) {
         GameEntity g1 = this.stateManager.getById(e1.getId());
@@ -67,10 +61,6 @@ public class PhysicsEngineObserver implements PhysicsEngineEventObserver {
         this.outgoingQueue.add(new CollisionEndEvent(g1.deepCopy(), g2.deepCopy()));
     }
 
-    /**
-     * How to handle a broadcast state event. Send to outgoingqueue
-     * @param currentState All information about all entities. Deepcopy so no link to state in physicsengine.
-     */
     @Override
     public void broadcastStateHandler(List<Entity> currentState) {
         List<GameEntity> stateCopy = new ArrayList<>(currentState.size());
@@ -88,18 +78,13 @@ public class PhysicsEngineObserver implements PhysicsEngineEventObserver {
             }
         }
 
-        if(stateCopy.size() != currentState.size()) {
-            Logger.getLogger(GameStateManager.class).fatal("The amount of entities in the gamestate-manager and physicsengine are not the same!");
-            assert stateCopy.size() == currentState.size();
-        }
-
         this.outgoingQueue.add(new CurrentStateEvent(stateCopy));
     }
 
     /**
-     * Update the game entity with information from the physics engine
-     * @param physicsEntity Which physicsengine entity to use as source of information
-     * @param gameEntity
+     * Updates the game entity with information from the physics engine.
+     * @param physicsEntity The physics entity to use as source.
+     * @param gameEntity The game entity to update.
      */
     private void updateGameEntityFromPhysicsEngine(Entity physicsEntity, GameEntity gameEntity) {
         if(physicsEntity.getId() == gameEntity.getEntityId()) {

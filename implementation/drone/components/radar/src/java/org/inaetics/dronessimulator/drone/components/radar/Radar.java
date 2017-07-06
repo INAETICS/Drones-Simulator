@@ -1,30 +1,36 @@
 package org.inaetics.dronessimulator.drone.components.radar;
 
+import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.architecture.SimulationAction;
+import org.inaetics.dronessimulator.common.architecture.SimulationState;
+import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.protocol.KillMessage;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
-import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
-import javax.swing.text.Position;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 
 public class Radar implements MessageHandler {
+    private static final Logger logger = Logger.getLogger(Radar.class);
+
+    private volatile ArchitectureEventController m_architectureEventController;
     private volatile Subscriber m_subscriber;
     private volatile DroneInit m_drone;
 
     private volatile D3Vector position;
-    private ConcurrentHashMap<String, D3Vector> all_positions = new ConcurrentHashMap<String, D3Vector>();
-    private static final int RADAR_RANGE = 100;
+    private final ConcurrentHashMap<String, D3Vector> all_positions = new ConcurrentHashMap<>();
+    private static final int RADAR_RANGE = 500;
 
     /**
      * FELIX CALLBACKS
@@ -33,9 +39,16 @@ public class Radar implements MessageHandler {
         try {
             this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
-            System.out.println("IO Exception add Topic");
+            logger.fatal(e);
         }
         this.m_subscriber.addHandler(StateMessage.class, this);
+        this.m_subscriber.addHandler(KillMessage.class, this);
+
+        m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG,
+                (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+                    all_positions.clear();
+                }
+        );
     }
 
     /**
@@ -46,11 +59,19 @@ public class Radar implements MessageHandler {
     }
 
     public List<D3Vector> getRadar(){
-        return all_positions.entrySet()
-                .stream()
-                .map(e -> e.getValue())
-                .filter(object_position -> position.distance_between(object_position) <= RADAR_RANGE)
-                .collect(Collectors.toList());
+        List<D3Vector> results;
+
+        if (position != null) {
+            results = all_positions.entrySet()
+                    .stream()
+                    .map(e -> e.getValue())
+                    .filter(object_position -> position.distance_between(object_position) <= RADAR_RANGE)
+                    .collect(Collectors.toList());
+        } else {
+            results = Collections.emptyList();
+        }
+
+        return results;
     }
 
     public Optional<D3Vector> getNearestTarget(){
@@ -84,15 +105,15 @@ public class Radar implements MessageHandler {
                 this.setPosition(stateMessage.getPosition().get());
             }
         } else {
-            if (stateMessage.getPosition().isPresent()){
+            if (stateMessage.getPosition().isPresent() && stateMessage.getType().equals(EntityType.DRONE)){
                 this.all_positions.put(stateMessage.getIdentifier(), stateMessage.getPosition().get());
             }
         }
     }
 
     public void handleKillMessage(KillMessage killMessage){
-        if(killMessage.getIdentifier().equals(this.m_drone.getIdentifier())){
-                this.all_positions.remove(killMessage.getIdentifier());
+        if(killMessage.getEntityType().equals(EntityType.DRONE)) {
+            this.all_positions.remove(killMessage.getIdentifier());
         }
     }
 

@@ -4,103 +4,92 @@ import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.EntityUpdate;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * A very simple physicsengine where gravity holds, all entites are 1kg and without other
- * interacting forces(e.g. collision- and airfrictionforce). Collisions are detected by the
- * simple hitboxes computed by the Size of the entity. Every broadcast_ms the current state is
- * broadcast to the observer. The start and end of every collision are also broadcast to the observer.
+ * A very simple physics engine where gravity holds, all entities are 1kg and without other interacting forces (e.g.
+ * collision- and air friction forces). Collisions are detected by the simple hitboxes computed by the size of the
+ * entity. On a fixed time interval the current state is broadcast to the observer. The start and end of every collision
+ * are also broadcast to the observer.
  *
  * @threadsafe
  */
 public class PhysicsEngine extends Thread implements IPhysicsEngine {
-    /**
-     * Gravityforce in meters / seconds^2
-     */
-    public static final D3Vector GRAVITY = new D3Vector(0, 0, 0); //-9.81);
+    private static final Logger logger = Logger.getLogger(PhysicsEngine.class);
 
-    /**
-     * At what time the current timestep started. Used as timestep to move all entities.
-     * In milliseconds.
-     */
+    /** Gravity in meters/second^2. */
+    public static final D3Vector GRAVITY = new D3Vector(0, 0, 0); // TODO: Fix gravity (-9.81)
+
+    /** Time the current time step started. In milliseconds. */
     private long current_step_started_at_ms;
-    /**
-     * At what time the last state broadcast was send to observer. In milliseconds.
-     */
+
+    /** Time the last broadcast was sent. In milliseconds. */
     private long last_state_broadcast_at_ms;
-    /**
-     * How long between broadcasts of current state in milliseconds.
-     */
+
+    /** Time between broadcasts of the current state. In milliseconds. */
     private long broadcast_state_every_ms;
 
-    /**
-     * If the physicsengine has quit. (Only true if the engine has started and then quit)
-     */
-    private volatile boolean quit;
-    /**
-     * If the physicsengine is started.
-     */
+    /** Whether the physics engine has quit. (Only true if the engine has started and then quit.) */
+    private final AtomicBoolean quit;
+
+    /** Whether the physics engine is started. */
     private final AtomicBoolean started;
 
-    /**
-     * The entity manager which manages all changes and state of entities
-     */
+    /** The entity manager which manages all changes and state of entities. */
     private final EntityManager entityManager;
 
-    /**
-     * A map containing all collisions between entity ids which have started
-     */
+    /** A map containing all collisions between entity ids which have started. */
     private final HashMap<Integer, Set<Integer>> currentCollisions;
 
-    /**
-     * The observer to which any events are send.
-     */
+    /** The observer to which any events are sent. */
     private PhysicsEngineEventObserver observer;
 
+    private final AtomicBoolean pauseToken;
+
     /**
-     * Create the physics engine object
-     * Before you start the engine, you MUST set an observer using setObserver
+     * Creates the physics engine object.
+     * Before you start the engine, you MUST set an observer using the setObserver method.
      */
     public PhysicsEngine() {
         this.current_step_started_at_ms = System.currentTimeMillis();
         this.last_state_broadcast_at_ms = this.current_step_started_at_ms;
         this.broadcast_state_every_ms = -1;
 
-        this.quit = false;
+        this.quit = new AtomicBoolean(false);
         this.started = new AtomicBoolean(false);
 
-        this.entityManager = new EntityManager();
-
         this.currentCollisions = new HashMap<>();
+        this.entityManager = new EntityManager(this.currentCollisions);
 
         this.observer = null;
+        this.pauseToken = new AtomicBoolean(false);
     }
 
+    /**
+     * Returns the entity manager used by the physics engine.
+     * @return The entity manager.
+     */
     public EntityManager getEntityManager() {
         return this.entityManager;
     }
 
-    /**
-     * Set the time between broadcasts. By default, state broadcasting is off.
-     * @param broadcast_state_every_ms The time between broadcasts in milliseconds.
-     */
+    @Override
     public void setTimeBetweenBroadcastms(long broadcast_state_every_ms) {
         this.broadcast_state_every_ms = broadcast_state_every_ms;
     }
 
-    /**
-     * Sets the observer for events for this engine
-     * @param observer The object which will observer all engine events
-     */
+    @Override
     public void setObserver(PhysicsEngineEventObserver observer) {
         this.observer = observer;
     }
 
     /**
-     * Which environmentforces act on the entity. Currently only gravity
-     * @param entity The entity on which environmentforces act
+     * Calculates the environment forces that act on the entity. Currently only gravity is supported.
+     * @param entity The entity on which environment forces act
      * @return The total resulting vector of all environment forces.
      */
     private D3Vector environmentForces(Entity entity) {
@@ -108,8 +97,8 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
     }
 
     /**
-     * Determine the timestep for the current loop.
-     * @return How long since the lastloop in seconds.
+     * Determine the time step for the current loop.
+     * @return The time since the last loop in seconds.
      */
     private double stageTimeStep() {
         long current_ms = System.currentTimeMillis();
@@ -121,16 +110,15 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
     }
 
     /**
-     * Move all entities respecting collisions. Entities can move through each other,
-     * but collisions do spawn events send to the observer.
-     * @param timestep_s How long since the last move in seconds.
+     * Move all entities respecting collisions. Entities can move through each other, but collisions do spawn events
+     * which are sent to the observer.
+     * @param timestep_s The time since the last move in seconds.
      */
     private void stageMove(double timestep_s) {
         Map<Integer, Entity> entities = this.entityManager.getEntities();
 
         for(Map.Entry<Integer, Entity> e1 : entities.entrySet()) {
             Entity entity = e1.getValue();
-            int e1Id = entity.getId();
 
             // Set the next place the entity will move to with new velocity
             D3Vector nextAcceleration = entity.getAcceleration();
@@ -142,54 +130,68 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
             entity.setPosition(nextPosition);
 
             // Check for collisions for this entity
-            for(Map.Entry<Integer, Entity> e2 : entities.entrySet()) {
-                Entity otherEntity = e2.getValue();
-                int e2Id = otherEntity.getId();
+            stageCollision(entity, entities);
+        }
+    }
 
-                if(entity.getId() != otherEntity.getId()) {
-                    // If the entity is colliding with another entity
-                    Set<Integer> collisionsE1 = currentCollisions.get(e1Id);
-                    Set<Integer> collisionsE2 = currentCollisions.get(e2Id);
+    private void stageCollision(Entity entity, Map<Integer, Entity> allEntities) {
+        int e1Id = entity.getId();
 
-                    if(entity.collides(otherEntity)) {
-                        boolean startedE1WithE2 = false;
-                        boolean startedE2WithE1 = false;
+        for(Map.Entry<Integer, Entity> e2 : allEntities.entrySet()) {
+            Entity otherEntity = e2.getValue();
+            int e2Id = otherEntity.getId();
 
-                        // Only add to hashmap if the collision was not present yet
-                        if(!collisionsE1.contains(e2Id)) {
-                            collisionsE1.add(e2Id);
-                            startedE1WithE2 = true;
-                        }
-
-                        if(!collisionsE2.contains(e1Id)) {
-                            collisionsE2.add(e1Id);
-                            startedE2WithE1 = true;
-                        }
-
-                        // If the collision wasn't happening yet
-                        if(observer != null && (startedE1WithE2 || startedE2WithE1)) {
-                            //This collision is new and has just started
-                            observer.collisionStartHandler(Entity.deepcopy(entity), Entity.deepcopy(otherEntity));
-                        }
-                    } else {
-                        //These entities are not colliding, so remove any collisions if there were any
-                        boolean e1CollidedWithe2 = collisionsE1.remove(e2Id);
-                        boolean e2CollidedWithe1 = collisionsE2.remove(e1Id);
-
-                        if(observer != null && (e1CollidedWithe2 || e2CollidedWithe1)) {
-                            //This collision has just ended
-                            observer.collisionStopHandler(Entity.deepcopy(entity), Entity.deepcopy(otherEntity));
-                        }
-                    }
+            if(entity.getId() != otherEntity.getId()) {
+                if(entity.collides(otherEntity)) {
+                    startCollision(e1Id, entity, e2Id, otherEntity);
+                } else {
+                    //These entities are not colliding, so remove any collisions if there were any
+                    removeCollision(e1Id, entity, e2Id, otherEntity);
                 }
             }
+        }
+    }
 
+    private void startCollision(int e1Id, Entity entity1, int e2Id, Entity entity2) {
+        boolean startedE1WithE2 = false;
+        boolean startedE2WithE1 = false;
 
+        Set<Integer> collisionsE1 = currentCollisions.get(e1Id);
+        Set<Integer> collisionsE2 = currentCollisions.get(e2Id);
+
+        // Only add to hashmap if the collision was not present yet
+        if(!collisionsE1.contains(e2Id)) {
+            collisionsE1.add(e2Id);
+            startedE1WithE2 = true;
+        }
+
+        if(!collisionsE2.contains(e1Id)) {
+            collisionsE2.add(e1Id);
+            startedE2WithE1 = true;
+        }
+
+        // If the collision wasn't happening yet
+        if(observer != null && (startedE1WithE2 || startedE2WithE1)) {
+            //This collision is new and has just started
+            observer.collisionStartHandler(Entity.deepcopy(entity1), Entity.deepcopy(entity2));
+        }
+    }
+
+    private void removeCollision(int e1Id, Entity entity1, int e2Id, Entity entity2) {
+        Set<Integer> collisionsE1 = currentCollisions.get(e1Id);
+        Set<Integer> collisionsE2 = currentCollisions.get(e2Id);
+
+        boolean e1CollidedWithe2 = collisionsE1.remove(e2Id);
+        boolean e2CollidedWithe1 = collisionsE2.remove(e1Id);
+
+        if(observer != null && (e1CollidedWithe2 || e2CollidedWithe1)) {
+            //This collision has just ended
+            observer.collisionStopHandler(Entity.deepcopy(entity1), Entity.deepcopy(entity2));
         }
     }
 
     /**
-     * Broadcast the state if necessary for this loop
+     * Broadcasts the state if necessary for this loop.
      */
     private void stageBroadcastState() {
         long last_broadcast_ms = this.current_step_started_at_ms - this.last_state_broadcast_at_ms;
@@ -201,43 +203,70 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
 
     }
 
-    /**
-     * Start the current physicsengine. If already started, it does not start.
-     * @threadsafe
-     */
-    private void runServer() {
-        Thread t = Thread.currentThread();
-
-        if(started.compareAndSet(false, true)) {
-            Logger.getLogger(PhysicsEngine.class).info("Started PhysicsEngine!");
-
-            quit = false;
-
-            this.current_step_started_at_ms = System.currentTimeMillis();
-            this.last_state_broadcast_at_ms = this.current_step_started_at_ms;
-            
-            while(!t.isInterrupted()) {
-                double timestep_s = this.stageTimeStep();
-                this.entityManager.processChanges();
-                this.stageMove(timestep_s);
-                this.stageBroadcastState();
+    private void stagePause() throws InterruptedException {
+       synchronized (pauseToken) {
+            while(pauseToken.get()) {
+                pauseToken.wait();
+                this.current_step_started_at_ms = System.currentTimeMillis();
             }
-
-            started.set(false);
-            quit = true;
-
-            Logger.getLogger(PhysicsEngine.class).info("PhysicsEngine has shutdown");
         }
     }
 
-    public void start() {
-        Logger.getLogger(PhysicsEngine.class).info("Starting PhysicsEngine...");
+    /**
+     * Starts the current physics engine. If it is already started, no action is taken.
+     * @threadsafe
+     */
+    private void runServer() {
+        while(!this.isInterrupted()) {
+            try {
+                // Wait to start
+                synchronized (started) {
+                    while(!started.get()) {
+                        started.wait();
+                    }
+                }
 
-        super.start();
+                Logger.getLogger(PhysicsEngine.class).info("Started PhysicsEngine!");
+
+                quit.set(false);
+                pauseToken.set(false);
+                this.current_step_started_at_ms = System.currentTimeMillis();
+                this.last_state_broadcast_at_ms = this.current_step_started_at_ms;
+
+                while(!quit.get()) {
+                    double timestep_s = this.stageTimeStep();
+                    this.entityManager.processChanges();
+                    this.stageMove(timestep_s);
+                    this.stageBroadcastState();
+
+                    this.stagePause();
+                }
+
+                this.entityManager.clear();
+
+                started.set(false);
+
+                Logger.getLogger(PhysicsEngine.class).info("PhysicsEngine has shutdown");
+            } catch(InterruptedException e) {
+                this.interrupt();
+            }
+        }
     }
 
     /**
-     * Method to start the Thread. Do not call directly, use PhysicsEngine.start().
+     * Starts the physics engine thread.
+     */
+    public void startEngine() {
+        logger.info("Starting PhysicsEngine...");
+
+        synchronized (started) {
+            this.started.set(true);
+            started.notifyAll();
+        }
+    }
+
+    /**
+     * Method to start the thread. Do not call directly, use PhysicsEngine.start().
      * @requires this.getObserver() != null
      * @threadsafe
      */
@@ -247,101 +276,85 @@ public class PhysicsEngine extends Thread implements IPhysicsEngine {
         this.runServer();
     }
 
-    /**
-     * Add any new entities to the physicsengine.
-     * @threadsafe
-     * @param creations Which entities to add.
-     */
+    @Override
     public void addInserts(Collection<Entity> creations) {
         this.entityManager.addInserts(creations);
-
-        for(Entity e : creations) {
-            this.currentCollisions.put(e.getId(), new HashSet<>());
-        }
     }
 
-    /**
-     * Add the new entity to the physicsengine.
-     * @threadsafe
-     * @param creation Which entity to add.
-     */
+    @Override
     public void addInsert(Entity creation) {
         this.entityManager.addInsert(creation);
-        this.currentCollisions.put(creation.getId(), new HashSet<>());
     }
 
-    /**
-     * Change entity by applying the updates
-     * @threafsafe
-     * @param entityId Which entity to apply updates to
-     * @param updates Which updates to apply
-     */
+    @Override
     public void addUpdates(Integer entityId, Collection<EntityUpdate> updates) {
         this.entityManager.addUpdates(entityId, updates);
     }
 
-    /**
-     * Change entity by applying the update
-     * @threadsafe
-     * @param entityId Which entity to apply update to
-     * @param update Which update to apply
-     */
+    @Override
     public void addUpdate(Integer entityId, EntityUpdate update) {
        this.entityManager.addUpdate(entityId, update);
     }
 
-    /**
-     * Remove entities identified by removals from the engine
-     * @threadsafe
-     * @param removals Which entities to remove
-     */
+    @Override
     public void addRemovals(Collection<Integer> removals) {
         this.entityManager.addRemovals(removals);
-
-        for(Integer removal : removals) {
-            this.currentCollisions.remove(removal);
-        }
      }
 
-    /**
-     * Remove entity identified by removal from the engine
-     * @threadsafe
-     * @param removal Which entity to remove
-     */
+    @Override
     public void addRemoval(Integer removal) {
         this.entityManager.addRemoval(removal);
-        this.currentCollisions.remove(removal);
     }
 
     /**
-     * Tell the engine thread to quit
+     * Tell the engine thread to quit.
      * @threadsafe
      */
-    public void quit() {
-        Logger.getLogger(PhysicsEngine.class).info("Turning off physics engine...");
-        this.interrupt();
+    public void stopEngine() {
+        logger.info("Stopping physics engine...");
+        synchronized (quit) {
+            this.quit.set(true);
+            resumeEngine();
+        }
+    }
+
+    @Override
+    public void pauseEngine() {
+        logger.info("Pausing physics engine!");
+        synchronized (pauseToken) {
+            pauseToken.set(true);
+        }
+    }
+
+    @Override
+    public void resumeEngine() {
+        logger.info("Resuming physics engine!");
+        synchronized (pauseToken) {
+            pauseToken.set(false);
+            pauseToken.notifyAll();
+        }
     }
 
     /**
-     * If the engine has started
+     * Returns whether the physics engine has started.
      * @threadsafe
-     * @return True if the engine is currently running. False otherwise
+     * @return Whether the physics engine is currently running.
      */
     public boolean hasStarted() {
         return this.started.get();
     }
 
     /**
-     * If the engine has quit.
+     * Returns whether the physics engine has started and then quit.
      * @threadsafe
-     * @return True if the engine has started and then quit.
+     * @return Whether the physics engine has quit.
      */
     public boolean hasQuit() {
-        return this.quit;
+        return this.quit.get();
     }
 
     @Override
-    @Deprecated
     public void destroy() {
+        this.interrupt();
     }
 }

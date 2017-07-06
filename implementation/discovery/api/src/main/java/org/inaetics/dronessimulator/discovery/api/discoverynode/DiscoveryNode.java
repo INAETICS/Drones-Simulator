@@ -59,12 +59,11 @@ public class DiscoveryNode extends TreeNode<String, String, DiscoveryNode, Disco
 
     /**
      * Updates the tree of nodes and build the appropriate events.
+     * Assumes the given storedNode id matches this id
      * @param storedNode The storage level node to compare against.
      * @return The list events for the changes.
      */
     public synchronized List<NodeEvent> updateTree(DiscoveryStoredNode storedNode) {
-        assert storedNode.getId().equals(this.getId());
-
         List<NodeEvent> events = new ArrayList<>();
 
         List<DiscoveryStoredNode> storedChildren = storedNode.getChildren();
@@ -108,7 +107,7 @@ public class DiscoveryNode extends TreeNode<String, String, DiscoveryNode, Disco
 
         // First set new values on node
         for(Map.Entry<String, String> value : storedNode.getValues().entrySet()) {
-            changedValueEvents.add(newNode.setValueWithEvent(value.getKey(), value.getValue()).get());
+            newNode.setValueWithEvent(value.getKey(), value.getValue()).ifPresent(changedValueEvents::add);
         }
 
         // Node add as a child and trigger AddedNode event
@@ -132,7 +131,6 @@ public class DiscoveryNode extends TreeNode<String, String, DiscoveryNode, Disco
     public List<ChangedValue> updateValues(DiscoveryStoredNode storedNode) {
         List<ChangedValue> events = new ArrayList<>();
         Set<String> untouched = new HashSet<>(this.getValues().keySet());
-        Map<String, String> values = this.getValues();
         Map<String, String> storedValues = storedNode.getValues();
 
         // Set all values of storedNode in this
@@ -145,7 +143,7 @@ public class DiscoveryNode extends TreeNode<String, String, DiscoveryNode, Disco
 
         // Now remove untouched
         for(String untouchedValueKey : untouched) {
-            events.add(this.setValueWithEvent(untouchedValueKey, null).get());
+            this.setValueWithEvent(untouchedValueKey, null).ifPresent(events::add);
         }
 
         return events;
@@ -294,7 +292,7 @@ public class DiscoveryNode extends TreeNode<String, String, DiscoveryNode, Disco
 
         // Unset values
         for(String key : child.getValues().keySet()) {
-            removeEvents.add(child.setValueWithEvent(key, null).get());
+            child.setValueWithEvent(key, null).ifPresent(removeEvents::add);
         }
 
         // Now remove child from tree

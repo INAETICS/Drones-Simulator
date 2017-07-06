@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.drone.components.gps;
 
-import org.inaetics.dronessimulator.common.D3PoolCoordinate;
+import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.common.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
@@ -12,13 +13,15 @@ import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import java.io.IOException;
 
 public class GPS implements MessageHandler {
+    private final static Logger logger = Logger.getLogger(GPS.class);
+
     private volatile Subscriber m_subscriber;
     private volatile DroneInit m_drone;
 
     private volatile D3Vector position = new D3Vector();
     private volatile D3Vector velocity = new D3Vector();
     private volatile D3Vector acceleration = new D3Vector();
-    private volatile D3PoolCoordinate direction = new D3PoolCoordinate();
+    private volatile D3PolarCoordinate direction = new D3PolarCoordinate();
 
 
     /**
@@ -28,7 +31,7 @@ public class GPS implements MessageHandler {
         try {
             this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
-            System.out.println("IO Exception add Topic"); // todo logging
+            logger.fatal(e);
         }
         this.m_subscriber.addHandler(StateMessage.class, this);
     }
@@ -49,7 +52,7 @@ public class GPS implements MessageHandler {
         return acceleration;
     }
 
-    public D3PoolCoordinate getDirection(){ return direction; }
+    public D3PolarCoordinate getDirection(){ return direction; }
 
     /**
      * -- SETTERS
@@ -66,7 +69,7 @@ public class GPS implements MessageHandler {
         acceleration = new_acceleration;
     }
 
-    private void setDirection(D3PoolCoordinate new_direction) { direction = new_direction; }
+    private void setDirection(D3PolarCoordinate new_direction) { direction = new_direction; }
 
     /**
      * -- MESSAGEHANDLER

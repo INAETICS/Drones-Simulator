@@ -6,7 +6,6 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.C
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
 
 import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +25,15 @@ public interface Discoverer {
      * @param instance The instance to unregister.
      */
     void unregister(Instance instance) throws IOException;
+
+    /**
+     * Updates the properties associated with an existing instance. The instance must exist!
+     * @param instance The published instance to update
+     * @param properties The new properties associated with the instance
+     * @return Returns the new instance published in discovery
+     * @throws IOException If something goes wrong with the publishing
+     */
+     Instance updateProperties(Instance instance, Map<String, String> properties) throws IOException;
 
     /**
      * Adds change handlers to the discoverer.

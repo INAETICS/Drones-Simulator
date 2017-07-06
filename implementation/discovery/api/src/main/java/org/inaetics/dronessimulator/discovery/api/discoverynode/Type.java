@@ -8,6 +8,7 @@ package org.inaetics.dronessimulator.discovery.api.discoverynode;
 public class Type {
     public static final Type DRONE = new Type("drone");
     public static final Type SERVICE = new Type("service");
+    public static final Type RABBITMQ = new Type("rabbitmq");
 
     /** The string representation of this type. */
     private final String str;

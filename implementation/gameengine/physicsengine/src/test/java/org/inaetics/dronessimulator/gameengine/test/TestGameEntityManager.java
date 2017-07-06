@@ -12,12 +12,16 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashMap;
+import java.util.Set;
+
 public class TestGameEntityManager {
     private EntityManager manager;
 
     @Before
     public void init() {
-        this.manager = new EntityManager();
+        HashMap<Integer, Set<Integer>> currentCollisions = new HashMap<>();
+        this.manager = new EntityManager(currentCollisions);
     }
 
     @Test

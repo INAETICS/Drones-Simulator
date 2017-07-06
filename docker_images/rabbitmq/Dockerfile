@@ -6,8 +6,5 @@ RUN apk add --update curl && \
 ADD register_rabbitmq.sh /opt/register_rabbitmq.sh
 RUN chmod +x /opt/register_rabbitmq.sh
 
-
 #ENTRYPOINT /opt/register_rabbitmq.sh
 CMD ["/opt/register_rabbitmq.sh"]
-
-

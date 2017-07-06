@@ -48,7 +48,6 @@ echo "RabbitMQ registered with URI $RABBITMQ_PATH"
 
 SCRIPT_RUNNING=true;	
 
-
 function finish {
   # Your cleanup code here
   echo "Remove RabbitMQ from etcd"
@@ -61,10 +60,8 @@ function finish {
   rabbitmqctl stop
   
 }
+
 trap finish SIGINT SIGTERM SIGQUIT
 while "$SCRIPT_RUNNING"; do
 	sleep 0.5
 done
-
-
-

@@ -8,5 +8,3 @@ ENV JVM_OPTIONS="-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8000,se
 
 CMD exec java $JVM_OPTIONS -jar bin/felix.jar 
 #CMD ["java", "-Dgosh.args=--nointeractive", "-jar","bin/felix.jar"]
-
-

@@ -153,7 +153,6 @@ public class Game extends Application {
 
             if(path.equals(DiscoveryPath.config(Type.RABBITMQ, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.BROKER, "default"))) {
                 if(node.getValue("username") != null) {
-                    System.out.println("USERNAME: " + node.getValue("username"));
                     rabbitConfig.put("username", node.getValue("username"));
                 }
 

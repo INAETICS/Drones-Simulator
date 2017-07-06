@@ -29,6 +29,7 @@ rm -rf "docker_images/architecture_manager/files/bundles/*.jar"
 
 # Game engine
 GAME_ENGINE="docker_images/game_engine/files/bundles/"
+mkdir -p $GAME_ENGINE
 cp "$ROOT/discovery/api/target/discovery-api-0.1.jar" $GAME_ENGINE
 cp "$ROOT/discovery/etcd/target/etcd-0.1.jar" $GAME_ENGINE
 cp "$ROOT/pubsub/javaserializer/target/java-serializer-0.1.jar" $GAME_ENGINE
@@ -48,6 +49,7 @@ cp "$ROOT/architecture-event-controller/target/architecture-event-controller-0.1
 
 # Drone
 DRONE="docker_images/drone/files/bundles/"
+mkdir -p $DRONE
 cp "$ROOT/discovery/api/target/discovery-api-0.1.jar" $DRONE
 cp "$ROOT/discovery/etcd/target/etcd-0.1.jar" $DRONE
 cp "$ROOT/pubsub/javaserializer/target/java-serializer-0.1.jar" $DRONE
@@ -66,6 +68,7 @@ cp "$ROOT/architecture-event-controller/target/architecture-event-controller-0.1
 
 # Architecture Manager
 ARCHITECTURE_MANAGER="docker_images/architecture_manager/files/bundles/"
+mkdir -p $ARCHITECTURE_MANAGER
 cp "$ROOT/discovery/api/target/discovery-api-0.1.jar" $ARCHITECTURE_MANAGER
 cp "$ROOT/discovery/etcd/target/etcd-0.1.jar" $ARCHITECTURE_MANAGER
 cp "$ROOT/pubsub/javaserializer/target/java-serializer-0.1.jar" $ARCHITECTURE_MANAGER

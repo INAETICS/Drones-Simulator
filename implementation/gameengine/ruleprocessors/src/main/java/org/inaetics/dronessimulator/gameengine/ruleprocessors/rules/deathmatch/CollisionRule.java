@@ -10,13 +10,13 @@ import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.common.state.Bullet;
 import org.inaetics.dronessimulator.gameengine.common.state.Drone;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
-import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.Processor;
+import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.Rule;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class CollisionRule extends Processor {
+public class CollisionRule extends Rule {
     public static final int COLLISION_DAMAGE = Drone.DRONE_MAX_HEALTH;
 
     @Override
@@ -33,8 +33,9 @@ public class CollisionRule extends Processor {
             GameEntity e2 = collision.getE2();
 
             results = handleCollision(e1, e2);
+            results.add(0, msg);
         } else {
-            results = Collections.emptyList();
+            results = Collections.singletonList(msg);
         }
 
         return results;

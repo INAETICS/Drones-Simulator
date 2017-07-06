@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class RemoveStrayBullets extends Processor {
+public class RemoveStrayBullets extends Rule {
     // TODO Make arena dimensions via config
     private static final int ARENA_WIDTH = 1024;
     private static final int ARENA_HEIGHT = 100;
@@ -30,8 +30,9 @@ public class RemoveStrayBullets extends Processor {
             CurrentStateEvent currentStateEvent = (CurrentStateEvent) event;
 
             events = this.removeStaleBullets(currentStateEvent);
+            events.add(0, event);
         } else {
-            events = Collections.emptyList();
+            events = Collections.singletonList(event);
         }
 
 

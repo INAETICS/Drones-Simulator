@@ -41,7 +41,7 @@ public class CurrentStateEvent extends GameEngineEvent {
                 msg.setIdentifier(maybeProtocolId.get());
                 msg.setType(e.getType());
                 msg.setPosition(e.getPosition());
-                msg.setDirection(new D3PolarCoordinate());
+                msg.setDirection(e.getDirection());
                 msg.setVelocity(e.getVelocity());
                 msg.setAcceleration(e.getAcceleration());
 

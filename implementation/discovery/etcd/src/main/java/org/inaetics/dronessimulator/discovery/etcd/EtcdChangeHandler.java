@@ -9,6 +9,7 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
+import org.inaetics.dronessimulator.discovery.api.tree.Tuple;
 
 import java.util.List;
 
@@ -21,6 +22,9 @@ public class EtcdChangeHandler extends Thread {
 
     /** The root node of the tree. */
     private final DiscoveryNode cachedRoot;
+
+    /** The last seen etcd change index. */
+    private Long modifiedIndex;
 
     /**
      * Instantiates a new change handler with the given discoverer. Also builds a new root node.
@@ -40,7 +44,10 @@ public class EtcdChangeHandler extends Thread {
 
         Logger.getLogger(EtcdChangeHandler.class).info("Starting EtcdChangeHandler...");
 
-        EtcdKeysResponse.EtcdNode etcdNode = discoverer.getFromRoot(false);
+        Tuple<EtcdKeysResponse.EtcdNode, Long> discovererData = discoverer.getFromRoot(null, false);
+        EtcdKeysResponse.EtcdNode etcdNode = discovererData.getT1();
+        modifiedIndex = discovererData.getT2();
+
         DiscoveryStoredNode storedRoot = new DiscoveryStoredEtcdNode(etcdNode);
 
         if(etcdNode != null) {
@@ -52,7 +59,10 @@ public class EtcdChangeHandler extends Thread {
         Logger.getLogger(EtcdChangeHandler.class).info("Started EtcdChangeHandler!");
 
         while(!this.isInterrupted()) {
-            etcdNode = discoverer.getFromRoot(true);
+            discovererData = discoverer.getFromRoot(null, false);
+            etcdNode = discovererData.getT1();
+            modifiedIndex = discovererData.getT2();
+
             storedRoot = new DiscoveryStoredEtcdNode(etcdNode);
 
             if(etcdNode != null) {

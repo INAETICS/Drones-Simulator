@@ -35,12 +35,21 @@ import java.util.List;
 /**
  * Wrapper around PhysicsEngine. Sets up and connects all handlers with each other.
  * Set up are: physics engine, incoming command messages, queue between physics engine and rule processors,
- * discovery handler.
+ * discovery handler and architecture state event listening.
  */
 public class GameEngine {
+    /**
+     * Width of the arena (x-axis)
+     */
     public static final float ARENA_WIDTH = 1024;
+    /**
+     * Depth of the arena (y-axis)
+     */
     public static final float ARENA_DEPTH = 1024;
 
+    /**
+     * The logger
+     */
     private final static Logger logger = Logger.getLogger(GameEngine.class);
 
     /** Physics engine used in the game engine. */

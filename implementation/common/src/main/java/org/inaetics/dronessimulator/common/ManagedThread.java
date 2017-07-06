@@ -5,6 +5,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * A manageable thread which can start, stop, pause and resume
+ * After stop, the thread can be started again.
+ * Interrupt this thread to completely destroy it
  */
 public abstract class ManagedThread extends Thread {
      /**
@@ -12,10 +14,21 @@ public abstract class ManagedThread extends Thread {
      */
     private final AtomicBoolean started = new AtomicBoolean(false);
 
-
+    /**
+     * Thread management if the thread has quit
+     */
     private final AtomicBoolean quit = new AtomicBoolean(false);
+
+    /**
+     * Thread management if the thread is paused
+     */
     private final AtomicBoolean pauseToken = new AtomicBoolean(false);
 
+    /**
+     * Run this thread. Will start work if started is set
+     * Pauses if pause is set
+     * Quits if quit is set
+     */
     @Override
     public void run() {
         while(!this.isInterrupted()){
@@ -54,6 +67,9 @@ public abstract class ManagedThread extends Thread {
         }
     }
 
+    /**
+     * Start this thread work after the initial this.start()
+     */
     public void startThread() {
         synchronized (started) {
             started.set(true);
@@ -61,6 +77,10 @@ public abstract class ManagedThread extends Thread {
         }
     }
 
+    /**
+     * Resume this thread work after a pause
+     * Does nothing if thread is not paused
+     */
     public void resumeThread() {
         synchronized (pauseToken) {
             pauseToken.set(false);
@@ -68,12 +88,19 @@ public abstract class ManagedThread extends Thread {
         }
     }
 
+    /**
+     * Pauses this thread work
+     */
     public void pauseThread() {
         synchronized (pauseToken) {
             pauseToken.set(true);
         }
     }
 
+    /**
+     * Stops this thread work to be started again
+     * Auto-resumes if thread is paused
+     */
     public void stopThread() {
         synchronized (quit) {
             quit.set(true);
@@ -81,12 +108,26 @@ public abstract class ManagedThread extends Thread {
         }
     }
 
-
+    /**
+     * Overridable to be called upon starting thread work
+     */
     protected void onStart() {}
+    /**
+     * Overridable to be called upon pausing thread work
+     */
     protected void onPause() {}
+    /**
+     * Overridable to be called upon resuming thread work
+     */
     protected void onResume() {}
+    /**
+     * Overridable to be called upon stopping thread work
+     */
     protected void onStop() {}
 
-
+    /**
+     * Abstract method which is the work the thread will perform when started
+     * @throws InterruptedException Is allowed to throw interrupt errors to interrupt the thread
+     */
     protected abstract void work() throws InterruptedException;
 }

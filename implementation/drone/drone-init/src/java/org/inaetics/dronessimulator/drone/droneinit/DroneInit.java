@@ -14,16 +14,32 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The initial bundle in the drone dependency tree
+ * Generates the id of the drone
+ */
 public class DroneInit {
+    /**
+     * The logger
+     */
     private static final Logger logger = Logger.getLogger(DroneInit.class);
 
-    private final BundleContext bundleContext;
+    /**
+     * The identifier of this drone
+     */
     private String identifier;
+
+    /**
+     * Reference to the Discoverer bundle
+     */
     private volatile Discoverer m_discoverer;
+
+    /**
+     * The instance registered in discovery noting the drone service
+     */
     private Instance registered_instance;
 
-    public DroneInit(BundleContext bundleContext){
-        this.bundleContext = bundleContext;
+    public DroneInit(){
         this.initIdentifier();
     }
 
@@ -38,6 +54,9 @@ public class DroneInit {
         this.unregisterDroneService();
     }
 
+    /**
+     * Register the drone service in Discovery
+     */
     private void registerDroneService(){
         Map<String, String> properties = new HashMap<>();
 
@@ -55,6 +74,9 @@ public class DroneInit {
 
     }
 
+    /**
+     * Unregister the drone service in Discovery
+     */
     private void unregisterDroneService(){
         try{
             this.m_discoverer.unregister(registered_instance);
@@ -71,6 +93,12 @@ public class DroneInit {
         this.identifier = new_identifier;
     }
 
+    /**
+     * Initializes the identifier for this drone
+     * It checks the following environment variables
+     * in order: DRONENAME, COMPUTERNAME, HOSTNAME
+     * If none are found, it generates a random UUID
+     */
     public void initIdentifier(){
         Map<String, String> env = System.getenv();
         if(env.containsKey("DRONENAME"))

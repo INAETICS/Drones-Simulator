@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.gameengine.ruleprocessors.rules;
 
+import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.CurrentStateEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.DestroyBulletEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
@@ -11,6 +12,11 @@ import java.util.Collections;
 import java.util.List;
 
 public class RemoveStrayBullets extends Processor {
+    // TODO Make arena dimensions via config
+    private static final int ARENA_WIDTH = 1024;
+    private static final int ARENA_HEIGHT = 100;
+    private static final int ARENA_DEPTH = 1024;
+
     @Override
     public void configRule() {
         // Nothing to config
@@ -39,13 +45,24 @@ public class RemoveStrayBullets extends Processor {
             if(entity instanceof Bullet) {
                 Bullet bullet = (Bullet) entity;
 
-                // TODO Make range dependent on arena size
-                if(bullet.getPosition().length() >= 565) {
+                if(!inArena(bullet)) {
                     events.add(new DestroyBulletEvent(bullet.getEntityId()));
                 }
             }
         }
 
         return events;
+    }
+
+    private boolean inArena(Bullet bullet) {
+        D3Vector position = bullet.getPosition();
+        double x = position.getX();
+        double y = position.getY();
+        double z = position.getZ();
+
+        return x >= 0 && x <= ARENA_WIDTH
+            && y >= 0 && y <= ARENA_DEPTH
+            && z >= 0 && z <= ARENA_HEIGHT
+            ;
     }
 }

@@ -7,6 +7,4 @@ ADD files/bundles/*.jar /opt/felix/current/bundle/
 ENV JVM_OPTIONS="-Xdebug -Xnoagent -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -Dgosh.args=--nointeractive"
 
 CMD exec java $JVM_OPTIONS -jar bin/felix.jar 
-#CMD ["java", "-Dgosh.args=--nointeractive", "-jar","bin/felix.jar"]
-
 

@@ -26,7 +26,7 @@ public class Gun {
     private long last_shot_at_ms = System.currentTimeMillis();
     private long next_shot_at_ms = last_shot_at_ms;
     private final double GUN_SPEED = 150.0;
-    private final double MAX_DISTANCE = 300;
+    private final double MAX_DISTANCE = 1024;
     private final long BASE_SHOT_TIME_BETWEEN = 500;
     private final int MAX_OFFSET_SHOT_TIME = 1000;
 

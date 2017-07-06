@@ -9,23 +9,24 @@ import javafx.scene.input.MouseEvent;
  */
 public class NodeGestures {
 
+    /** mouse drag context */
     private DragContext nodeDragContext = new DragContext();
+    /** Canvas that can be zoomed and panned */
+    private PannableCanvas canvas;
 
-    PannableCanvas canvas;
-
+    /**
+     * Instantiates the listeners for making the canvas pannable and zoomable
+     * @param canvas - canvas
+     */
     public NodeGestures(PannableCanvas canvas) {
         this.canvas = canvas;
-
     }
 
-    public EventHandler<MouseEvent> getOnMousePressedEventHandler() {
-        return onMousePressedEventHandler;
-    }
-
-    public EventHandler<MouseEvent> getOnMouseDraggedEventHandler() {
-        return onMouseDraggedEventHandler;
-    }
-
+    /**
+     * Mouse event handler for clicking with the right mouse button
+     *
+     * This sets the x and y coordinates, which are used when dragging
+     */
     private EventHandler<MouseEvent> onMousePressedEventHandler = new EventHandler<MouseEvent>() {
 
         public void handle(MouseEvent event) {
@@ -47,6 +48,12 @@ public class NodeGestures {
 
     };
 
+    /**
+     * Mouse event handler for dragging with the right mouse button
+     *
+     * When dragging the scene follows the mouse cursor
+     * The coordinates are corrected to the scale on which is zoomed to
+     */
     private EventHandler<MouseEvent> onMouseDraggedEventHandler = new EventHandler<MouseEvent>() {
         public void handle(MouseEvent event) {
 

@@ -1,20 +1,29 @@
 package org.inaetics.dronessimulator.visualisation;
 
-public class Settings {
+class Settings {
 
-    public final static int SCENE_WIDTH = 1024;
-    public final static int SCENE_HEIGHT = 768;
+    /** Width of the window */
+    final static int SCENE_WIDTH = 1024;
+    /** Height of the window */
+    final static int SCENE_HEIGHT = 1024;
 
-    public final static int CANVAS_WIDTH = 1500;
-    public final static int CANVAS_HEIGHT = 1500;
+    /** Width of the canvas */
+    final static int CANVAS_WIDTH = 1024;
+    /** Height of the canvas */
+    final static int CANVAS_HEIGHT = 1024;
 
-    public final static int DRONE_WIDTH = 128;
-    public final static int DRONE_HEIGHT = 128;
+    /** Width of the fully zoomed drone */
+    final static int DRONE_WIDTH = 128;
+    /** Height of the fully zoomed drone */
+    final static int DRONE_HEIGHT = 128;
 
-    public final static int BULLET_HEIGHT = 50;
+    /** Height of the fully zoomed bullet */
+    final static int BULLET_HEIGHT = 50;
 
-
-    public final static int DRONE_SPRITE_COLUMNS = 4;
-    public final static int SPRITE_WIDTH = 256;
-    public final static int SPRITE_HEIGTH = 256;
+    /** Number of image columns in the drone sprite image */
+    final static int DRONE_SPRITE_COLUMNS = 4;
+    /** Width of each image in the drone sprite image */
+    final static int SPRITE_WIDTH = 256;
+    /** Height of each image in the drone sprite image */
+    final static int SPRITE_HEIGTH = 256;
 }

@@ -78,11 +78,6 @@ public class PhysicsEngineObserver implements PhysicsEngineEventObserver {
             }
         }
 
-        if(stateCopy.size() != currentState.size()) {
-            Logger.getLogger(GameStateManager.class).fatal("The amount of entities in the gamestate-manager and physicsengine are not the same!");
-            throw new OutOfSyncException("The amount of entities in the gamestate-manager " + currentState.size() + " and physicsengine " + stateCopy.size() + " are not the same!");
-        }
-
         this.outgoingQueue.add(new CurrentStateEvent(stateCopy));
     }
 

@@ -8,9 +8,14 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
 public class PannableCanvas extends Pane {
+    /** Scale of the canvas */
+    private DoubleProperty myScale = new SimpleDoubleProperty(1.0);
 
-    DoubleProperty myScale = new SimpleDoubleProperty(1.0);
-
+    /**
+     * Instantiates a new pannable and zoomable canvas
+     * @param width - width of the canvas in pixels
+     * @param height - height of the canvas in pixels
+     */
     public PannableCanvas(double width, double height) {
         setPrefSize(width, height);
 
@@ -20,7 +25,7 @@ public class PannableCanvas extends Pane {
     }
 
     /**
-     * Add a grid to the canvas, send it to back
+     * Add a grid to the canvas, send it to the back
      */
     public void addGrid() {
         double w = getBoundsInLocal().getWidth();
@@ -49,15 +54,28 @@ public class PannableCanvas extends Pane {
         grid.toBack();
     }
 
-    public double getScale() {
+    /**
+     * Get the scale of the canvas
+     * @return - scale
+     */
+    double getScale() {
         return myScale.get();
     }
 
-    public void setScale(double scale) {
+    /**
+     * Set the scale of the canvas
+     * @param scale - scale
+     */
+    void setScale(double scale) {
         myScale.set(scale);
     }
 
-    public void setPivot(double x, double y) {
+    /**
+     * Set the x and y coordinates when zooming
+     * @param x - x
+     * @param y - y
+     */
+    void setPivot(double x, double y) {
         setTranslateX(getTranslateX() - x);
         setTranslateY(getTranslateY() - y);
     }

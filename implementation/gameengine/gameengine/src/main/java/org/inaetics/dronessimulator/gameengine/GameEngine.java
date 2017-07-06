@@ -37,8 +37,8 @@ import java.util.List;
  * discovery handler.
  */
 public class GameEngine {
-    public static final float ARENA_WIDTH = 200;
-    public static final float ARENA_DEPTH = 200;
+    public static final float ARENA_WIDTH = 1024;
+    public static final float ARENA_DEPTH = 1024;
 
     private final static Logger logger = Logger.getLogger(GameEngine.class);
 

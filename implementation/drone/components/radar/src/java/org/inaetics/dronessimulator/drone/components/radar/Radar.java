@@ -15,6 +15,7 @@ import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
@@ -28,7 +29,7 @@ public class Radar implements MessageHandler {
     private volatile DroneInit m_drone;
 
     private volatile D3Vector position;
-    private ConcurrentHashMap<String, D3Vector> all_positions = new ConcurrentHashMap<String, D3Vector>();
+    private final ConcurrentHashMap<String, D3Vector> all_positions = new ConcurrentHashMap<>();
     private static final int RADAR_RANGE = 500;
 
     /**
@@ -58,11 +59,19 @@ public class Radar implements MessageHandler {
     }
 
     public List<D3Vector> getRadar(){
-        return all_positions.entrySet()
-                .stream()
-                .map(e -> e.getValue())
-                .filter(object_position -> position.distance_between(object_position) <= RADAR_RANGE)
-                .collect(Collectors.toList());
+        List<D3Vector> results;
+
+        if (position != null) {
+            results = all_positions.entrySet()
+                    .stream()
+                    .map(e -> e.getValue())
+                    .filter(object_position -> position.distance_between(object_position) <= RADAR_RANGE)
+                    .collect(Collectors.toList());
+        } else {
+            results = Collections.emptyList();
+        }
+
+        return results;
     }
 
     public Optional<D3Vector> getNearestTarget(){

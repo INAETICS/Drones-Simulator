@@ -2,7 +2,6 @@ package org.inaetics.dronessimulator.visualisation;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.Pane;
 import org.inaetics.dronessimulator.common.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.visualisation.uiupdates.AddBaseEntity;
@@ -16,25 +15,28 @@ import java.util.concurrent.BlockingQueue;
  * This class can be extended by e.g.: drones, bullets, gamified objects
  */
 public abstract class BaseEntity {
+    /** List of ui updates it can add changes to the ui to */
     private final BlockingQueue<UIUpdate> uiUpdates;
+    /** Image of the base entity */
     ImageView imageView;
 
+    /** Position of the base entity */
     D3Vector position;
+    /** Direction as a set of polar coordinates of the base entity */
     private D3PolarCoordinate direction;
 
+    /** X coordinate of the sprite, position of the upper left corner */
     private double spriteX;
+    /** Y coordinate of the sprite, position of the upper left corner */
     private double spriteY;
-    private double spriteZ;
-
-    Pane pane;
 
     /**
-     * @param pane - Pane to add the basic entity to
+     * Instantiates a new base entity
+     * @param uiUpdates - UI updates shared by the system
      * @param image - String containing the path to an image to visualise the basic entity
      */
-    BaseEntity(BlockingQueue<UIUpdate> uiUpdates, Pane pane, String image) {
+    BaseEntity(BlockingQueue<UIUpdate> uiUpdates, String image) {
         this.uiUpdates = uiUpdates;
-        this.pane = pane;
         this.imageView = new ImageView(new Image(getClass().getResourceAsStream(image)));
         this.imageView.setPreserveRatio(true);
 
@@ -53,6 +55,9 @@ public abstract class BaseEntity {
         imageView.setScaleY(getScale());
     }
 
+    /**
+     * Removes the base entity by adding a remove entity to the ui updates
+     */
     public void delete() {
         uiUpdates.add(new RemoveBaseEntity(imageView));
     }
@@ -61,7 +66,7 @@ public abstract class BaseEntity {
      * Returns the x coordinate of the left upper corner of the entity's sprite
      * @return spriteX - x coordinate
      */
-    public double getSpriteX() {
+    double getSpriteX() {
         return spriteX;
     }
 
@@ -69,7 +74,7 @@ public abstract class BaseEntity {
      * Returns the y coordinate of the left upper corner of the entity's sprite
      * @return spriteY - y coordinate
      */
-    public double getSpriteY() {
+    double getSpriteY() {
         return spriteY;
     }
 
@@ -89,18 +94,34 @@ public abstract class BaseEntity {
         spriteY = y;
     }
 
-    public double getScale() {
+    /**
+     * Scales the height from 0-1000 to a double between 0.1 and 1.0
+     * @return Double between 0.1 and 1.0
+     */
+    double getScale() {
         return scale(position.getZ(), 0, 1000, 0.1, 1.0);
     }
 
+    /**
+     * Set the position of the base entity
+     * @param position - position
+     */
     public void setPosition(D3Vector position) {
         this.position = position;
     }
 
+    /**
+     * Set the direction of the base entity
+     * @param direction - direction
+     */
     public void setDirection(D3PolarCoordinate direction) {
         this.direction = direction;
     }
 
+    /**
+     * Get the rotation in degrees
+     * @return - rotation in degrees
+     */
     private double getRotation() {
         return this.direction.getAngle1Degrees();
     }
@@ -116,11 +137,15 @@ public abstract class BaseEntity {
      * @param limitMax - Upper bound of the new scale
      * @return - The double scaled to the new scale
      */
-    public static double scale(final double valueIn, final double baseMin, final double baseMax, final double limitMin, final double limitMax) {
+    private static double scale(final double valueIn, final double baseMin, final double baseMax, final double limitMin, final double limitMax) {
         return ((limitMax - limitMin) * (valueIn - baseMin) / (baseMax - baseMin)) + limitMin;
     }
 
-    public BlockingQueue<UIUpdate> getUiUpdates() {
+    /**
+     * Get the ui updates
+     * @return - uiupdates
+     */
+    BlockingQueue<UIUpdate> getUiUpdates() {
         return uiUpdates;
     }
 }

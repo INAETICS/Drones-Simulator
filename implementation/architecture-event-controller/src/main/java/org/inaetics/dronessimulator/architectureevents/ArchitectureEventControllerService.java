@@ -46,6 +46,20 @@ public class ArchitectureEventControllerService implements ArchitectureEventCont
      */
     private final Map<LifeCycleStep, List<ArchitectureEventHandler>> handlers = new HashMap<>();
 
+
+    /**
+     * OSGI Constructor
+     */
+    public ArchitectureEventControllerService() {
+    }
+
+    /**
+     * Visualisation Constructor
+     */
+    public ArchitectureEventControllerService(Discoverer m_discovery) {
+        this.m_discovery = m_discovery;
+    }
+
     /**
      * Start this bundle
      * Adds a change value handler to discovery for any state changes

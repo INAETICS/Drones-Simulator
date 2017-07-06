@@ -75,4 +75,5 @@ cp "$ROOT/pubsub/api/target/pubsub-api-0.1.jar" $ARCHITECTURE_MANAGER
 cp "$ROOT/common/target/common-0.1.jar" $ARCHITECTURE_MANAGER
 cp "$ROOT/architecture-manager/target/architecture-manager-0.1.jar" $ARCHITECTURE_MANAGER
 
+docker-compose rm -f -v
 docker-compose create --build

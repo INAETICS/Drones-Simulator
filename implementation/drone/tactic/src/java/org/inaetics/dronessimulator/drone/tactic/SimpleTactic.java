@@ -58,6 +58,12 @@ public class SimpleTactic extends Tactic {
     /**
      *  -- FUNCTIONS
      */
+
+    /**
+     *
+     * @param input_acceleration
+     * @return
+     */
     private D3Vector accelerateByNoMovement(D3Vector input_acceleration){
         D3Vector output_acceleration = input_acceleration;
         if (m_gps.getAcceleration().length() == 0 && m_gps.getVelocity().length() == 0){
@@ -69,20 +75,11 @@ public class SimpleTactic extends Tactic {
         return output_acceleration;
     }
 
-    private D3Vector accelerateByEngine(D3Vector input_acceleration){
-        D3Vector output_acceleration = input_acceleration;
-        // Check velocity
-        if (m_gps.getVelocity().length() >= m_engine.getMaxVelocity()){
-            output_acceleration = new D3Vector();
-        }
-        // Change acceleration if velocity is close to the maximum velocity
-        if (m_gps.getVelocity().length() >= (m_engine.getMaxVelocity() - (m_engine.getMaxVelocity() * 0.1))) {
-            double factor = 0.25;
-            output_acceleration = m_gps.getAcceleration().scale(factor);
-        }
-        return output_acceleration;
-    }
-
+    /**
+     *
+     * @param input_acceleration
+     * @return
+     */
     private D3Vector accelerateForWall(D3Vector input_acceleration){
         D3Vector output_acceleration = input_acceleration;
         double aantal_seconden_tot_nul = m_gps.getVelocity().length() / m_engine.getMaxAcceleration();
@@ -97,6 +94,11 @@ public class SimpleTactic extends Tactic {
         return output_acceleration;
     }
 
+    /**
+     *
+     * @param input_acceleration
+     * @return
+     */
     private D3Vector accelerateAfterWall(D3Vector input_acceleration){
         D3Vector output_acceleration = input_acceleration;
         // Check positions | if maximum deviation is archieved then change acceleration in opposite direction
@@ -108,31 +110,29 @@ public class SimpleTactic extends Tactic {
                 x = m_engine.getMaxAcceleration();
         }
         double y = output_acceleration.getY();
-            if(m_gps.getPosition().getY() >= MAX_DEVIATION_POSTION){
+        if(m_gps.getPosition().getY() >= MAX_DEVIATION_POSTION){
                 y = - m_engine.getMaxAcceleration();
-            }
-            else if(m_gps.getPosition().getY() <= 0){
+        }
+        else if(m_gps.getPosition().getY() <= 0){
                 y = m_engine.getMaxAcceleration();
-            }
+        }
 
         double z = output_acceleration.getZ();
-            if(m_gps.getPosition().getY() >= MAX_DEVIATION_POSTION){
+        if(m_gps.getPosition().getY() >= MAX_DEVIATION_POSTION){
                 z = - m_engine.getMaxAcceleration();
-            }
-            else if(m_gps.getPosition().getY() <= 0){
+        }
+        else if(m_gps.getPosition().getY() <= 0){
                 z = m_engine.getMaxAcceleration();
-            }
-            output_acceleration = new D3Vector(x,y,z);
+        }
+        output_acceleration = new D3Vector(x,y,z);
         return output_acceleration;
     }
 
     void calculateAcceleration(){
         D3Vector output_acceleration = m_engine.maximize_acceleration(m_gps.getAcceleration());
         output_acceleration = this.accelerateByNoMovement(output_acceleration);
-        output_acceleration = this.accelerateByEngine(output_acceleration);
         output_acceleration = this.accelerateForWall(output_acceleration);
         output_acceleration = this.accelerateAfterWall(output_acceleration);
-        output_acceleration = m_engine.limit_acceleration(output_acceleration);
         m_engine.changeAcceleration(output_acceleration);
     }
 

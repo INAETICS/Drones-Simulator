@@ -21,6 +21,10 @@ public class Activator extends DependencyActivatorBase {
                         .setService(Publisher.class)
                         .setRequired(true)
                 )
+                .add(createServiceDependency()
+                        .setService(GPS.class)
+                        .setRequired(true)
+                )
                 .setCallbacks("init", "start", "stop", "destroy")
         );
     }

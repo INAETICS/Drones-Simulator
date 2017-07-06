@@ -1,7 +1,7 @@
 - The code is located in `implementation/`
 - The compiled docker images are located in `docker_images/`
 - Static files which should not be changed are located in `static/`
-- The visualization is locaed in `visualiztion/`
+- The visualization is located in `visualiztion/`
 
 # Test
 To test the entire codebase, first start a instance of etcd & RabbitMQ on localhost. Default installations work. For etcd you should be able to connect without any credentials. For RabbitMQ the connection will be made with `guest\guest`.

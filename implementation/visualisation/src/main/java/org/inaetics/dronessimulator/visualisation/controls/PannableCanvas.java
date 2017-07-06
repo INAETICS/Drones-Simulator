@@ -7,6 +7,9 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 
+/**
+ * This class implements the pannable and zoomable canvas.
+ */
 public class PannableCanvas extends Pane {
     /** Scale of the canvas */
     private DoubleProperty myScale = new SimpleDoubleProperty(1.0);

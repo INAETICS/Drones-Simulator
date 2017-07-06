@@ -12,6 +12,10 @@ import java.util.concurrent.BlockingQueue;
 
 import static org.inaetics.dronessimulator.visualisation.Settings.DRONE_SPRITE_COLUMNS;
 
+/**
+ * The drone class is a subclass of a base entity representing the most general of a drone. It should be extended by a
+ * more class of a drone, which has an image that determine the view of the drone.
+ */
 public abstract class Drone extends BaseEntity {
     /** Current hitpoints of a drone */
     private int currentHP;

@@ -61,38 +61,67 @@ public class GPS implements MessageHandler {
     }
 
 
+    // -- GETTERS
     /**
-     * -- GETTERS
+     * Returns the current position of the drone
+     * @return the position as a D3Vector
      */
     public D3Vector getPosition(){
         return position;
     }
 
+    /**
+     * Returns the current velocity of the drone
+     * @return the velocity as a D3Vector
+     */
     public D3Vector getVelocity(){
         return velocity;
     }
 
+    /**
+     * Returns the current acceleration of the drone
+     * @return the acceleration as a D3Vector
+     */
     public D3Vector getAcceleration(){
         return acceleration;
     }
 
+    /**
+     * Returns the current direction of the drone
+     * @return the position as a D3PolarCoordinate
+     */
     public D3PolarCoordinate getDirection(){ return direction; }
 
+    // -- SETTERS
+
     /**
-     * -- SETTERS
+     * Changes the current position of the drone
+     * @param new_position the new position as a D3Vector
      */
     private void setPosition(D3Vector new_position){
         position = new_position;
     }
 
+    /**
+     * Changes the current velocity of the drone
+     * @param new_velocity the new velocity as a D3Vector
+     */
     private void setVelocity(D3Vector new_velocity){
         velocity = new_velocity;
     }
 
+    /**
+     * Changes the current acceleration of the drone
+     * @param new_acceleration the new acceleration as a D3Vector
+     */
     protected void setAcceleration(D3Vector new_acceleration){
         acceleration = new_acceleration;
     }
 
+    /**
+     * Changes the current direction of the drone
+     * @param new_direction the new direction as a D3PolarCoordinate
+     */
     private void setDirection(D3PolarCoordinate new_direction) { direction = new_direction; }
 
     /**

@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.drone.components.engine;
 
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
+import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 import org.osgi.framework.BundleContext;
@@ -18,6 +19,10 @@ public class Activator extends DependencyActivatorBase {
                 )
                 .add(createServiceDependency()
                         .setService(Publisher.class)
+                        .setRequired(true)
+                )
+                .add(createServiceDependency()
+                        .setService(GPS.class)
                         .setRequired(true)
                 )
                 .setCallbacks("init", "start", "stop", "destroy")

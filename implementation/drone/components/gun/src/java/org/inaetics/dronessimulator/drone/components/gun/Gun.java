@@ -105,7 +105,7 @@ public class Gun {
             msg.setIdentifier(UUID.randomUUID().toString());
             msg.setType(EntityType.BULLET);
             msg.setDirection(direction);
-            msg.setVelocity(direction.toVector().scale(BULLET_SPEED  / direction.toVector().length()));
+            msg.setVelocity(direction.toVector().scale(BULLET_SPEED / direction.toVector().length()));
             msg.setPosition(m_gps.getPosition());
             msg.setAcceleration(new D3Vector());
 

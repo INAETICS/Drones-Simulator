@@ -15,7 +15,7 @@ import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
- * Created by mart on 17-5-17.
+ * Simple tactic which flies randomly and fires a bullet on enemies.
  */
 public class SimpleTactic extends Tactic {
     protected volatile Radar m_radar;
@@ -59,9 +59,9 @@ public class SimpleTactic extends Tactic {
      */
 
     /**
-     *
-     * @param input_acceleration
-     * @return
+     * Accelerate the drone when the current acceleration is 0 m/s.
+     * @param input_acceleration the current acceleration
+     * @return the new acceleration
      */
     private D3Vector accelerateByNoMovement(D3Vector input_acceleration){
         D3Vector output_acceleration = input_acceleration;
@@ -76,11 +76,11 @@ public class SimpleTactic extends Tactic {
     }
 
     /**
-     *
-     * @param input_acceleration
-     * @return
+     * Change acceleration to avoid wall collision
+     * @param input_acceleration the current acceleration
+     * @return the new acceleration
      */
-    private D3Vector accelerateForWall(D3Vector input_acceleration){
+    private D3Vector brakeForWall(D3Vector input_acceleration){
         D3Vector output_acceleration = input_acceleration;
         double aantal_seconden_tot_nul = m_gps.getVelocity().length() / m_engine.getMaxAcceleration();
         D3Vector berekende_position = m_gps.getVelocity().scale(0.5).scale(aantal_seconden_tot_nul).add(m_gps.getPosition());
@@ -97,9 +97,9 @@ public class SimpleTactic extends Tactic {
     }
 
     /**
-     *
-     * @param input_acceleration
-     * @return
+     * Change direction of drone when the maximum derivation is archieved.
+     * @param input_acceleration the current acceleration
+     * @return the new acceleration
      */
     private D3Vector accelerateAfterWall(D3Vector input_acceleration){
         D3Vector output_acceleration = input_acceleration;
@@ -150,13 +150,10 @@ public class SimpleTactic extends Tactic {
         return output_acceleration;
     }
 
-    /**
-     *
-     */
     private void calculateAcceleration(){
         D3Vector output_acceleration = m_engine.maximize_acceleration(m_gps.getAcceleration());
         output_acceleration = this.accelerateByNoMovement(output_acceleration);
-        output_acceleration = this.accelerateForWall(output_acceleration);
+        output_acceleration = this.brakeForWall(output_acceleration);
         output_acceleration = this.accelerateAfterWall(output_acceleration);
         m_engine.changeAcceleration(output_acceleration);
     }

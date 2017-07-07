@@ -43,7 +43,7 @@ public class CollisionRule extends Rule {
             results = handleCollision(e1, e2);
 
             // Only notify architecture of collision if the collision has consequences
-            if(results.size() > 0) {
+            if(!results.isEmpty()) {
                 results.add(0, msg);
             }
         } else {

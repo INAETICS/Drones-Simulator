@@ -78,18 +78,14 @@ public class Engine {
     public D3Vector maximize_acceleration(D3Vector input){
         D3Vector output = input;
         // Prevent that the acceleration exteeds te maximum acceleration
-        if(input.length() < this.getMaxAcceleration()){
+        if(input.length() < this.getMaxAcceleration() && input.length() != 0){
             double correctionFactor =  this.getMaxAcceleration() / input.length();
             output = input.scale(correctionFactor);
         }
         return output;
     }
 
-    /**
-     * ?
-     * @param input
-     * @return
-     */
+
     /**
      * Limits the velocity when the maximum velocity is archieved.
      * @param input acceleration as a D3Vector

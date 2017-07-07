@@ -1,4 +1,4 @@
-#/bin/bash
+#!/bin/bash
 
 ROOT="implementation" 
 STATIC="static"

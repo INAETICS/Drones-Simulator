@@ -3,8 +3,9 @@ package org.inaetics.dronessimulator.gameengine.common.state;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
-import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
+import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 
 /**
  * An entity in the physics engine with some added game state.
@@ -23,6 +24,9 @@ public abstract class GameEntity<C extends GameEntity<C>> {
 
     /** Acceleration of the entity in the engine. */
     private volatile D3Vector acceleration;
+
+    /** Direction of the entity in the engine. */
+    private volatile D3PolarCoordinate direction;
 
     /**
      * Returns the type of the game entity in terms of the shared protocol.
@@ -84,6 +88,22 @@ public abstract class GameEntity<C extends GameEntity<C>> {
      */
     public void setAcceleration(D3Vector acceleration) {
         this.acceleration = acceleration;
+    }
+
+    /**
+     * Returns the direction of this entity.
+     * @return The current direction.
+     */
+    public D3PolarCoordinate getDirection() {
+        return direction;
+    }
+
+    /**
+     * Updates the direction of this entity.
+     * @param direction The new direction.
+     */
+    public void setDirection(D3PolarCoordinate direction) {
+        this.direction = direction;
     }
 
     /**

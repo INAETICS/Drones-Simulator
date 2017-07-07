@@ -4,17 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.inaetics.dronessimulator.common.D3Vector;
-
-@AllArgsConstructor
-@Getter
-@Setter
-@ToString
+import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 
 /**
  * An entity represented in the simulated world.
  * x == width, y == depth, z == height
  */
+@AllArgsConstructor
+@Getter
+@Setter
+@ToString
 public class Entity implements Cloneable {
 
     /** The identifier of this entity. */
@@ -32,13 +32,16 @@ public class Entity implements Cloneable {
     /** The acceleration of the entity in the world. In meters/second^2. */
     private D3Vector acceleration; // m/s^2
 
+    /** Direction of the entity in the world. Points in the direction of the polarcoordinate */
+    private D3PolarCoordinate direction;
+
     /**
      * Creates an entity.
      * @param id The id of the new entity.
      * @param size The size of the non-rotating hitbox of the entity.
      */
     public Entity(int id, Size size) {
-        this(id, size, new D3Vector(), new D3Vector(), new D3Vector());
+        this(id, size, new D3Vector(), new D3Vector(), new D3Vector(), new D3PolarCoordinate());
     }
 
     /**
@@ -50,7 +53,7 @@ public class Entity implements Cloneable {
      * @param z The position of the new entity on the z-axis in the world.
      */
     public Entity(int id, Size size, double x, double y, double z) {
-        this(id, size, new D3Vector(x, y, z), new D3Vector(), new D3Vector());
+        this(id, size, new D3Vector(x, y, z), new D3Vector(), new D3Vector(), new D3PolarCoordinate());
     }
 
     /**
@@ -60,7 +63,7 @@ public class Entity implements Cloneable {
      * @param position The position of the new entity in the world.
      */
     public Entity(int id, Size size, D3Vector position) {
-        this(id, size, position, new D3Vector(), new D3Vector());
+        this(id, size, position, new D3Vector(), new D3Vector(), new D3PolarCoordinate());
     }
 
     /**
@@ -71,7 +74,19 @@ public class Entity implements Cloneable {
      * @param velocity The velocity of the new entity in the world.
      */
     public Entity(int id, Size size, D3Vector position, D3Vector velocity) {
-        this(id, size, position, velocity, new D3Vector());
+        this(id, size, position, velocity, new D3Vector(), new D3PolarCoordinate());
+    }
+
+    /**
+     * Creates an entity.
+     * @param id The id of the new entity.
+     * @param size The size of the non-rotating hitbox of the entity.
+     * @param position The position of the new entity in the world.
+     * @param velocity The velocity of the new entity in the world.
+     * @param direction The direction of the new entity in the world.
+     */
+    public Entity(int id, Size size, D3Vector position, D3Vector velocity, D3PolarCoordinate direction) {
+        this(id, size, position, velocity, new D3Vector(), direction);
     }
 
     /**
@@ -185,7 +200,7 @@ public class Entity implements Cloneable {
      * @return A copy of the entity.
      */
     public static Entity deepcopy(Entity entity) {
-        return new Entity(entity.getId(), entity.getSize(), entity.getPosition(), entity.getVelocity(), entity.getAcceleration());
+        return new Entity(entity.getId(), entity.getSize(), entity.getPosition(), entity.getVelocity(), entity.getAcceleration(), entity.getDirection());
     }
 
     @Override

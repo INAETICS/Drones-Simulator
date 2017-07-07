@@ -5,6 +5,7 @@ import org.apache.felix.dm.DependencyManager;
 import org.apache.felix.dm.ServiceDependency;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
+import org.inaetics.dronessimulator.common.ManagedThread;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.KillMessage;
@@ -20,22 +21,34 @@ import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.io.IOException;
-import java.util.concurrent.atomic.AtomicBoolean;
 
-
-public abstract class Tactic extends Thread implements MessageHandler {
+/**
+ * The abstract tactic each drone tactic should extend
+ */
+public abstract class Tactic extends ManagedThread implements MessageHandler {
     private static final Logger logger = Logger.getLogger(Tactic.class);
 
+    /**
+     * Architecture Event controller bundle
+     */
     private volatile ArchitectureEventController m_architectureEventController;
+
+    /**
+     * Drone Init bundle
+     */
     private volatile DroneInit m_drone;
+
+    /**
+     * Subscriber bundle
+     */
     private volatile Subscriber m_subscriber;
+
+    /**
+     * Discoverer bundle
+     */
     private volatile Discoverer m_discoverer;
 
-    private final int calculation_rate = 500;
 
-    private final AtomicBoolean started = new AtomicBoolean(false);
-    private final AtomicBoolean quit = new AtomicBoolean(false);
-    private final AtomicBoolean pauseToken = new AtomicBoolean(false);
 
     private Instance simulationInstance;
     private boolean registered = false;
@@ -44,41 +57,9 @@ public abstract class Tactic extends Thread implements MessageHandler {
      * Thread implementation
      */
     @Override
-    public void run() {
-        while(!this.isInterrupted()){
-            try {
-                //Wait for start
-                synchronized (started) {
-                    while(!started.get()) {
-                        started.wait();
-                    }
-                }
-
-                Logger.getLogger(Tactic.class).info("Started Tactic!");
-
-                quit.set(false);
-                pauseToken.set(false);
-
-                // Work until quit
-                while(!quit.get()) {
-                    this.calculateTactics();
-
-                    Thread.sleep(200);
-
-                    synchronized (pauseToken) {
-                        while(pauseToken.get()) {
-                            pauseToken.wait();
-                        }
-                    }
-                }
-
-                Logger.getLogger(Tactic.class).info("Stopped Tactic!");
-
-                started.set(false);
-            } catch(InterruptedException e) {
-                this.interrupt();
-            }
-        }
+    protected void work() throws InterruptedException {
+        this.calculateTactics();
+        Thread.sleep(200);
     }
 
     /**
@@ -142,6 +123,7 @@ public abstract class Tactic extends Thread implements MessageHandler {
     }
 
     public void stopTactic() {
+        this.stopThread();
         unconfigSimulation();
     }
 
@@ -156,7 +138,6 @@ public abstract class Tactic extends Thread implements MessageHandler {
 
     @Override
     public void destroy() {
-        this.interrupt();
     }
 
     protected void configSimulation() {
@@ -183,10 +164,7 @@ public abstract class Tactic extends Thread implements MessageHandler {
      * Start the simulation.
      */
     protected void startSimulation() {
-        synchronized (started) {
-            started.set(true);
-            started.notifyAll();
-        }
+        this.startThread();
 
         logger.info("Started simulation!");
     }
@@ -195,9 +173,7 @@ public abstract class Tactic extends Thread implements MessageHandler {
      * Pauses the simulation.
      */
     protected void pauseSimulation() {
-        synchronized (pauseToken) {
-            pauseToken.set(true);
-        }
+        this.pauseThread();
 
         logger.info("Paused drone!");
     }
@@ -206,10 +182,7 @@ public abstract class Tactic extends Thread implements MessageHandler {
      * Resumes the simulation.
      */
     protected void resumeSimulation() {
-        synchronized (pauseToken) {
-            pauseToken.set(false);
-            pauseToken.notifyAll();
-        }
+        this.resumeThread();
 
         logger.info("Resumed drone!");
     }
@@ -218,11 +191,7 @@ public abstract class Tactic extends Thread implements MessageHandler {
      * Stops the simulation.
      */
     protected void stopSimulation() {
-        synchronized (quit) {
-            quit.set(true);
-            this.resumeSimulation();
-        }
-
+        this.stopThread();
         unconfigSimulation();
 
         logger.info("Stopped drone!");

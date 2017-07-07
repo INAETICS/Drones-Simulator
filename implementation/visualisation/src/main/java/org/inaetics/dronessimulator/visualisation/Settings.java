@@ -1,5 +1,8 @@
 package org.inaetics.dronessimulator.visualisation;
 
+/**
+ * Class providing the settings for the visualisation
+ */
 class Settings {
 
     /** Width of the window */

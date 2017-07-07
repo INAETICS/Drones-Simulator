@@ -8,10 +8,9 @@ import org.osgi.framework.BundleContext;
 public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
-        DroneInit droneInit = new DroneInit(bundleContext);
         dependencyManager.add(createComponent()
                 .setInterface(DroneInit.class.getName(), null)
-                .setImplementation(droneInit)
+                .setImplementation(DroneInit.class)
                 .add(createServiceDependency()
                         .setService(Discoverer.class)
                         .setRequired(true)

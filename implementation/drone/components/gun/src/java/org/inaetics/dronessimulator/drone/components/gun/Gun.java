@@ -1,11 +1,11 @@
 package org.inaetics.dronessimulator.drone.components.gun;
 
 import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.common.D3PolarCoordinate;
-import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.protocol.FireBulletMessage;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
+import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
@@ -15,19 +15,61 @@ import java.io.IOException;
 import java.util.Random;
 import java.util.UUID;
 
-
+/**
+ * The gun component for drone tactics
+ */
 public class Gun {
+    /** The logger */
     private static final Logger logger = Logger.getLogger(Gun.class);
 
+    /**
+     * Reference to the Subscriber bundle
+     */
     private volatile Subscriber m_subscriber;
+
+    /**
+     * Reference to the Publisher bundle
+     */
     private volatile Publisher m_publisher;
+
+    /**
+     * Reference to the Drone Init bundle
+     */
     private volatile DroneInit m_drone;
+
+    /**
+     * Reference to the GPS bundle
+     */
     private volatile GPS m_gps;
+
+    /**
+     * Last time the gun has fired
+     */
     private long last_shot_at_ms = System.currentTimeMillis();
+
+    /**
+     * Next time the gun may fire
+     */
     private long next_shot_at_ms = last_shot_at_ms;
-    private final double GUN_SPEED = 150.0;
+
+    /**
+     * The speed of the bullet
+     */
+    private final double BULLET_SPEED = 150.0;
+
+    /**
+     * The maximum distance the gun can aim
+     */
     private final double MAX_DISTANCE = 1024;
+
+    /**
+     * Lowest time between shots
+     */
     private final long BASE_SHOT_TIME_BETWEEN = 500;
+
+    /**
+     * Maximum time added to {@link BASE_SHOT_TIME_BETWEEN}
+     */
     private final int MAX_OFFSET_SHOT_TIME = 1000;
 
     // -- GETTERS
@@ -44,7 +86,9 @@ public class Gun {
      * Gives the number of MilliSeconds scince the last shot is fired.
      * @return
      */
-    public long msSinceLastShot(){ return System.currentTimeMillis() - this.last_shot_at_ms; }
+    public long msSinceLastShot(){
+        return System.currentTimeMillis() - this.last_shot_at_ms;
+    }
 
     // -- FUNCTIONS
     /**
@@ -53,6 +97,7 @@ public class Gun {
      */
     public void fireBullet(D3PolarCoordinate direction){
         long current_time_ms = System.currentTimeMillis();
+
         if (current_time_ms >= next_shot_at_ms){
             FireBulletMessage msg = new FireBulletMessage();
             msg.setDamage(20);

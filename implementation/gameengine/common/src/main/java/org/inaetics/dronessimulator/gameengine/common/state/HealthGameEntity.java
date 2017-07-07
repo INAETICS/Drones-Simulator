@@ -1,8 +1,9 @@
 package org.inaetics.dronessimulator.gameengine.common.state;
 
 import lombok.EqualsAndHashCode;
-import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
+import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 
 /**
  * Base game entity with health points.
@@ -18,9 +19,10 @@ public abstract class HealthGameEntity<C extends GameEntity<C>> extends GameEnti
      * @param position Position of the new entity.
      * @param velocity Velocity of the new entity.
      * @param acceleration Acceleration of the new entity.
+     * @param direction Direction of the new entity.
      */
-    public HealthGameEntity(int entityId, int hp, D3Vector position, D3Vector velocity, D3Vector acceleration) {
-        super(entityId, position, velocity, acceleration);
+    public HealthGameEntity(int entityId, int hp, D3Vector position, D3Vector velocity, D3Vector acceleration, D3PolarCoordinate direction) {
+        super(entityId, position, velocity, acceleration, direction);
 
         this.hp = hp;
     }

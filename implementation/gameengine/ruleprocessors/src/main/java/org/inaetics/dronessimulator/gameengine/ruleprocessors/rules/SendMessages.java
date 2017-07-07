@@ -12,11 +12,20 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * Rule to send all messages received to the architecture through the Publisher
+ */
 @AllArgsConstructor
-public class SendMessages extends Processor {
+public class SendMessages extends Rule {
+    /** Reference to the Publisher bundle */
     private final Publisher publisher;
+    /** Reference to the Identifier Mapper bundle */
     private final IdentifierMapper id_mapper;
 
+    /**
+     * Send a protocol message through the publisher with its default topic
+     * @param msg The message to send
+     */
     private void sendProtocolMessage(ProtocolMessage msg) {
         for(MessageTopic topic : msg.getTopics()) {
             try {

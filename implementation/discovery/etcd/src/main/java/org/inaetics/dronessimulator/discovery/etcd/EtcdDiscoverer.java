@@ -10,13 +10,13 @@ import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
+import org.inaetics.dronessimulator.discovery.api.tree.Tuple;
 
 import java.io.IOException;
 import java.net.URI;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -40,9 +40,6 @@ public class EtcdDiscoverer {
     /** The etcd client instance. */
     private EtcdClient client;
 
-    /** Index of the last received update for a given path. */
-    private Map<String, Long> pathModifiedIndex;
-
     /**
      * Instantiates a new etcd discoverer and connects to etcd using the given URI.
      * @param uri The URI to connect to etcd.
@@ -62,9 +59,6 @@ public class EtcdDiscoverer {
         } else {
             logger.warn("Discoverer started, but could not connect to etcd");
         }
-
-        // Initialize variables
-        this.pathModifiedIndex = new ConcurrentHashMap<>();
 
         // Create discoverable config directory
         this.client.putDir(buildPath(DISCOVERABLE_CONFIG_DIR));
@@ -182,20 +176,24 @@ public class EtcdDiscoverer {
     }
 
     /**
-     * Builds and returns an etcd node tree from the root. Optionally waits for changes.
+     * Builds and returns an etcd node tree from the root. Optionally waits for changes since the given modified index.
+     * @param modifiedIndex The last seen modified index. Used to wait for new changes. May be null to not take changes
+     *                      into account.
      * @param wait Whether to wait for changes.
-     * @return The root node of the tree, or null if the tree is empty or when an error occurred.
+     * @return Tuple containing the root node of the tree and the next modified index, or null if the tree is empty or when
+     *         an error occurred.
      */
-    EtcdKeysResponse.EtcdNode getFromRoot(boolean wait) {
-        EtcdKeysResponse.EtcdNode root = null;
+    Tuple<EtcdKeysResponse.EtcdNode, Long> getFromRoot(Long modifiedIndex, boolean wait) {
+        Tuple<EtcdKeysResponse.EtcdNode, Long> returnValue = null;
+
         String path = buildPath();
 
         try {
             EtcdKeyGetRequest request = this.client.getDir(path).recursive();
+            EtcdKeysResponse getResponse;
 
             if (wait) {
-                if (this.pathModifiedIndex.containsKey(path)) {
-                    Long modifiedIndex = this.pathModifiedIndex.get(path) + 1;
+                if (modifiedIndex != null) {
                     request = request.waitForChange(modifiedIndex);
                 } else {
                     request = request.waitForChange();
@@ -205,22 +203,21 @@ public class EtcdDiscoverer {
                 waitPromise.get();
 
                 // If waited for changes, we have to get the actual data due to etcd quirks
-                EtcdKeysResponse getResponse = this.client.getDir(path).recursive().send().get();
-                root = getResponse.getNode();
-
-                this.pathModifiedIndex.put(path, getResponse.etcdIndex);
+                getResponse = this.client.getDir(path).recursive().send().get();
             } else {
-                EtcdKeysResponse getResponse = request.send().get();
-
-                root = getResponse.getNode();
-                this.pathModifiedIndex.put(path, getResponse.etcdIndex);
+                getResponse = request.send().get();
             }
+
+            EtcdKeysResponse.EtcdNode root = getResponse.getNode();
+            Long index = getResponse.etcdIndex + 1;
+
+            returnValue = new Tuple<>(root, index);
         } catch (IOException | EtcdException | EtcdAuthenticationException | TimeoutException ignored) {
             // Just return null
             logger.error("No data could be retrieved from etcd, returning null", ignored);
         }
 
-        return root;
+        return returnValue;
     }
 
     /**

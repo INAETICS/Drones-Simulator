@@ -1,6 +1,6 @@
 package org.inaetics.dronessimulator.gameengine.test;
 
-import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.physicsengine.Entity;
 import org.inaetics.dronessimulator.physicsengine.PhysicsEngine;
 import org.inaetics.dronessimulator.physicsengine.PhysicsEngineEventObserver;
@@ -42,7 +42,7 @@ public class TestGameCollisionAndBroadcast {
         try {
             Thread.sleep(1100);
             physicsEngine.stopEngine();
-            physicsEngine.destroy();
+            physicsEngine.interrupt();
             physicsEngine.join();
         } catch (InterruptedException e) {
             e.printStackTrace();

@@ -4,6 +4,10 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.scene.text.Text;
 
+/**
+ * RemoveDrone extends UIUpdate and is a class representation used when removing a drone
+ * It removes the height text and the drone image
+ */
 public class RemoveDrone extends UIUpdate {
     /**
      * The image of the drone to remove

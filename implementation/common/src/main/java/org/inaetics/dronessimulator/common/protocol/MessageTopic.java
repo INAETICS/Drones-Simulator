@@ -3,12 +3,21 @@ package org.inaetics.dronessimulator.common.protocol;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
 
 /**
- * Different topics.
+ * Different possible topics of messages for the Subscriber.
  */
 public enum MessageTopic implements Topic {
     RADIO("RADIO"),
+    /**
+     * All messages relating to current state
+     */
     STATEUPDATES ("StateUpdates"),
+    /**
+     * All messages relating to changing the movements of entities
+     */
     MOVEMENTS ("Movements"),
+    /**
+     * All messages relating to changing architecture stuff e.g. the current state
+     */
     ARCHITECTURE ("Architecture");
 
 

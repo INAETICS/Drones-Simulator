@@ -2,7 +2,6 @@ package org.inaetics.dronessimulator.drone.components.radar;
 
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
-import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
@@ -16,6 +15,7 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
@@ -29,16 +29,28 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
+/**
+ * The Radar drone component
+ */
 public class Radar implements MessageHandler {
+    /**
+     * The logger
+     */
     private static final Logger logger = Logger.getLogger(Radar.class);
 
+    /** Reference to Architecture Event Controller bundle */
     private volatile ArchitectureEventController m_architectureEventController;
+    /** Reference to Subscriber bundle */
     private volatile Subscriber m_subscriber;
+    /** Reference to Drone Init bundle */
     private volatile DroneInit m_drone;
     private volatile Discoverer m_discoverer;
 
+    /** Last known position of this drone */
     private volatile D3Vector position;
+    /** Map of all last known entities and their positions */
     private final ConcurrentHashMap<String, D3Vector> all_positions = new ConcurrentHashMap<>();
+    /** The range of this radar */
     private static final int RADAR_RANGE = 500;
 
     /**
@@ -78,9 +90,13 @@ public class Radar implements MessageHandler {
     /**
      * -- GETTERS
      */
+    public D3Vector getPosition(){
+        return position;
+    }
+
     /**
-     * Retrieves the radar status. All the locations of the objects in the range of the radar.
-     * @return
+     * Retrieves all last known entities which are in range of this radar
+     * @return The entities in range
      */
     public List<D3Vector> getRadar(){
         List<D3Vector> results;
@@ -99,8 +115,8 @@ public class Radar implements MessageHandler {
     }
 
     /**
-     * Retrieves location of the nearest Drone.
-     * @return D3Vector of the nearest target
+     * Retrieves the nearest target in range
+     * @return The nearest entity in range
      */
     public Optional<D3Vector> getNearestTarget(){
         return getRadar()

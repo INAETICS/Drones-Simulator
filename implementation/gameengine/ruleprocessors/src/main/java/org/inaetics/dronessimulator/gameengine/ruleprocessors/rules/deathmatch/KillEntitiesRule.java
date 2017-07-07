@@ -5,13 +5,16 @@ import org.inaetics.dronessimulator.gameengine.common.gameevent.DestroyHealthEnt
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 import org.inaetics.dronessimulator.gameengine.common.state.HealthGameEntity;
-import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.Processor;
+import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.Rule;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class KillEntitiesRule extends Processor {
+/**
+ * Rule to kill entities when their hp <= 0
+ */
+public class KillEntitiesRule extends Rule {
     @Override
     public void configRule() {
         // Nothing to config
@@ -23,17 +26,25 @@ public class KillEntitiesRule extends Processor {
 
         if(msg instanceof CurrentStateEvent) {
             CurrentStateEvent currentStateEvent = (CurrentStateEvent) msg;
+            List<DestroyHealthEntityEvent> killedEntities = killDeadEntities(currentStateEvent.getCurrentState());
 
-            results = killDeadEntities(currentStateEvent.getCurrentState());
+            results = new ArrayList<>(killedEntities.size() + 1);
+            results.add(msg);
+            results.addAll(killedEntities);
         } else {
-            results = Collections.emptyList();
+            results = Collections.singletonList(msg);
         }
 
         return results;
     }
 
-    private List<GameEngineEvent> killDeadEntities(List<GameEntity> gameEntities) {
-        List<GameEngineEvent> results = new ArrayList<>(gameEntities.size());
+    /**
+     * Process the list of entities to check for entities to kill
+     * @param gameEntities The entities to check
+     * @return The entities to kill
+     */
+    private List<DestroyHealthEntityEvent> killDeadEntities(List<GameEntity> gameEntities) {
+        List<DestroyHealthEntityEvent> results = new ArrayList<>(gameEntities.size());
 
         for(GameEntity gameEntity : gameEntities) {
             if(gameEntity instanceof HealthGameEntity) {

@@ -9,6 +9,7 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
+import org.inaetics.dronessimulator.discovery.api.tree.Tuple;
 
 import java.util.List;
 
@@ -21,6 +22,9 @@ public class EtcdChangeHandler extends Thread {
 
     /** The root node of the tree. */
     private final DiscoveryNode cachedRoot;
+
+    /** The last seen etcd change index. */
+    private Long nextModifiedIndex;
 
     /**
      * Instantiates a new change handler with the given discoverer. Also builds a new root node.
@@ -37,27 +41,40 @@ public class EtcdChangeHandler extends Thread {
     @Override
     public void run() {
         // Run once to get currentstate
+        DiscoveryStoredNode storedRoot;
+        EtcdKeysResponse.EtcdNode etcdNode;
+        Tuple<EtcdKeysResponse.EtcdNode, Long> discovererData;
 
         Logger.getLogger(EtcdChangeHandler.class).info("Starting EtcdChangeHandler...");
 
-        EtcdKeysResponse.EtcdNode etcdNode = discoverer.getFromRoot(false);
-        DiscoveryStoredNode storedRoot = new DiscoveryStoredEtcdNode(etcdNode);
+        discovererData = discoverer.getFromRoot(null, false);
+        if(discovererData != null) {
+            etcdNode = discovererData.getT1();
 
-        if(etcdNode != null) {
-            synchronized (this) {
-                cachedRoot.updateTree(storedRoot);
+            if(etcdNode != null) {
+                nextModifiedIndex = discovererData.getT2();
+                storedRoot = new DiscoveryStoredEtcdNode(etcdNode);
+
+                synchronized (this) {
+                    cachedRoot.updateTree(storedRoot);
+                }
             }
         }
 
         Logger.getLogger(EtcdChangeHandler.class).info("Started EtcdChangeHandler!");
 
         while(!this.isInterrupted()) {
-            etcdNode = discoverer.getFromRoot(true);
-            storedRoot = new DiscoveryStoredEtcdNode(etcdNode);
+            discovererData = discoverer.getFromRoot(nextModifiedIndex, true);
+            if(discovererData != null) {
+                etcdNode = discovererData.getT1();
 
-            if(etcdNode != null) {
-                synchronized (this) {
-                    cachedRoot.updateTree(storedRoot);
+                if(etcdNode != null) {
+                    storedRoot = new DiscoveryStoredEtcdNode(etcdNode);
+                    nextModifiedIndex = discovererData.getT2();
+
+                    synchronized (this) {
+                        cachedRoot.updateTree(storedRoot);
+                    }
                 }
             }
         }

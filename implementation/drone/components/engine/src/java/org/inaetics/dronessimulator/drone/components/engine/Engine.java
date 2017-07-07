@@ -1,28 +1,40 @@
 package org.inaetics.dronessimulator.drone.components.engine;
 
 import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.MovementMessage;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 
 import java.io.IOException;
 
+/**
+ * The engine component in a drone
+ */
 public class Engine {
-    //-- Variable
+    /** The logger */
     private final static Logger logger = Logger.getLogger(Engine.class);
+
+    /**
+     * The Publisher bundle
+     */
     private volatile Publisher m_publisher;
+
+    /**
+     * The Drone Init bundle
+     */
     private volatile DroneInit m_drone;
     private volatile GPS m_gps;
 
     /**
-     * Maximum velocity of the engine
+     * The max velocity of this engine in m/s
      */
     private static final int MAX_VELOCITY = 20;
+
     /**
-     * Maximum acceleration of the engine
+     * The max acceleration of this engine in m/s^2
      */
     private static final int MAX_ACCELERATION = 10;
 
@@ -43,11 +55,10 @@ public class Engine {
         return MAX_ACCELERATION;
     }
 
-    //-- CONVERTER FUNCTIONS
     /**
-     * Prevents that the acceleration exteeds the maximum value
-     * @param input acceleration as a D3Vector
-     * @return optimized acceleration as a D3Vector
+     * Limit the acceleration
+     * @param input The acceleration to limit
+     * @return The limited acceleration
      */
     public D3Vector limit_acceleration(D3Vector input){
         D3Vector output = input;
@@ -60,9 +71,9 @@ public class Engine {
     }
 
     /**
-     * Maximizes the acceleration to an acceleration in the same direction but with the maximum possible acceleration.
-     * @param input acceleration as a D3Vector
-     * @return optimized acceleration as a D3Vector
+     * Maximizes the acceleration in the same direction
+     * @param input The vector to scale to the maximal acceleration value
+     * @return The vector in the same direction as input but length == max acceleration value
      */
     public D3Vector maximize_acceleration(D3Vector input){
         D3Vector output = input;
@@ -74,6 +85,11 @@ public class Engine {
         return output;
     }
 
+    /**
+     * ?
+     * @param input
+     * @return
+     */
     /**
      * Limits the velocity when the maximum velocity is archieved.
      * @param input acceleration as a D3Vector
@@ -107,8 +123,8 @@ public class Engine {
     }
 
     /**
-     * Changes the acceleration of the engine. Corrects the acceleration when necessary to the bounds of the engine before sending it.
-     * @param input_acceleration the requested acceleration as a D3Vector
+     * Send the new desired acceleration to the game-engine
+     * @param input_acceleration The new acceleration for the drone using this component
      */
     public void changeAcceleration(D3Vector input_acceleration){
         D3Vector acceleration = input_acceleration;
@@ -116,7 +132,7 @@ public class Engine {
         acceleration = this.limit_acceleration(acceleration);
         acceleration = this.limit_velocity(acceleration);
         acceleration = this.stagnate_acceleration(acceleration);
-
+        
 
         MovementMessage msg = new MovementMessage();
         msg.setAcceleration(acceleration);

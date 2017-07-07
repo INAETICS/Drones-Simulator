@@ -1,8 +1,9 @@
 package org.inaetics.dronessimulator.gameengine.test;
 
 
-import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
+import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.gameengine.common.state.Bullet;
 import org.inaetics.dronessimulator.gameengine.common.state.Drone;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.GameStateManager;
@@ -20,9 +21,9 @@ public class TestGameStateManager {
 
     @Test
     public void testAdd() {
-        Drone drone = new Drone(1, new D3Vector(), new D3Vector(), new D3Vector());
+        Drone drone = new Drone(1, new D3Vector(), new D3Vector(), new D3Vector(), new D3PolarCoordinate());
         this.gameStateManager.addEntityState(drone);
-        this.gameStateManager.addEntityState(new Bullet(2, 100, drone, new D3Vector(), new D3Vector(), new D3Vector()));
+        this.gameStateManager.addEntityState(new Bullet(2, 100, drone, new D3Vector(), new D3Vector(), new D3Vector(), new D3PolarCoordinate()));
 
         Assert.assertEquals(EntityType.DRONE, this.gameStateManager.getTypeFor(1));
         Assert.assertEquals(EntityType.BULLET, this.gameStateManager.getTypeFor(2));
@@ -32,7 +33,7 @@ public class TestGameStateManager {
 
     @Test
     public void testRemove() {
-        Drone drone = new Drone(1, new D3Vector(), new D3Vector(), new D3Vector());
+        Drone drone = new Drone(1, new D3Vector(), new D3Vector(), new D3Vector(), new D3PolarCoordinate());
         this.gameStateManager.addEntityState(drone);
 
         Assert.assertEquals(drone, this.gameStateManager.getById(1));

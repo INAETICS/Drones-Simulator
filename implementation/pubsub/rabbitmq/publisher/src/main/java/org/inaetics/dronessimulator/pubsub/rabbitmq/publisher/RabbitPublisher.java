@@ -14,6 +14,7 @@ import java.io.IOException;
  * A RabbitMQ implementation of a publisher.
  */
 public class RabbitPublisher extends RabbitConnection implements Publisher {
+    /** The logger */
     private static final Logger logger = Logger.getLogger(RabbitPublisher.class);
 
     /**

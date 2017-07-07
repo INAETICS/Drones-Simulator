@@ -3,6 +3,9 @@ package org.inaetics.dronessimulator.visualisation.uiupdates;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 
+/**
+ * AddBaseEntity extends UIUpdate and is a class representation used when adding a new BaseEntity (bullet)
+ */
 public class AddBaseEntity extends UIUpdate {
     /**
      * The image of the base entity to add

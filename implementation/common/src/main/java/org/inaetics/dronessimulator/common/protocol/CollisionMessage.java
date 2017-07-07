@@ -4,11 +4,26 @@ package org.inaetics.dronessimulator.common.protocol;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * A message describing a collision between 2 entities
+ */
 public class CollisionMessage extends ProtocolMessage {
+    /**
+     * The type of the first entity
+     */
     private EntityType e1Type;
+    /**
+     * The id of the first entity
+     */
     private String e1Identifier;
 
+    /**
+     * The type of the second entity
+     */
     private EntityType e2Type;
+    /**
+     * The id of the second entity
+     */
     private String e2Identifier;
 
     public EntityType getE1Type() {

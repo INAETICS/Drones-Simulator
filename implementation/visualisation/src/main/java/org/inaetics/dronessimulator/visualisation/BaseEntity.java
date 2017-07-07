@@ -2,8 +2,8 @@ package org.inaetics.dronessimulator.visualisation;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import org.inaetics.dronessimulator.common.D3PolarCoordinate;
-import org.inaetics.dronessimulator.common.D3Vector;
+import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.visualisation.uiupdates.AddBaseEntity;
 import org.inaetics.dronessimulator.visualisation.uiupdates.RemoveBaseEntity;
 import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
@@ -11,7 +11,7 @@ import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
 import java.util.concurrent.BlockingQueue;
 
 /**
- * Base class for each entity inside the visualitation
+ * Base class for each entity inside the visualisation
  * This class can be extended by e.g.: drones, bullets, gamified objects
  */
 public abstract class BaseEntity {

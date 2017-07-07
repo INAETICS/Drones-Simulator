@@ -2,9 +2,10 @@ package org.inaetics.dronessimulator.gameengine.messagehandlers;
 
 import lombok.AllArgsConstructor;
 import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.protocol.FireBulletMessage;
+import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.gameengine.common.state.Bullet;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
@@ -35,14 +36,15 @@ public class FireBulletMessageHandler implements MessageHandler {
         Optional<D3Vector> maybePosition = fireBulletMessage.getPosition();
         Optional<D3Vector> maybeVelocity = fireBulletMessage.getVelocity();
         Optional<D3Vector> maybeAcceleration = fireBulletMessage.getAcceleration();
+        Optional<D3PolarCoordinate> maybeDirection = fireBulletMessage.getDirection();
 
 
-        if(fireBulletMessage.getType().equals(EntityType.BULLET) && maybePosition.isPresent() && maybeVelocity.isPresent() && maybeAcceleration.isPresent()) {
+        if(fireBulletMessage.getType().equals(EntityType.BULLET) && maybePosition.isPresent() && maybeVelocity.isPresent() && maybeAcceleration.isPresent() && maybeDirection.isPresent()) {
             Optional<Integer> maybeGameengineId = id_mapper.fromProtocolToGameEngineId(fireBulletMessage.getFiredById());
 
             if(maybeGameengineId.isPresent()) {
                 GameEntity firedBy = stateManager.getById(maybeGameengineId.get());
-                Bullet bullet = new Bullet(gameEngineId, fireBulletMessage.getDamage(), firedBy, maybePosition.get(), maybeVelocity.get(), maybeAcceleration.get());
+                Bullet bullet = new Bullet(gameEngineId, fireBulletMessage.getDamage(), firedBy, maybePosition.get(), maybeVelocity.get(), maybeAcceleration.get(), maybeDirection.get());
 
                 physicsEngineDriver.addNewEntity(bullet, fireBulletMessage.getIdentifier());
             }

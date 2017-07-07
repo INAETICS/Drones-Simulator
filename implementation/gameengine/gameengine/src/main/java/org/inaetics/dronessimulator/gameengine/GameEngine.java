@@ -2,11 +2,12 @@ package org.inaetics.dronessimulator.gameengine;
 
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
-import org.inaetics.dronessimulator.common.D2Vector;
-import org.inaetics.dronessimulator.common.D3Vector;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.*;
+import org.inaetics.dronessimulator.common.vector.D2Vector;
+import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
@@ -34,12 +35,21 @@ import java.util.List;
 /**
  * Wrapper around PhysicsEngine. Sets up and connects all handlers with each other.
  * Set up are: physics engine, incoming command messages, queue between physics engine and rule processors,
- * discovery handler.
+ * discovery handler and architecture state event listening.
  */
 public class GameEngine {
+    /**
+     * Width of the arena (x-axis)
+     */
     public static final float ARENA_WIDTH = 1024;
+    /**
+     * Depth of the arena (y-axis)
+     */
     public static final float ARENA_DEPTH = 1024;
 
+    /**
+     * The logger
+     */
     private final static Logger logger = Logger.getLogger(GameEngine.class);
 
     /** Physics engine used in the game engine. */
@@ -129,8 +139,7 @@ public class GameEngine {
             if( path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
                 String protocolId = node.getId();
 
-                lobbiedDrones.remove(node.getId());
-
+                lobbiedDrones.remove(protocolId);
                 this.m_physicsEngineDriver.removeEntity(protocolId);
                 Logger.getLogger(GameEngine.class).info("Removed drone " + protocolId + " from simulation");
             }
@@ -154,7 +163,7 @@ public class GameEngine {
                                                 , 50);
                 numberSpawned++;
 
-                this.m_physicsEngineDriver.addNewEntity(new Drone(gameengineId, Drone.DRONE_MAX_HEALTH, position, new D3Vector(), new D3Vector()), protocolId);
+                this.m_physicsEngineDriver.addNewEntity(new Drone(gameengineId, Drone.DRONE_MAX_HEALTH, position, new D3Vector(), new D3Vector(), new D3PolarCoordinate()), protocolId);
                 logger.info("Added new drone " + protocolId + " as " + gameengineId);
             }
         });

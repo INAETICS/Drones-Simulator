@@ -39,8 +39,7 @@ public class DroneInit {
      */
     private Instance registered_instance;
 
-    public DroneInit(BundleContext bundleContext){
-        this.bundleContext = bundleContext;
+    public DroneInit(){
         this.initIdentifier();
     }
 
@@ -94,7 +93,7 @@ public class DroneInit {
 
     /**
      * Returns the indentifier from the drone
-     * @return
+     * @return the indentifier
      */
     public String getIdentifier(){
         return this.identifier;
@@ -102,7 +101,7 @@ public class DroneInit {
 
     /**
      * Changes the indentifier to a new value
-     * @param new_identifier
+     * @param new_identifier the new indentifier
      */
     public void setIdentifier(String new_identifier){
         this.identifier = new_identifier;

@@ -72,14 +72,29 @@ public class Gun {
      */
     private final int MAX_OFFSET_SHOT_TIME = 1000;
 
+    // -- GETTERS
+
+    /**
+     * Gives the fire range of the gun.
+     * @return the distance in m
+     */
     public double getMaxDistance(){
         return MAX_DISTANCE;
     }
 
+    /**
+     * Gives the number of MilliSeconds scince the last shot is fired.
+     * @return
+     */
     public long msSinceLastShot(){
         return System.currentTimeMillis() - this.last_shot_at_ms;
     }
 
+    // -- FUNCTIONS
+    /**
+     * Fires a bullet in de given direction.
+     * @param direction in which the bullet must be fired.
+     */
     public void fireBullet(D3PolarCoordinate direction){
         long current_time_ms = System.currentTimeMillis();
 

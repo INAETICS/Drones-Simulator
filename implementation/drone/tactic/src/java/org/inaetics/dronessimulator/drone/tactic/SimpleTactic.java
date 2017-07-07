@@ -13,6 +13,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
+/**
+ * Simple tactic which flies randomly and fires a bullet on enemies.
+ */
 public class SimpleTactic extends Tactic {
     protected volatile Radar m_radar;
     protected volatile GPS m_gps;
@@ -53,6 +56,12 @@ public class SimpleTactic extends Tactic {
     /**
      *  -- FUNCTIONS
      */
+
+    /**
+     * Accelerate the drone when the current acceleration is 0 m/s.
+     * @param input_acceleration the current acceleration
+     * @return the new acceleration
+     */
     private D3Vector accelerateByNoMovement(D3Vector input_acceleration){
         D3Vector output_acceleration = input_acceleration;
         if (m_gps.getAcceleration().length() == 0 && m_gps.getVelocity().length() == 0){
@@ -65,21 +74,12 @@ public class SimpleTactic extends Tactic {
         return output_acceleration;
     }
 
-    private D3Vector accelerateByEngine(D3Vector input_acceleration){
-        D3Vector output_acceleration = input_acceleration;
-        // Check velocity
-        if (m_gps.getVelocity().length() >= m_engine.getMaxVelocity()){
-            output_acceleration = new D3Vector();
-        }
-        // Change acceleration if velocity is close to the maximum velocity
-        if (m_gps.getVelocity().length() >= (m_engine.getMaxVelocity() - (m_engine.getMaxVelocity() * 0.1))) {
-            double factor = 0.25;
-            output_acceleration = m_gps.getAcceleration().scale(factor);
-        }
-        return output_acceleration;
-    }
-
-    private D3Vector accelerateForWall(D3Vector input_acceleration){
+    /**
+     * Change acceleration to avoid wall collision
+     * @param input_acceleration the current acceleration
+     * @return the new acceleration
+     */
+    private D3Vector brakeForWall(D3Vector input_acceleration){
         D3Vector output_acceleration = input_acceleration;
         double aantal_seconden_tot_nul = m_gps.getVelocity().length() / m_engine.getMaxAcceleration();
         D3Vector berekende_position = m_gps.getVelocity().scale(0.5).scale(aantal_seconden_tot_nul).add(m_gps.getPosition());
@@ -95,6 +95,11 @@ public class SimpleTactic extends Tactic {
         return output_acceleration;
     }
 
+    /**
+     * Change direction of drone when the maximum derivation is archieved.
+     * @param input_acceleration the current acceleration
+     * @return the new acceleration
+     */
     private D3Vector accelerateAfterWall(D3Vector input_acceleration){
         D3Vector output_acceleration = input_acceleration;
         // Check positions | if maximum deviation is archieved then change acceleration in opposite direction
@@ -144,16 +149,20 @@ public class SimpleTactic extends Tactic {
         return output_acceleration;
     }
 
+    /**
+     * Calculates the new acceleration of the drone
+     */
     private void calculateAcceleration(){
         D3Vector output_acceleration = m_engine.maximize_acceleration(m_gps.getAcceleration());
         output_acceleration = this.accelerateByNoMovement(output_acceleration);
-        output_acceleration = this.accelerateByEngine(output_acceleration);
-        output_acceleration = this.accelerateForWall(output_acceleration);
+        output_acceleration = this.brakeForWall(output_acceleration);
         output_acceleration = this.accelerateAfterWall(output_acceleration);
-        output_acceleration = m_engine.limit_acceleration(output_acceleration);
         m_engine.changeAcceleration(output_acceleration);
     }
 
+    /**
+     * Checks if a bullet can be fired by the gun.
+     */
     private void calculateGun(){
         Optional<D3Vector> target = m_radar.getNearestTarget();
         if(target.isPresent()){

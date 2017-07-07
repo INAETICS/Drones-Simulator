@@ -18,6 +18,7 @@
         <module>gps</module>
         <module>gun</module>
         <module>radar</module>
+        <module>radio</module>
     </modules>
 
     <dependencies>

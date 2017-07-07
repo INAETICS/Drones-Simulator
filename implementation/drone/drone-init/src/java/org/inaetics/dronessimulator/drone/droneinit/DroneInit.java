@@ -46,10 +46,16 @@ public class DroneInit {
     /**
      * FELIX CALLBACKS
      */
+    /**
+     * On startup register Drone in Discovery.
+     */
     public void start() throws IOException{
         this.registerDroneService();
     }
 
+    /**
+     * On startup unregister Drone in Discovery.
+     */
     public void stop() throws IOException {
         this.unregisterDroneService();
     }
@@ -85,10 +91,18 @@ public class DroneInit {
         }
     }
 
+    /**
+     * Returns the indentifier from the drone
+     * @return the indentifier
+     */
     public String getIdentifier(){
         return this.identifier;
     }
 
+    /**
+     * Changes the indentifier to a new value
+     * @param new_identifier the new indentifier
+     */
     public void setIdentifier(String new_identifier){
         this.identifier = new_identifier;
     }

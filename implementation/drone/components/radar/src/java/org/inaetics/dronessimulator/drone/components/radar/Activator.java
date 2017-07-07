@@ -31,7 +31,6 @@ public class Activator extends DependencyActivatorBase {
                     .setService(ArchitectureEventController.class)
                     .setRequired(true)
                 )
-
         );
     }
 }

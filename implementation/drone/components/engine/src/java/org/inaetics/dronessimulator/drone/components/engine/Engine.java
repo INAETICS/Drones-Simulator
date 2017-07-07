@@ -128,7 +128,6 @@ public class Engine {
         acceleration = this.limit_acceleration(acceleration);
         acceleration = this.limit_velocity(acceleration);
         acceleration = this.stagnate_acceleration(acceleration);
-        
 
         MovementMessage msg = new MovementMessage();
         msg.setAcceleration(acceleration);

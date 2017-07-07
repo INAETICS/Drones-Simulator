@@ -4,8 +4,11 @@ package org.inaetics.dronessimulator.common.protocol;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Message used by radio component for text communication between components.
+ */
 public class TextMessage extends ProtocolMessage {
-    /** Indentifier of object */
+    /** the actual message */
     private String text = null;
 
     public String getText() {

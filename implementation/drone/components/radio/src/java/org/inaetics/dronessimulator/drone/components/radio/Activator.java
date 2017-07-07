@@ -8,7 +8,7 @@ import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.osgi.framework.BundleContext;
 
 /**
- * Created by mart on 17-5-17.
+ * Felix Dependency Manager activator for Radio Component.
  */
 public class Activator extends DependencyActivatorBase {
     @Override

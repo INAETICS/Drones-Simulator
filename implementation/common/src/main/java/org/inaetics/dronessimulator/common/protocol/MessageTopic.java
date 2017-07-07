@@ -6,7 +6,10 @@ import org.inaetics.dronessimulator.pubsub.api.Topic;
  * Different possible topics of messages for the Subscriber.
  */
 public enum MessageTopic implements Topic {
-    RADIO("RADIO"),
+    /**
+     * All messages related to drone to drone communication
+     */
+    RADIO("Radio"),
     /**
      * All messages relating to current state
      */
@@ -19,7 +22,6 @@ public enum MessageTopic implements Topic {
      * All messages relating to changing architecture stuff e.g. the current state
      */
     ARCHITECTURE ("Architecture");
-
 
     private String name;
 

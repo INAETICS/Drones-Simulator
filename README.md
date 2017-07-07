@@ -3,6 +3,9 @@
 - Static files which should not be changed are located in `static/`
 - The visualization is located in `visualiztion/`
 
+# Config
+First copy `config-default.env` to `config.env` and configure it for your system.
+
 # Test
 To test the entire codebase, first start a instance of etcd & RabbitMQ on localhost. Default installations work. For etcd you should be able to connect without any credentials. For RabbitMQ the connection will be made with `guest\guest`.
 

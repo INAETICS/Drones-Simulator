@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.drone.tactic;
 
 import org.apache.felix.dm.DependencyManager;
 import org.apache.felix.dm.ServiceDependency;
+import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.components.engine.Engine;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
@@ -22,8 +23,8 @@ public class SimpleTactic extends Tactic {
     protected volatile Engine m_engine;
     protected volatile Gun m_gun;
 
-    private static final int MAX_DEVIATION_POSTION = 1024;
-    private static final int MAX_Z_DEVIATION_POSTION = 100;
+    private static final double MAX_DEVIATION_POSTION = Settings.ARENA_WIDTH;
+    private static final double MAX_Z_DEVIATION_POSTION = Settings.ARENA_HEIGHT;
     /**
      *  -- IMPLEMENT FUNCTIONS
      */

@@ -6,14 +6,14 @@ package org.inaetics.dronessimulator.visualisation;
 class Settings {
 
     /** Width of the window */
-    final static int SCENE_WIDTH = 1024;
+    final static double SCENE_WIDTH = org.inaetics.dronessimulator.common.Settings.ARENA_WIDTH;
     /** Height of the window */
-    final static int SCENE_HEIGHT = 1024;
+    final static double SCENE_HEIGHT = org.inaetics.dronessimulator.common.Settings.ARENA_DEPTH;
 
     /** Width of the canvas */
-    final static int CANVAS_WIDTH = 1024;
+    final static double CANVAS_WIDTH = org.inaetics.dronessimulator.common.Settings.ARENA_WIDTH;
     /** Height of the canvas */
-    final static int CANVAS_HEIGHT = 1024;
+    final static double CANVAS_HEIGHT = org.inaetics.dronessimulator.common.Settings.ARENA_DEPTH;
 
     /** Width of the fully zoomed drone */
     final static int DRONE_WIDTH = 128;

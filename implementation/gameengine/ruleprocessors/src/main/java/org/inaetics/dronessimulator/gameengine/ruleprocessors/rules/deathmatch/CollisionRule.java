@@ -41,7 +41,11 @@ public class CollisionRule extends Rule {
             GameEntity e2 = collision.getE2();
 
             results = handleCollision(e1, e2);
-            results.add(0, msg);
+
+            // Only notify architecture of collision if the collision has consequences
+            if(results.size() > 0) {
+                results.add(0, msg);
+            }
         } else {
             results = Collections.singletonList(msg);
         }

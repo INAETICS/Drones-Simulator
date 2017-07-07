@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.gameengine;
 
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
+import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.*;
@@ -38,15 +39,6 @@ import java.util.List;
  * discovery handler and architecture state event listening.
  */
 public class GameEngine {
-    /**
-     * Width of the arena (x-axis)
-     */
-    public static final float ARENA_WIDTH = 1024;
-    /**
-     * Depth of the arena (y-axis)
-     */
-    public static final float ARENA_DEPTH = 1024;
-
     /**
      * The logger
      */
@@ -151,8 +143,8 @@ public class GameEngine {
         m_architectureEventListener.addHandler(SimulationState.CONFIG, SimulationAction.START, SimulationState.RUNNING, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
             logger.info("Adding " + lobbiedDrones.size() + " drones to simulation");
             int dronesInLobby = lobbiedDrones.size();
-            D2Vector center = new D2Vector(ARENA_WIDTH / 2, ARENA_DEPTH / 2);
-            double spawnRadius = (Math.min(ARENA_DEPTH, ARENA_WIDTH) / 2) * 0.9;
+            D2Vector center = new D2Vector(Settings.ARENA_WIDTH / 2, Settings.ARENA_DEPTH / 2);
+            double spawnRadius = (Math.min(Settings.ARENA_DEPTH, Settings.ARENA_WIDTH) / 2) * 0.9;
             double spawnAngle = (2 * Math.PI) / dronesInLobby;
 
             int numberSpawned = 0;

@@ -4,6 +4,7 @@ package org.inaetics.dronessimulator.gameengine.ruleprocessors;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.common.GameMode;
+import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
@@ -16,13 +17,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.stream.Collectors;
 
 /**
  * Rule processors service. The rule processors listen on events and act on them based on predefined rules.
  */
 public class RuleProcessors extends Thread implements IRuleProcessors {
-    public static final GameMode GAME_MODE = GameMode.DEATHMATCH;
-
     private ArchitectureEventController m_architectureEventController;
 
     /** The physics engine driver to get events from. */
@@ -48,7 +48,7 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
 
         this.incomingEvents = this.m_driver.getOutgoingQueue();
 
-        this.rules = RuleSets.getRulesForGameMode(GAME_MODE, this.m_publisher, this.m_id_mapper);
+        this.rules = RuleSets.getRulesForGameMode(Settings.GAME_MODE, this.m_publisher, this.m_id_mapper);
 
         m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG,
                 (SimulationState from, SimulationAction action, SimulationState to) -> {

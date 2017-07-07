@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.gameengine.ruleprocessors.rules;
 
+import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.CurrentStateEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.DestroyBulletEvent;
@@ -15,14 +16,6 @@ import java.util.List;
  * Rule to remove bullets that have strayed from the arena
  */
 public class RemoveStrayBullets extends Rule {
-    // TODO Make arena dimensions via config
-    /** The width of the arena (x-axis) */
-    private static final int ARENA_WIDTH = 1024;
-    /** The height of the arena (z-axis) */
-    private static final int ARENA_HEIGHT = 100;
-    /** The depth of the arena (y-axis) */
-    private static final int ARENA_DEPTH = 1024;
-
     @Override
     public void configRule() {
         // Nothing to config
@@ -79,9 +72,9 @@ public class RemoveStrayBullets extends Rule {
         double y = position.getY();
         double z = position.getZ();
 
-        return x >= 0 && x <= ARENA_WIDTH
-            && y >= 0 && y <= ARENA_DEPTH
-            && z >= 0 && z <= ARENA_HEIGHT
+        return x >= 0 && x <= Settings.ARENA_WIDTH
+            && y >= 0 && y <= Settings.ARENA_DEPTH
+            && z >= 0 && z <= Settings.ARENA_HEIGHT
             ;
     }
 }

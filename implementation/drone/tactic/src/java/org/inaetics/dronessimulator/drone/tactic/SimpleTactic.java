@@ -149,6 +149,9 @@ public class SimpleTactic extends Tactic {
         return output_acceleration;
     }
 
+    /**
+     * Calculates the new acceleration of the drone
+     */
     private void calculateAcceleration(){
         D3Vector output_acceleration = m_engine.maximize_acceleration(m_gps.getAcceleration());
         output_acceleration = this.accelerateByNoMovement(output_acceleration);
@@ -158,7 +161,7 @@ public class SimpleTactic extends Tactic {
     }
 
     /**
-     *
+     * Checks if a bullet can be fired by the gun.
      */
     private void calculateGun(){
         Optional<D3Vector> target = m_radar.getNearestTarget();

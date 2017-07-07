@@ -4,7 +4,7 @@
 - The visualization is located in `visualiztion/`
 
 # Config
-First copy `config-default.env` to `config.env` and configure it for your system.
+First copy `config-default.env` to `config.env` and configure it for your system. Anytime you change the configuration, you should recompile the docker images. The visualization will not have to be recompiled, just restarted.
 
 # Test
 To test the entire codebase, first start a instance of etcd & RabbitMQ on localhost. Default installations work. For etcd you should be able to connect without any credentials. For RabbitMQ the connection will be made with `guest\guest`.
@@ -25,7 +25,6 @@ mvn sonar:sonar
 
 # To run on a host
 As a requirement, make sure you have installed and started docker.
-Config the EXTERNAL ip adres in `docker.env` for etcd and RabbitMQ respectively
 Now run from git root:
 ```
 docker_compiler_images.sh
@@ -40,7 +39,7 @@ docker-compose up --scale drone=<DRONE AMOUNT> drone
 ``` 
 
 # Visualization
-The visualization should be run without Docker. First, config the EXTERNAL ip address in `visualization/config_visualization` for both etcd and RabbitMQ respectively. You can start the visualization by running the following from the git root:
+The visualization should be run without docker. You can start the visualization by running the following from the git root:
 ```
 cd visualization/
 ./compile_visualization.sh

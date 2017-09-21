@@ -136,6 +136,10 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
         this.m_subscriber.addHandler(KillMessage.class, this);
     }
 
+    @Override
+    public void destroy() {
+    }
+
     protected void configSimulation() {
         try {
             m_discoverer.register(simulationInstance);

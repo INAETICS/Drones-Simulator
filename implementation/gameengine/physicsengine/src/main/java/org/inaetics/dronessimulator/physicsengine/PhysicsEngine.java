@@ -273,6 +273,10 @@ public class PhysicsEngine extends ManagedThread implements IPhysicsEngine {
     }
 
     @Override
+    public void destroy() {
+    }
+
+    @Override
     protected void onStart() {
         this.current_step_started_at_ms = System.currentTimeMillis();
         this.last_state_broadcast_at_ms = this.current_step_started_at_ms;

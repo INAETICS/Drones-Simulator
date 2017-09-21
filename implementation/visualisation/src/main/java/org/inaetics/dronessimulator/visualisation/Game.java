@@ -164,7 +164,7 @@ public class Game extends Application {
                 long current_step_started_at_ms = System.currentTimeMillis();
 
                 if (!isRabbitConnected()) {
-                    logger.info("RabbitMQ is not yet connected.");
+                    logger.info("RabbitMQ is not (yet) connected.");
                 }
                 else if (!onRabbitConnectExecuted.get()) {
                     onRabbitConnect();

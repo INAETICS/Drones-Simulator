@@ -87,8 +87,8 @@ public abstract class RabbitConnection {
             this.connectionFactory.setPassword(password);
             try {
                 String uri = config.get("uri");
-                this.connectionFactory.setUri(uri);
                 this.getLogger().debug("Received configuration, RabbitMQ URI is {}", uri);
+                this.connectionFactory.setUri(uri);
             } catch (URISyntaxException | NoSuchAlgorithmException | KeyManagementException e) {
                 this.getLogger().error("Invalid URI found in configuration", e);
             }

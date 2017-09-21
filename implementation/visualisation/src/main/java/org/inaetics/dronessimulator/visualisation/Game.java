@@ -105,7 +105,7 @@ public class Game extends Application {
             if(!isClosed) {
                 logger.info("Closing the application gracefully");
                 try {
-                    subscriber.disconnect();
+                    subscriber.disconnect(); //TODO geeft een NPE
                     publisher.disconnect();
                     discoverer.stop();
                     isClosed = true;
@@ -342,8 +342,8 @@ public class Game extends Application {
 
         root.getChildren().add(canvas);
 
-        double width = Settings.SCENE_WIDTH > Settings.CANVAS_WIDTH ? Settings.CANVAS_WIDTH : Settings.SCENE_WIDTH;
-        double height = Settings.SCENE_HEIGHT > Settings.CANVAS_HEIGHT ? Settings.CANVAS_HEIGHT : Settings.SCENE_HEIGHT;
+        double width = Math.max(Settings.CANVAS_WIDTH, Settings.SCENE_WIDTH);
+        double height = Math.max(Settings.CANVAS_HEIGHT, Settings.SCENE_HEIGHT);
 
         // create scene which can be dragged and zoomed
         Scene scene = new Scene(root, width, height);

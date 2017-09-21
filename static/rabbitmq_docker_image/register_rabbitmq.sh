@@ -8,14 +8,14 @@ RABBIT_HOST=${RABBIT_HOST:="rabbitmq"}
 RABBIT_PORT=${RABBIT_PORT:="5672"}
 
 # wait until RabbitMQ is started
-while ! nc -z localhost 5672; do   
+while ! nc -z localhost ${RABBIT_PORT}; do
   sleep 0.1 # wait for 1/10 of the second before check again
 done
 
 echo "RabbitMQ has started!"
 
-USERNAME=yourUser
-PASSWORD=yourPass
+USERNAME=${USERNAME:="yourUser"}
+PASSWORD=${PASSWORD:="yourPass"}
 
 # add rabbitmq user
 rabbitmqctl add_user $USERNAME $PASSWORD
@@ -40,8 +40,8 @@ done
 
 # Actually set values in etcd
 curl http://$ETCD_HOST:$ETCD_PORT/v2/keys$INSTANCE_DIR/uri -XPUT -d value="$RABBITMQ_PATH"
-curl http://$ETCD_HOST:$ETCD_PORT/v2/keys$INSTANCE_DIR/username -XPUT -d value=$USERNAME
-curl http://$ETCD_HOST:$ETCD_PORT/v2/keys$INSTANCE_DIR/password -XPUT -d value=$PASSWORD
+curl http://$ETCD_HOST:$ETCD_PORT/v2/keys$INSTANCE_DIR/username -XPUT -d value="$USERNAME"
+curl http://$ETCD_HOST:$ETCD_PORT/v2/keys$INSTANCE_DIR/password -XPUT -d value="$PASSWORD"
 
 # Confirmation
 echo "RabbitMQ registered with URI $RABBITMQ_PATH"

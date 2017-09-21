@@ -5,8 +5,7 @@ STATIC="static"
 DEPENDENT_BUNDLES="$STATIC/dependent-bundles"
 
 set -e
-(cd $ROOT && mvn clean)
-(cd $ROOT && mvn package -Dmaven.test.skip=true)
+(cd $ROOT && mvn clean package -Dmaven.test.skip=true)
 
 DOCKER_IMAGES="docker_images"
 BASE_IMAGE="$DOCKER_IMAGES/base_image"
@@ -129,5 +128,5 @@ cp "$ROOT/pubsub/api/target/pubsub-api-0.1.jar" $ARCHITECTURE_MANAGER_BUNDLES
 cp "$ROOT/common/target/common-0.1.jar" $ARCHITECTURE_MANAGER_BUNDLES
 cp "$ROOT/architecture-manager/target/architecture-manager-0.1.jar" $ARCHITECTURE_MANAGER_BUNDLES
 
-docker-compose rm -f -v
-docker-compose create --build
+docker-compose -f docker-compose-all.yml rm -f -v
+docker-compose -f docker-compose-all.yml create --build

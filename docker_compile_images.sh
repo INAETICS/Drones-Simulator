@@ -128,5 +128,4 @@ cp "$ROOT/pubsub/api/target/pubsub-api-0.1.jar" $ARCHITECTURE_MANAGER_BUNDLES
 cp "$ROOT/common/target/common-0.1.jar" $ARCHITECTURE_MANAGER_BUNDLES
 cp "$ROOT/architecture-manager/target/architecture-manager-0.1.jar" $ARCHITECTURE_MANAGER_BUNDLES
 
-docker-compose -f docker-compose-all.yml rm -f -v
-docker-compose -f docker-compose-all.yml create --build
+sh docker_refresh_images.sh

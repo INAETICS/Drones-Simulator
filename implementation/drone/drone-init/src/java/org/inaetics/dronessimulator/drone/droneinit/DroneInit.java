@@ -50,6 +50,7 @@ public class DroneInit {
      * On startup register Drone in Discovery.
      */
     public void start() throws IOException{
+        logger.info("Starting the drone now!");
         this.registerDroneService();
     }
 
@@ -57,6 +58,7 @@ public class DroneInit {
      * On startup unregister Drone in Discovery.
      */
     public void stop() throws IOException {
+        logger.info("Stopping the drone now!");
         this.unregisterDroneService();
     }
 

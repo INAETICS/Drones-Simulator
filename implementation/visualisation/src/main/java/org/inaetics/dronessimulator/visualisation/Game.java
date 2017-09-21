@@ -55,31 +55,51 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * contain all the game elements.
  */
 public class Game extends Application {
-    /** Subscriber for rabbitmq */
+    /**
+     * Subscriber for rabbitmq
+     */
     private RabbitSubscriber subscriber;
-    /** Publisher for rabbitmq */
+    /**
+     * Publisher for rabbitmq
+     */
     private RabbitPublisher publisher;
-    /** Discoverer for etcd */
+    /**
+     * Discoverer for etcd
+     */
     private EtcdDiscovererService discoverer;
 
-    /** Logger */
+    /**
+     * Logger
+     */
     private static final Logger logger = Logger.getLogger(Game.class);
 
-    /** All the entities in the game */
+    /**
+     * All the entities in the game
+     */
     private final ConcurrentMap<String, BaseEntity> entities = new ConcurrentHashMap<>();
 
-    /** Rabbitmq configuration */
+    /**
+     * Rabbitmq configuration
+     */
     private final Map<String, String> rabbitConfig = new HashMap<>();
 
-    /** The pannable and zommable canvas */
+    /**
+     * The pannable and zommable canvas
+     */
     private PannableCanvas canvas;
-    /** Group for all entities */
+    /**
+     * Group for all entities
+     */
     private Group root;
 
-    /** UI updates */
+    /**
+     * UI updates
+     */
     private final BlockingQueue<UIUpdate> uiUpdates;
-    /** check to see if rabbit is connected */
-    private AtomicBoolean rabbitConnected = new AtomicBoolean(false);
+    /**
+     * check to see if the method onRabbitConnect is executed
+     */
+    private AtomicBoolean onRabbitConnectExecuted = new AtomicBoolean(false);
 
     /**
      * Instantiates a new game object
@@ -88,9 +108,13 @@ public class Game extends Application {
         this.uiUpdates = new LinkedBlockingQueue<>();
     }
 
-    /** counter for the logger to output once every 100 times */
+    /**
+     * counter for the logger to output once every 100 times
+     */
     private int i = 0;
-    /** Time is ms of the last log */
+    /**
+     * Time is ms of the last log
+     */
     private long lastLog = -1;
 
     /**
@@ -102,12 +126,15 @@ public class Game extends Application {
 
         @Override
         public void handle(WindowEvent t) {
-            if(!isClosed) {
+            if (!isClosed) {
                 logger.info("Closing the application gracefully");
                 try {
-                    subscriber.disconnect(); //TODO geeft een NPE
-                    publisher.disconnect();
-                    discoverer.stop();
+                    if (subscriber != null)
+                        subscriber.disconnect();
+                    if (publisher != null)
+                        publisher.disconnect();
+                    if (discoverer != null)
+                        discoverer.stop();
                     isClosed = true;
                 } catch (IOException e) {
                     logger.fatal(e);
@@ -136,9 +163,12 @@ public class Game extends Application {
             public void handle(long now) {
                 long current_step_started_at_ms = System.currentTimeMillis();
 
-                if(rabbitConnected.get()) {
+                if (!isRabbitConnected()) {
+                    logger.info("RabbitMQ is not yet connected.");
+                }
+                else if (!onRabbitConnectExecuted.get()) {
                     onRabbitConnect();
-                    rabbitConnected.set(false);
+                    onRabbitConnectExecuted.set(true);
                 }
 
                 i++;
@@ -171,7 +201,7 @@ public class Game extends Application {
                 long current_step_took_ms = current_step_ended_at_ms - current_step_started_at_ms;
                 long diff = 10 - current_step_took_ms;
 
-                if(diff > 0) {
+                if (diff > 0) {
                     try {
                         Thread.sleep(diff);
                     } catch (InterruptedException e) {
@@ -183,6 +213,10 @@ public class Game extends Application {
 
         };
         gameLoop.start();
+    }
+
+    private boolean isRabbitConnected() {
+        return subscriber != null && subscriber.isConnected() && publisher != null && publisher.isConnected();
     }
 
     /**
@@ -272,7 +306,7 @@ public class Game extends Application {
      * Adds the handlers for listening to incoming game messages
      */
     private void connectRabbit() {
-        if (this.subscriber == null) {
+        if (!isRabbitConnected()) {
             logger.info("Connecting RabbitMQ...");
             ConnectionFactory connectionFactory = new ConnectionFactory();
             connectionFactory.setUsername(rabbitConfig.get("username"));
@@ -307,8 +341,6 @@ public class Game extends Application {
             } catch (IOException e) {
                 logger.fatal(e);
             }
-
-            rabbitConnected.set(true);
         }
     }
 

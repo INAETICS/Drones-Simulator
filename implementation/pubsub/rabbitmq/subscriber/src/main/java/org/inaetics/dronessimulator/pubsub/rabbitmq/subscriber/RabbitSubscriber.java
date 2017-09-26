@@ -174,6 +174,11 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     }
 
     @Override
+    public boolean hasConnection() {
+        return this.isConnected();
+    }
+
+    @Override
     public void connect() throws IOException {
         super.connect();
 

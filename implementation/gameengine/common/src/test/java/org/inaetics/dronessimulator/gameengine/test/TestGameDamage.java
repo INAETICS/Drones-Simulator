@@ -18,6 +18,6 @@ public class TestGameDamage {
 
         target.damage(bullet.getDmg());
 
-        Assert.assertEquals(Drone.DRONE_MAX_HEALTH - 100, target.getHP());
+        Assert.assertEquals(Drone.DRONE_MAX_HEALTH - 100, target.getHp());
     }
 }

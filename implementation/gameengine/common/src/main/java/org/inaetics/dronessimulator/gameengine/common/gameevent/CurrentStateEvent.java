@@ -45,7 +45,7 @@ public class CurrentStateEvent extends GameEngineEvent {
                 msg.setAcceleration(e.getAcceleration());
 
                 if(e instanceof HealthGameEntity) {
-                    msg.setHp(((HealthGameEntity) e).getHP());
+                    msg.setHp(((HealthGameEntity) e).getHp());
                 }
 
                 msgs.add(msg);

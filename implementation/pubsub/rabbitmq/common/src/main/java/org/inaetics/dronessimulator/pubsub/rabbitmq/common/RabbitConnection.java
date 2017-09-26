@@ -77,6 +77,7 @@ public abstract class RabbitConnection {
      * @param config The configuration.
      */
     public void setConfig(Dictionary<String, String> config) {
+        getLogger().debug("Received config: " + String.valueOf(config));
         this.connectionFactory = new ConnectionFactory();
 
         if (config != null) {
@@ -110,6 +111,7 @@ public abstract class RabbitConnection {
                 attempt++;
 
                 try {
+                    getLogger().debug(String.format("Try to connect to RabbitMQ using {}, {} on attempt {}", connectionFactory.getUsername(), connectionFactory.getPassword(), String.valueOf(attempt)));
                     connection = connectionFactory.newConnection();
 
                     getLogger().info("Connected to RabbitMQ");

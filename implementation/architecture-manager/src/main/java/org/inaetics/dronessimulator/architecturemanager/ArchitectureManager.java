@@ -88,6 +88,15 @@ public class ArchitectureManager {
      * Architecture state change requests
      */
     public void start() {
+        while (!m_subscriber.hasConnection()){
+            logger.warn("Architecture Manager does not yet have a connection to the subscriber implementation... Retrying now!");
+            try {
+                m_subscriber.connect();
+                logger.debug("Connection with the subscriber created");
+            } catch (IOException e) {
+                logger.error(e);
+            }
+        }
         logger.info("Starting Architecture Manager...");
         try {
             // Register instance with discovery

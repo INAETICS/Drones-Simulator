@@ -1,6 +1,8 @@
 package org.inaetics.dronessimulator.gameengine.common.state;
 
+import lombok.AccessLevel;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
@@ -11,6 +13,7 @@ import org.inaetics.dronessimulator.common.vector.D3Vector;
 @EqualsAndHashCode(callSuper=true)
 public abstract class HealthGameEntity<C extends GameEntity<C>> extends GameEntity<C> {
     /** The amount of hp this entity has left. */
+    @Getter(AccessLevel.PUBLIC)
     private volatile int hp;
 
     /**
@@ -32,14 +35,6 @@ public abstract class HealthGameEntity<C extends GameEntity<C>> extends GameEnti
 
     @Override
     public abstract C deepCopy();
-
-    /**
-     * Returns the amount of health points this entity has left.
-     * @return The amount of health points.
-     */
-    public int getHP() {
-        return hp;
-    }
 
     /**
      * Damage this entity with the given amount of damage.

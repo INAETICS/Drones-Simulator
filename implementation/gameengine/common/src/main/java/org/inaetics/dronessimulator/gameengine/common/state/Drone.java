@@ -49,6 +49,6 @@ public class Drone extends HealthGameEntity<Drone> {
 
     @Override
     public synchronized Drone deepCopy() {
-        return new Drone(this.getEntityId(), this.getHP(), this.getPosition(), this.getVelocity(), this.getAcceleration(), this.getDirection());
+        return new Drone(this.getEntityId(), this.getHp(), this.getPosition(), this.getVelocity(), this.getAcceleration(), this.getDirection());
     }
 }

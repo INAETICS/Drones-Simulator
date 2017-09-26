@@ -42,4 +42,8 @@ public interface Subscriber {
      * @param message The received message.
      */
     void receive(Message message);
+
+    boolean hasConnection();
+
+    void connect() throws IOException;
 }

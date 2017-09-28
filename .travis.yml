@@ -21,6 +21,7 @@ before_script:
 
 script:
  - ./docker_compile_images.sh
+ - timeout 3 docker-compose up -d # start docker-compose for 3 seconds to create the network
  - ./docker_start_images.sh
  - cd implementation && mvn org.jacoco:jacoco-maven-plugin:prepare-agent test -DskipITs #sonar:sonar
 

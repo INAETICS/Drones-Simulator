@@ -10,6 +10,7 @@ import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
+import org.inaetics.dronessimulator.discovery.api.instances.ArchitectureInstance;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
@@ -67,7 +68,7 @@ public class ArchitectureManager {
         previousAction = SimulationAction.INIT;
         currentState = SimulationState.INIT;
 
-        this.instance = new Instance(Type.SERVICE, Group.SERVICES, "architecture", getCurrentProperties());
+        this.instance = new ArchitectureInstance(getCurrentProperties());
     }
 
     /**

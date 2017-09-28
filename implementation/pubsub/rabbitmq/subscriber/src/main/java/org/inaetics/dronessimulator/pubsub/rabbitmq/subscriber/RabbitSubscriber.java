@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 
 import com.rabbitmq.client.ConnectionFactory;
 import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
@@ -37,8 +38,8 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
      * @param identifier The identifier for this subscriber. This is used as queue name.
      * @param serializer The serializer to use.
      */
-    public RabbitSubscriber(ConnectionFactory connectionFactory, String identifier, Serializer serializer) {
-        super(connectionFactory, serializer);
+    public RabbitSubscriber(ConnectionFactory connectionFactory, String identifier, Serializer serializer, Discoverer discoverer) {
+        super(connectionFactory, serializer, discoverer);
         this.construct(identifier);
     }
 

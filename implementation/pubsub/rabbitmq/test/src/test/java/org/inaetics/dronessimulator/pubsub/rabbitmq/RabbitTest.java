@@ -59,8 +59,8 @@ public class RabbitTest {
 
         // Set up publisher and subscriber
         long timeout = PublisherRunner.SLEEP_TIME * (messages.size() + 3);
-        PublisherRunner pub = new PublisherRunner(this.connection, topic, messages);
-        SubscriberRunner sub = new SubscriberRunner(this.connection, topic, "sub", timeout);
+        PublisherRunner pub = new PublisherRunner(this.connection, topic, messages, null);
+        SubscriberRunner sub = new SubscriberRunner(this.connection, topic, "sub", timeout, null);
 
         // Run
         Thread pubT = new Thread(pub);
@@ -101,10 +101,10 @@ public class RabbitTest {
 
         // Set up publisher and subscribers
         long timeout = PublisherRunner.SLEEP_TIME * (messages.size() + 3);
-        PublisherRunner pub = new PublisherRunner(this.connection, topic, messages);
-        SubscriberRunner sub1 = new SubscriberRunner(this.connection, topic, "sub1", timeout);
-        SubscriberRunner sub2 = new SubscriberRunner(this.connection, topic, "sub2", timeout);
-        SubscriberRunner sub3 = new SubscriberRunner(this.connection, topic, "sub3", timeout);
+        PublisherRunner pub = new PublisherRunner(this.connection, topic, messages, null);
+        SubscriberRunner sub1 = new SubscriberRunner(this.connection, topic, "sub1", timeout, null);
+        SubscriberRunner sub2 = new SubscriberRunner(this.connection, topic, "sub2", timeout, null);
+        SubscriberRunner sub3 = new SubscriberRunner(this.connection, topic, "sub3", timeout, null);
 
         // Run
         Thread pubT = new Thread(pub);

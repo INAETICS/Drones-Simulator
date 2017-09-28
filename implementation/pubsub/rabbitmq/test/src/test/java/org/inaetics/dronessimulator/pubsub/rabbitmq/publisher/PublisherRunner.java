@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.publisher;
 
 import com.rabbitmq.client.ConnectionFactory;
+import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
@@ -28,8 +29,8 @@ public class PublisherRunner implements Runnable {
      * @param topic The topic to publish test messages to.
      * @param testMessages The messages to test.
      */
-    public PublisherRunner(ConnectionFactory connectionFactory, Topic topic, ArrayList<Message> testMessages) {
-        this.publisher = new RabbitPublisher(connectionFactory, new JavaSerializer());
+    public PublisherRunner(ConnectionFactory connectionFactory, Topic topic, ArrayList<Message> testMessages, Discoverer discoverer) {
+        this.publisher = new RabbitPublisher(connectionFactory, new JavaSerializer(), discoverer);
         this.topic = topic;
         this.testMessages = (ArrayList<Message>) testMessages.clone();
     }

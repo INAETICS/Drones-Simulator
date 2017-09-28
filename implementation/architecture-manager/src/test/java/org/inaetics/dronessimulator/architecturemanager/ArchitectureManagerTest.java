@@ -104,8 +104,8 @@ public class ArchitectureManagerTest {
 
         Serializer serializer = new JavaSerializer();
         ConnectionFactory connectionFactory = new ConnectionFactory();
-        RabbitPublisher publisher = new RabbitPublisher(connectionFactory, serializer);
-        RabbitSubscriber subscriber = new RabbitSubscriber(connectionFactory, "architecture_test", serializer);
+        RabbitPublisher publisher = new RabbitPublisher(connectionFactory, serializer, discoverer);
+        RabbitSubscriber subscriber = new RabbitSubscriber(connectionFactory, "architecture_test", serializer, discoverer);
 
         ArchitectureManager manager = new ArchitectureManager(discoverer, subscriber);
         ArchitectureEventControllerService controller = new ArchitectureEventControllerService(discoverer);

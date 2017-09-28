@@ -318,8 +318,8 @@ public class Game extends Application {
             }
 
             // We can connect to localhost, since the visualization does not run within Docker
-            this.subscriber = new RabbitSubscriber(connectionFactory, "visualisation", new JavaSerializer());
-            this.publisher = new RabbitPublisher(connectionFactory, new JavaSerializer());
+            this.subscriber = new RabbitSubscriber(connectionFactory, "visualisation", new JavaSerializer(), discoverer);
+            this.publisher = new RabbitPublisher(connectionFactory, new JavaSerializer(), discoverer);
 
             try {
                 this.subscriber.connect();

@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.discovery.api;
 
+import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryStoredNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
@@ -45,4 +46,6 @@ public interface Discoverer {
     void addHandlers(boolean replay, List<NodeEventHandler<AddedNode>> addHandlers
                                    , List<NodeEventHandler<ChangedValue>> changedValueHandlers
                                    , List<NodeEventHandler<RemovedNode>> removedHandlers);
+
+    DiscoveryStoredNode getNode(Instance instance);
 }

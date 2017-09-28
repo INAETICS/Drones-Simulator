@@ -19,6 +19,7 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
+import org.inaetics.dronessimulator.discovery.api.instances.GameEngineInstance;
 import org.inaetics.dronessimulator.gameengine.common.state.Drone;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
@@ -105,7 +106,7 @@ public class GameEngine {
         this.m_subscriber.addHandler(StateMessage.class, this.stateMessageHandler);
 
         // Setup discoverer
-        discoveryInstance = new Instance(Type.SERVICE, Group.SERVICES, "gameengine" , new HashMap<>());
+        discoveryInstance = new GameEngineInstance();
         m_discoverer.register(discoveryInstance);
 
         List<NodeEventHandler<AddedNode>> addHandlers = new ArrayList<>();

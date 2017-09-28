@@ -7,6 +7,7 @@ import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryStoredNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
@@ -84,6 +85,11 @@ public class EtcdDiscovererService implements Discoverer {
                                           , List<NodeEventHandler<ChangedValue>> changedValueHandlers
                                           , List<NodeEventHandler<RemovedNode>> removedHandlers) {
         this.changeHandler.addHandlers(replay, addHandlers, changedValueHandlers, removedHandlers);
+    }
+
+    @Override
+    public DiscoveryStoredNode getNode(Instance instance) {
+        return this.discoverer.getNode(instance);
     }
 
     /**

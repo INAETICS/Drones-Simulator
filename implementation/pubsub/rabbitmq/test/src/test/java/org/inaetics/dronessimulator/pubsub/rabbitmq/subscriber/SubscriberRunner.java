@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 
 import com.rabbitmq.client.ConnectionFactory;
+import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
@@ -33,12 +34,12 @@ public class SubscriberRunner implements Runnable {
      * @param topic The topic to receive test messages from.
      * @param timeout The time to wait for incoming messages.
      */
-    public SubscriberRunner(ConnectionFactory connectionFactory, Topic topic, String identifier, long timeout) {
+    public SubscriberRunner(ConnectionFactory connectionFactory, Topic topic, String identifier, long timeout, Discoverer discoverer) {
         this.identifier = identifier;
         this.topic = topic;
         this.testMessages = new ArrayList<>();
         this.timeout = timeout;
-        this.subscriber = new RabbitSubscriber(connectionFactory, identifier, new JavaSerializer());
+        this.subscriber = new RabbitSubscriber(connectionFactory, identifier, new JavaSerializer(), discoverer);
     }
 
     @Override

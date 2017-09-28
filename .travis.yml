@@ -6,7 +6,7 @@ sudo: false
 install: true
 
 services:
-  - docker
+ - docker
 
 #addons:
 #  sonarcloud:
@@ -16,21 +16,20 @@ services:
 
 jdk: oraclejdk8
 
-install:
- - ./docker_compile_images.sh
-
 before_script:
- - ./docker_start_images.sh
+ - cp config-travis.env config.env
 
 script:
-- cd implementation && mvn org.jacoco:jacoco-maven-plugin:prepare-agent test -DskipITs sonar:sonar
+ - ./docker_compile_images.sh
+ - ./docker_start_images.sh
+ - cd implementation && mvn org.jacoco:jacoco-maven-plugin:prepare-agent test -DskipITs #sonar:sonar
 
 
 after_script:
-  - docker-compose stop
-  - docker-compose rm -f
+ - docker-compose stop
+ - docker-compose rm -f
 
 cache:
-  directories:
-    - '$HOME/.m2/repository'
-    - '$HOME/.sonar/cache'
+ directories:
+  - '$HOME/.m2/repository'
+  - '$HOME/.sonar/cache'

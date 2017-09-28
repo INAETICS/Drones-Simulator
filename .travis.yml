@@ -1,0 +1,36 @@
+git:
+  depth: 3
+
+language: java
+sudo: false
+install: true
+
+services:
+  - docker
+
+#addons:
+#  sonarcloud:
+#    organization: "projectname"
+#    token:
+#      secure: "token"
+
+jdk: oraclejdk8
+
+install:
+ - ./docker_compile_images.sh
+
+before_script:
+ - ./docker_start_images.sh
+
+script:
+- cd implementation && mvn org.jacoco:jacoco-maven-plugin:prepare-agent test -DskipITs sonar:sonar
+
+
+after_script:
+  - docker-compose stop
+  - docker-compose rm -f
+
+cache:
+  directories:
+    - '$HOME/.m2/repository'
+    - '$HOME/.sonar/cache'

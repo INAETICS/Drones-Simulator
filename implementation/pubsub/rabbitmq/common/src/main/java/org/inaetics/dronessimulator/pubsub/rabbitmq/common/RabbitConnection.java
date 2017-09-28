@@ -111,7 +111,7 @@ public abstract class RabbitConnection {
                 attempt++;
 
                 try {
-                    getLogger().debug(String.format("Try to connect to RabbitMQ using {}, {} on attempt {}", connectionFactory.getUsername(), connectionFactory.getPassword(), String.valueOf(attempt)));
+                    getLogger().debug(String.format("Try to connect to RabbitMQ using {%s}, {%s} on attempt {%s}", connectionFactory.getUsername(), connectionFactory.getPassword(), String.valueOf(attempt)));
                     connection = connectionFactory.newConnection();
 
                     getLogger().info("Connected to RabbitMQ");

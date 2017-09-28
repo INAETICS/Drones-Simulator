@@ -9,6 +9,9 @@ import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.RequestArchitectureStateChangeMessage;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
+import org.inaetics.dronessimulator.discovery.api.Instance;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 import org.inaetics.dronessimulator.discovery.etcd.EtcdDiscoverer;
 import org.inaetics.dronessimulator.discovery.etcd.EtcdDiscovererService;
 import org.inaetics.dronessimulator.pubsub.api.Message;
@@ -20,6 +23,7 @@ import org.inaetics.dronessimulator.pubsub.rabbitmq.publisher.RabbitPublisher;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitSubscriber;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.*;
@@ -123,14 +127,23 @@ public class ArchitectureManagerTest {
         manager.start();
         controller.start();
 
+        //Set the state for etcd
+        HashMap<String, String> stateMap = new HashMap<>();
+        stateMap.put("current_life_cycle", "NOSTATE.INIT.INIT");
+        discoverer.updateProperties(new Instance(Type.SERVICE, Group.SERVICES, "architecture"), stateMap); //TODO replace this with the Architecture instance from issue #10.
+
         // Actual test
         RequestArchitectureStateChangeMessage testMessage = new RequestArchitectureStateChangeMessage();
         testMessage.setAction(SimulationAction.CONFIG);
         publisher.send(MessageTopic.ARCHITECTURE, testMessage);
 
-        Thread.sleep(100);
-        assertTrue("state changed", isReceived.get());
-
+        int attempts = 0;
+        while (attempts <= 3 && !isReceived.get()) {
+            Thread.sleep(100);
+            if (attempts == 3)
+                assertTrue("state did not change to CONFIG. Current state: UNKNOWN", isReceived.get()); //TODO replace with actual value after mering #10
+            attempts++;
+        }
         // Stop everything
         manager.stop();
         subscriber.disconnect();

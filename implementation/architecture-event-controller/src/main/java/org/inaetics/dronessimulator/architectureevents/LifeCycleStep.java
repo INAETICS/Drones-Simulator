@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.architectureevents;
 
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 
@@ -12,6 +13,7 @@ import org.inaetics.dronessimulator.common.architecture.SimulationState;
  */
 @EqualsAndHashCode
 @AllArgsConstructor
+@ToString
 class LifeCycleStep {
     /**
      * The from state

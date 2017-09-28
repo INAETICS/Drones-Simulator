@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.architectureevents;
 
+import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
@@ -23,6 +24,8 @@ import java.util.Map;
  * If a change occurs, calls the registered handlers for the lifecycle step
  */
 public class ArchitectureEventControllerService implements ArchitectureEventController {
+
+    private final Logger logger = Logger.getLogger(ArchitectureEventControllerService.class);
     /**
      * Reference to Discovery bundle
      */
@@ -73,11 +76,11 @@ public class ArchitectureEventControllerService implements ArchitectureEventCont
             DiscoveryNode discoveredNode = changedValue.getNode();
             DiscoveryPath discoveredPath = discoveredNode.getPath();
 
-            if(  discoveredPath.isConfigPath()
-              && discoveredPath.startsWith(DiscoveryPath.group(Type.SERVICE, Group.SERVICES))
-              && "architecture".equals(discoveredNode.getId())
-              && "current_life_cycle".equals(changedValue.getKey())
-              ) {
+            if (discoveredPath.isConfigPath()
+                    && discoveredPath.startsWith(DiscoveryPath.group(Type.SERVICE, Group.SERVICES))
+                    && "architecture".equals(discoveredNode.getId())
+                    && "current_life_cycle".equals(changedValue.getKey())
+                    ) {
                 handleNewState(discoveredNode);
             }
         });
@@ -88,12 +91,13 @@ public class ArchitectureEventControllerService implements ArchitectureEventCont
 
     /**
      * Handles the state change. The architectureNode should contain the new current state
+     *
      * @param architectureNode The node containing the new state
      */
     private void handleNewState(DiscoveryNode architectureNode) {
         String currentLifeCycle = architectureNode.getValue("current_life_cycle");
 
-        if(currentLifeCycle != null) {
+        if (currentLifeCycle != null) {
             String[] lifeCycleParts = currentLifeCycle.split("\\.");
 
             currentFromState = SimulationState.valueOf(lifeCycleParts[0]);
@@ -109,8 +113,10 @@ public class ArchitectureEventControllerService implements ArchitectureEventCont
 
         List<ArchitectureEventHandler> handlers = this.handlers.get(lifeCycleStep);
 
-        if(handlers != null) {
-            for(ArchitectureEventHandler handler : handlers) {
+        logger.debug("handleNewState with state: " + lifeCycleStep + " handle with " + (handlers != null ? handlers.size() : "0") + " handlers");
+
+        if (handlers != null) {
+            for (ArchitectureEventHandler handler : handlers) {
                 handler.handle(currentFromState, currentAction, currentToState);
             }
         }

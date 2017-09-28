@@ -2,11 +2,13 @@ git:
   depth: 3
 
 language: java
-sudo: false
+sudo: required
 install: true
 
 services:
  - docker
+ - rabbitmq
+
 
 #addons:
 #  sonarcloud:

@@ -8,11 +8,11 @@ install: true
 services:
  - docker
 
-#addons:
-#  sonarcloud:
-#    organization: "projectname"
-#    token:
-#      secure: "token"
+addons:
+  sonarcloud:
+    organization: "dronessimulator"
+    token:
+      secure: "iW/WAW9mmKKzCmuzpu7+PLY56gn8XZf0SZPLpUwAFlcSe8Xoq7O5X7lN6YZSXWupB350rJHxBg0WNt0SfhS0ppr6OoHzezs2Zdb+AmXzTdrvmMpvpjG++duHJS/GMdPpxaZcHE/idwjCLt3ycHs7Y+n43HOXSJRvIw0IieJpsNh75nQsFgmTGjmGQE4MYfVJcRjWDOAykLX+hGTcEHBQAvDA/xCh4glEEGVRIldbdujR3s5LpprlJGF07Efinzht3BTEkLggkx7U9ERfTrobVbFryNryLeP3Nr5ypnZcOyERSjTj5Y+jLoYVaMeO8dlHEqw5+KkCMSNGTRRUE6rpvxbLYXCI5nG/QeWWWhMbH0Uj/lPpAs8pHu+szvRKHyyLsF/NSPtBHcxQWILGLO5VAOsc3CDxJosyOlJ3OPcWgpmouB0KV7kWWuWmCp672aCBXOUFezfrqdxekkoaRGJH42HuJIM+PImzBq8RI34Ek7Bz9slOOy7L+V2Fl5saJB2CHYJWw5UkCUz6/RA4fi9Tlyaf78CNGdRWCohewVrDlZwZUTI9L1TMropeHl9JS5v7c2z+tvkoIPWQyrOuBKVTqDTmbCWq1AClYXpuKyAZS9e4og0u7rS/MFTiLVfK9++cgkcvYSwFjaUl8wApRMpVTeknFphkdcmUy/ycRekLbRU="
 
 jdk: oraclejdk8
 
@@ -21,7 +21,7 @@ before_script:
 
 script:
  - cd implementation
- - mvn install -Dskip.surefire.tests=false -Dskip.failsafe.tests=true #sonar:sonar
+ - mvn install -Dskip.surefire.tests=false -Dskip.failsafe.tests=true sonar:sonar
  - cd ..
  - ./docker_compile_images.sh no-maven
  - timeout 3 docker-compose up -d # start docker-compose for 3 seconds to create the network

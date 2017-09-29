@@ -9,6 +9,8 @@ import org.inaetics.dronessimulator.pubsub.rabbitmq.TestMessage;
 
 import java.util.ArrayList;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * Runner for the RabbitMQ subscriber for use in tests.
  */
@@ -49,6 +51,7 @@ public class SubscriberRunner implements Runnable {
             this.subscriber.addTopic(this.topic);
 
             System.out.printf("Subscriber %s is connected\n", identifier);
+            assertTrue("Publisher is not connected", subscriber.isConnected());
 
             Thread.sleep(timeout);
 

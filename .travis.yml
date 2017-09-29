@@ -26,12 +26,13 @@ script:
  - ./docker_compile_images.sh no-maven
  - timeout 3 docker-compose up -d # start docker-compose for 3 seconds to create the network
  - ./docker_start_images.sh
- - cd implementation
- - mvn verify -Dskip.surefire.tests
- - cd ..
+# - cd implementation
+# - mvn verify -Dskip.surefire.tests
+# - cd ..
 
 
 after_script:
+ - docker-compose logs
  - docker-compose stop
  - docker-compose rm -f
 

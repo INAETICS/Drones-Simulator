@@ -2,13 +2,11 @@ git:
   depth: 3
 
 language: java
-sudo: required
+sudo: false
 install: true
 
 services:
  - docker
- - rabbitmq
-
 
 #addons:
 #  sonarcloud:
@@ -22,10 +20,11 @@ before_script:
  - cp config-travis.env config.env
 
 script:
- - ./docker_compile_images.sh
+ - cd implementation && mvn install -Dskip.surefire.tests=false -Dskip.failsafe.tests=true #sonar:sonar
+ - ./docker_compile_images.sh no-maven
  - timeout 3 docker-compose up -d # start docker-compose for 3 seconds to create the network
  - ./docker_start_images.sh
- - cd implementation && mvn org.jacoco:jacoco-maven-plugin:prepare-agent test -DskipITs #sonar:sonar
+ - cd implementation && mvn verify -Dskip.surefire.tests
 
 
 after_script:

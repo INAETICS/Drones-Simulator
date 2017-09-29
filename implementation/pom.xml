@@ -128,7 +128,29 @@
                 <configuration>
                     <!-- Sets the VM argument line used when unit tests are run. -->
                     <argLine>${surefireArgLine}</argLine>
+                    <!-- skips surefire tests without skipping failsafe tests.
+                 Property value seems to magically default to false -->
+                    <skipTests>${skip.surefire.tests}</skipTests>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <configuration>
+                    <!-- skips failsafe tests without skipping surefire tests.
+                 Property value seems to magically default to false -->
+                    <skipTests>${skip.failsafe.tests}</skipTests>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>run-integration-tests</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
         <pluginManagement>

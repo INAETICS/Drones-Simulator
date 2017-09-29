@@ -21,96 +21,37 @@ import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.publisher.RabbitPublisher;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitSubscriber;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.*;
 
-public class ArchitectureManagerTest {
-    SimulationState[] validCurrentStates = new SimulationState[]{
-            SimulationState.NOSTATE,
-            SimulationState.INIT,
-            SimulationState.CONFIG,
-            SimulationState.CONFIG,
-            SimulationState.RUNNING,
-            SimulationState.RUNNING,
-            SimulationState.RUNNING,
-            SimulationState.PAUSED,
-            SimulationState.PAUSED,
-            SimulationState.DONE,
-    };
-    SimulationAction[] validActions = new SimulationAction[]{
-            SimulationAction.INIT,
-            SimulationAction.CONFIG,
-            SimulationAction.STOP,
-            SimulationAction.START,
-            SimulationAction.STOP,
-            SimulationAction.PAUSE,
-            SimulationAction.GAMEOVER,
-            SimulationAction.STOP,
-            SimulationAction.RESUME,
-            SimulationAction.STOP,
-    };
-    SimulationState[] validFinalStates = new SimulationState[]{
-            SimulationState.INIT,
-            SimulationState.CONFIG,
-            SimulationState.INIT,
-            SimulationState.RUNNING,
-            SimulationState.INIT,
-            SimulationState.PAUSED,
-            SimulationState.DONE,
-            SimulationState.INIT,
-            SimulationState.RUNNING,
-            SimulationState.INIT,
-    };
+public class LifecycleUpdateIT {
 
-    int numActions = 10;
+    private EtcdDiscovererService discoverer;
+    private RabbitPublisher publisher;
+    private RabbitSubscriber subscriber;
 
-    SimulationState[] allStates = new SimulationState[]{
-            SimulationState.NOSTATE,
-            SimulationState.INIT,
-            SimulationState.CONFIG,
-            SimulationState.RUNNING,
-            SimulationState.PAUSED,
-            SimulationState.DONE,
-    };
-    SimulationAction[] allActions = new SimulationAction[]{
-            SimulationAction.INIT,
-            SimulationAction.CONFIG,
-            SimulationAction.START,
-            SimulationAction.PAUSE,
-            SimulationAction.RESUME,
-            SimulationAction.GAMEOVER,
-            SimulationAction.STOP,
-    };
+    @Before
+    public void setup() {
+        discoverer = new EtcdDiscovererService();
 
-    @Test
-    public void testNextState() throws Exception {
-        for (SimulationState startState : allStates) {
-            for (SimulationAction action : allActions) {
-                SimulationState endState = ArchitectureManager.nextState(startState, action);
-
-                for (int i = 0; i < numActions; i++) {
-                    if (startState == validCurrentStates[i] && action == validActions[i]) {
-                        String msg = String.format("%s.%s", startState.toString(), action.toString());
-                        assertEquals(msg, validFinalStates[i], endState);
-                    }
-                }
-            }
-        }
+        Serializer serializer = new JavaSerializer();
+        ConnectionFactory connectionFactory = new ConnectionFactory();
+        //TODO replace this with a call to RabbitConnectionInfo from #10
+        connectionFactory.setUsername("yourUser");
+        connectionFactory.setPassword("yourPass");
+        publisher = new RabbitPublisher(connectionFactory, serializer);
+        subscriber = new RabbitSubscriber(connectionFactory, "architecture_test", serializer);
     }
 
     @Test
     public void testLifecycleUpdates() throws Exception {
-        EtcdDiscovererService discoverer = new EtcdDiscovererService();
-
-        Serializer serializer = new JavaSerializer();
-        ConnectionFactory connectionFactory = new ConnectionFactory();
-        RabbitPublisher publisher = new RabbitPublisher(connectionFactory, serializer);
-        RabbitSubscriber subscriber = new RabbitSubscriber(connectionFactory, "architecture_test", serializer);
-
         ArchitectureManager manager = new ArchitectureManager(discoverer, subscriber);
         ArchitectureEventControllerService controller = new ArchitectureEventControllerService(discoverer);
         AtomicBoolean isReceived = new AtomicBoolean(false);
@@ -146,6 +87,11 @@ public class ArchitectureManagerTest {
         }
         // Stop everything
         manager.stop();
+    }
+
+    @After
+    public void tearDown() throws IOException {
+
         subscriber.disconnect();
         publisher.disconnect();
         discoverer.stop();

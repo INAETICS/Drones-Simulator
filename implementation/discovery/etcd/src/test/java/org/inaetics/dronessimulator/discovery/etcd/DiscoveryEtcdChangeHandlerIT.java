@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public class TestDiscoveryEtcdChangeHandler {
+public class DiscoveryEtcdChangeHandlerIT {
     private EtcdDiscoverer discoverer;
     private EtcdChangeHandler changeHandler;
 

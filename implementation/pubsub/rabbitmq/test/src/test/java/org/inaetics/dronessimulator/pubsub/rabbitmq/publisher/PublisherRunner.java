@@ -8,6 +8,8 @@ import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
 
 import java.util.ArrayList;
 
+import static org.junit.Assert.assertTrue;
+
 /**
  * Runner for the RabbitMQ publisher for use in tests.
  */
@@ -43,6 +45,7 @@ public class PublisherRunner implements Runnable {
             System.out.printf("Publisher %s connected\n", topic.getName());
 
             for (Message message : this.testMessages) {
+                assertTrue("Publisher is not connected", publisher.isConnected());
                 Thread.sleep(SLEEP_TIME);
                 this.publisher.send(this.topic, message);
                 System.out.printf("Publisher %s sent message %s at %d\n", this.topic.getName(), message.toString(), System.currentTimeMillis());

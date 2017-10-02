@@ -1,4 +1,4 @@
-version: '3'
+version: '2.1'
 services:
   etcd:
     build: ./docker_images/etcd
@@ -6,12 +6,16 @@ services:
       - "2379:2379"
       - "2380:2380"
       - "4001:4001"
+    healthcheck:
+      test: curl localhost:4001/v2/keys
   rabbitmq:
     build: ./docker_images/rabbitmq
     ports:
       - "5672:5672"
       - "15672:15672"
     env_file: config.env
+    healthcheck:
+      test: /opt/healthcheck.sh
   game-engine:
     build: ./docker_images/game_engine
     env_file: config.env

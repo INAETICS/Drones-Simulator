@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
  * WARNING: The tests included in this class expect to find a running RabbitMQ instance without password protection on
  * localhost using the default port.
  */
-public class RabbitTest {
+public class RabbitIT {
     private static final String LIPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ac magna sit a" +
             "met erat blandit tincidunt. Phasellus ornare neque sem, sit amet interdum magna tincidunt viverra. Praes" +
             "ent vulputate tortor a pretium malesuada. Cras feugiat, diam vel aliquam porttitor, risus arcu varius ne" +
@@ -36,6 +36,9 @@ public class RabbitTest {
     public void setUp() throws Exception {
         // Set up connection
         connection = new ConnectionFactory();
+        //TODO replace with RabbitConnectionInfo from #10
+        connection.setUsername("yourUser");
+        connection.setPassword("yourPass");
     }
 
     /**

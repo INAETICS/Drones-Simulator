@@ -5,7 +5,12 @@ STATIC="static"
 DEPENDENT_BUNDLES="$STATIC/dependent-bundles"
 
 set -e
-(cd $ROOT && mvn clean package -Dmaven.test.skip=true)
+
+if [ $# -gt 0 ]; then
+    echo "Skipping maven because the script received commandline parameters"
+else
+    (cd $ROOT && mvn clean package -Dmaven.test.skip=true)
+fi
 
 DOCKER_IMAGES="docker_images"
 BASE_IMAGE="$DOCKER_IMAGES/base_image"

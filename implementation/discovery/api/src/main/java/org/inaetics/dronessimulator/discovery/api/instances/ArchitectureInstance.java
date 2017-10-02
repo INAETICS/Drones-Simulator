@@ -10,4 +10,8 @@ public class ArchitectureInstance extends Instance {
     public ArchitectureInstance(Map<String, String> properties) {
         super(Type.SERVICE, Group.SERVICES, "architecture", properties);
     }
+
+    public ArchitectureInstance() {
+        super(Type.SERVICE, Group.SERVICES, "architecture");
+    }
 }

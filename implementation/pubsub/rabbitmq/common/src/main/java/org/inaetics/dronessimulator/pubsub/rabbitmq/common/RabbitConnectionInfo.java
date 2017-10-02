@@ -43,6 +43,7 @@ public class RabbitConnectionInfo {
 
     /**
      * Check if the TTL has expired
+     * TODO use TTL from ETCD itself as well
      */
     public boolean isValid() {
         return LocalDateTime.now().isBefore(creationTime.plusSeconds(ttl));
@@ -54,5 +55,5 @@ public class RabbitConnectionInfo {
         return new RabbitConnectionInfo(rabbitData.get("username"), rabbitData.get("password"), rabbitData.get("uri"));
     }
 
-    class ConnectionInfoExpiredException extends Exception {}
+    public class ConnectionInfoExpiredException extends Exception {}
 }

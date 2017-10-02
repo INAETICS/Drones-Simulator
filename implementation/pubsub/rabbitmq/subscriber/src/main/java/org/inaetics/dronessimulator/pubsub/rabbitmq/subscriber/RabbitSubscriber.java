@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 
 import com.rabbitmq.client.ConnectionFactory;
+import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.pubsub.api.Message;
@@ -21,6 +22,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     private static final Logger logger = Logger.getLogger(RabbitSubscriber.class);
 
     /** The identifier of this subscriber. */
+    @Getter
     private String identifier;
 
     /** The handlers for each message class this subscriber processes. */
@@ -211,10 +213,6 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
             logger.debug("Old RabbitMQ consumer cancelled");
         }
         logger.debug("Consumer update requested");
-    }
-
-    public String getIdentifier() {
-        return identifier;
     }
 
     @Override

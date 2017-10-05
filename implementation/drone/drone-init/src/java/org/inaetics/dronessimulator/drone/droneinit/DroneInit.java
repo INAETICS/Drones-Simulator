@@ -7,7 +7,6 @@ import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
-import org.osgi.framework.BundleContext;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -39,7 +38,7 @@ public class DroneInit {
      */
     private Instance registered_instance;
 
-    public DroneInit(){
+    public DroneInit() {
         this.initIdentifier();
     }
 
@@ -49,7 +48,7 @@ public class DroneInit {
     /**
      * On startup register Drone in Discovery.
      */
-    public void start() throws IOException{
+    public void start() throws IOException {
         logger.info("Starting the drone now!");
         this.registerDroneService();
     }
@@ -65,47 +64,53 @@ public class DroneInit {
     /**
      * Register the drone service in Discovery
      */
-    private void registerDroneService(){
+    private void registerDroneService() throws IOException {
         Map<String, String> properties = new HashMap<>();
-
-        properties.put("team", "team1");
+        properties.put("team", getTeamname());
         Instance instance = new Instance(Type.SERVICE, Group.SERVICES, this.getIdentifier(), properties);
-        try{
+        try {
             m_discoverer.register(instance);
             this.registered_instance = instance;
-        } catch (IOException e) {
-            logger.fatal(e);
-        }catch(DuplicateName e){
+        } catch (DuplicateName e) {
             this.setIdentifier(this.getIdentifier() + "-" + UUID.randomUUID().toString());
             this.registerDroneService();
         }
 
     }
 
+    private String getTeamname() {
+        String teamname = "unkown_team"; //Default fallback
+
+        if (System.getenv("DRONE_TEAM") != null) {
+            teamname = System.getenv("DRONE_TEAM");
+        }
+        return teamname;
+    }
+
+
+
     /**
      * Unregister the drone service in Discovery
      */
-    private void unregisterDroneService(){
-        try{
-            this.m_discoverer.unregister(registered_instance);
-        } catch (IOException e) {
-            logger.fatal(e);
-        }
+    private void unregisterDroneService() throws IOException {
+        this.m_discoverer.unregister(registered_instance);
     }
 
     /**
      * Returns the indentifier from the drone
+     *
      * @return the indentifier
      */
-    public String getIdentifier(){
+    public String getIdentifier() {
         return this.identifier;
     }
 
     /**
      * Changes the indentifier to a new value
+     *
      * @param new_identifier the new indentifier
      */
-    public void setIdentifier(String new_identifier){
+    public void setIdentifier(String new_identifier) {
         this.identifier = new_identifier;
     }
 
@@ -115,9 +120,9 @@ public class DroneInit {
      * in order: DRONENAME, COMPUTERNAME, HOSTNAME
      * If none are found, it generates a random UUID
      */
-    public void initIdentifier(){
+    public void initIdentifier() {
         Map<String, String> env = System.getenv();
-        if(env.containsKey("DRONENAME"))
+        if (env.containsKey("DRONENAME"))
             this.setIdentifier(env.get("DRONENAME"));
         else if (env.containsKey("COMPUTERNAME"))
             this.setIdentifier(env.get("COMPUTERNAME"));

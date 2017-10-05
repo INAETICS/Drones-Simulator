@@ -28,26 +28,6 @@ public class SimpleTactic extends Tactic {
     /**
      *  -- IMPLEMENT FUNCTIONS
      */
-    public List<ServiceDependency> getComponents(DependencyManager dm){
-        List<ServiceDependency> components = new ArrayList<ServiceDependency>()   ;
-        components.add(dm.createServiceDependency()
-                        .setService(Radar.class)
-                        .setRequired(true)
-                );
-        components.add(dm.createServiceDependency()
-                        .setService(GPS.class)
-                        .setRequired(true)
-                );
-        components.add(dm.createServiceDependency()
-                        .setService(Engine.class)
-                        .setRequired(true)
-                );
-        components.add(dm.createServiceDependency()
-                        .setService(Gun.class)
-                        .setRequired(true)
-                );
-        return components;
-    }
 
     void calculateTactics(){
         this.calculateAcceleration();

@@ -38,7 +38,7 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
     private LinkedBlockingQueue<GameEngineEvent> incomingEvents;
 
     /** Active rules. Should end SendMessages to broadcast the messages to other subsystems. */
-    private Rule[] rules;
+    private List<Rule> rules;
 
     @Override
     public void start() {

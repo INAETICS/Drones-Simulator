@@ -208,7 +208,8 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
         logger.debug("New RabbitMQ consumer started");
 
         // Cancel old consumer if we have one
-        if (old != null) {
+        if (old != null && old.getConsumerTag() != null) {
+            logger.debug("Cancel old RabbitMQ consumer with tag: " + old.getConsumerTag());
             this.channel.basicCancel(old.getConsumerTag());
             logger.debug("Old RabbitMQ consumer cancelled");
         }

@@ -18,7 +18,7 @@ import java.util.Optional;
 @AllArgsConstructor
 @Getter
 @ToString
-public class DestroyHealthEntityEvent extends GameEngineEvent {
+public class DestroyHealthEntityEvent extends DestroyEvent {
     /** The game entity that got destroyed. */
     private final HealthGameEntity destroyedEntity;
 

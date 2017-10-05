@@ -14,7 +14,6 @@ import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
@@ -31,7 +30,6 @@ import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -45,29 +43,43 @@ public class GameEngine {
      */
     private final static Logger logger = Logger.getLogger(GameEngine.class);
 
-    /** Physics engine used in the game engine. */
+    /**
+     * Physics engine used in the game engine.
+     */
     private volatile IPhysicsEngineDriver m_physicsEngineDriver;
 
-    /** Manager of state outside of physicsengine. */
+    /**
+     * Manager of state outside of physicsengine.
+     */
     private volatile IGameStateManager m_stateManager;
 
-    /** Rule processors to handle any outgoing messages. The last rule processor SendMessages sends all messages off. */
+    /**
+     * Rule processors to handle any outgoing messages. The last rule processor SendMessages sends all messages off.
+     */
     private volatile IRuleProcessors m_ruleProcessors;
 
-    /** The subscriber to use. */
+    /**
+     * The subscriber to use.
+     */
     private volatile Subscriber m_subscriber;
 
-    /** The identifier mapper to use. */
+    /**
+     * The identifier mapper to use.
+     */
     private volatile IdentifierMapper m_id_mapper;
 
-    /** The discoverer to use. */
+    /**
+     * The discoverer to use.
+     */
     private volatile Discoverer m_discoverer;
 
     private volatile ArchitectureEventController m_architectureEventListener;
 
     private List<String> lobbiedDrones = new ArrayList<>();
 
-    /** Concrete message handlers. */
+    /**
+     * Concrete message handlers.
+     */
     private CollisionMessageHandler collisionMessageHandler;
     private DamageMessageHandler damageMessageHandler;
     private FireBulletMessageHandler fireBulletMessageHandler;
@@ -75,7 +87,9 @@ public class GameEngine {
     private MovementMessageHandler movementMessageHandler;
     private StateMessageHandler stateMessageHandler;
 
-    /** The game engine instance to register. */
+    /**
+     * The game engine instance to register.
+     */
     private Instance discoveryInstance;
 
     /**
@@ -93,9 +107,13 @@ public class GameEngine {
         // Setup subscriber
         try {
             this.m_subscriber.addTopic(MessageTopic.MOVEMENTS);
-            this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
-        } catch(IOException e) {
+        } catch (IOException e) {
             logger.fatal("Could not subscribe to topic " + MessageTopic.MOVEMENTS + ".", e);
+        }
+        try {
+            this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
+        } catch (IOException e) {
+            logger.fatal("Could not subscribe to topic " + MessageTopic.STATEUPDATES + ".", e);
         }
 
         this.m_subscriber.addHandler(CollisionMessage.class, this.collisionMessageHandler);
@@ -115,7 +133,7 @@ public class GameEngine {
             DiscoveryNode node = addedNodeEvent.getNode();
             DiscoveryPath path = node.getPath();
 
-            if( path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
+            if (path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
                 lobbiedDrones.add(node.getId());
 
                 logger.info("Added new drone " + node.getId() + " in simulation/lobby");
@@ -129,7 +147,7 @@ public class GameEngine {
             DiscoveryNode node = removedNodeEvent.getNode();
             DiscoveryPath path = node.getPath();
 
-            if( path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
+            if (path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
                 String protocolId = node.getId();
 
                 lobbiedDrones.remove(protocolId);
@@ -149,11 +167,11 @@ public class GameEngine {
             double spawnAngle = (2 * Math.PI) / dronesInLobby;
 
             int numberSpawned = 0;
-            for(String protocolId : lobbiedDrones) {
+            for (String protocolId : lobbiedDrones) {
                 int gameengineId = m_id_mapper.getNewGameEngineId();
-                D3Vector position = new D3Vector( Math.cos(spawnAngle * numberSpawned) * spawnRadius + center.getX()
-                                                , Math.sin(spawnAngle * numberSpawned) * spawnRadius + center.getY()
-                                                , 50);
+                D3Vector position = new D3Vector(Math.cos(spawnAngle * numberSpawned) * spawnRadius + center.getX()
+                        , Math.sin(spawnAngle * numberSpawned) * spawnRadius + center.getY()
+                        , 50);
                 numberSpawned++;
 
                 this.m_physicsEngineDriver.addNewEntity(new Drone(gameengineId, Drone.DRONE_MAX_HEALTH, position, new D3Vector(), new D3Vector(), new D3PolarCoordinate()), protocolId);

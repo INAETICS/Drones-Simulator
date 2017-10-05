@@ -8,6 +8,7 @@ import mousio.etcd4j.responses.*;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryStoredNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 import org.inaetics.dronessimulator.discovery.api.tree.Tuple;
@@ -266,5 +267,18 @@ public class EtcdDiscoverer {
         registerProperties(newInstance);
 
         return newInstance;
+    }
+
+    public DiscoveryStoredNode getNode(Instance instance) {
+        String path = buildInstancePath(instance);
+        EtcdKeysResponse.EtcdNode etcdEntry = null;
+        try {
+            etcdEntry = this.client.get(path).send().get().getNode();
+        } catch (IOException | EtcdException | EtcdAuthenticationException | TimeoutException e) {
+            // Just return null
+            logger.error("No data could be retrieved from etcd, returning null", e);
+            return null;
+        }
+        return new DiscoveryStoredEtcdNode(etcdEntry);
     }
 }

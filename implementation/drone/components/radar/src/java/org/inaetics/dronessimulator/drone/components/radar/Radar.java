@@ -1,5 +1,7 @@
 package org.inaetics.dronessimulator.drone.components.radar;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
@@ -47,6 +49,7 @@ public class Radar implements MessageHandler {
     private volatile Discoverer m_discoverer;
 
     /** Last known position of this drone */
+    @Getter @Setter
     private volatile D3Vector position;
     /** Map of all last known entities and their positions */
     private final ConcurrentHashMap<String, D3Vector> all_positions = new ConcurrentHashMap<>();
@@ -87,13 +90,9 @@ public class Radar implements MessageHandler {
         );
     }
 
-    /**
+    /*
      * -- GETTERS
      */
-    public D3Vector getPosition(){
-        return position;
-    }
-
     /**
      * Retrieves all last known entities which are in range of this radar
      * @return The entities in range
@@ -123,13 +122,6 @@ public class Radar implements MessageHandler {
                 .stream()
                 .sorted((e1, e2) -> Double.compare(e1.distance_between(position), e2.distance_between(position)))
                 .findFirst();
-    }
-
-    /**
-     * -- SETTERS
-     */
-    private void setPosition(D3Vector new_position){
-        position = new_position;
     }
 
     //-- MESSAGEHANDLERS

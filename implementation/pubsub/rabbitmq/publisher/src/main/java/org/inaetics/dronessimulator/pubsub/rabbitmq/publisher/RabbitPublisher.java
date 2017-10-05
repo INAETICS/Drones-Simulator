@@ -3,6 +3,7 @@ package org.inaetics.dronessimulator.pubsub.rabbitmq.publisher;
 import com.rabbitmq.client.ConnectionFactory;
 import lombok.Getter;
 import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
@@ -23,8 +24,8 @@ public class RabbitPublisher extends RabbitConnection implements Publisher {
      * @param connectionFactory The RabbitMQ connection factory to use when starting a new connection.
      * @param serializer The serializer to use.
      */
-    public RabbitPublisher(ConnectionFactory connectionFactory, Serializer serializer) {
-        super(connectionFactory, serializer);
+    public RabbitPublisher(ConnectionFactory connectionFactory, Serializer serializer, Discoverer discoverer) {
+        super(connectionFactory, serializer, discoverer);
     }
 
     /**

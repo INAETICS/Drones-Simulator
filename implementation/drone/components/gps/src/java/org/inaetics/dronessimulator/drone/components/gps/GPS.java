@@ -1,5 +1,7 @@
 package org.inaetics.dronessimulator.drone.components.gps;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
@@ -33,18 +35,22 @@ public class GPS implements MessageHandler {
     /**
      * Last known position of this drone in the architecture
      */
+    @Getter @Setter
     private volatile D3Vector position = new D3Vector();
     /**
      * Last known velocity of this drone in the architecture
      */
+    @Getter @Setter
     private volatile D3Vector velocity = new D3Vector();
     /**
      * Last known acceleration of this drone in the architecture
      */
+    @Getter @Setter
     private volatile D3Vector acceleration = new D3Vector();
     /**
      * Last known direction of this drone in the architecture
      */
+    @Getter @Setter
     private volatile D3PolarCoordinate direction = new D3PolarCoordinate();
 
 
@@ -59,70 +65,6 @@ public class GPS implements MessageHandler {
         }
         this.m_subscriber.addHandler(StateMessage.class, this);
     }
-
-
-    // -- GETTERS
-    /**
-     * Returns the current position of the drone
-     * @return the position as a D3Vector
-     */
-    public D3Vector getPosition(){
-        return position;
-    }
-
-    /**
-     * Returns the current velocity of the drone
-     * @return the velocity as a D3Vector
-     */
-    public D3Vector getVelocity(){
-        return velocity;
-    }
-
-    /**
-     * Returns the current acceleration of the drone
-     * @return the acceleration as a D3Vector
-     */
-    public D3Vector getAcceleration(){
-        return acceleration;
-    }
-
-    /**
-     * Returns the current direction of the drone
-     * @return the position as a D3PolarCoordinate
-     */
-    public D3PolarCoordinate getDirection(){ return direction; }
-
-    // -- SETTERS
-
-    /**
-     * Changes the current position of the drone
-     * @param new_position the new position as a D3Vector
-     */
-    private void setPosition(D3Vector new_position){
-        position = new_position;
-    }
-
-    /**
-     * Changes the current velocity of the drone
-     * @param new_velocity the new velocity as a D3Vector
-     */
-    private void setVelocity(D3Vector new_velocity){
-        velocity = new_velocity;
-    }
-
-    /**
-     * Changes the current acceleration of the drone
-     * @param new_acceleration the new acceleration as a D3Vector
-     */
-    protected void setAcceleration(D3Vector new_acceleration){
-        acceleration = new_acceleration;
-    }
-
-    /**
-     * Changes the current direction of the drone
-     * @param new_direction the new direction as a D3PolarCoordinate
-     */
-    private void setDirection(D3PolarCoordinate new_direction) { direction = new_direction; }
 
     /**
      * -- MESSAGEHANDLER

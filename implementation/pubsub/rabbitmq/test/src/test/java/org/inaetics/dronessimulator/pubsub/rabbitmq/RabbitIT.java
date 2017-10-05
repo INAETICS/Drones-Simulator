@@ -4,6 +4,7 @@ package org.inaetics.dronessimulator.pubsub.rabbitmq;
 import com.rabbitmq.client.ConnectionFactory;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
+import org.inaetics.dronessimulator.pubsub.rabbitmq.common.RabbitConnectionInfo;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.publisher.PublisherRunner;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.SubscriberRunner;
 import org.junit.Before;
@@ -36,7 +37,6 @@ public class RabbitIT {
     public void setUp() throws Exception {
         // Set up connection
         connection = new ConnectionFactory();
-        //TODO replace with RabbitConnectionInfo from #10
         connection.setUsername("yourUser");
         connection.setPassword("yourPass");
     }
@@ -62,8 +62,8 @@ public class RabbitIT {
 
         // Set up publisher and subscriber
         long timeout = PublisherRunner.SLEEP_TIME * (messages.size() + 3);
-        PublisherRunner pub = new PublisherRunner(this.connection, topic, messages);
-        SubscriberRunner sub = new SubscriberRunner(this.connection, topic, "sub", timeout);
+        PublisherRunner pub = new PublisherRunner(this.connection, topic, messages, null);
+        SubscriberRunner sub = new SubscriberRunner(this.connection, topic, "sub", timeout, null);
 
         // Run
         Thread pubT = new Thread(pub);
@@ -104,10 +104,10 @@ public class RabbitIT {
 
         // Set up publisher and subscribers
         long timeout = PublisherRunner.SLEEP_TIME * (messages.size() + 3);
-        PublisherRunner pub = new PublisherRunner(this.connection, topic, messages);
-        SubscriberRunner sub1 = new SubscriberRunner(this.connection, topic, "sub1", timeout);
-        SubscriberRunner sub2 = new SubscriberRunner(this.connection, topic, "sub2", timeout);
-        SubscriberRunner sub3 = new SubscriberRunner(this.connection, topic, "sub3", timeout);
+        PublisherRunner pub = new PublisherRunner(this.connection, topic, messages, null);
+        SubscriberRunner sub1 = new SubscriberRunner(this.connection, topic, "sub1", timeout, null);
+        SubscriberRunner sub2 = new SubscriberRunner(this.connection, topic, "sub2", timeout, null);
+        SubscriberRunner sub3 = new SubscriberRunner(this.connection, topic, "sub3", timeout, null);
 
         // Run
         Thread pubT = new Thread(pub);

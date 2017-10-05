@@ -18,6 +18,10 @@
             <artifactId>discovery-api</artifactId>
             <version>0.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.configadmin</artifactId>
+        </dependency>
     </dependencies>
 
     <packaging>bundle</packaging>

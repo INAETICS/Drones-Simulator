@@ -10,8 +10,10 @@ import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.RequestArchitectureStateChangeMessage;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.Instance;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryStoredNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
+import org.inaetics.dronessimulator.discovery.api.instances.ArchitectureInstance;
 import org.inaetics.dronessimulator.discovery.etcd.EtcdDiscoverer;
 import org.inaetics.dronessimulator.discovery.etcd.EtcdDiscovererService;
 import org.inaetics.dronessimulator.pubsub.api.Message;
@@ -19,6 +21,7 @@ import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
+import org.inaetics.dronessimulator.pubsub.rabbitmq.common.RabbitConnectionInfo;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.publisher.RabbitPublisher;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitSubscriber;
 import org.junit.After;
@@ -27,6 +30,7 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.*;
@@ -42,12 +46,19 @@ public class LifecycleUpdateIT {
         discoverer = new EtcdDiscovererService();
 
         Serializer serializer = new JavaSerializer();
-        ConnectionFactory connectionFactory = new ConnectionFactory();
-        //TODO replace this with a call to RabbitConnectionInfo from #10
-        connectionFactory.setUsername("yourUser");
-        connectionFactory.setPassword("yourPass");
-        publisher = new RabbitPublisher(connectionFactory, serializer);
-        subscriber = new RabbitSubscriber(connectionFactory, "architecture_test", serializer);
+        RabbitConnectionInfo connectionInfo = RabbitConnectionInfo.createInstance(discoverer);
+        ConnectionFactory connectionFactory = null;
+        try {
+            connectionFactory = connectionInfo.createConnectionFactory();
+        } catch (RabbitConnectionInfo.ConnectionInfoExpiredException e) {
+            e.printStackTrace();
+            System.out.println("Using default fallback");
+            connectionFactory = new ConnectionFactory();
+            connectionFactory.setUsername("yourUser");
+            connectionFactory.setPassword("yourPass");
+        }
+        publisher = new RabbitPublisher(connectionFactory, serializer, discoverer);
+        subscriber = new RabbitSubscriber(connectionFactory, "architecture_test", serializer, discoverer);
     }
 
     @Test
@@ -71,7 +82,7 @@ public class LifecycleUpdateIT {
         //Set the state for etcd
         HashMap<String, String> stateMap = new HashMap<>();
         stateMap.put("current_life_cycle", "NOSTATE.INIT.INIT");
-        discoverer.updateProperties(new Instance(Type.SERVICE, Group.SERVICES, "architecture"), stateMap); //TODO replace this with the Architecture instance from issue #10.
+        discoverer.updateProperties(new ArchitectureInstance(), stateMap);
 
         // Actual test
         RequestArchitectureStateChangeMessage testMessage = new RequestArchitectureStateChangeMessage();
@@ -81,8 +92,17 @@ public class LifecycleUpdateIT {
         int attempts = 0;
         while (attempts <= 3 && !isReceived.get()) {
             Thread.sleep(100);
-            if (attempts == 3)
-                assertTrue("state did not change to CONFIG. Current state: UNKNOWN", isReceived.get()); //TODO replace with actual value after mering #10
+            if (attempts == 3) {
+                String currentState = "UNKNOWN";
+                DiscoveryStoredNode stateNode = discoverer.getNode(new ArchitectureInstance());
+                if (stateNode != null) {
+                    Map<String, String> stateNodeValues = stateNode.getValues();
+                    if (stateNodeValues != null && !stateNodeValues.isEmpty()) {
+                        currentState = stateNodeValues.get("current_life_cycle");
+                    }
+                }
+                assertTrue("state did not change to CONFIG. Current state: " + currentState, isReceived.get());
+            }
             attempts++;
         }
         // Stop everything

@@ -136,8 +136,8 @@ public class SimpleTactic extends Tactic {
     private void calculateAcceleration(){
         D3Vector output_acceleration = m_engine.maximize_acceleration(m_gps.getAcceleration());
         output_acceleration = this.accelerateByNoMovement(output_acceleration);
-        output_acceleration = this.brakeForWall(output_acceleration);
-        output_acceleration = this.accelerateAfterWall(output_acceleration);
+        //output_acceleration = this.brakeForWall(output_acceleration);
+        //output_acceleration = this.accelerateAfterWall(output_acceleration);
         m_engine.changeAcceleration(output_acceleration);
     }
 

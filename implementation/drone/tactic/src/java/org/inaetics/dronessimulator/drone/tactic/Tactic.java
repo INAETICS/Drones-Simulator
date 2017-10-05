@@ -1,8 +1,6 @@
 package org.inaetics.dronessimulator.drone.tactic;
 
 
-import org.apache.felix.dm.DependencyManager;
-import org.apache.felix.dm.ServiceDependency;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.common.ManagedThread;
@@ -228,6 +226,4 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
      * Method which is called to calculate and perform the new tactics. A tactic should implement this method with its own logic.
      */
     abstract void calculateTactics();
-
-    public abstract Iterable<? extends ServiceDependency> getComponents(DependencyManager dependencyManager);
 }

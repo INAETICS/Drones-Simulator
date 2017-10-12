@@ -1,11 +1,9 @@
 package org.inaetics.dronessimulator.visualisation.messagehandlers;
 
 import javafx.application.Platform;
-import javafx.scene.Scene;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Text;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
+import javafx.scene.control.Alert;
+import javafx.scene.layout.Region;
+import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.protocol.GameFinishedMessage;
@@ -26,20 +24,22 @@ public class GameFinishedHandler implements MessageHandler {
 
         // Avoid throwing IllegalStateException by running from a non-JavaFX thread.
         Platform.runLater(() -> {
-            final Stage dialog = new Stage();
-            dialog.initModality(Modality.APPLICATION_MODAL);
-            dialog.initOwner(mainWindow);
-            VBox dialogVbox = new VBox(20);
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("The game finished");
             if (gameFinishedMessage.getWinner() == null) {
                 //There is no winner defined. This means that there was a draw.
-                dialogVbox.getChildren().add(new Text("The game is finished and ended in a draw"));
+                alert.setContentText("The game is finished and ended in a draw");
 
             } else {
-                dialogVbox.getChildren().add(new Text("The game is finished and was won by: " + gameFinishedMessage.getWinner()));
+                alert.setContentText("The game is finished and was won by: " + gameFinishedMessage.getWinner());
             }
-            Scene dialogScene = new Scene(dialogVbox, 300, 200);
-            dialog.setScene(dialogScene);
-            dialog.show();
+            alert.initStyle(StageStyle.UTILITY);
+            alert.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+            alert.getDialogPane().setMinWidth(Region.USE_PREF_SIZE);
+            alert.setHeaderText(null);
+            alert.setResizable(true);
+
+            alert.show();
         });
     }
 }

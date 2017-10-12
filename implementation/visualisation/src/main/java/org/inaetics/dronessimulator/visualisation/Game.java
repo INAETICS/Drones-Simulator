@@ -129,7 +129,6 @@ public class Game extends Application {
         }
     };
     private RabbitConnectionInfo rabbitConnectionInfo;
-    private GameFinishedHandler gameFinishedHandler;
 
     /**
      * Instantiates a new game object
@@ -342,8 +341,7 @@ public class Game extends Application {
             this.subscriber.addHandler(FireBulletMessage.class, new FireBulletMessageHandler());
             this.subscriber.addHandler(KillMessage.class, new KillMessageHandler(this.entities));
             this.subscriber.addHandler(StateMessage.class, new StateMessageHandler(uiUpdates, this.entities));
-            gameFinishedHandler = new GameFinishedHandler(primaryStage);
-            this.subscriber.addHandler(GameFinishedMessage.class, gameFinishedHandler);
+            this.subscriber.addHandlerIfNotExists(GameFinishedMessage.class, new GameFinishedHandler(primaryStage));
 
             this.subscriber.addTopic(MessageTopic.STATEUPDATES);
         }

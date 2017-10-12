@@ -140,6 +140,16 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
         logger.debug("Handler {} set for message class {}", handler, messageClass);
     }
 
+    @Override
+    public void addHandlerIfNotExists(Class<? extends Message> messageClass, MessageHandler handler) {
+        // Create new set for this message class if needed
+        Collection<MessageHandler> handlers = RabbitSubscriber.handlers.computeIfAbsent(messageClass, k -> new HashSet<>());
+        if (handlers.stream().filter(h -> h.getClass().equals(handler.getClass())).count() == 0) {
+            handlers.add(handler);
+            logger.debug("Handler {} set for message class {}", handler, messageClass);
+        }
+    }
+
     /**
      * Removes the given handler for the given message class.
      * @param messageClass The message class to remove the handler for.

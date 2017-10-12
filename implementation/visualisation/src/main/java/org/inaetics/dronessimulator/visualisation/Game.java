@@ -106,7 +106,7 @@ public class Game extends Application {
      * Close event handler
      * When the window closes, rabbitmq and the discoverer disconnect
      */
-    private EventHandler onCloseEventHandler = new EventHandler<WindowEvent>() {
+    private EventHandler<WindowEvent> onCloseEventHandler = new EventHandler<WindowEvent>() {
         boolean isClosed = false;
 
         @Override
@@ -423,7 +423,6 @@ public class Game extends Application {
         root.getChildren().add(borderPane);
 
         configButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.CONFIG, publisher));
-        configButton.addEventHandler(MouseEvent.MOUSE_CLICKED, (e) -> gameFinishedHandler.clear());
         startButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.START, publisher));
         stopButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.STOP, publisher));
         pauseButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.PAUSE, publisher));

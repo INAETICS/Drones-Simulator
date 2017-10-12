@@ -3,16 +3,28 @@ package org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.gameengine.common.state.Drone;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
+import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.AbstractGameFinishedRule;
 
 import java.util.List;
+import java.util.Optional;
 
 public class DeathmatchGameFinished extends AbstractGameFinishedRule {
     private int winner;
 
+    public DeathmatchGameFinished(IdentifierMapper idMapper) {
+        super(idMapper);
+    }
+
     @Override
     protected String getWinner() {
-        return String.valueOf(winner);
+        String droneName = String.valueOf(winner);
+        Optional<String> droneId = idMapper.fromGameEngineToProtocolId(winner);
+        if (droneId.isPresent()) {
+            droneName = droneId.get();
+        }
+
+        return droneName;
     }
 
     @Override

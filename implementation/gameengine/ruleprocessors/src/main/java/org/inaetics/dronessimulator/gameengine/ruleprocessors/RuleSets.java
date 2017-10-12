@@ -20,7 +20,7 @@ public class RuleSets {
                                 , new KillEntitiesRule()
                                 , new RemoveStrayBullets()
                                 , new RemoveStaleStateData()
-                                , new DeathmatchGameFinished()
+                                , new DeathmatchGameFinished(idMapper)
                                 , new SendMessages(publisher, idMapper)
                         };
                 break;

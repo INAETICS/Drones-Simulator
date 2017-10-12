@@ -30,7 +30,13 @@ public class GameFinishedHandler implements MessageHandler {
             dialog.initModality(Modality.APPLICATION_MODAL);
             dialog.initOwner(mainWindow);
             VBox dialogVbox = new VBox(20);
-            dialogVbox.getChildren().add(new Text("The game is finished and was won by: " + gameFinishedMessage.getWinner()));
+            if (gameFinishedMessage.getWinner() == null) {
+                //There is no winner defined. This means that there was a draw.
+                dialogVbox.getChildren().add(new Text("The game is finished and ended in a draw"));
+
+            } else {
+                dialogVbox.getChildren().add(new Text("The game is finished and was won by: " + gameFinishedMessage.getWinner()));
+            }
             Scene dialogScene = new Scene(dialogVbox, 300, 200);
             dialog.setScene(dialogScene);
             dialog.show();

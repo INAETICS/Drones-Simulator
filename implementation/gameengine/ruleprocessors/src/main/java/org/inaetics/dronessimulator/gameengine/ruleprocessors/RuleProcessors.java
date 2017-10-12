@@ -27,17 +27,9 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
     /**
      * The physics engine driver to get events from.
      */
-    private IPhysicsEngineDriver m_driver;
-
-    /**
-     * The publisher to send messages to.
-     */
-    private Publisher m_publisher;
-
-    /**
-     * The identifier mapper.
-     */
-    private IdentifierMapper m_id_mapper;
+    private volatile IPhysicsEngineDriver m_driver;
+    private volatile Publisher m_publisher;
+    private volatile IdentifierMapper m_id_mapper;
 
     /**
      * Queue of the events to process.

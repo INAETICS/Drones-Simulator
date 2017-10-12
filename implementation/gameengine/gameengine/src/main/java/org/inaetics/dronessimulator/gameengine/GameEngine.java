@@ -13,9 +13,7 @@ import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.*;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
 import org.inaetics.dronessimulator.discovery.api.instances.GameEngineInstance;
@@ -31,6 +29,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Wrapper around PhysicsEngine. Sets up and connects all handlers with each other.
@@ -174,7 +173,13 @@ public class GameEngine {
                         , 50);
                 numberSpawned++;
 
-                this.m_physicsEngineDriver.addNewEntity(new Drone(gameengineId, Drone.DRONE_MAX_HEALTH, position, new D3Vector(), new D3Vector(), new D3PolarCoordinate()), protocolId);
+                String droneteam = "unknown_team";
+                Optional<String> droneId = m_id_mapper.fromGameEngineToProtocolId(gameengineId);
+                if (droneId.isPresent()) {
+                    DiscoveryStoredNode droneInfo = m_discoverer.getNode(new Instance(Type.DRONE, Group.DRONE, droneId.get()));
+                    droneteam = droneInfo.getValues().get("team");
+                }
+                this.m_physicsEngineDriver.addNewEntity(new Drone(gameengineId, droneteam, Drone.DRONE_MAX_HEALTH, position, new D3Vector(), new D3Vector(), new D3PolarCoordinate()), protocolId);
                 logger.info("Added new drone " + protocolId + " as " + gameengineId);
             }
         });

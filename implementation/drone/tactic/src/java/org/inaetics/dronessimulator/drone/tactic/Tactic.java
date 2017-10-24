@@ -13,6 +13,7 @@ import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
+import org.inaetics.dronessimulator.discovery.api.instances.DroneInstance;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
@@ -113,7 +114,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
                 }
         );
 
-        simulationInstance = new Instance(Type.DRONE, Group.DRONE, m_drone.getIdentifier());
+        simulationInstance = new DroneInstance(m_drone.getIdentifier());
 
         registerSubscriber();
 

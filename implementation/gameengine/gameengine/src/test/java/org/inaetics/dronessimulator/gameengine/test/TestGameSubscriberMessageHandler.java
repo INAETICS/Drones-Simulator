@@ -40,7 +40,7 @@ public class TestGameSubscriberMessageHandler {
 
         int gameengineId = this.id_mapper.getNewGameEngineId();
         String protocolId = "1";
-        this.drone = new Drone(gameengineId, new D3Vector(), new D3Vector(), new D3Vector(), new D3PolarCoordinate());
+        this.drone = new Drone(gameengineId, null, new D3Vector(), new D3Vector(), new D3Vector(), new D3PolarCoordinate());
 
         this.id_mapper.setMapping(gameengineId, protocolId);
         this.stateManager.addEntityState(drone);

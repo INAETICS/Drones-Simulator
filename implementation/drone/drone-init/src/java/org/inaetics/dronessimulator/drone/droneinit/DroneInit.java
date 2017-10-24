@@ -1,12 +1,13 @@
 package org.inaetics.dronessimulator.drone.droneinit;
 
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
+import org.inaetics.dronessimulator.discovery.api.instances.DroneInstance;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ public class DroneInit {
     /**
      * The identifier of this drone
      */
+    @Getter @Setter
     private String identifier;
 
     /**
@@ -67,7 +69,7 @@ public class DroneInit {
     private void registerDroneService() throws IOException {
         Map<String, String> properties = new HashMap<>();
         properties.put("team", getTeamname());
-        Instance instance = new Instance(Type.SERVICE, Group.SERVICES, this.getIdentifier(), properties);
+        Instance instance = new DroneInstance(this.getIdentifier(), properties);
         try {
             m_discoverer.register(instance);
             this.registered_instance = instance;
@@ -75,10 +77,9 @@ public class DroneInit {
             this.setIdentifier(this.getIdentifier() + "-" + UUID.randomUUID().toString());
             this.registerDroneService();
         }
-
     }
 
-    private String getTeamname() {
+    public String getTeamname() {
         String teamname = "unkown_team"; //Default fallback
 
         if (System.getenv("DRONE_TEAM") != null) {
@@ -94,24 +95,6 @@ public class DroneInit {
      */
     private void unregisterDroneService() throws IOException {
         this.m_discoverer.unregister(registered_instance);
-    }
-
-    /**
-     * Returns the indentifier from the drone
-     *
-     * @return the indentifier
-     */
-    public String getIdentifier() {
-        return this.identifier;
-    }
-
-    /**
-     * Changes the indentifier to a new value
-     *
-     * @param new_identifier the new indentifier
-     */
-    public void setIdentifier(String new_identifier) {
-        this.identifier = new_identifier;
     }
 
     /**

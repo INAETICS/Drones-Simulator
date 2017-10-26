@@ -7,9 +7,16 @@ import org.inaetics.dronessimulator.drone.components.engine.Engine;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.components.gun.Gun;
 import org.inaetics.dronessimulator.drone.components.radar.Radar;
+import org.inaetics.dronessimulator.drone.components.radio.Radio;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 /**
  * Simple tactic which flies randomly and fires a bullet on enemies.
@@ -19,55 +26,95 @@ public class SimpleTactic extends Tactic {
     protected volatile GPS m_gps;
     protected volatile Engine m_engine;
     protected volatile Gun m_gun;
+    protected volatile Radio radio;
 
     private static final double MAX_DEVIATION_POSTION = Settings.ARENA_WIDTH;
     private static final double MAX_Z_DEVIATION_POSTION = Settings.ARENA_HEIGHT;
+
+    private List<String> teamMates = new ArrayList<>();
+    private LocalDateTime lastPoll = LocalDateTime.now();
+
     /**
-     *  -- IMPLEMENT FUNCTIONS
+     * -- IMPLEMENT FUNCTIONS
      */
 
-    void calculateTactics(){
+    void calculateTactics() {
         this.calculateAcceleration();
         this.calculateGun();
+        this.talkToTeam();
     }
 
     /**
-     *  -- FUNCTIONS
+     * -- FUNCTIONS
      */
+
+    private void talkToTeam() {
+        List<String> messages = getTeamMessages();
+        if (LocalDateTime.now().isAfter(lastPoll.plusSeconds(1)) && messages.isEmpty()) {
+            sendMessage("Identify yourself!");
+        } else {
+            for (String msg : messages) {
+                String sender = msg.substring(msg.indexOf('(') + 1, msg.indexOf(')'));
+                String text = msg.substring(msg.indexOf(')') + 1);
+                switch (text) {
+                    case "Identify yourself!":
+                        sendMessage("");
+                        break;
+                    // more cases here
+                }
+                if (teamMates.contains(sender)) {
+                    teamMates.add(sender);
+                }
+            }
+        }
+    }
+
+    private void sendMessage(String msg) {
+        radio.sendText("(" + this.getName() + ")" + msg);
+    }
+
+    private List<String> getTeamMessages() {
+        ConcurrentLinkedQueue<String> messages = radio.getMessages();
+        return messages.stream()
+                .filter(msg -> !getName().equals(msg.substring(msg.indexOf('(') + 1, msg.indexOf(')'))))
+                .collect(Collectors.toList());
+    }
 
     /**
      * Accelerate the drone when the current acceleration is 0 m/s.
+     *
      * @param input_acceleration the current acceleration
      * @return the new acceleration
      */
-    private D3Vector accelerateByNoMovement(D3Vector input_acceleration){
+    private D3Vector accelerateByNoMovement(D3Vector input_acceleration) {
         D3Vector output_acceleration = input_acceleration;
-        if (m_gps.getAcceleration().length() == 0 && m_gps.getVelocity().length() == 0){
+        if (m_gps.getAcceleration().length() == 0 && m_gps.getVelocity().length() == 0) {
 
             double x = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
             double y = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
             double z = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
-            output_acceleration =  new D3Vector(x, y, z);
+            output_acceleration = new D3Vector(x, y, z);
         }
         return output_acceleration;
     }
 
     /**
      * Change acceleration to avoid wall collision
+     *
      * @param input_acceleration the current acceleration
      * @return the new acceleration
      */
-    private D3Vector brakeForWall(D3Vector input_acceleration){
+    private D3Vector brakeForWall(D3Vector input_acceleration) {
         D3Vector output_acceleration = input_acceleration;
         double aantal_seconden_tot_nul = m_gps.getVelocity().length() / m_engine.getMaxAcceleration();
         D3Vector berekende_position = m_gps.getVelocity().scale(0.5).scale(aantal_seconden_tot_nul).add(m_gps.getPosition());
 
-        if(berekende_position.getX() >= MAX_DEVIATION_POSTION ||
+        if (berekende_position.getX() >= MAX_DEVIATION_POSTION ||
                 berekende_position.getX() <= 0 ||
                 berekende_position.getY() >= MAX_DEVIATION_POSTION ||
                 berekende_position.getY() <= 0 ||
                 berekende_position.getZ() >= MAX_Z_DEVIATION_POSTION ||
-                berekende_position.getZ() <= 0){
+                berekende_position.getZ() <= 0) {
             output_acceleration = m_engine.maximize_acceleration(m_engine.limit_acceleration(m_gps.getVelocity().scale(-1)));
         }
         return output_acceleration;
@@ -75,54 +122,52 @@ public class SimpleTactic extends Tactic {
 
     /**
      * Change direction of drone when the maximum derivation is archieved.
+     *
      * @param input_acceleration the current acceleration
      * @return the new acceleration
      */
-    private D3Vector accelerateAfterWall(D3Vector input_acceleration){
+    private D3Vector accelerateAfterWall(D3Vector input_acceleration) {
         D3Vector output_acceleration = input_acceleration;
         // Check positions | if maximum deviation is archieved then change acceleration in opposite direction
         double x = output_acceleration.getX();
         double y = output_acceleration.getY();
         double z = output_acceleration.getZ();
 
-        if(m_gps.getPosition().getX() >= MAX_DEVIATION_POSTION ||
-                m_gps.getPosition().getX() <= 0){
+        if (m_gps.getPosition().getX() >= MAX_DEVIATION_POSTION ||
+                m_gps.getPosition().getX() <= 0) {
             y = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
             z = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
 
-            if(m_gps.getPosition().getX() >= MAX_DEVIATION_POSTION){
-                x = - m_engine.getMaxAcceleration();
-            }
-            else if(m_gps.getPosition().getX() <= 0){
+            if (m_gps.getPosition().getX() >= MAX_DEVIATION_POSTION) {
+                x = -m_engine.getMaxAcceleration();
+            } else if (m_gps.getPosition().getX() <= 0) {
                 x = m_engine.getMaxAcceleration();
             }
         }
 
-        if(m_gps.getPosition().getY() >= MAX_DEVIATION_POSTION || m_gps.getPosition().getY() <= 0){
+        if (m_gps.getPosition().getY() >= MAX_DEVIATION_POSTION || m_gps.getPosition().getY() <= 0) {
             x = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
             z = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
 
-            if(m_gps.getPosition().getY() >= MAX_DEVIATION_POSTION){
-                y = - m_engine.getMaxAcceleration();
-            }
-            else if(m_gps.getPosition().getY() <= 0){
+            if (m_gps.getPosition().getY() >= MAX_DEVIATION_POSTION) {
+                y = -m_engine.getMaxAcceleration();
+            } else if (m_gps.getPosition().getY() <= 0) {
                 y = m_engine.getMaxAcceleration();
             }
         }
 
-        if(m_gps.getPosition().getZ() >= MAX_Z_DEVIATION_POSTION || m_gps.getPosition().getZ() <= 0){
+        if (m_gps.getPosition().getZ() >= MAX_Z_DEVIATION_POSTION || m_gps.getPosition().getZ() <= 0) {
             x = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
             y = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
 
-            if(m_gps.getPosition().getZ() >= MAX_Z_DEVIATION_POSTION){
-                z = - m_engine.getMaxAcceleration();
-            }
-            else if(m_gps.getPosition().getZ() <= 0){
+            if (m_gps.getPosition().getZ() >= MAX_Z_DEVIATION_POSTION) {
+                z = -m_engine.getMaxAcceleration();
+            } else if (m_gps.getPosition().getZ() <= 0) {
                 z = m_engine.getMaxAcceleration();
             }
         }
 
-        output_acceleration = new D3Vector(x,y,z);
+        output_acceleration = new D3Vector(x, y, z);
         output_acceleration = m_engine.maximize_acceleration(output_acceleration);
         return output_acceleration;
     }
@@ -130,7 +175,7 @@ public class SimpleTactic extends Tactic {
     /**
      * Calculates the new acceleration of the drone
      */
-    private void calculateAcceleration(){
+    private void calculateAcceleration() {
         D3Vector output_acceleration = m_engine.maximize_acceleration(m_gps.getAcceleration());
         output_acceleration = this.accelerateByNoMovement(output_acceleration);
         output_acceleration = this.brakeForWall(output_acceleration);
@@ -141,10 +186,10 @@ public class SimpleTactic extends Tactic {
     /**
      * Checks if a bullet can be fired by the gun.
      */
-    private void calculateGun(){
+    private void calculateGun() {
         Optional<Tuple<String, D3Vector>> target = m_radar.getNearestTarget();
-        if(target.isPresent()){
-            if(target.get().getRight().distance_between(m_gps.getPosition()) <= m_gun.getMaxDistance()){
+        if (target.isPresent()) {
+            if (target.get().getRight().distance_between(m_gps.getPosition()) <= m_gun.getMaxDistance()) {
                 m_gun.fireBullet(target.get().getRight().sub(m_gps.getPosition()).toPoolCoordinate());
             }
         }

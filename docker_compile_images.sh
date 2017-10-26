@@ -112,6 +112,7 @@ cp "$ROOT/drone/components/engine/target/components-engine-0.1.jar" $DRONE_BUNDL
 cp "$ROOT/drone/components/gps/target/components-gps-0.1.jar" $DRONE_BUNDLES
 cp "$ROOT/drone/components/gun/target/components-gun-0.1.jar" $DRONE_BUNDLES
 cp "$ROOT/drone/components/radar/target/components-radar-0.1.jar" $DRONE_BUNDLES
+cp "$ROOT/drone/components/radio/target/components-radio-0.1.jar" $DRONE_BUNDLES
 cp "$ROOT/drone/drone-init/target/drone-init-0.1.jar" $DRONE_BUNDLES
 cp "$ROOT/drone/tactic/target/tactic-0.1.jar" $DRONE_BUNDLES
 cp "$ROOT/architecture-event-controller/target/architecture-event-controller-0.1.jar" $DRONE_BUNDLES

@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.drone.components.radio;
 
 import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.common.protocol.TeamTopic;
 import org.inaetics.dronessimulator.common.protocol.TextMessage;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
@@ -37,7 +38,7 @@ public class Radio implements MessageHandler {
      */
     public void start() {
         try {
-            this.m_subscriber.addTopic(MessageTopic.RADIO);
+            this.m_subscriber.addTopic(new TeamTopic(m_drone.getTeamname()));
         } catch (IOException e) {
             logger.fatal(e);
         }
@@ -50,6 +51,7 @@ public class Radio implements MessageHandler {
      */
 
     public void sendText(String text){
+        logger.debug("Message sent: " + text);
         TextMessage msg = new TextMessage();
         msg.setText(text);
         try{

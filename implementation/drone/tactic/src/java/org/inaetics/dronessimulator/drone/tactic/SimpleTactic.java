@@ -1,16 +1,13 @@
 package org.inaetics.dronessimulator.drone.tactic;
 
-import org.apache.felix.dm.DependencyManager;
-import org.apache.felix.dm.ServiceDependency;
 import org.inaetics.dronessimulator.common.Settings;
+import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.components.engine.Engine;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.components.gun.Gun;
 import org.inaetics.dronessimulator.drone.components.radar.Radar;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -145,10 +142,10 @@ public class SimpleTactic extends Tactic {
      * Checks if a bullet can be fired by the gun.
      */
     private void calculateGun(){
-        Optional<D3Vector> target = m_radar.getNearestTarget();
+        Optional<Tuple<String, D3Vector>> target = m_radar.getNearestTarget();
         if(target.isPresent()){
-            if(target.get().distance_between(m_gps.getPosition()) <= m_gun.getMaxDistance()){
-                m_gun.fireBullet(target.get().sub(m_gps.getPosition()).toPoolCoordinate());
+            if(target.get().getRight().distance_between(m_gps.getPosition()) <= m_gun.getMaxDistance()){
+                m_gun.fireBullet(target.get().getRight().sub(m_gps.getPosition()).toPoolCoordinate());
             }
         }
     }

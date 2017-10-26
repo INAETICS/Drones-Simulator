@@ -329,7 +329,6 @@ public class Game extends Application {
                 logger.fatal(e);
             }
 
-
             this.subscriber.addHandler(CollisionMessage.class, new CollisionMessageHandler());
             this.subscriber.addHandler(DamageMessage.class, new DamageMessageHandler());
             this.subscriber.addHandler(FireBulletMessage.class, new FireBulletMessageHandler());

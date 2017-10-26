@@ -1,6 +1,6 @@
 package org.inaetics.dronessimulator.architectureevents;
 
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
@@ -23,13 +23,12 @@ import java.util.Map;
  * Listens to discovery for any changes to the current state
  * If a change occurs, calls the registered handlers for the lifecycle step
  */
+@Log4j
 public class ArchitectureEventControllerService implements ArchitectureEventController {
-
-    private final Logger logger = Logger.getLogger(ArchitectureEventControllerService.class);
     /**
      * Reference to Discovery bundle
      */
-    private volatile Discoverer m_discovery;
+    private volatile Discoverer discoverer;
 
     /**
      * The previous state of the architecture
@@ -49,7 +48,6 @@ public class ArchitectureEventControllerService implements ArchitectureEventCont
      */
     private final Map<LifeCycleStep, List<ArchitectureEventHandler>> handlers = new HashMap<>();
 
-
     /**
      * OSGI Constructor
      */
@@ -59,8 +57,8 @@ public class ArchitectureEventControllerService implements ArchitectureEventCont
     /**
      * Visualisation Constructor
      */
-    public ArchitectureEventControllerService(Discoverer m_discovery) {
-        this.m_discovery = m_discovery;
+    public ArchitectureEventControllerService(Discoverer discoverer) {
+        this.discoverer = discoverer;
     }
 
     /**
@@ -86,7 +84,7 @@ public class ArchitectureEventControllerService implements ArchitectureEventCont
         });
 
 
-        m_discovery.addHandlers(true, addHandlers, changedValueHandlers, removedHandlers);
+        discoverer.addHandlers(true, addHandlers, changedValueHandlers, removedHandlers);
     }
 
     /**
@@ -111,12 +109,12 @@ public class ArchitectureEventControllerService implements ArchitectureEventCont
 
         LifeCycleStep lifeCycleStep = new LifeCycleStep(currentFromState, currentAction, currentToState);
 
-        List<ArchitectureEventHandler> handlers = this.handlers.get(lifeCycleStep);
+        List<ArchitectureEventHandler> handlersForLifecycleStep = this.handlers.get(lifeCycleStep);
 
-        logger.debug("handleNewState with state: " + lifeCycleStep + " handle with " + (handlers != null ? handlers.size() : "0") + " handlers");
+        log.debug("handleNewState with state: " + lifeCycleStep + " handle with " + (handlersForLifecycleStep != null ? handlersForLifecycleStep.size() : "0") + " handlers");
 
-        if (handlers != null) {
-            for (ArchitectureEventHandler handler : handlers) {
+        if (handlersForLifecycleStep != null) {
+            for (ArchitectureEventHandler handler : handlersForLifecycleStep) {
                 handler.handle(currentFromState, currentAction, currentToState);
             }
         }

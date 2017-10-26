@@ -41,6 +41,7 @@
         <lombok.version>1.16.10</lombok.version>
         <lombok.plugin.version>${lombok.version}.0</lombok.plugin.version>
         <kotlin.version>1.1.4-3</kotlin.version>
+        <mockito.version>2.11.0</mockito.version>
     </properties>
 
     <dependencyManagement>
@@ -49,6 +50,12 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -92,6 +99,10 @@
                 <configuration>
                     <destFile>${sonar.jacoco.reportPath}</destFile>
                     <append>true</append>
+                    <excludes>
+                        <exclude>**/Activator.*</exclude>
+                        <exclude>**/common-test/**</exclude>
+                    </excludes>
                 </configuration>
                 <executions>
                     <execution>

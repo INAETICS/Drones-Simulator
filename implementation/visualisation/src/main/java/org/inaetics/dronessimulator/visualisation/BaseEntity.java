@@ -2,6 +2,9 @@ package org.inaetics.dronessimulator.visualisation;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.Setter;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.visualisation.uiupdates.AddBaseEntity;
@@ -16,18 +19,28 @@ import java.util.concurrent.BlockingQueue;
  */
 public abstract class BaseEntity {
     /** List of ui updates it can add changes to the ui to */
+    @Getter(AccessLevel.PROTECTED)
     private final BlockingQueue<UIUpdate> uiUpdates;
     /** Image of the base entity */
     ImageView imageView;
 
     /** Position of the base entity */
+    @Setter
     D3Vector position;
     /** Direction as a set of polar coordinates of the base entity */
+    @Setter
     private D3PolarCoordinate direction;
 
-    /** X coordinate of the sprite, position of the upper left corner */
+    /**
+     * X coordinate of the sprite, position of the upper left corner of the entity's sprite
+     */
+    @Getter
+    @Setter
     private double spriteX;
-    /** Y coordinate of the sprite, position of the upper left corner */
+    /**
+     * Y coordinate of the sprite, position of the upper left corner of the entity's sprite
+     */
+    @Getter @Setter
     private double spriteY;
 
     /**
@@ -63,59 +76,11 @@ public abstract class BaseEntity {
     }
 
     /**
-     * Returns the x coordinate of the left upper corner of the entity's sprite
-     * @return spriteX - x coordinate
-     */
-    double getSpriteX() {
-        return spriteX;
-    }
-
-    /**
-     * Returns the y coordinate of the left upper corner of the entity's sprite
-     * @return spriteY - y coordinate
-     */
-    double getSpriteY() {
-        return spriteY;
-    }
-
-    /**
-     * Set the x-coordinate of the left upper corner of the entity's sprite
-     * @param x - x coordinate
-     */
-    private void setSpriteX(double x) {
-        spriteX = x;
-    }
-
-    /**
-     * Set the y-coordinate of the left upper corner of the entity's sprite
-     * @param y - y coordinate
-     */
-    private void setSpriteY(double y) {
-        spriteY = y;
-    }
-
-    /**
      * Scales the height from 0-1000 to a double between 0.1 and 1.0
      * @return Double between 0.1 and 1.0
      */
     double getScale() {
-        return scale(position.getZ(), 0, 1000, 0.1, 1.0);
-    }
-
-    /**
-     * Set the position of the base entity
-     * @param position - position
-     */
-    public void setPosition(D3Vector position) {
-        this.position = position;
-    }
-
-    /**
-     * Set the direction of the base entity
-     * @param direction - direction
-     */
-    public void setDirection(D3PolarCoordinate direction) {
-        this.direction = direction;
+        return scale(position.getZ(), 0, 1000, 0.1, 1.0); //TODO replace baseMax with an actual maximal value for this axis, no magic numbers!
     }
 
     /**
@@ -139,13 +104,5 @@ public abstract class BaseEntity {
      */
     private static double scale(final double valueIn, final double baseMin, final double baseMax, final double limitMin, final double limitMax) {
         return ((limitMax - limitMin) * (valueIn - baseMin) / (baseMax - baseMin)) + limitMin;
-    }
-
-    /**
-     * Get the ui updates
-     * @return - uiupdates
-     */
-    BlockingQueue<UIUpdate> getUiUpdates() {
-        return uiUpdates;
     }
 }

@@ -1,6 +1,6 @@
 package org.inaetics.dronessimulator.test.concurrent;
 
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,9 +15,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * Test class to perform a number of jobs a specified amount of times
  * The jobs are shuffled and performed concurrently by a threadpool
  */
+@Log4j
 public class ConcurrentExecute {
-    private final static Logger logger = Logger.getLogger(ConcurrentExecute.class);
-
     /**
      * Next unique id
      */
@@ -92,7 +91,7 @@ public class ConcurrentExecute {
             this.timeoutHandler.quit();
             this.timeoutHandler.join();
         } catch (InterruptedException e) {
-            logger.fatal(e);
+            log.fatal(e);
             Thread.currentThread().interrupt();
         }
     }

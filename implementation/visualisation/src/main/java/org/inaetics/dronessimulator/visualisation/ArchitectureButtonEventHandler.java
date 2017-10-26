@@ -16,7 +16,7 @@ import java.io.IOException;
  */
 public class ArchitectureButtonEventHandler implements EventHandler<MouseEvent> {
     /** The Logger */
-    private final static Logger logger = Logger.getLogger(ArchitectureButtonEventHandler.class);
+    private static final Logger logger = Logger.getLogger(ArchitectureButtonEventHandler.class);
     /** The publisher */
     private final Publisher publisher;
     /** Action that will be taken when clicking the button */
@@ -38,8 +38,7 @@ public class ArchitectureButtonEventHandler implements EventHandler<MouseEvent> 
      */
     @Override
     public void handle(MouseEvent event) {
-        RequestArchitectureStateChangeMessage msg = new RequestArchitectureStateChangeMessage();
-        msg.setAction(action);
+        RequestArchitectureStateChangeMessage msg = new RequestArchitectureStateChangeMessage(action);
 
         try {
             publisher.send(MessageTopic.ARCHITECTURE, msg);

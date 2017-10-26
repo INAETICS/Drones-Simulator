@@ -33,6 +33,7 @@
             <groupId>org.inaetics.dronessimulator</groupId>
             <artifactId>common-test</artifactId>
             <version>0.1</version>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator</groupId>

@@ -16,6 +16,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import lombok.extern.log4j.Log4j;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventControllerService;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
@@ -24,6 +25,7 @@ import org.inaetics.dronessimulator.common.protocol.*;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
+import org.inaetics.dronessimulator.discovery.api.Instance;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
@@ -49,12 +51,30 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 /**
  * Instances of the game class create a new javafx application. This class provides a connection with etcd, rabbitmq and
  * contain all the game elements.
  */
+@Log4j
 public class Game extends Application {
+    /**
+     * All the entities in the game
+     */
+    private final ConcurrentMap<String, BaseEntity> entities = new ConcurrentHashMap<>();
+    /**
+     * All the available entities from the discoverer
+     */
+    private final ConcurrentMap<String, DiscoveryNode> availableEntities = new ConcurrentHashMap<>();
+    /**
+     * Rabbitmq configuration
+     */
+    private final Map<String, String> rabbitConfig = new HashMap<>();
+    /**
+     * UI updates
+     */
+    private final BlockingQueue<UIUpdate> uiUpdates;
     /**
      * Subscriber for rabbitmq
      */
@@ -67,22 +87,6 @@ public class Game extends Application {
      * Discoverer for etcd
      */
     private EtcdDiscovererService discoverer;
-
-    /**
-     * Logger
-     */
-    private static final Logger logger = Logger.getLogger(Game.class);
-
-    /**
-     * All the entities in the game
-     */
-    private final ConcurrentMap<String, BaseEntity> entities = new ConcurrentHashMap<>();
-
-    /**
-     * Rabbitmq configuration
-     */
-    private final Map<String, String> rabbitConfig = new HashMap<>();
-
     /**
      * The pannable and zommable canvas
      */
@@ -91,23 +95,10 @@ public class Game extends Application {
      * Group for all entities
      */
     private Group root;
-
-    /**
-     * UI updates
-     */
-    private final BlockingQueue<UIUpdate> uiUpdates;
     /**
      * check to see if the method onRabbitConnect is executed
      */
     private AtomicBoolean onRabbitConnectExecuted = new AtomicBoolean(false);
-
-    /**
-     * Instantiates a new game object
-     */
-    public Game() {
-        this.uiUpdates = new LinkedBlockingQueue<>();
-    }
-
     /**
      * counter for the logger to output once every 100 times
      */
@@ -116,7 +107,6 @@ public class Game extends Application {
      * Time is ms of the last log
      */
     private long lastLog = -1;
-
     /**
      * Close event handler
      * When the window closes, rabbitmq and the discoverer disconnect
@@ -127,7 +117,7 @@ public class Game extends Application {
         @Override
         public void handle(WindowEvent t) {
             if (!isClosed) {
-                logger.info("Closing the application gracefully");
+                log.info("Closing the application gracefully");
                 try {
                     if (subscriber != null)
                         subscriber.disconnect();
@@ -137,12 +127,29 @@ public class Game extends Application {
                         discoverer.stop();
                     isClosed = true;
                 } catch (IOException e) {
-                    logger.fatal(e);
+                    log.fatal(e);
                 }
                 Platform.exit();
             }
         }
     };
+    private Instance visualisationInstance = new Instance(Type.SERVICE, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.SERVICES, "visualisation", new HashMap<>());
+
+    /**
+     * Instantiates a new game object
+     */
+    public Game() {
+        this.uiUpdates = new LinkedBlockingQueue<>();
+    }
+
+    /**
+     * Main method of the visualisation
+     *
+     * @param args - args
+     */
+    public static void main(String[] args) {
+        launch(args);
+    }
 
     /**
      * Main entry point for a JavaFX application
@@ -164,9 +171,8 @@ public class Game extends Application {
                 long current_step_started_at_ms = System.currentTimeMillis();
 
                 if (!isRabbitConnected()) {
-                    logger.info("RabbitMQ is not (yet) connected.");
-                }
-                else if (!onRabbitConnectExecuted.get()) {
+                    log.info("RabbitMQ is not (yet) connected.");
+                } else if (!onRabbitConnectExecuted.get()) {
                     onRabbitConnect();
                     onRabbitConnectExecuted.set(true);
                 }
@@ -178,8 +184,8 @@ public class Game extends Application {
                     float fps = 1000f / durationAverageMs;
                     lastLog = current;
 
-                    logger.info("Average: " + durationAverageMs);
-                    logger.info("FPS: " + fps);
+                    log.info("Average: " + durationAverageMs);
+                    log.info("FPS: " + fps);
                     i = 0;
                 }
 
@@ -188,7 +194,7 @@ public class Game extends Application {
                         UIUpdate uiUpdate = uiUpdates.take();
                         uiUpdate.execute(canvas);
                     } catch (InterruptedException e) {
-                        logger.fatal(e);
+                        log.fatal(e);
                         Thread.currentThread().interrupt();
                     }
                 }
@@ -205,7 +211,7 @@ public class Game extends Application {
                     try {
                         Thread.sleep(diff);
                     } catch (InterruptedException e) {
-                        logger.fatal(e);
+                        log.fatal(e);
                         Thread.currentThread().interrupt();
                     }
                 }
@@ -213,142 +219,6 @@ public class Game extends Application {
 
         };
         gameLoop.start();
-    }
-
-    private boolean isRabbitConnected() {
-        return subscriber != null && subscriber.isConnected() && publisher != null && publisher.isConnected();
-    }
-
-    /**
-     * Setup discovery
-     * Create new discoverer object and start
-     */
-    private void setupDiscovery() {
-        this.discoverer = new EtcdDiscovererService();
-        this.discoverer.start();
-    }
-
-    /**
-     * Sets up the connection to the message broker and subscribes to the necessary channels and sets the required handlers
-     */
-    private void setupGameEventListener() {
-        List<NodeEventHandler<RemovedNode>> removeHandlers = new ArrayList<>();
-        List<NodeEventHandler<AddedNode>> addHandlers = new ArrayList<>();
-
-        addHandlers.add((AddedNode addedNodeEvent) -> {
-            DiscoveryNode node = addedNodeEvent.getNode();
-            DiscoveryPath path = node.getPath();
-
-            if (path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
-                String protocolId = node.getId();
-                BaseEntity baseEntity = entities.get(protocolId);
-
-                if (baseEntity == null) {
-                    createDrone(protocolId);
-                }
-                logger.info("Added drone " + protocolId + " to visualisation");
-            }
-        });
-
-        removeHandlers.add((RemovedNode removedNodeEvent) -> {
-            DiscoveryNode node = removedNodeEvent.getNode();
-            DiscoveryPath path = node.getPath();
-
-            if (path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
-                String protocolId = node.getId();
-                BaseEntity baseEntity = entities.get(protocolId);
-
-                if (baseEntity != null) {
-                    baseEntity.delete();
-                    entities.remove(protocolId);
-                }
-                logger.info("Removed drone " + protocolId + " from visualisation");
-            }
-        });
-
-        this.discoverer.addHandlers(true, addHandlers, Collections.emptyList(), removeHandlers);
-    }
-
-    /**
-     * Sets up the connection to the message broker and subscribes to the necessary channels and sets the required handlers
-     */
-    private void setupRabbit() {
-        List<NodeEventHandler<ChangedValue>> changedValueHandlers = new ArrayList<>();
-
-        changedValueHandlers.add((ChangedValue e) -> {
-            DiscoveryNode node = e.getNode();
-            DiscoveryPath path = node.getPath();
-
-            if (path.equals(DiscoveryPath.config(Type.RABBITMQ, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.BROKER, "default"))) {
-                if (node.getValue("username") != null) {
-                    rabbitConfig.put("username", node.getValue("username"));
-                }
-
-                if (node.getValue("password") != null) {
-                    rabbitConfig.put("password", node.getValue("password"));
-                }
-
-                if (node.getValue("uri") != null) {
-                    rabbitConfig.put("uri", node.getValue("uri"));
-                }
-
-                if (rabbitConfig.size() == 3) {
-                    connectRabbit();
-                }
-            }
-        });
-
-        this.discoverer.addHandlers(true, Collections.emptyList(), changedValueHandlers, Collections.emptyList());
-    }
-
-    /**
-     * Connect to rabbitmq using the rabbitconfig, then connect the publisher and subscriber
-     * Adds the handlers for listening to incoming game messages
-     */
-    private void connectRabbit() {
-        if (!isRabbitConnected()) {
-            logger.info("Connecting RabbitMQ...");
-            ConnectionFactory connectionFactory = new ConnectionFactory();
-            connectionFactory.setUsername(rabbitConfig.get("username"));
-            connectionFactory.setPassword(rabbitConfig.get("password"));
-            try {
-                connectionFactory.setUri(rabbitConfig.get("uri"));
-            } catch (URISyntaxException | NoSuchAlgorithmException | KeyManagementException e) {
-                logger.fatal(e);
-            }
-
-            // We can connect to localhost, since the visualization does not run within Docker
-            this.subscriber = new RabbitSubscriber(connectionFactory, "visualisation", new JavaSerializer(), discoverer);
-            this.publisher = new RabbitPublisher(connectionFactory, new JavaSerializer(), discoverer);
-
-            try {
-                this.subscriber.connect();
-                this.publisher.connect();
-                logger.info("Connected RabbitMQ!");
-            } catch (IOException e) {
-                logger.fatal(e);
-            }
-
-            this.subscriber.addHandler(CollisionMessage.class, new CollisionMessageHandler());
-            this.subscriber.addHandler(DamageMessage.class, new DamageMessageHandler());
-            this.subscriber.addHandler(FireBulletMessage.class, new FireBulletMessageHandler());
-            this.subscriber.addHandler(KillMessage.class, new KillMessageHandler(this.entities));
-            this.subscriber.addHandler(StateMessage.class, new StateMessageHandler(uiUpdates, this.entities));
-
-            try {
-                this.subscriber.addTopic(MessageTopic.STATEUPDATES);
-            } catch (IOException e) {
-                logger.fatal(e);
-            }
-        }
-    }
-
-    /**
-     * Setup the architecture management buttons when rabbit is connected
-     */
-    private void onRabbitConnect() {
-        setupArchitectureManagementVisuals();
-        setupArchitectureManagement();
     }
 
     /**
@@ -387,6 +257,140 @@ public class Game extends Application {
         primaryStage.setScene(scene);
         primaryStage.show();
         canvas.addGrid();
+    }
+
+    /**
+     * Setup discovery
+     * Create new discoverer object and start
+     */
+    private void setupDiscovery() {
+        this.discoverer = new EtcdDiscovererService();
+        this.discoverer.start();
+    }
+
+    /**
+     * Sets up the connection to the message broker and subscribes to the necessary channels and sets the required handlers
+     */
+    private void setupRabbit() {
+        List<NodeEventHandler<ChangedValue>> changedValueHandlers = new ArrayList<>();
+
+        changedValueHandlers.add((ChangedValue e) -> {
+            DiscoveryNode node = e.getNode();
+            DiscoveryPath path = node.getPath();
+
+            if (path.equals(DiscoveryPath.config(Type.RABBITMQ, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.BROKER, "default"))) {
+                if (node.getValue("username") != null) {
+                    rabbitConfig.put("username", node.getValue("username"));
+                }
+
+                if (node.getValue("password") != null) {
+                    rabbitConfig.put("password", node.getValue("password"));
+                }
+
+                if (node.getValue("uri") != null) {
+                    rabbitConfig.put("uri", node.getValue("uri"));
+                }
+
+                if (rabbitConfig.size() == 3) {
+                    connectRabbit();
+                }
+            }
+        });
+
+        this.discoverer.addHandlers(true, Collections.emptyList(), changedValueHandlers, Collections.emptyList());
+    }
+
+    private boolean isRabbitConnected() {
+        return subscriber != null && subscriber.isConnected() && publisher != null && publisher.isConnected();
+    }
+
+    /**
+     * Connect to rabbitmq using the rabbitconfig, then connect the publisher and subscriber
+     * Adds the handlers for listening to incoming game messages
+     */
+    private void connectRabbit() {
+        if (!isRabbitConnected()) {
+            log.info("Connecting RabbitMQ...");
+            ConnectionFactory connectionFactory = new ConnectionFactory();
+            connectionFactory.setUsername(rabbitConfig.get("username"));
+            connectionFactory.setPassword(rabbitConfig.get("password"));
+            try {
+                connectionFactory.setUri(rabbitConfig.get("uri"));
+            } catch (URISyntaxException | NoSuchAlgorithmException | KeyManagementException e) {
+                log.fatal(e);
+            }
+
+            // We can connect to localhost, since the visualization does not run within Docker
+            this.subscriber = new RabbitSubscriber(connectionFactory, "visualisation", new JavaSerializer(), discoverer);
+            this.publisher = new RabbitPublisher(connectionFactory, new JavaSerializer(), discoverer);
+
+            try {
+                this.subscriber.connect();
+                this.publisher.connect();
+                log.info("Connected RabbitMQ!");
+            } catch (IOException e) {
+                log.fatal(e);
+            }
+
+            this.subscriber.addHandler(CollisionMessage.class, new CollisionMessageHandler());
+            this.subscriber.addHandler(DamageMessage.class, new DamageMessageHandler());
+            this.subscriber.addHandler(FireBulletMessage.class, new FireBulletMessageHandler());
+            this.subscriber.addHandler(KillMessage.class, new KillMessageHandler(this.entities));
+            this.subscriber.addHandler(StateMessage.class, new StateMessageHandler(uiUpdates, this.entities));
+
+            try {
+                this.subscriber.addTopic(MessageTopic.STATEUPDATES);
+            } catch (IOException e) {
+                log.fatal(e);
+            }
+        }
+    }
+
+    /**
+     * Setup the architecture management buttons when rabbit is connected
+     */
+    private void onRabbitConnect() {
+        setupArchitectureManagementVisuals();
+        setupArchitectureManagement();
+    }
+
+    /**
+     * Sets up the connection to the message broker and subscribes to the necessary channels and sets the required handlers
+     */
+    private void setupGameEventListener() {
+        List<NodeEventHandler<RemovedNode>> removeHandlers = new ArrayList<>();
+        List<NodeEventHandler<AddedNode>> addHandlers = new ArrayList<>();
+
+        addHandlers.add((AddedNode addedNodeEvent) -> {
+            DiscoveryNode node = addedNodeEvent.getNode();
+            DiscoveryPath path = node.getPath();
+
+            if (path.startsWith(DiscoveryPath.group(Type.DRONE, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.DRONE)) && path.isConfigPath()) {
+                String protocolId = node.getId();
+                availableEntities.put(protocolId, node);
+                createDroneIfNotExists(protocolId);
+                log.info("Added drone " + protocolId + " to visualisation");
+            }
+        });
+
+        removeHandlers.add((RemovedNode removedNodeEvent) -> {
+            DiscoveryNode node = removedNodeEvent.getNode();
+            DiscoveryPath path = node.getPath();
+
+            if (path.startsWith(DiscoveryPath.group(Type.DRONE, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.DRONE)) && path.isConfigPath()) {
+                String protocolId = node.getId();
+                availableEntities.remove(protocolId);
+                BaseEntity baseEntity = entities.get(protocolId);
+
+                if (baseEntity != null) {
+                    baseEntity.delete();
+                    entities.remove(protocolId);
+                }
+                log.info("Removed drone " + protocolId + " from visualisation");
+            }
+        });
+
+        this.discoverer.addHandlers(true, addHandlers, Collections.emptyList(), removeHandlers);
     }
 
     /**
@@ -439,8 +443,31 @@ public class Game extends Application {
                         e.delete();
                     }
                     this.entities.clear();
+                    //Create all drones that are currently available
+                    getAvailableDrones().forEach(entry -> createDrone(entry.getKey()));
                 }
         );
+    }
+
+    private List<Map.Entry<String, DiscoveryNode>> getAvailableDrones() {
+        //TODO maybe perform a check with etcd for synchronisation
+        List<Map.Entry<String, DiscoveryNode>> availableDrones = availableEntities.entrySet().stream().filter((entry) -> entry.getValue().getPath().startsWith(DiscoveryPath.group(Type.DRONE, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.DRONE))).collect(Collectors.toList());
+        visualisationInstance.getProperties().put("availableDrones", availableDrones.toString());
+        visualisationInstance.getProperties().put("numberOfAvailableDrones", String.valueOf(availableDrones.size()));
+        try {
+            discoverer.updateProperties(visualisationInstance, visualisationInstance.getProperties());
+        } catch (IOException e) {
+            log.error(e);
+        }
+        return availableDrones;
+    }
+
+    private void createDroneIfNotExists(String protocolId) {
+        BaseEntity baseEntity = entities.get(protocolId);
+
+        if (baseEntity == null) {
+            createDrone(protocolId);
+        }
     }
 
     /**
@@ -453,14 +480,5 @@ public class Game extends Application {
         drone.setPosition(new D3Vector(-9999, -9999, -9999));
         drone.setDirection(new D3PolarCoordinate(-9999, -9999, -9999));
         entities.putIfAbsent(id, drone);
-    }
-
-    /**
-     * Main method of the visualisation
-     *
-     * @param args - args
-     */
-    public static void main(String[] args) {
-        launch(args);
     }
 }

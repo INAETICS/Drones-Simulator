@@ -7,6 +7,7 @@ import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.*;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch.CollisionRule;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch.DeathmatchGameFinished;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch.KillEntitiesRule;
+import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.teamplay.TeamplayGameFinished;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 
 import java.util.LinkedList;
@@ -25,6 +26,7 @@ public class RuleSets {
             case TEAMPLAY:
                 result.add(new KillEntitiesRule());
                 result.add(new CollisionRule());
+                result.add(new TeamplayGameFinished(idMapper));
                 break;
         }
         result.add(new RemoveStrayBullets());

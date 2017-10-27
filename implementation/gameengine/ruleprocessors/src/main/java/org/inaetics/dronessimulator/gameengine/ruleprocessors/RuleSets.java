@@ -9,26 +9,27 @@ import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch.D
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch.KillEntitiesRule;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 
+import java.util.LinkedList;
+import java.util.List;
+
 public class RuleSets {
-    public static Rule[] getRulesForGameMode(GameMode gameMode, Publisher publisher, IdentifierMapper idMapper) {
-        Rule[] result;
+    public static List<Rule> getRulesForGameMode(GameMode gameMode, Publisher publisher, IdentifierMapper idMapper) {
+        List<Rule> result = new LinkedList<>();
         switch (gameMode) {
             case DEATHMATCH:
-                result = new Rule[]
-                        {new KillOutOfBounds()
-                                , new CollisionRule()
-                                , new KillEntitiesRule()
-                                , new RemoveStrayBullets()
-                                , new RemoveStaleStateData()
-                                , new DeathmatchGameFinished(idMapper)
-                                , new SendMessages(publisher, idMapper)
-                        };
+                result.add(new KillOutOfBounds());
+                result.add(new CollisionRule());
+                result.add(new KillEntitiesRule());
+                result.add(new DeathmatchGameFinished(idMapper));
                 break;
-
-            default:
-                result = new Rule[]{};
+            case TEAMPLAY:
+                result.add(new KillEntitiesRule());
+                result.add(new CollisionRule());
                 break;
         }
+        result.add(new RemoveStrayBullets());
+        result.add(new RemoveStaleStateData());
+        result.add(new SendMessages(publisher, idMapper));
 
         return result;
     }

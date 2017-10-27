@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.visualisation;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.visualisation.uiupdates.AddBaseEntity;
@@ -14,26 +15,40 @@ import java.util.concurrent.BlockingQueue;
  * Base class for each entity inside the visualisation
  * This class can be extended by e.g.: drones, bullets, gamified objects
  */
+@Log4j
 public abstract class BaseEntity {
-    /** List of ui updates it can add changes to the ui to */
+    /**
+     * List of ui updates it can add changes to the ui to
+     */
     private final BlockingQueue<UIUpdate> uiUpdates;
-    /** Image of the base entity */
+    /**
+     * Image of the base entity
+     */
     ImageView imageView;
 
-    /** Position of the base entity */
+    /**
+     * Position of the base entity
+     */
     D3Vector position;
-    /** Direction as a set of polar coordinates of the base entity */
+    /**
+     * Direction as a set of polar coordinates of the base entity
+     */
     private D3PolarCoordinate direction;
 
-    /** X coordinate of the sprite, position of the upper left corner */
+    /**
+     * X coordinate of the sprite, position of the upper left corner
+     */
     private double spriteX;
-    /** Y coordinate of the sprite, position of the upper left corner */
+    /**
+     * Y coordinate of the sprite, position of the upper left corner
+     */
     private double spriteY;
 
     /**
      * Instantiates a new base entity
+     *
      * @param uiUpdates - UI updates shared by the system
-     * @param image - String containing the path to an image to visualise the basic entity
+     * @param image     - String containing the path to an image to visualise the basic entity
      */
     BaseEntity(BlockingQueue<UIUpdate> uiUpdates, String image) {
         this.uiUpdates = uiUpdates;
@@ -41,6 +56,21 @@ public abstract class BaseEntity {
         this.imageView.setPreserveRatio(true);
 
         this.uiUpdates.add(new AddBaseEntity(imageView));
+    }
+
+    /**
+     * Scale a value from one scale to another.
+     * Example: a double, 10 on a scale from 0 - 99 is scaled to a scale from 0-9. The return value would then be 1
+     *
+     * @param valueIn  - Double to scale
+     * @param baseMin  - Lower bound of the original scale
+     * @param baseMax  - Upper bound of the original scale
+     * @param limitMin - Lower bound of the new scale
+     * @param limitMax - Upper bound of the new scale
+     * @return - The double scaled to the new scale
+     */
+    private static double scale(final double valueIn, final double baseMin, final double baseMax, final double limitMin, final double limitMax) {
+        return ((limitMax - limitMin) * (valueIn - baseMin) / (baseMax - baseMin)) + limitMin;
     }
 
     /**
@@ -64,6 +94,7 @@ public abstract class BaseEntity {
 
     /**
      * Returns the x coordinate of the left upper corner of the entity's sprite
+     *
      * @return spriteX - x coordinate
      */
     double getSpriteX() {
@@ -71,15 +102,8 @@ public abstract class BaseEntity {
     }
 
     /**
-     * Returns the y coordinate of the left upper corner of the entity's sprite
-     * @return spriteY - y coordinate
-     */
-    double getSpriteY() {
-        return spriteY;
-    }
-
-    /**
      * Set the x-coordinate of the left upper corner of the entity's sprite
+     *
      * @param x - x coordinate
      */
     private void setSpriteX(double x) {
@@ -87,7 +111,17 @@ public abstract class BaseEntity {
     }
 
     /**
+     * Returns the y coordinate of the left upper corner of the entity's sprite
+     *
+     * @return spriteY - y coordinate
+     */
+    double getSpriteY() {
+        return spriteY;
+    }
+
+    /**
      * Set the y-coordinate of the left upper corner of the entity's sprite
+     *
      * @param y - y coordinate
      */
     private void setSpriteY(double y) {
@@ -96,6 +130,7 @@ public abstract class BaseEntity {
 
     /**
      * Scales the height from 0-1000 to a double between 0.1 and 1.0
+     *
      * @return Double between 0.1 and 1.0
      */
     double getScale() {
@@ -104,6 +139,7 @@ public abstract class BaseEntity {
 
     /**
      * Set the position of the base entity
+     *
      * @param position - position
      */
     public void setPosition(D3Vector position) {
@@ -112,6 +148,7 @@ public abstract class BaseEntity {
 
     /**
      * Set the direction of the base entity
+     *
      * @param direction - direction
      */
     public void setDirection(D3PolarCoordinate direction) {
@@ -120,6 +157,7 @@ public abstract class BaseEntity {
 
     /**
      * Get the rotation in degrees
+     *
      * @return - rotation in degrees
      */
     private double getRotation() {
@@ -127,22 +165,8 @@ public abstract class BaseEntity {
     }
 
     /**
-     * Scale a value from one scale to another.
-     * Example: a double, 10 on a scale from 0 - 99 is scaled to a scale from 0-9. The return value would then be 1
-     *
-     * @param valueIn - Double to scale
-     * @param baseMin - Lower bound of the original scale
-     * @param baseMax - Upper bound of the original scale
-     * @param limitMin - Lower bound of the new scale
-     * @param limitMax - Upper bound of the new scale
-     * @return - The double scaled to the new scale
-     */
-    private static double scale(final double valueIn, final double baseMin, final double baseMax, final double limitMin, final double limitMax) {
-        return ((limitMax - limitMin) * (valueIn - baseMin) / (baseMax - baseMin)) + limitMin;
-    }
-
-    /**
      * Get the ui updates
+     *
      * @return - uiupdates
      */
     BlockingQueue<UIUpdate> getUiUpdates() {

@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.gameengine.ruleprocessors;
 
 
+import lombok.extern.log4j.Log4j;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.common.Settings;
@@ -20,8 +21,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Rule processors service. The rule processors listen on events and act on them based on predefined rules.
  */
+@Log4j
 public class RuleProcessors extends Thread implements IRuleProcessors {
-    private final Logger logger = Logger.getLogger(RuleProcessors.class);
     private ArchitectureEventController m_architectureEventController;
 
     /**
@@ -39,11 +40,11 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
     /**
      * Active rules. Should end SendMessages to broadcast the messages to other subsystems.
      */
-    private Rule[] rules;
+    private List<Rule> rules;
 
     @Override
     public void start() {
-        logger.info("Starting Rule Processors...");
+        log.info("Starting Rule Processors...");
 
         assert m_driver != null;
 
@@ -62,13 +63,13 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
 
     @Override
     public void run() {
-        logger.info("Started RuleProcessors");
+        log.info("Started RuleProcessors");
         while (!this.isInterrupted()) {
             GameEngineEvent msg;
             try {
                 msg = incomingEvents.take();
             } catch (InterruptedException e) {
-                logger.error("Interrupted while waiting for incoming event");
+                log.error("Interrupted while waiting for incoming event");
                 this.interrupt();
                 break;
             }
@@ -76,11 +77,11 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
             if (msg != null) {
                 this.processEventsForRules(Collections.singletonList(msg));
             } else {
-                logger.error("Received event on incoming queue but was null!");
+                log.error("Received event on incoming queue but was null!");
             }
         }
 
-        logger.info("Ruleprocessors is shut down!");
+        log.info("Ruleprocessors is shut down!");
     }
 
     /**
@@ -122,7 +123,7 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
      * Stops the rule processors.
      */
     public void quit() {
-        logger.info("Shutting down ruleprocessors...");
+        log.info("Shutting down ruleprocessors...");
         this.interrupt();
     }
 

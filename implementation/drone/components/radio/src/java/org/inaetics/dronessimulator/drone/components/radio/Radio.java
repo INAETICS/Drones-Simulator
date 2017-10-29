@@ -8,6 +8,7 @@ import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
+import org.inaetics.dronessimulator.pubsub.api.Topic;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 
@@ -33,16 +34,20 @@ public class Radio implements MessageHandler {
     /** Queue with received strings */
     private ConcurrentLinkedQueue<String> received_queue = new ConcurrentLinkedQueue<String>();
 
+    private Topic topic;
+
     /**
      * FELIX CALLBACKS
      */
     public void start() {
+        topic = new TeamTopic(m_drone.getTeamname());
         try {
-            this.m_subscriber.addTopic(new TeamTopic(m_drone.getTeamname()));
+            this.m_subscriber.addTopic(topic);
         } catch (IOException e) {
             logger.fatal(e);
         }
         this.m_subscriber.addHandler(StateMessage.class, this);
+        this.m_subscriber.addHandler(TextMessage.class, this);
     }
 
     /**
@@ -51,11 +56,11 @@ public class Radio implements MessageHandler {
      */
 
     public void sendText(String text){
-        logger.debug("Message sent: " + text);
+        logger.debug("Topic: " + topic.getName() + "Message sent: " + text);
         TextMessage msg = new TextMessage();
         msg.setText(text);
         try{
-            m_publisher.send(MessageTopic.RADIO, msg);
+            m_publisher.send(topic, msg);
         } catch(IOException e){
             logger.fatal(e);
         }
@@ -66,7 +71,10 @@ public class Radio implements MessageHandler {
      * @return queue with messages
      */
     public ConcurrentLinkedQueue<String> getMessages(){
-        return received_queue;
+        logger.debug("getmessages queue length: " + received_queue.size());
+        ConcurrentLinkedQueue<String> r = received_queue;
+        received_queue = new ConcurrentLinkedQueue<>();
+        return r;
     }
 
     /**

@@ -32,7 +32,8 @@ public class SimpleTactic extends Tactic {
     private static final double MAX_Z_DEVIATION_POSTION = Settings.ARENA_HEIGHT;
 
     private List<String> teamMates = new ArrayList<>();
-    private LocalDateTime lastPoll = LocalDateTime.now();
+    private LocalDateTime nextpoll = LocalDateTime.now();
+    private int identifier = (int) (Math.random() * 10000);
 
     /**
      * -- IMPLEMENT FUNCTIONS
@@ -49,9 +50,12 @@ public class SimpleTactic extends Tactic {
      */
 
     private void talkToTeam() {
+//        sendMessage("hoi");
+
         List<String> messages = getTeamMessages();
-        if (LocalDateTime.now().isAfter(lastPoll.plusSeconds(1)) && messages.isEmpty()) {
+        if (LocalDateTime.now().isAfter(nextpoll) && messages.isEmpty()) {
             sendMessage("Identify yourself!");
+            nextpoll.plusSeconds(1);
         } else {
             for (String msg : messages) {
                 String sender = msg.substring(msg.indexOf('(') + 1, msg.indexOf(')'));
@@ -70,7 +74,7 @@ public class SimpleTactic extends Tactic {
     }
 
     private void sendMessage(String msg) {
-        radio.sendText("(" + this.getName() + ")" + msg);
+        radio.sendText("(" + this.identifier + ")" + msg);
     }
 
     private List<String> getTeamMessages() {

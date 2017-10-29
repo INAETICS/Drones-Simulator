@@ -40,7 +40,7 @@ services:
         condition: service_healthy
     environment:
       DRONE_TEAM: "team2"
-      DRONE_COMPONENTS: "gps,gun,radio"
+      DRONE_COMPONENTS: "gps,radar,gun,radio"
   drone-team1_1:
     build: ./docker_images/drone
     env_file: config.env

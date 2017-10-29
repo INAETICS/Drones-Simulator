@@ -11,6 +11,7 @@ import org.inaetics.dronessimulator.drone.components.engine.Engine;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.components.gun.Gun;
 import org.inaetics.dronessimulator.drone.components.radar.Radar;
+import org.inaetics.dronessimulator.drone.components.radio.Radio;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.osgi.framework.BundleContext;
@@ -94,6 +95,11 @@ public class Activator extends DependencyActivatorBase {
         if (componentStrings.contains("gun")) {
             components.add(dm.createServiceDependency()
                     .setService(Gun.class)
+                    .setRequired(true)
+            );
+        }if (componentStrings.contains("radio")) {
+            components.add(dm.createServiceDependency()
+                    .setService(Radio.class)
                     .setRequired(true)
             );
         }

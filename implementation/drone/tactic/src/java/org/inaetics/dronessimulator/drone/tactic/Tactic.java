@@ -219,6 +219,10 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
         }
     }
 
+    public String getIdentifier() {
+        return m_drone.getIdentifier();
+    }
+
 
     /**
      * -- Abstract metods

@@ -8,6 +8,7 @@ import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.components.gun.Gun;
 import org.inaetics.dronessimulator.drone.components.radar.Radar;
 import org.inaetics.dronessimulator.drone.components.radio.Radio;
+import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -33,7 +34,6 @@ public class SimpleTactic extends Tactic {
 
     private List<String> teamMates = new ArrayList<>();
     private LocalDateTime nextpoll = LocalDateTime.now();
-    private int identifier = (int) (Math.random() * 10000);
 
     /**
      * -- IMPLEMENT FUNCTIONS
@@ -74,7 +74,7 @@ public class SimpleTactic extends Tactic {
     }
 
     private void sendMessage(String msg) {
-        radio.sendText("(" + this.identifier + ")" + msg);
+        radio.sendText("(" + this.getIdentifier() + ")" + msg);
     }
 
     private List<String> getTeamMessages() {

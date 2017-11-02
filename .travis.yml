@@ -24,8 +24,7 @@ script:
  - mvn install -Dskip.surefire.tests=false -Dskip.failsafe.tests=true sonar:sonar
  - cd ..
  - ./docker_compile_images.sh no-maven
- - timeout 3 docker-compose up -d || exit 0 # start docker-compose for 3 seconds to create the network
- - ./docker_start_images.sh
+ - docker-compose up -d
 # - cd implementation
 # - mvn verify -Dskip.surefire.tests
 # - cd ..
@@ -33,8 +32,7 @@ script:
 
 after_script:
  - docker-compose logs
- - docker-compose stop
- - docker-compose rm -f
+ - docker-compose down
 
 cache:
  directories:

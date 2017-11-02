@@ -71,10 +71,7 @@ public class Radio implements MessageHandler {
      * @return queue with messages
      */
     public ConcurrentLinkedQueue<String> getMessages(){
-        logger.debug("getmessages queue length: " + received_queue.size());
-        ConcurrentLinkedQueue<String> r = received_queue;
-        received_queue = new ConcurrentLinkedQueue<>();
-        return r;
+        return received_queue;
     }
 
     /**

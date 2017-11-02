@@ -78,10 +78,16 @@ public class SimpleTactic extends Tactic {
     }
 
     private List<String> getTeamMessages() {
+        List<String> r = new ArrayList<>();
+
         ConcurrentLinkedQueue<String> messages = radio.getMessages();
-        return messages.stream()
-                .filter(msg -> !getName().equals(msg.substring(msg.indexOf('(') + 1, msg.indexOf(')'))))
-                .collect(Collectors.toList());
+        while (!messages.isEmpty()) {
+            String msg = messages.poll();
+            if (!msg.equals(msg.substring(msg.indexOf('(') + 1, msg.indexOf(')')))) {
+                r.add(msg);
+            }
+        }
+        return r;
     }
 
     /**

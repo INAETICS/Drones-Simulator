@@ -46,6 +46,11 @@
             <artifactId>components-gun</artifactId>
             <version>0.1</version>
         </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.drone.components</groupId>
+            <artifactId>components-radio</artifactId>
+            <version>0.1</version>
+        </dependency>
     </dependencies>
 
     <build>

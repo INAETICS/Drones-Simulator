@@ -39,14 +39,14 @@ services:
       rabbitmq:
         condition: service_healthy
     environment:
-      DRONE_TEAM: "team2"
-      DRONE_COMPONENTS: "gps,gun,radar,radio"
+      DRONE_TEAM: "teamThales"
+      DRONE_COMPONENTS: "gps,radar,gun,radio"
   drone-team1_1:
     build: ./docker_images/drone
     env_file: config.env
     environment:
-      DRONE_TEAM: "team1"
-      DRONE_COMPONENTS: "gps,radar,gun,radio"
+      DRONE_TEAM: "teamStudent"
+      DRONE_COMPONENTS: "gps,radar,radio,gun"
     depends_on:
       rabbitmq:
         condition: service_healthy
@@ -54,8 +54,8 @@ services:
     build: ./docker_images/drone
     env_file: config.env
     environment:
-      DRONE_TEAM: "team1"
-      DRONE_COMPONENTS: "gps,radar,gun,radio"
+      DRONE_TEAM: "teamStudent"
+      DRONE_COMPONENTS: "gps,radar,radio,gun"
     depends_on:
       rabbitmq:
         condition: service_healthy

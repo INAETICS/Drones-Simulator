@@ -1,13 +1,13 @@
 package org.inaetics.dronessimulator.gameengine.ruleprocessors.rules;
 
 import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.CurrentStateEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameFinishedEvent;
 import org.inaetics.dronessimulator.gameengine.common.state.Drone;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
+import org.inaetics.dronessimulator.pubsub.protocol.EntityType;
 
 import java.util.Collections;
 import java.util.List;

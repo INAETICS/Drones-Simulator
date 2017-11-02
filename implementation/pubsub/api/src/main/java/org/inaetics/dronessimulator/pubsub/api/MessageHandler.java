@@ -1,5 +1,7 @@
 package org.inaetics.dronessimulator.pubsub.api;
 
+import org.inaetics.dronessimulator.pubsub.protocol.Message;
+
 /**
  * Interface for a handler for received messages.
  */

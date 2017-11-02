@@ -4,8 +4,8 @@ import lombok.AllArgsConstructor;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
-import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
+import org.inaetics.dronessimulator.pubsub.protocol.Message;
 
 @AllArgsConstructor
 public class StateMessageHandler implements MessageHandler {

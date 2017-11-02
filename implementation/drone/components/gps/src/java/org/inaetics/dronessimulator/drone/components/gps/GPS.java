@@ -3,14 +3,14 @@ package org.inaetics.dronessimulator.drone.components.gps;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.common.protocol.MessageTopic;
-import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
+import org.inaetics.dronessimulator.pubsub.protocol.Message;
+import org.inaetics.dronessimulator.pubsub.protocol.MessageTopic;
+import org.inaetics.dronessimulator.pubsub.protocol.StateMessage;
 
 import java.io.IOException;
 

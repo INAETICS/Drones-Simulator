@@ -3,6 +3,7 @@ package org.inaetics.dronessimulator.visualisation;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import lombok.Setter;
 import org.inaetics.dronessimulator.visualisation.uiupdates.AddDrone;
 import org.inaetics.dronessimulator.visualisation.uiupdates.Explosion;
 import org.inaetics.dronessimulator.visualisation.uiupdates.RemoveDrone;
@@ -18,6 +19,7 @@ import static org.inaetics.dronessimulator.visualisation.Settings.DRONE_SPRITE_C
  */
 public abstract class Drone extends BaseEntity {
     /** Current hitpoints of a drone */
+    @Setter
     private int currentHP;
     /** Text attribute containing the height */
     private Text heightText;
@@ -42,10 +44,11 @@ public abstract class Drone extends BaseEntity {
     /**
      * Updates the height text and calls the parent method
      */
+    @Override
     void updateUI() {
         super.updateUI();
         heightText.setText("HP: " + currentHP + "/100 Height: " + (int) position.getZ());
-        heightText.relocate(getSpriteX() + Settings.DRONE_WIDTH / 2 * (1 - getScale()), getSpriteY() + Settings.DRONE_HEIGHT / 2 * (1- getScale()) - 20);
+        heightText.relocate(getSpriteX() + Settings.DRONE_WIDTH / 2.0 * (1 - getScale()), getSpriteY() + Settings.DRONE_HEIGHT / 2 * (1 - getScale()) - 20);
     }
 
     /**
@@ -63,21 +66,5 @@ public abstract class Drone extends BaseEntity {
      */
     private void explode() {
         getUiUpdates().add(new Explosion(getScale(), imageView));
-    }
-
-    /**
-     * Get the current hitpoints
-     * @return - currentHP
-     */
-    public int getCurrentHP() {
-        return currentHP;
-    }
-
-    /**
-     * Set the number of hitpoints
-     * @param currentHP - number of hitpoints
-     */
-    public void setCurrentHP(int currentHP) {
-        this.currentHP = currentHP;
     }
 }

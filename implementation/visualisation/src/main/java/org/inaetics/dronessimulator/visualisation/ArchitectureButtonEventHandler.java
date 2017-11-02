@@ -5,9 +5,9 @@ import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
-import org.inaetics.dronessimulator.common.protocol.MessageTopic;
-import org.inaetics.dronessimulator.common.protocol.RequestArchitectureStateChangeMessage;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
+import org.inaetics.dronessimulator.pubsub.protocol.MessageTopic;
+import org.inaetics.dronessimulator.pubsub.protocol.RequestArchitectureStateChangeMessage;
 
 import java.io.IOException;
 

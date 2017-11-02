@@ -19,7 +19,8 @@
         <module>tactic</module>
     </modules>
 
-    <dependencies>
+    <dependencyManagement>
+        <dependencies>
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
@@ -48,12 +49,21 @@
             <artifactId>architecture-event-controller</artifactId>
             <version>0.1</version>
         </dependency>
-
         <dependency>
-            <groupId>org.ops4j.pax.logging</groupId>
-            <artifactId>pax-logging-api</artifactId>
+            <groupId>org.inaetics.dronessimulator</groupId>
+            <artifactId>common-test</artifactId>
+            <scope>test</scope>
         </dependency>
-    </dependencies>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.discovery</groupId>
+                <artifactId>discovery-api</artifactId>
+                <type>test-jar</type>
+                <scope>test</scope>
+                <version>0.1</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>

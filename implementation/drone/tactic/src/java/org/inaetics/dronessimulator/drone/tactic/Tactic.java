@@ -6,16 +6,16 @@ import org.inaetics.dronessimulator.architectureevents.ArchitectureEventControll
 import org.inaetics.dronessimulator.common.ManagedThread;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
-import org.inaetics.dronessimulator.common.protocol.KillMessage;
-import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
 import org.inaetics.dronessimulator.discovery.api.instances.TacticInstance;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
+import org.inaetics.dronessimulator.pubsub.protocol.KillMessage;
+import org.inaetics.dronessimulator.pubsub.protocol.Message;
+import org.inaetics.dronessimulator.pubsub.protocol.MessageTopic;
 
 import java.io.IOException;
 

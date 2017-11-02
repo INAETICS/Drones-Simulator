@@ -25,12 +25,34 @@
         <dependency>
             <groupId>org.inaetics.dronessimulator</groupId>
             <artifactId>common</artifactId>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.discovery</groupId>
             <artifactId>discovery-api</artifactId>
             <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator</groupId>
+            <artifactId>common-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.discovery</groupId>
+            <artifactId>discovery-api</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.stefanbirkner</groupId>
+            <artifactId>system-rules</artifactId>
+            <version>1.16.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator</groupId>
+            <artifactId>common-test</artifactId>
+            <version>0.1</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 

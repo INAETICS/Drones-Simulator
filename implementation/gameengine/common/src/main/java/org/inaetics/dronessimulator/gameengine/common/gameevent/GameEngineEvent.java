@@ -2,8 +2,8 @@ package org.inaetics.dronessimulator.gameengine.common.gameevent;
 
 
 import lombok.EqualsAndHashCode;
-import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
+import org.inaetics.dronessimulator.pubsub.protocol.ProtocolMessage;
 
 import java.util.List;
 

@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.discovery.etcd;
 
 import mousio.etcd4j.responses.EtcdKeysResponse;
 import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryStoredNode;
@@ -9,7 +10,6 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
-import org.inaetics.dronessimulator.discovery.api.tree.Tuple;
 
 import java.util.List;
 
@@ -49,10 +49,10 @@ public class EtcdChangeHandler extends Thread {
 
         discovererData = discoverer.getFromRoot(null, false);
         if(discovererData != null) {
-            etcdNode = discovererData.getT1();
+            etcdNode = discovererData.getLeft();
 
             if(etcdNode != null) {
-                nextModifiedIndex = discovererData.getT2();
+                nextModifiedIndex = discovererData.getRight();
                 storedRoot = new DiscoveryStoredEtcdNode(etcdNode);
 
                 synchronized (this) {
@@ -66,11 +66,11 @@ public class EtcdChangeHandler extends Thread {
         while(!this.isInterrupted()) {
             discovererData = discoverer.getFromRoot(nextModifiedIndex, true);
             if(discovererData != null) {
-                etcdNode = discovererData.getT1();
+                etcdNode = discovererData.getLeft();
 
                 if(etcdNode != null) {
                     storedRoot = new DiscoveryStoredEtcdNode(etcdNode);
-                    nextModifiedIndex = discovererData.getT2();
+                    nextModifiedIndex = discovererData.getRight();
 
                     synchronized (this) {
                         cachedRoot.updateTree(storedRoot);

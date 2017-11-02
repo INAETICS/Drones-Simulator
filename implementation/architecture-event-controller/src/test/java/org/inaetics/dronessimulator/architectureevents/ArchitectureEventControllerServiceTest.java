@@ -9,7 +9,7 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
-import org.inaetics.dronessimulator.test.concurrent.MockDiscoverer;
+import org.inaetics.dronessimulator.discovery.api.mocks.MockDiscoverer;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

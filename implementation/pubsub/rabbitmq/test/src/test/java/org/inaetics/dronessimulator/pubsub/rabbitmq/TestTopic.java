@@ -1,6 +1,6 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq;
 
-import org.inaetics.dronessimulator.pubsub.api.Topic;
+import org.inaetics.dronessimulator.pubsub.protocol.Topic;
 
 /**
  * A topic used for tests.

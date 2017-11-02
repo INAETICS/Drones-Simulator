@@ -1,6 +1,6 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq;
 
-import org.inaetics.dronessimulator.pubsub.api.Message;
+import org.inaetics.dronessimulator.pubsub.protocol.Message;
 
 /**
  * A message for test purposes.

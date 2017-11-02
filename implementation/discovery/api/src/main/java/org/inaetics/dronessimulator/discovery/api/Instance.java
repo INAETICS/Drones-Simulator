@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.discovery.api;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 
@@ -12,6 +13,7 @@ import java.util.Map;
  * Interface which describes a part of a system.
  */
 @EqualsAndHashCode
+@ToString
 public class Instance {
     /**
      * Prefix for all etcd paths.

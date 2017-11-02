@@ -3,9 +3,9 @@ package org.inaetics.dronessimulator.visualisation;
 
 import javafx.scene.input.MouseEvent;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
-import org.inaetics.dronessimulator.common.protocol.MessageTopic;
-import org.inaetics.dronessimulator.common.protocol.RequestArchitectureStateChangeMessage;
-import org.inaetics.dronessimulator.test.concurrent.MockPublisher;
+import org.inaetics.dronessimulator.pubsub.api.publisher.MockPublisher;
+import org.inaetics.dronessimulator.pubsub.protocol.MessageTopic;
+import org.inaetics.dronessimulator.pubsub.protocol.RequestArchitectureStateChangeMessage;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

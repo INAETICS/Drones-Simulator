@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.test;
 
-import org.inaetics.dronessimulator.common.protocol.*;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
@@ -19,6 +18,7 @@ import org.inaetics.dronessimulator.gameengine.messagehandlers.DamageMessageHand
 import org.inaetics.dronessimulator.gameengine.messagehandlers.FireBulletMessageHandler;
 import org.inaetics.dronessimulator.gameengine.messagehandlers.KillMessageHandler;
 import org.inaetics.dronessimulator.gameengine.messagehandlers.MovementMessageHandler;
+import org.inaetics.dronessimulator.pubsub.protocol.*;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,13 +74,13 @@ public class TestGameSubscriberMessageHandler {
         MovementMessage msg = new MovementMessage();
         msg.setIdentifier("1");
         msg.setDirection(new D3PolarCoordinate());
-        msg.setAcceleration(new D3Vector(1,2,3));
+        msg.setAcceleration(new D3Vector(1, 2, 3));
 
         Assert.assertEquals(null, this.mockDriver.getNewAcceleration());
 
         movementMessageHandler.handleMessage(msg);
 
-        Assert.assertEquals(new D3Vector(1,2,3), this.mockDriver.getNewAcceleration());
+        Assert.assertEquals(new D3Vector(1, 2, 3), this.mockDriver.getNewAcceleration());
     }
 
     @Test
@@ -120,9 +120,9 @@ public class TestGameSubscriberMessageHandler {
 
         fireBulletMessage.setIdentifier("BULLET1");
         fireBulletMessage.setType(EntityType.BULLET);
-        fireBulletMessage.setPosition(new D3Vector(3,2,1));
-        fireBulletMessage.setVelocity(new D3Vector(2,3,1));
-        fireBulletMessage.setAcceleration(new D3Vector(1,2,3));
+        fireBulletMessage.setPosition(new D3Vector(3, 2, 1));
+        fireBulletMessage.setVelocity(new D3Vector(2, 3, 1));
+        fireBulletMessage.setAcceleration(new D3Vector(1, 2, 3));
         fireBulletMessage.setDirection(new D3PolarCoordinate());
         fireBulletMessage.setDamage(50);
         fireBulletMessage.setFiredById("1");
@@ -131,7 +131,7 @@ public class TestGameSubscriberMessageHandler {
 
         fireBulletMessageHandler.handleMessage(fireBulletMessage);
 
-        Assert.assertEquals(new Bullet(2, 50, drone, new D3Vector(3,2,1), new D3Vector(2,3,1), new D3Vector(1,2,3), new D3PolarCoordinate()), mockDriver.getAdded());
+        Assert.assertEquals(new Bullet(2, 50, drone, new D3Vector(3, 2, 1), new D3Vector(2, 3, 1), new D3Vector(1, 2, 3), new D3PolarCoordinate()), mockDriver.getAdded());
     }
 
     private class MockDiscoverer implements Discoverer {

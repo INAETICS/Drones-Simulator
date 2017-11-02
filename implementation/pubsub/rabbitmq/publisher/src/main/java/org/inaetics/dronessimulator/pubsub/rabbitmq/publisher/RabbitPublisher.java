@@ -4,10 +4,10 @@ import com.rabbitmq.client.ConnectionFactory;
 import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
-import org.inaetics.dronessimulator.pubsub.api.Message;
-import org.inaetics.dronessimulator.pubsub.api.Topic;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
+import org.inaetics.dronessimulator.pubsub.protocol.Message;
+import org.inaetics.dronessimulator.pubsub.protocol.Topic;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.common.RabbitConnection;
 
 import java.io.IOException;

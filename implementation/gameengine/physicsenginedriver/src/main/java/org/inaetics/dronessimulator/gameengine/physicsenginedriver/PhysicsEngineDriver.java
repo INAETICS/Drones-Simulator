@@ -5,7 +5,6 @@ import org.inaetics.dronessimulator.architectureevents.ArchitectureEventControll
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventHandler;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
-import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
@@ -20,6 +19,7 @@ import org.inaetics.dronessimulator.physicsengine.entityupdate.AccelerationEntit
 import org.inaetics.dronessimulator.physicsengine.entityupdate.DirectionEntityUpdate;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.PositionEntityUpdate;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.VelocityEntityUpdate;
+import org.inaetics.dronessimulator.pubsub.protocol.EntityType;
 
 import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;

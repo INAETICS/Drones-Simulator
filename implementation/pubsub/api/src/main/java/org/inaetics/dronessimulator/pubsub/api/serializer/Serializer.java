@@ -1,6 +1,6 @@
 package org.inaetics.dronessimulator.pubsub.api.serializer;
 
-import org.inaetics.dronessimulator.pubsub.api.Message;
+import org.inaetics.dronessimulator.pubsub.protocol.Message;
 
 import java.io.IOException;
 

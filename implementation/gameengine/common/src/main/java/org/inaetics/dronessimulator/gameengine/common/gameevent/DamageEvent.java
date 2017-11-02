@@ -4,10 +4,10 @@ import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
-import org.inaetics.dronessimulator.common.protocol.DamageMessage;
-import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
+import org.inaetics.dronessimulator.pubsub.protocol.DamageMessage;
+import org.inaetics.dronessimulator.pubsub.protocol.ProtocolMessage;
 
 import java.util.Collections;
 import java.util.List;

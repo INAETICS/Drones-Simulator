@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.discovery.etcd;
 
+import lombok.EqualsAndHashCode;
 import mousio.etcd4j.responses.EtcdKeysResponse;
 import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryStoredNode;
@@ -14,6 +15,7 @@ import java.util.stream.Collectors;
  *
  * Squashes an etcd directory node with zero or more values into a single DiscoveryStoredNode.
  */
+@EqualsAndHashCode
 public class DiscoveryStoredEtcdNode extends DiscoveryStoredNode {
     /** The etcd node. */
     private final EtcdKeysResponse.EtcdNode etcdNode;
@@ -37,8 +39,8 @@ public class DiscoveryStoredEtcdNode extends DiscoveryStoredNode {
 
         etcdNode.getNodes()
                 .stream()
-                .filter((n) -> !n.isDir())
-                .forEach((n) -> values.put(getNodeName(n.getKey()), n.getValue()));
+                .filter(n -> !n.isDir())
+                .forEach(n -> values.put(getNodeName(n.getKey()), n.getValue()));
 
 
         return values;

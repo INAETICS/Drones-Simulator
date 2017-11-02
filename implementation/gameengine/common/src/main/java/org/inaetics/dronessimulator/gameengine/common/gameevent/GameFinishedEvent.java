@@ -2,10 +2,10 @@ package org.inaetics.dronessimulator.gameengine.common.gameevent;
 
 import lombok.RequiredArgsConstructor;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
-import org.inaetics.dronessimulator.common.protocol.GameFinishedMessage;
-import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
-import org.inaetics.dronessimulator.common.protocol.RequestArchitectureStateChangeMessage;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
+import org.inaetics.dronessimulator.pubsub.protocol.GameFinishedMessage;
+import org.inaetics.dronessimulator.pubsub.protocol.ProtocolMessage;
+import org.inaetics.dronessimulator.pubsub.protocol.RequestArchitectureStateChangeMessage;
 
 import java.util.LinkedList;
 import java.util.List;

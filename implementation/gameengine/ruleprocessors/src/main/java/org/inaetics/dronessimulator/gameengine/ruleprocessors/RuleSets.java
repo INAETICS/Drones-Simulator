@@ -16,19 +16,19 @@ import java.util.List;
 public class RuleSets {
     public static List<Rule> getRulesForGameMode(GameMode gameMode, Publisher publisher, IdentifierMapper idMapper) {
         List<Rule> result = new LinkedList<>();
+        //Game mode specific rules
         switch (gameMode) {
             case DEATHMATCH:
-                result.add(new KillOutOfBounds());
-                result.add(new CollisionRule());
-                result.add(new KillEntitiesRule());
                 result.add(new DeathmatchGameFinished(idMapper));
                 break;
             case TEAMPLAY:
-                result.add(new KillEntitiesRule());
-                result.add(new CollisionRule());
                 result.add(new TeamplayGameFinished(idMapper));
                 break;
         }
+        //General rules that are applicable in any game mode
+        result.add(new KillOutOfBounds());
+        result.add(new CollisionRule());
+        result.add(new KillEntitiesRule());
         result.add(new RemoveStrayBullets());
         result.add(new RemoveStaleStateData());
         result.add(new SendMessages(publisher, idMapper));

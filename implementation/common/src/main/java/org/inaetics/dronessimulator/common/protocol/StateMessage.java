@@ -1,9 +1,11 @@
 package org.inaetics.dronessimulator.common.protocol;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -11,79 +13,70 @@ import java.util.Optional;
  * Message used by the game state to communicate state changes to other nodes.
  */
 public class StateMessage extends ProtocolMessage {
-    /** Indentifier of object */
+    /**
+     * Indentifier of object
+     */
+    @Getter
+    @Setter
     private String identifier = null;
 
-    /** Type of the object */
+    /**
+     * Type of the object
+     */
+    @Getter
+    @Setter
     private EntityType type;
 
-    /** The position of the object. */
+    /**
+     * The position of the object.
+     */
+    @Setter
     private D3Vector position = null;
 
-    /** The direction the object is in. */
+    /**
+     * The direction the object is in.
+     */
+    @Setter
     private D3PolarCoordinate direction = null;
 
-    /** The velocity of the object. */
+    /**
+     * The velocity of the object.
+     */
+    @Setter
     private D3Vector velocity = null;
 
-    /** The acceleration of the object. */
+    /**
+     * The acceleration of the object.
+     */
+    @Setter
     private D3Vector acceleration = null;
 
+    @Setter
     private Integer hp = null;
 
     public Optional<D3Vector> getPosition() {
         return Optional.ofNullable(position);
     }
 
-    public void setPosition(D3Vector position) {
-        this.position = position;
-    }
-
     public Optional<D3PolarCoordinate> getDirection() {
         return Optional.ofNullable(direction);
-    }
-
-    public void setDirection(D3PolarCoordinate direction) {
-        this.direction = direction;
     }
 
     public Optional<D3Vector> getVelocity() {
         return Optional.ofNullable(velocity);
     }
 
-    public void setVelocity(D3Vector velocity) {
-        this.velocity = velocity;
-    }
-
     public Optional<D3Vector> getAcceleration() {
         return Optional.ofNullable(acceleration);
     }
 
-    public void setAcceleration(D3Vector acceleration) {
-        this.acceleration = acceleration;
-    }
-
-    public String getIdentifier() {
-        return identifier;
-    }
-
-    public void setIdentifier(String identifier){ this.identifier = identifier; }
-
-    public EntityType getType() {
-        return type;
-    }
-
-    public void setType(EntityType type) {
-        this.type = type;
+    public Optional<Integer> getHp() {
+        return Optional.ofNullable(hp);
     }
 
     @Override
     public List<MessageTopic> getTopics() {
-        List<MessageTopic> topics = new ArrayList<>();
-
-        topics.add(MessageTopic.STATEUPDATES);
-
-        return topics;
+        return Collections.singletonList(MessageTopic.STATEUPDATES);
     }
 
     @Override
@@ -91,11 +84,4 @@ public class StateMessage extends ProtocolMessage {
         return String.format("(StateMessage %s %s, %s, %s, %s, %s)", this.identifier, this.position, this.direction, this.velocity, this.acceleration, this.hp);
     }
 
-    public Optional<Integer> getHp() {
-        return Optional.ofNullable(hp);
-    }
-
-    public void setHp(int hp) {
-        this.hp = hp;
-    }
 }

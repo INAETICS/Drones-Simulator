@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Wrapper around PhysicsEngine. Sets up and connects all handlers with each other.
@@ -83,10 +84,8 @@ public class GameEngine {
     private MovementMessageHandler movementMessageHandler;
     private StateMessageHandler stateMessageHandler;
 
-    /**
-     * The game engine instance to register.
-     */
-    private GameEngineInstance discoveryInstance;
+    /*** The game engine instance to register.
+    */private GameEngineInstance discoveryInstance;
 
     /**
      * Starts the wrapper. Sets up all handlers, queues and engines. Connects everything if needed.
@@ -103,9 +102,13 @@ public class GameEngine {
         // Setup subscriber
         try {
             this.m_subscriber.addTopic(MessageTopic.MOVEMENTS);
-            this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
             log.fatal("Could not subscribe to topic " + MessageTopic.MOVEMENTS + ".", e);
+        }
+        try {
+            this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
+        } catch (IOException e) {
+            log.fatal("Could not subscribe to topic " + MessageTopic.STATEUPDATES + ".", e);
         }
 
         this.m_subscriber.addHandler(CollisionMessage.class, this.collisionMessageHandler);
@@ -161,9 +164,9 @@ public class GameEngine {
             int numberSpawned = 0;
             for (String protocolId : lobbiedDrones) {
                 int gameengineId = m_id_mapper.getNewGameEngineId();
-                D3Vector position = new D3Vector( Math.cos(spawnAngle * numberSpawned) * spawnRadius + center.getX()
-                                                , Math.sin(spawnAngle * numberSpawned) * spawnRadius + center.getY()
-                                                , 50);
+                D3Vector position = new D3Vector(Math.cos(spawnAngle * numberSpawned) * spawnRadius + center.getX()
+                        , Math.sin(spawnAngle * numberSpawned) * spawnRadius + center.getY()
+                        , 50);
                 numberSpawned++;
                 String team = DroneInstance.getTeamname(m_discoverer, protocolId);
                 this.m_physicsEngineDriver.addNewEntity(new Drone(gameengineId, team, Drone.DRONE_MAX_HEALTH, position, new D3Vector(), new D3Vector(), new D3PolarCoordinate()), protocolId);

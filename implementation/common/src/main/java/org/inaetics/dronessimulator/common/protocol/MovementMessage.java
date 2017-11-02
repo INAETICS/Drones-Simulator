@@ -1,5 +1,7 @@
 package org.inaetics.dronessimulator.common.protocol;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 
@@ -10,6 +12,8 @@ import java.util.Optional;
 /**
  * Message used to tell the game state about movements.
  */
+@Getter
+@Setter
 public class MovementMessage extends ProtocolMessage {
     /** Indentifier of object */
     private String identifier = null;
@@ -24,23 +28,9 @@ public class MovementMessage extends ProtocolMessage {
         return Optional.ofNullable(direction);
     }
 
-    public void setDirection(D3PolarCoordinate direction) {
-        this.direction = direction;
-    }
-
     public Optional<D3Vector> getAcceleration() {
         return Optional.ofNullable(acceleration);
     }
-
-    public void setAcceleration(D3Vector acceleration) {
-        this.acceleration = acceleration;
-    }
-
-    public String getIdentifier() {
-        return this.identifier;
-    }
-
-    public void setIdentifier(String identifier){ this.identifier = identifier; }
 
     @Override
     public List<MessageTopic> getTopics() {

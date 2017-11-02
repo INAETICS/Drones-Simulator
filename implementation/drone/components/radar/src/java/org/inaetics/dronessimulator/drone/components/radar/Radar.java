@@ -59,9 +59,9 @@ public class Radar implements MessageHandler {
     @Setter
     private volatile D3Vector position;
     /**
-     * Map of all last known entities and their positions
+     * Map of all last known entities and their positions (the first string is the id of the entity, the tuple's string is the team name if applicable and the D3Vector is the location)
      */
-    private final ConcurrentHashMap<String, Tuple<String, D3Vector>> addDrones = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, Tuple<String, D3Vector>> allEntities = new ConcurrentHashMap<>();
     /**
      * The range of this radar
      */
@@ -82,7 +82,7 @@ public class Radar implements MessageHandler {
 
             if (path.startsWith(DiscoveryPath.type(Type.DRONE)) && path.isConfigPath()) {
                 String protocolId = node.getId();
-                this.addDrones.remove(protocolId);
+                this.allEntities.remove(protocolId);
             }
         });
         this.m_discoverer.addHandlers(true, Collections.emptyList(), Collections.emptyList(), removedNodeHandlers);
@@ -96,7 +96,7 @@ public class Radar implements MessageHandler {
 
         m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG,
                 (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
-                    addDrones.clear();
+                    allEntities.clear();
                 }
         );
     }
@@ -114,7 +114,7 @@ public class Radar implements MessageHandler {
         List<Tuple<String, D3Vector>> results;
 
         if (position != null) {
-            results = addDrones.entrySet()
+            results = allEntities.entrySet()
                     .stream()
                     .map(Map.Entry::getValue)
                     .filter(drone -> position.distance_between(drone.getRight()) <= RADAR_RANGE)
@@ -170,7 +170,7 @@ public class Radar implements MessageHandler {
         } else {
             if (stateMessage.getPosition().isPresent() && stateMessage.getType().equals(EntityType.DRONE)) {
                 Tuple<String, D3Vector> droneModel = new Tuple<>(DroneInstance.getTeamname(m_discoverer, stateMessage.getIdentifier()), stateMessage.getPosition().get());
-                this.addDrones.put(stateMessage.getIdentifier(), droneModel);
+                this.allEntities.put(stateMessage.getIdentifier(), droneModel);
             }
         }
     }
@@ -182,7 +182,7 @@ public class Radar implements MessageHandler {
      */
     private void handleKillMessage(KillMessage killMessage) {
         if (killMessage.getEntityType().equals(EntityType.DRONE)) {
-            this.addDrones.remove(killMessage.getIdentifier());
+            this.allEntities.remove(killMessage.getIdentifier());
         }
     }
 

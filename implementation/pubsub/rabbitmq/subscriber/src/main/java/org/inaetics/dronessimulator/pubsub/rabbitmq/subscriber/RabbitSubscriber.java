@@ -26,7 +26,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     private String identifier;
 
     /** The handlers for each message class this subscriber processes. */
-    private Map<Class<? extends Message>, Collection<MessageHandler>> handlers;
+    private static Map<Class<? extends Message>, Collection<MessageHandler>> handlers = new HashMap<>();
 
     /** The topics this subscriber is subscribed to. */
     private Map<Topic, String> topics;
@@ -51,6 +51,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
      * @param connectionFactory The RabbitMQ connection factory to use when starting a new connection.
      * @param identifier The identifier for this subscriber. This is used as queue name.
      */
+    @SuppressWarnings("unused") //Suppress unused since it will be used by OSGi
     public RabbitSubscriber(ConnectionFactory connectionFactory, String identifier) {
         super(connectionFactory);
         this.construct(identifier);
@@ -61,6 +62,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
      * injected later on and the connection factory will be built from a discoverable config.
      * @param identifier  The identifier for this subscriber. This is used as queue name.
      */
+    @SuppressWarnings("unused") //Suppress unused since it will be used by OSGi
     public RabbitSubscriber(String identifier) {
         super();
         this.construct(identifier);
@@ -71,6 +73,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
      * injected later on and the connection factory will be built from a discoverable config. The identifier will be
      * set to a generated UUID.
      */
+    @SuppressWarnings("unused") //Suppress unused since it will be used by OSGi
     public RabbitSubscriber() {
         this(UUID.randomUUID().toString());
     }
@@ -82,7 +85,6 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
         assert identifier != null;
 
         this.identifier = identifier;
-        this.handlers = new HashMap<>();
         this.topics = new HashMap<>();
 
         logger.debug("Initialized RabbitMQ subscriber with identifier {}", identifier);
@@ -133,9 +135,19 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     @Override
     public void addHandler(Class<? extends Message> messageClass, MessageHandler handler) {
         // Create new set for this message class if needed
-        Collection<MessageHandler> handlers = this.handlers.computeIfAbsent(messageClass, k -> new HashSet<>());
+        Collection<MessageHandler> handlers = RabbitSubscriber.handlers.computeIfAbsent(messageClass, k -> new HashSet<>());
         handlers.add(handler);
         logger.debug("Handler {} set for message class {}", handler, messageClass);
+    }
+
+    @Override
+    public void addHandlerIfNotExists(Class<? extends Message> messageClass, MessageHandler handler) {
+        // Create new set for this message class if needed
+        Collection<MessageHandler> handlers = RabbitSubscriber.handlers.computeIfAbsent(messageClass, k -> new HashSet<>());
+        if (handlers.stream().filter(h -> h.getClass().equals(handler.getClass())).count() == 0) {
+            handlers.add(handler);
+            logger.debug("Handler {} set for message class {}", handler, messageClass);
+        }
     }
 
     /**
@@ -145,7 +157,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
      */
     @Override
     public void removeHandler(Class<? extends Message> messageClass, MessageHandler handler) {
-        Collection<MessageHandler> handlers = this.handlers.get(messageClass);
+        Collection<MessageHandler> handlers = RabbitSubscriber.handlers.get(messageClass);
 
         // Remove the handler for the class if any handler set is defined
         if (handlers != null) {
@@ -162,7 +174,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     @Override
     public void receive(Message message) {
         logger.debug("Message {} received by queue {}", message.toString(), this.identifier);
-        Collection<MessageHandler> handlers = this.handlers.get(message.getClass());
+        Collection<MessageHandler> handlers = RabbitSubscriber.handlers.get(message.getClass());
 
         // Pass the message to every defined handler
         if (handlers != null) {
@@ -170,9 +182,12 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
                 handler.handleMessage(message);
             }
         } else {
-            Collection<String> messageTypes = this.handlers.keySet().stream().map(Class::toString).collect(Collectors.toSet());
+            Collection<String> messageTypes = RabbitSubscriber.handlers.keySet().stream().map(Class::toString).collect(Collectors.toSet());
             logger.warn("Message {} was received but is unroutable", message.toString());
-            logger.debug("Handlers available for messages types {}", String.join(",", messageTypes));
+            if (logger.isDebugEnabled() && messageTypes.size() == 0) {
+                messageTypes.add("no message types found that can be handled. There are " + RabbitSubscriber.handlers.size() + " handlers available in total.");
+                logger.debug("Handlers available for messages types: " + String.join(",", messageTypes));
+            }
         }
     }
 
@@ -208,7 +223,8 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
         logger.debug("New RabbitMQ consumer started");
 
         // Cancel old consumer if we have one
-        if (old != null) {
+        if (old != null && old.getConsumerTag() != null) {
+            logger.debug("Cancel old RabbitMQ consumer with tag: " + old.getConsumerTag());
             this.channel.basicCancel(old.getConsumerTag());
             logger.debug("Old RabbitMQ consumer cancelled");
         }

@@ -31,10 +31,10 @@ public class CollisionStartEvent extends GameEngineEvent {
         Optional<String> maybeE2 =  id_mapper.fromGameEngineToProtocolId(this.e2.getEntityId());
 
         if(maybeE1.isPresent() && maybeE2.isPresent()) {
-            msg.setE1Id(maybeE1.get());
+            msg.setE1Identifier(maybeE1.get());
             msg.setE1Type(this.e1.getType());
 
-            msg.setE2Id(maybeE2.get());
+            msg.setE2Identifier(maybeE2.get());
             msg.setE2Type(this.e2.getType());
 
             return Collections.singletonList(msg);

@@ -9,6 +9,8 @@ package org.inaetics.dronessimulator.discovery.api.discoverynode;
 public class Group {
     /** The Drone group */
     public static final Group DRONE = new Group("drone");
+    /** The Tactic group */
+    public static final Group TACTIC = new Group("tactic");
     /** The Services group */
     public static final Group SERVICES = new Group("services");
     /** The Broker group */

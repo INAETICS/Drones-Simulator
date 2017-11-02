@@ -30,6 +30,8 @@ public interface Subscriber {
      */
     void addHandler(Class<? extends Message> messageClass, MessageHandler handler);
 
+    void addHandlerIfNotExists(Class<? extends Message> messageClass, MessageHandler handler);
+
     /**
      * Removes a message handler from this subscriber.
      * @param messageClass The message class to remove the handler for.

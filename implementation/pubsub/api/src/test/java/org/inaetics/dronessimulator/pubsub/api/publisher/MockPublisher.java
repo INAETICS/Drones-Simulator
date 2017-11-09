@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.pubsub.api.publisher;
 
+import lombok.Getter;
 import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.pubsub.protocol.Message;
 import org.inaetics.dronessimulator.pubsub.protocol.Topic;
@@ -9,6 +10,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class MockPublisher implements Publisher {
+    @Getter
     private List<Tuple<Topic, Message>> receivedMessages = new LinkedList<>();
 
     @Override

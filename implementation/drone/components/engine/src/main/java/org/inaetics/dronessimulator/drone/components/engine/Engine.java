@@ -1,5 +1,7 @@
 package org.inaetics.dronessimulator.drone.components.engine;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
@@ -14,6 +16,8 @@ import java.io.IOException;
  * The engine component in a drone
  */
 @Log4j
+@NoArgsConstructor //This is the constructor for OSGi
+@AllArgsConstructor //This is a constructor for test purposes.
 public class Engine {
     /**
      * The max acceleration of this engine in m/s^2

@@ -2,11 +2,11 @@ package org.inaetics.dronessimulator.gameengine.ruleprocessors.rules;
 
 import lombok.AllArgsConstructor;
 import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.common.protocol.MessageTopic;
+import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
-import org.inaetics.dronessimulator.pubsub.protocol.MessageTopic;
-import org.inaetics.dronessimulator.pubsub.protocol.ProtocolMessage;
 
 import java.io.IOException;
 import java.util.Collections;

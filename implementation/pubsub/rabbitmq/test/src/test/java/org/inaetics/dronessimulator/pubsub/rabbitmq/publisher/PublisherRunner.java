@@ -2,9 +2,9 @@ package org.inaetics.dronessimulator.pubsub.rabbitmq.publisher;
 
 import com.rabbitmq.client.ConnectionFactory;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
+import org.inaetics.dronessimulator.pubsub.api.Message;
+import org.inaetics.dronessimulator.pubsub.api.Topic;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
-import org.inaetics.dronessimulator.pubsub.protocol.Message;
-import org.inaetics.dronessimulator.pubsub.protocol.Topic;
 
 import java.util.ArrayList;
 

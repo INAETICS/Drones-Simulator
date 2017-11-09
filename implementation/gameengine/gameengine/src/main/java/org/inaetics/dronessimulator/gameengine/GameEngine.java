@@ -5,6 +5,7 @@ import org.inaetics.dronessimulator.architectureevents.ArchitectureEventControll
 import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
+import org.inaetics.dronessimulator.common.protocol.*;
 import org.inaetics.dronessimulator.common.vector.D2Vector;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
@@ -25,12 +26,12 @@ import org.inaetics.dronessimulator.gameengine.messagehandlers.*;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.IRuleProcessors;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
-import org.inaetics.dronessimulator.pubsub.protocol.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Wrapper around PhysicsEngine. Sets up and connects all handlers with each other.

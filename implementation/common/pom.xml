@@ -34,4 +34,16 @@
         </plugins>
     </build>
 
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.pubsub</groupId>
+            <artifactId>pubsub-api</artifactId>
+            <version>0.1</version>
+        </dependency>
+    </dependencies>
+
 </project>

@@ -1,6 +1,6 @@
 package org.inaetics.dronessimulator.physicsengine;
 
-import lombok.extern.log4j.Log4j;
+import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.ManagedThread;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.EntityUpdate;
@@ -18,8 +18,8 @@ import java.util.Set;
  *
  * @threadsafe
  */
-@Log4j
 public class PhysicsEngine extends ManagedThread implements IPhysicsEngine {
+    private static final Logger logger = Logger.getLogger(PhysicsEngine.class);
 
     /** Gravity in meters/second^2. */
     public static final D3Vector GRAVITY = new D3Vector(0, 0, 0); // TODO: Fix gravity (-9.81)
@@ -243,10 +243,10 @@ public class PhysicsEngine extends ManagedThread implements IPhysicsEngine {
      * Starts the physics engine thread.
      */
     public void startEngine() {
-        log.info("Starting PhysicsEngine...");
+        logger.info("Starting PhysicsEngine...");
         this.startThread();
 
-        log.info("Started PhysicsEngine!");
+        Logger.getLogger(PhysicsEngine.class).info("Started PhysicsEngine!");
     }
 
     /**
@@ -254,20 +254,20 @@ public class PhysicsEngine extends ManagedThread implements IPhysicsEngine {
      * @threadsafe
      */
     public void stopEngine() {
-        log.info("Stopping Physics Engine...");
+        logger.info("Stopping Physics Engine...");
         this.stopThread();
-        log.info("Stopped Physics Engine!");
+        logger.info("Stopped Physics Engine!");
     }
 
     @Override
     public void pauseEngine() {
-        log.info("Pausing physics engine!");
+        logger.info("Pausing physics engine!");
         this.pauseThread();
     }
 
     @Override
     public void resumeEngine() {
-        log.info("Resuming physics engine!");
+        logger.info("Resuming physics engine!");
 
         this.resumeThread();
     }

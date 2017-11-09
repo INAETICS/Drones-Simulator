@@ -1,17 +1,26 @@
 package org.inaetics.dronessimulator.architecturemanager;
 
 import com.rabbitmq.client.ConnectionFactory;
+import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventControllerService;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventHandler;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
+import org.inaetics.dronessimulator.common.protocol.MessageTopic;
+import org.inaetics.dronessimulator.common.protocol.RequestArchitectureStateChangeMessage;
+import org.inaetics.dronessimulator.discovery.api.Discoverer;
+import org.inaetics.dronessimulator.discovery.api.Instance;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryStoredNode;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 import org.inaetics.dronessimulator.discovery.api.instances.ArchitectureInstance;
+import org.inaetics.dronessimulator.discovery.etcd.EtcdDiscoverer;
 import org.inaetics.dronessimulator.discovery.etcd.EtcdDiscovererService;
+import org.inaetics.dronessimulator.pubsub.api.Message;
+import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
+import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
-import org.inaetics.dronessimulator.pubsub.protocol.MessageTopic;
-import org.inaetics.dronessimulator.pubsub.protocol.RequestArchitectureStateChangeMessage;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.common.RabbitConnectionInfo;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.publisher.RabbitPublisher;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitSubscriber;
@@ -24,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class LifecycleUpdateIT {
 

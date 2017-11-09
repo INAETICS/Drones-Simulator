@@ -1,16 +1,17 @@
 package org.inaetics.dronessimulator.pubsub.javaserializer;
 
-import lombok.extern.log4j.Log4j;
+import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
-import org.inaetics.dronessimulator.pubsub.protocol.Message;
 
 import java.io.*;
 
 /**
  * Serializer implementation using the default Java serialization.
  */
-@Log4j
 public class JavaSerializer implements Serializer {
+    /** The logger */
+    private static final Logger logger = Logger.getLogger(JavaSerializer.class);
 
     /**
      * Serializes the given message using the Java object serialization.
@@ -24,7 +25,7 @@ public class JavaSerializer implements Serializer {
 
         out.writeObject(message);
 
-        log.debug("Message {} serialized to bytes", message.toString());
+        logger.debug("Message {} serialized to bytes", message.toString());
 
         out.close();
         byteStream.close();
@@ -47,10 +48,10 @@ public class JavaSerializer implements Serializer {
 
         try {
             message = (Message) in.readObject();
-            log.debug("Deserialized message {} from bytes", message.toString());
+            logger.debug("Deserialized message {} from bytes", message.toString());
         } catch (ClassCastException e) {
             // This is not a valid message so we can drop it.
-            log.warn("Invalid message offered for deserialization, message dropped", e);
+            logger.warn("Invalid message offered for deserialization, message dropped", e);
         }
 
         in.close();

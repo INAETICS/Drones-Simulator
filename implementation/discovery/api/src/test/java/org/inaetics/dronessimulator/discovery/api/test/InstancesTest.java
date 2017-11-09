@@ -6,7 +6,6 @@ import org.inaetics.dronessimulator.discovery.api.instances.ArchitectureInstance
 import org.inaetics.dronessimulator.discovery.api.instances.DroneInstance;
 import org.inaetics.dronessimulator.discovery.api.instances.GameEngineInstance;
 import org.inaetics.dronessimulator.discovery.api.instances.RabbitInstance;
-import org.inaetics.dronessimulator.discovery.api.mocks.MockDiscoveryStoredNode;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

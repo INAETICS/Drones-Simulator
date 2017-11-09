@@ -6,9 +6,9 @@ import javafx.scene.layout.Region;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.common.protocol.GameFinishedMessage;
+import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
-import org.inaetics.dronessimulator.pubsub.protocol.GameFinishedMessage;
-import org.inaetics.dronessimulator.pubsub.protocol.Message;
 
 public class GameFinishedHandler implements MessageHandler {
     private static final Logger logger = Logger.getLogger(GameFinishedHandler.class);

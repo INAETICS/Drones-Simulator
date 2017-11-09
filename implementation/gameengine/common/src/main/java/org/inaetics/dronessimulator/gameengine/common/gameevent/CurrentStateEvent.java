@@ -2,11 +2,11 @@ package org.inaetics.dronessimulator.gameengine.common.gameevent;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
+import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 import org.inaetics.dronessimulator.gameengine.common.state.HealthGameEntity;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
-import org.inaetics.dronessimulator.pubsub.protocol.ProtocolMessage;
-import org.inaetics.dronessimulator.pubsub.protocol.StateMessage;
 
 import java.util.ArrayList;
 import java.util.List;

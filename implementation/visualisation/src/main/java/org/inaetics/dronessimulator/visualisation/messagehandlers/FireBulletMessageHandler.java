@@ -1,7 +1,7 @@
 package org.inaetics.dronessimulator.visualisation.messagehandlers;
 
+import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
-import org.inaetics.dronessimulator.pubsub.protocol.Message;
 
 /**
  * The fire bullet message handler class. Implements what to do when a bullet is fired.

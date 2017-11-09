@@ -1,11 +1,11 @@
 package org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.teamplay;
 
 import lombok.extern.log4j.Log4j;
+import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.gameengine.common.state.Drone;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.AbstractGameFinishedRule;
-import org.inaetics.dronessimulator.pubsub.protocol.EntityType;
 
 import java.util.Arrays;
 import java.util.List;

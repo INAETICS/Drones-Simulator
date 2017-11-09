@@ -3,8 +3,8 @@ package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
+import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
-import org.inaetics.dronessimulator.pubsub.protocol.Message;
 
 import java.io.IOException;
 

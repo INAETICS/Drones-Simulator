@@ -2,8 +2,9 @@ package org.inaetics.dronessimulator.pubsub.rabbitmq;
 
 
 import com.rabbitmq.client.ConnectionFactory;
-import org.inaetics.dronessimulator.pubsub.protocol.Message;
-import org.inaetics.dronessimulator.pubsub.protocol.Topic;
+import org.inaetics.dronessimulator.pubsub.api.Message;
+import org.inaetics.dronessimulator.pubsub.api.Topic;
+import org.inaetics.dronessimulator.pubsub.rabbitmq.common.RabbitConnectionInfo;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.publisher.PublisherRunner;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.SubscriberRunner;
 import org.junit.Before;

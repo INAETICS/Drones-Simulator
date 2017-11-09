@@ -1,14 +1,15 @@
 package org.inaetics.dronessimulator.drone.components.radio;
 
 import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.common.protocol.TextMessage;
+import org.inaetics.dronessimulator.common.protocol.MessageTopic;
+import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
+import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
-import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
-import org.inaetics.dronessimulator.pubsub.protocol.Message;
-import org.inaetics.dronessimulator.pubsub.protocol.MessageTopic;
-import org.inaetics.dronessimulator.pubsub.protocol.StateMessage;
-import org.inaetics.dronessimulator.pubsub.protocol.TextMessage;
+import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
+
 
 import java.io.IOException;
 import java.util.concurrent.ConcurrentLinkedQueue;

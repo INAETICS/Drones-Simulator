@@ -1,8 +1,8 @@
 package org.inaetics.dronessimulator.pubsub.api.subscriber;
 
+import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
-import org.inaetics.dronessimulator.pubsub.protocol.Message;
-import org.inaetics.dronessimulator.pubsub.protocol.Topic;
+import org.inaetics.dronessimulator.pubsub.api.Topic;
 
 import java.io.IOException;
 

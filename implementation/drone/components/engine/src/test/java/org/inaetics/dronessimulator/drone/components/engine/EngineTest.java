@@ -1,12 +1,11 @@
 package org.inaetics.dronessimulator.drone.components.engine;
 
 
+import org.inaetics.dronessimulator.common.protocol.MessageTopic;
+import org.inaetics.dronessimulator.common.protocol.MovementMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.inaetics.dronessimulator.pubsub.api.publisher.MockPublisher;
-import org.inaetics.dronessimulator.pubsub.protocol.MessageTopic;
-import org.inaetics.dronessimulator.pubsub.protocol.MovementMessage;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

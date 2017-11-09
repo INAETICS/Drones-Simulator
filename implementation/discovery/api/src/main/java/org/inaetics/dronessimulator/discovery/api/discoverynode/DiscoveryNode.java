@@ -1,12 +1,12 @@
 package org.inaetics.dronessimulator.discovery.api.discoverynode;
 
-import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.NodeEvent;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
 import org.inaetics.dronessimulator.discovery.api.tree.TreeNode;
+import org.inaetics.dronessimulator.discovery.api.tree.Tuple;
 
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -81,8 +81,8 @@ public class DiscoveryNode extends TreeNode<String, String, DiscoveryNode, Disco
             } else {
                 // Add child will set both AddNode and ChangedValue events
                 Tuple<DiscoveryNode, List<NodeEvent>> addResult = this.addStoredNode(storedChild);
-                child = addResult.getLeft();
-                events.addAll(addResult.getRight());
+                child = addResult.getT1();
+                events.addAll(addResult.getT2());
             }
 
             // Now update child regardless to also add/update directories

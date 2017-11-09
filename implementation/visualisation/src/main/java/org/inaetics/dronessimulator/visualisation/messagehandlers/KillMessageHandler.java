@@ -1,8 +1,8 @@
 package org.inaetics.dronessimulator.visualisation.messagehandlers;
 
+import org.inaetics.dronessimulator.common.protocol.KillMessage;
+import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
-import org.inaetics.dronessimulator.pubsub.protocol.KillMessage;
-import org.inaetics.dronessimulator.pubsub.protocol.Message;
 import org.inaetics.dronessimulator.visualisation.BaseEntity;
 
 import java.util.concurrent.ConcurrentMap;

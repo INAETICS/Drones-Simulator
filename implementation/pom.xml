@@ -48,6 +48,12 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>
                 <version>${mockito.version}</version>
@@ -75,27 +81,20 @@
                 <artifactId>org.apache.felix.configadmin</artifactId>
                 <version>${apache.felix.configadmin.version}</version>
             </dependency>
+            <dependency>
+                <groupId>org.ops4j.pax.logging</groupId>
+                <artifactId>pax-logging-api</artifactId>
+                <version>${pax.logging.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <!--Give all modules access to the following dependencies.-->
+    <!--Give all modules access to lombok.-->
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <version>${lombok.version}</version>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.logging</groupId>
-            <artifactId>pax-logging-api</artifactId>
-            <version>${pax.logging.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
-            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -111,7 +110,6 @@
                     <excludes>
                         <exclude>**/Activator.*</exclude>
                         <exclude>**/common-test/**</exclude>
-                        <exclude>**/*Event</exclude>
                     </excludes>
                 </configuration>
                 <executions>

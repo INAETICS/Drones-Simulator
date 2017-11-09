@@ -1,6 +1,6 @@
 package org.inaetics.dronessimulator.pubsub.javaserializer;
 
-import org.inaetics.dronessimulator.pubsub.protocol.Message;
+import org.inaetics.dronessimulator.pubsub.api.Message;
 
 /**
  * Message implementation to use for testing the Java serializer.

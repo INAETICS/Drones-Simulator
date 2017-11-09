@@ -3,8 +3,8 @@ package org.inaetics.dronessimulator.pubsub.rabbitmq.common;
 import com.rabbitmq.client.*;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
+import org.inaetics.dronessimulator.pubsub.api.Topic;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
-import org.inaetics.dronessimulator.pubsub.protocol.Topic;
 import org.osgi.service.cm.ConfigurationException;
 import org.osgi.service.cm.ManagedService;
 

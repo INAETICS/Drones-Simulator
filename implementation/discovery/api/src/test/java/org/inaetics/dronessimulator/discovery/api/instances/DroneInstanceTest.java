@@ -1,7 +1,7 @@
 package org.inaetics.dronessimulator.discovery.api.instances;
 
-import org.inaetics.dronessimulator.discovery.api.mocks.MockDiscoverer;
-import org.inaetics.dronessimulator.discovery.api.mocks.MockDiscoveryStoredNode;
+import org.inaetics.dronessimulator.discovery.api.MockDiscoverer;
+import org.inaetics.dronessimulator.discovery.api.test.MockDiscoveryStoredNode;
 import org.junit.Assert;
 import org.junit.Test;
 

@@ -33,7 +33,7 @@ An example of a very simple message is shown below.
 ```java
 package mymessages;
 
-import org.inaetics.dronessimulator.pubsub.protocol.Message;
+import org.inaetics.dronessimulator.pubsub.api.Message;
 
 class SimpleMessage implements Message {
     private String message;
@@ -60,7 +60,7 @@ An example is given below.
 ```java
 package mytopics;
 
-import org.inaetics.dronessimulator.pubsub.protocol.Topic;
+import org.inaetics.dronessimulator.pubsub.api.Topic;
 
 class NumberedTopic implements Topic {
     public static final String BASE_NAME = "Topic";

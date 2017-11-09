@@ -16,11 +16,6 @@
             <artifactId>gameengine-identifier-mapper</artifactId>
             <version>0.1</version>
         </dependency>
-        <dependency>
-            <groupId>org.inaetics.dronessimulator.pubsub</groupId>
-            <artifactId>pubsub-api</artifactId>
-            <version>0.1</version>
-        </dependency>
     </dependencies>
 
     <groupId>org.inaetics.dronessimulator.gameengine</groupId>

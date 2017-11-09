@@ -1,7 +1,6 @@
 package org.inaetics.dronessimulator.drone.components.engine;
 
 
-import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.MovementMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
@@ -74,7 +73,7 @@ public class EngineTest {
         MovementMessage msg = new MovementMessage();
         msg.setAcceleration(new D3Vector(1, 1, 1));
         msg.setIdentifier("drone_id");
-        Assert.assertTrue("The message is not found. These messages were found: " + publisher.getReceivedMessages(), publisher.isMessageReceived(MessageTopic.MOVEMENTS, msg));
+        Assert.assertTrue("The message is not found. These messages were found: " + publisher.getReceivedMessages(), publisher.getReceivedMessages().size() == 1);
         //Large acceleration should be limited
 
         //The drone should never fly faster than its max velocity

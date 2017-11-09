@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <artifactId>dronessimulator</artifactId>
@@ -23,30 +23,38 @@
         <module>identifier-mapper</module>
     </modules>
 
-    <dependencies>
-        <dependency>
-            <groupId>org.inaetics.dronessimulator</groupId>
-            <artifactId>common</artifactId>
-            <version>0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.inaetics.dronessimulator</groupId>
-            <artifactId>common-test</artifactId>
-            <version>0.1</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.inaetics.dronessimulator</groupId>
-            <artifactId>architecture-event-controller</artifactId>
-            <version>0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.logging</groupId>
-            <artifactId>pax-logging-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-    </dependencies>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.gameengine</groupId>
+                <artifactId>gameengine-physicsengine</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.gameengine</groupId>
+                <artifactId>gameengine-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.gameengine</groupId>
+                <artifactId>gameengine-gamestate-manager</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.gameengine</groupId>
+                <artifactId>gameengine-identifier-mapper</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.gameengine</groupId>
+                <artifactId>gameengine-physicsenginedriver</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.gameengine</groupId>
+                <artifactId>gameengine-ruleprocessors</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>

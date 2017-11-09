@@ -4,13 +4,6 @@ import org.inaetics.dronessimulator.common.protocol.*;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
-import org.inaetics.dronessimulator.discovery.api.DuplicateName;
-import org.inaetics.dronessimulator.discovery.api.Instance;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryStoredNode;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.ChangedValue;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
 import org.inaetics.dronessimulator.gameengine.common.state.Bullet;
 import org.inaetics.dronessimulator.gameengine.common.state.Drone;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.GameStateManager;
@@ -23,16 +16,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import static org.mockito.Mockito.mock;
 
 public class TestGameSubscriberMessageHandler {
 
     private MockPhysicsEngineDriver mockDriver;
     private IdentifierMapperService id_mapper;
     private GameStateManager stateManager;
-    private MockDiscoverer mockDiscoverer;
+    private Discoverer mockDiscoverer;
 
     private DamageMessageHandler damageMessageHandler;
     private FireBulletMessageHandler fireBulletMessageHandler;
@@ -46,6 +37,7 @@ public class TestGameSubscriberMessageHandler {
         this.id_mapper = new IdentifierMapperService();
         this.stateManager = new GameStateManager();
         this.mockDriver = new MockPhysicsEngineDriver(this.id_mapper);
+        this.mockDiscoverer = mock(Discoverer.class);
         this.damageMessageHandler = new DamageMessageHandler(this.mockDriver, this.id_mapper, this.stateManager);
         this.fireBulletMessageHandler = new FireBulletMessageHandler(this.mockDriver, this.id_mapper, this.stateManager);
         this.killMessageHandler = new KillMessageHandler(this.mockDriver, this.id_mapper, this.stateManager, this.mockDiscoverer);
@@ -132,32 +124,5 @@ public class TestGameSubscriberMessageHandler {
         fireBulletMessageHandler.handleMessage(fireBulletMessage);
 
         Assert.assertEquals(new Bullet(2, 50, drone, new D3Vector(3,2,1), new D3Vector(2,3,1), new D3Vector(1,2,3), new D3PolarCoordinate()), mockDriver.getAdded());
-    }
-
-    private class MockDiscoverer implements Discoverer {
-        @Override
-        public void register(Instance instance) throws DuplicateName, IOException {
-
-        }
-
-        @Override
-        public void unregister(Instance instance) throws IOException {
-
-        }
-
-        @Override
-        public Instance updateProperties(Instance instance, Map<String, String> properties) throws IOException {
-            return null;
-        }
-
-        @Override
-        public void addHandlers(boolean replay, List<NodeEventHandler<AddedNode>> addHandlers, List<NodeEventHandler<ChangedValue>> changedValueHandlers, List<NodeEventHandler<RemovedNode>> removedHandlers) {
-
-        }
-
-        @Override
-        public DiscoveryStoredNode getNode(Instance instance) {
-            return null;
-        }
     }
 }

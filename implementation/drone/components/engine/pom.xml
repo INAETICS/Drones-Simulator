@@ -20,24 +20,20 @@
         <dependency>
             <groupId>org.inaetics.dronessimulator.pubsub</groupId>
             <artifactId>pubsub-api</artifactId>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.drone</groupId>
             <artifactId>drone-init</artifactId>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.drone.components</groupId>
             <artifactId>components-gps</artifactId>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.pubsub</groupId>
             <artifactId>pubsub-api</artifactId>
             <type>test-jar</type>
             <scope>test</scope>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -49,7 +45,6 @@
             <artifactId>junit</artifactId>
         </dependency>
     </dependencies>
-
 
     <build>
         <plugins>

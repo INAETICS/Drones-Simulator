@@ -18,53 +18,8 @@
         <module>drone-init</module>
         <module>tactic</module>
     </modules>
-
     <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.osgi</groupId>
-                <artifactId>org.osgi.core</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.dependencymanager</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.inaetics.dronessimulator</groupId>
-                <artifactId>common</artifactId>
-                <version>0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.inaetics.dronessimulator.pubsub</groupId>
-                <artifactId>pubsub-api</artifactId>
-                <version>0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.inaetics.dronessimulator.discovery</groupId>
-                <artifactId>discovery-api</artifactId>
-                <version>0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.inaetics.dronessimulator</groupId>
-                <artifactId>architecture-event-controller</artifactId>
-                <version>0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.inaetics.dronessimulator</groupId>
-                <artifactId>common-test</artifactId>
-                <scope>test</scope>
-                <type>test-jar</type>
-                <version>0.1</version>
-            </dependency>
-            <dependency>
-                <groupId>org.inaetics.dronessimulator.discovery</groupId>
-                <artifactId>discovery-api</artifactId>
-                <type>test-jar</type>
-                <scope>test</scope>
-                <version>0.1</version>
-            </dependency>
 
-        </dependencies>
     </dependencyManagement>
 
     <build>

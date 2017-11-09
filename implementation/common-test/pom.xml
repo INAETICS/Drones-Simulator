@@ -22,17 +22,14 @@
         <dependency>
             <groupId>org.inaetics.dronessimulator.pubsub</groupId>
             <artifactId>pubsub-api</artifactId>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator</groupId>
             <artifactId>common</artifactId>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.discovery</groupId>
             <artifactId>discovery-api</artifactId>
-            <version>0.1</version>
         </dependency>
     </dependencies>
 

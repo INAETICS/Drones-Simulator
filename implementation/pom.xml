@@ -37,6 +37,7 @@
         <pax.logging.version>1.10.0</pax.logging.version>
         <jacoco.version>0.7.9</jacoco.version>
         <surefire.maven.version>2.19.1</surefire.maven.version>
+        <failsafe.maven.version>2.20.1</failsafe.maven.version>
         <sonar.version>3.2</sonar.version>
         <lombok.version>1.16.10</lombok.version>
         <lombok.plugin.version>${lombok.version}.0</lombok.plugin.version>
@@ -47,6 +48,7 @@
 
     <dependencyManagement>
         <dependencies>
+            <!--Testing dependencies-->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
@@ -65,7 +67,29 @@
                 <version>${hamcrest.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator</groupId>
+                <artifactId>common-test</artifactId>
+                <scope>test</scope>
+                <type>test-jar</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.discovery</groupId>
+                <artifactId>discovery-api</artifactId>
+                <type>test-jar</type>
+                <scope>test</scope>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.pubsub</groupId>
+                <artifactId>pubsub-api</artifactId>
+                <type>test-jar</type>
+                <scope>test</scope>
+                <version>${project.version}</version>
+            </dependency>
 
+            <!--OSGi dependencies-->
             <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.core</artifactId>
@@ -81,13 +105,92 @@
                 <artifactId>org.apache.felix.configadmin</artifactId>
                 <version>${apache.felix.configadmin.version}</version>
             </dependency>
+
+            <!--Logging dependencies-->
             <dependency>
                 <groupId>org.ops4j.pax.logging</groupId>
                 <artifactId>pax-logging-api</artifactId>
                 <version>${pax.logging.version}</version>
             </dependency>
+            <!--Module dependencies - drones-->
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.drone</groupId>
+                <artifactId>drone-init</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.drone.components</groupId>
+                <artifactId>components-engine</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.drone.components</groupId>
+                <artifactId>components-gps</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.drone.components</groupId>
+                <artifactId>components-gun</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.drone.components</groupId>
+                <artifactId>components-radar</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.drone.components</groupId>
+                <artifactId>components-radio</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!--Module dependencies - common-->
+            <dependency>
+                <groupId>org.inaetics.dronessimulator</groupId>
+                <artifactId>common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!--Module dependencies - pubsub-->
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.pubsub</groupId>
+                <artifactId>pubsub-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
+                <artifactId>rabbitmq-subscriber</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
+                <artifactId>rabbitmq-publisher</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.pubsub</groupId>
+                <artifactId>java-serializer</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!--Module dependencies - discovery-->
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.discovery</groupId>
+                <artifactId>discovery-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.discovery</groupId>
+                <artifactId>etcd</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!--Module dependencies - architecture-->
+            <dependency>
+                <groupId>org.inaetics.dronessimulator</groupId>
+                <artifactId>architecture-event-controller</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
+
     <!--Give all modules access to lombok.-->
     <dependencies>
         <dependency>
@@ -152,6 +255,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${failsafe.maven.version}</version>
                 <configuration>
                     <!-- skips failsafe tests without skipping surefire tests.
                  Property value seems to magically default to false -->

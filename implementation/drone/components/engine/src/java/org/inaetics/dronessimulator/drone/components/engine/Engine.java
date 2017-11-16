@@ -3,12 +3,14 @@ package org.inaetics.dronessimulator.drone.components.engine;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.MovementMessage;
-import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
+import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * The engine component in a drone
@@ -37,6 +39,8 @@ public class Engine {
      * The max acceleration of this engine in m/s^2
      */
     private static final int MAX_ACCELERATION = 10;
+
+    private List<EngineCallback> callbacks = new LinkedList<>();
 
     //-- GETTERS
     /**
@@ -143,5 +147,17 @@ public class Engine {
         } catch (IOException e) {
             logger.fatal(e);
         }
+
+        //Run all callbacks
+        callbacks.forEach(callback -> callback.run(msg));
+    }
+
+    public final void registerCallback(EngineCallback callback) {
+        callbacks.add(callback);
+    }
+
+    @FunctionalInterface
+    public interface EngineCallback {
+        void run(MovementMessage movementMessage);
     }
 }

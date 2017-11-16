@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.drone.components.gun;
 
+import lombok.extern.log4j.Log4j;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.protocol.FireBulletMessage;
@@ -12,12 +13,15 @@ import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
 /**
  * The gun component for drone tactics
  */
+@Log4j
 public class Gun {
     /** The logger */
     private static final Logger logger = Logger.getLogger(Gun.class);
@@ -72,6 +76,8 @@ public class Gun {
      */
     private final int MAX_OFFSET_SHOT_TIME = 1000;
 
+    private List<GunCallback> callbacks = new LinkedList<GunCallback>();
+
     // -- GETTERS
 
     /**
@@ -116,8 +122,19 @@ public class Gun {
             } catch(IOException e){
                 logger.fatal(e);
             }
+            //Run all the callbacks
+            callbacks.forEach(callback -> callback.run(msg));
 
-            Logger.getLogger(Gun.class).info("Firing bullet! Next shot possible in " + ((double) (next_shot_at_ms - current_time_ms) / 1000) + " seconds.");
+            log.info("Firing bullet! Next shot possible in " + ((double) (next_shot_at_ms - current_time_ms) / 1000) + " seconds.");
         }
+    }
+
+    public final void registerCallback(GunCallback callback) {
+        callbacks.add(callback);
+    }
+
+    @FunctionalInterface
+    public interface GunCallback {
+        void run(FireBulletMessage fireBulletMessage);
     }
 }

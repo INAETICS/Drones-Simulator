@@ -2,7 +2,7 @@ package org.inaetics.dronessimulator.drone.components.gps;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
@@ -13,24 +13,19 @@ import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * The GPS drone component
  */
+@Log4j
 public class GPS implements MessageHandler {
-    /**
-     * The logger
-     */
-    private final static Logger logger = Logger.getLogger(GPS.class);
-
-    /**
-     * Reference to the Subscriber bundle
-     */
+    //Felix filled variables
     private volatile Subscriber m_subscriber;
-    /**
-     * Reference to the Drone Init bundle
-     */
     private volatile DroneInit m_drone;
+
+    private List<GPSCallback> callbacks = new LinkedList<>();
 
     /**
      * Last known position of this drone in the architecture
@@ -61,7 +56,7 @@ public class GPS implements MessageHandler {
         try {
             this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
-            logger.fatal(e);
+            log.fatal(e);
         }
         this.m_subscriber.addHandler(StateMessage.class, this);
     }
@@ -85,8 +80,18 @@ public class GPS implements MessageHandler {
                 if(stateMessage.getDirection().isPresent()){
                     this.setDirection(stateMessage.getDirection().get());
                 }
+                //Run callbacks
+                callbacks.forEach(callback -> callback.run(stateMessage));
             }
         }
     }
 
+    public final void registerCallback(GPSCallback callback) {
+        callbacks.add(callback);
+    }
+
+    @FunctionalInterface
+    public interface GPSCallback {
+        void run(StateMessage newState);
+    }
 }

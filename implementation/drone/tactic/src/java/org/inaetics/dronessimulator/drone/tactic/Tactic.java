@@ -64,7 +64,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
      * Thread implementation
      */
     @Override
-    protected void work() throws InterruptedException {
+    protected final void work() throws InterruptedException {
         this.calculateTactics();
         Thread.sleep(200);
     }
@@ -72,7 +72,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     /**
      * Registers the handlers for the architectureEventController on startup. And registers the subscriber. Starts the tactic.
      */
-    public void startTactic() {
+    public final void startTactic() {
         m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG,
                 (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
                     this.configSimulation();
@@ -129,7 +129,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
         super.start();
     }
 
-    public void stopTactic() {
+    public final void stopTactic() {
         this.stopThread();
         unconfigSimulation();
     }
@@ -144,7 +144,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     }
 
     @Override
-    public void destroy() {
+    public final void destroy() {
     }
 
     private void configSimulation() {
@@ -215,7 +215,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
      *
      * @param message The received message.
      */
-    public void handleMessage(Message message) {
+    public final void handleMessage(Message message) {
         if (message instanceof KillMessage) {
             handleKillMessage((KillMessage) message);
         }
@@ -233,10 +233,34 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
         }
     }
 
-    protected String getIdentifier() {
+    public final String getIdentifier() {
         return m_drone.getIdentifier();
     }
 
+    //-- Helper methods for the implemented tactics
+    protected final boolean hasComponents(String... components) {
+        boolean result = true;
+        for (String component : components) {
+            switch (component) {
+                case "radar":
+                    result &= radar != null;
+                    break;
+                case "gps":
+                    result &= gps != null;
+                    break;
+                case "engine":
+                    result &= engine != null;
+                    break;
+                case "gun":
+                    result &= gun != null;
+                    break;
+                case "radio":
+                    result &= radio != null;
+                    break;
+            }
+        }
+        return result;
+    }
 
     /**
      * -- Abstract metods

@@ -71,6 +71,7 @@
                 <artifactId>pax-logging-api</artifactId>
                 <version>${pax.logging.version}</version>
             </dependency>
+
         </dependencies>
     </dependencyManagement>
     <!--Give all modules access to lombok.-->

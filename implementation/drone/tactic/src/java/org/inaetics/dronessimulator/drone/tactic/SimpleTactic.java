@@ -3,12 +3,7 @@ package org.inaetics.dronessimulator.drone.tactic;
 import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
-import org.inaetics.dronessimulator.drone.components.engine.Engine;
-import org.inaetics.dronessimulator.drone.components.gps.GPS;
-import org.inaetics.dronessimulator.drone.components.gun.Gun;
-import org.inaetics.dronessimulator.drone.components.radar.Radar;
-import org.inaetics.dronessimulator.drone.components.radio.Radio;
-import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
+import org.inaetics.dronessimulator.pubsub.api.Message;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -16,24 +11,22 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 /**
  * Simple tactic which flies randomly and fires a bullet on enemies.
  */
 public class SimpleTactic extends Tactic {
-    protected volatile Radar m_radar;
-    protected volatile GPS m_gps;
-    protected volatile Engine m_engine;
-    protected volatile Gun m_gun;
-    protected volatile Radio radio;
 
     private static final double MAX_DEVIATION_POSTION = Settings.ARENA_WIDTH;
     private static final double MAX_Z_DEVIATION_POSTION = Settings.ARENA_HEIGHT;
 
     private List<String> teamMates = new ArrayList<>();
     private LocalDateTime nextpoll = LocalDateTime.now();
+
+    @Override
+    void initializeTactics() {
+
+    }
 
     /**
      * -- IMPLEMENT FUNCTIONS
@@ -42,53 +35,51 @@ public class SimpleTactic extends Tactic {
     void calculateTactics() {
         this.calculateAcceleration();
         this.calculateGun();
-        this.talkToTeam();
+//        this.talkToTeam();
     }
 
     /**
      * -- FUNCTIONS
      */
 
-    private void talkToTeam() {
-//        sendMessage("hoi");
+//    private void talkToTeam() {
+//        List<String> messages = getTeamMessages();
+//        if (LocalDateTime.now().isAfter(nextpoll) && messages.isEmpty()) {
+//            sendMessage("Identify yourself!");
+//            nextpoll.plusSeconds(1);
+//        } else {
+//            for (String msg : messages) {
+//                String sender = msg.substring(msg.indexOf('(') + 1, msg.indexOf(')'));
+//                String text = msg.substring(msg.indexOf(')') + 1);
+//                switch (text) {
+//                    case "Identify yourself!":
+//                        sendMessage("");
+//                        break;
+//                    // more cases here
+//                }
+//                if (teamMates.contains(sender)) {
+//                    teamMates.add(sender);
+//                }
+//            }
+//        }
+//    }
 
-        List<String> messages = getTeamMessages();
-        if (LocalDateTime.now().isAfter(nextpoll) && messages.isEmpty()) {
-            sendMessage("Identify yourself!");
-            nextpoll.plusSeconds(1);
-        } else {
-            for (String msg : messages) {
-                String sender = msg.substring(msg.indexOf('(') + 1, msg.indexOf(')'));
-                String text = msg.substring(msg.indexOf(')') + 1);
-                switch (text) {
-                    case "Identify yourself!":
-                        sendMessage("");
-                        break;
-                    // more cases here
-                }
-                if (teamMates.contains(sender)) {
-                    teamMates.add(sender);
-                }
-            }
-        }
-    }
-
-    private void sendMessage(String msg) {
-        radio.sendText("(" + this.getIdentifier() + ")" + msg);
-    }
-
-    private List<String> getTeamMessages() {
-        List<String> r = new ArrayList<>();
-
-        ConcurrentLinkedQueue<String> messages = radio.getMessages();
-        while (!messages.isEmpty()) {
-            String msg = messages.poll();
-            if (!msg.equals(msg.substring(msg.indexOf('(') + 1, msg.indexOf(')')))) {
-                r.add(msg);
-            }
-        }
-        return r;
-    }
+//    private void sendMessage(String msg) {
+//        radio.sendText("(" + this.getIdentifier() + ")" + msg);
+//    }
+//
+//    private List<String> getTeamMessages() {
+//        List<String> r = new ArrayList<>();
+//
+//        ConcurrentLinkedQueue<Message> messages = radio.getMessages();
+//        while (!messages.isEmpty()) {
+//            Message msg = messages.poll();
+//            if (!msg.equals(msg.substring(msg.indexOf('(') + 1, msg.indexOf(')')))) {
+//                r.add(msg);
+//            }
+//        }
+//        return r;
+//    }
 
     /**
      * Accelerate the drone when the current acceleration is 0 m/s.
@@ -98,11 +89,11 @@ public class SimpleTactic extends Tactic {
      */
     private D3Vector accelerateByNoMovement(D3Vector input_acceleration) {
         D3Vector output_acceleration = input_acceleration;
-        if (m_gps.getAcceleration().length() == 0 && m_gps.getVelocity().length() == 0) {
+        if (gps.getAcceleration().length() == 0 && gps.getVelocity().length() == 0) {
 
-            double x = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
-            double y = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
-            double z = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
+            double x = ThreadLocalRandom.current().nextDouble(-engine.getMaxAcceleration(), engine.getMaxAcceleration());
+            double y = ThreadLocalRandom.current().nextDouble(-engine.getMaxAcceleration(), engine.getMaxAcceleration());
+            double z = ThreadLocalRandom.current().nextDouble(-engine.getMaxAcceleration(), engine.getMaxAcceleration());
             output_acceleration = new D3Vector(x, y, z);
         }
         return output_acceleration;
@@ -116,8 +107,8 @@ public class SimpleTactic extends Tactic {
      */
     private D3Vector brakeForWall(D3Vector input_acceleration) {
         D3Vector output_acceleration = input_acceleration;
-        double aantal_seconden_tot_nul = m_gps.getVelocity().length() / m_engine.getMaxAcceleration();
-        D3Vector berekende_position = m_gps.getVelocity().scale(0.5).scale(aantal_seconden_tot_nul).add(m_gps.getPosition());
+        double aantal_seconden_tot_nul = gps.getVelocity().length() / engine.getMaxAcceleration();
+        D3Vector berekende_position = gps.getVelocity().scale(0.5).scale(aantal_seconden_tot_nul).add(gps.getPosition());
 
         if (berekende_position.getX() >= MAX_DEVIATION_POSTION ||
                 berekende_position.getX() <= 0 ||
@@ -125,7 +116,7 @@ public class SimpleTactic extends Tactic {
                 berekende_position.getY() <= 0 ||
                 berekende_position.getZ() >= MAX_Z_DEVIATION_POSTION ||
                 berekende_position.getZ() <= 0) {
-            output_acceleration = m_engine.maximize_acceleration(m_engine.limit_acceleration(m_gps.getVelocity().scale(-1)));
+            output_acceleration = engine.maximize_acceleration(engine.limit_acceleration(gps.getVelocity().scale(-1)));
         }
         return output_acceleration;
     }
@@ -143,42 +134,42 @@ public class SimpleTactic extends Tactic {
         double y = output_acceleration.getY();
         double z = output_acceleration.getZ();
 
-        if (m_gps.getPosition().getX() >= MAX_DEVIATION_POSTION ||
-                m_gps.getPosition().getX() <= 0) {
-            y = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
-            z = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
+        if (gps.getPosition().getX() >= MAX_DEVIATION_POSTION ||
+                gps.getPosition().getX() <= 0) {
+            y = ThreadLocalRandom.current().nextDouble(-engine.getMaxAcceleration(), engine.getMaxAcceleration());
+            z = ThreadLocalRandom.current().nextDouble(-engine.getMaxAcceleration(), engine.getMaxAcceleration());
 
-            if (m_gps.getPosition().getX() >= MAX_DEVIATION_POSTION) {
-                x = -m_engine.getMaxAcceleration();
-            } else if (m_gps.getPosition().getX() <= 0) {
-                x = m_engine.getMaxAcceleration();
+            if (gps.getPosition().getX() >= MAX_DEVIATION_POSTION) {
+                x = -engine.getMaxAcceleration();
+            } else if (gps.getPosition().getX() <= 0) {
+                x = engine.getMaxAcceleration();
             }
         }
 
-        if (m_gps.getPosition().getY() >= MAX_DEVIATION_POSTION || m_gps.getPosition().getY() <= 0) {
-            x = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
-            z = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
+        if (gps.getPosition().getY() >= MAX_DEVIATION_POSTION || gps.getPosition().getY() <= 0) {
+            x = ThreadLocalRandom.current().nextDouble(-engine.getMaxAcceleration(), engine.getMaxAcceleration());
+            z = ThreadLocalRandom.current().nextDouble(-engine.getMaxAcceleration(), engine.getMaxAcceleration());
 
-            if (m_gps.getPosition().getY() >= MAX_DEVIATION_POSTION) {
-                y = -m_engine.getMaxAcceleration();
-            } else if (m_gps.getPosition().getY() <= 0) {
-                y = m_engine.getMaxAcceleration();
+            if (gps.getPosition().getY() >= MAX_DEVIATION_POSTION) {
+                y = -engine.getMaxAcceleration();
+            } else if (gps.getPosition().getY() <= 0) {
+                y = engine.getMaxAcceleration();
             }
         }
 
-        if (m_gps.getPosition().getZ() >= MAX_Z_DEVIATION_POSTION || m_gps.getPosition().getZ() <= 0) {
-            x = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
-            y = ThreadLocalRandom.current().nextDouble(-m_engine.getMaxAcceleration(), m_engine.getMaxAcceleration());
+        if (gps.getPosition().getZ() >= MAX_Z_DEVIATION_POSTION || gps.getPosition().getZ() <= 0) {
+            x = ThreadLocalRandom.current().nextDouble(-engine.getMaxAcceleration(), engine.getMaxAcceleration());
+            y = ThreadLocalRandom.current().nextDouble(-engine.getMaxAcceleration(), engine.getMaxAcceleration());
 
-            if (m_gps.getPosition().getZ() >= MAX_Z_DEVIATION_POSTION) {
-                z = -m_engine.getMaxAcceleration();
-            } else if (m_gps.getPosition().getZ() <= 0) {
-                z = m_engine.getMaxAcceleration();
+            if (gps.getPosition().getZ() >= MAX_Z_DEVIATION_POSTION) {
+                z = -engine.getMaxAcceleration();
+            } else if (gps.getPosition().getZ() <= 0) {
+                z = engine.getMaxAcceleration();
             }
         }
 
         output_acceleration = new D3Vector(x, y, z);
-        output_acceleration = m_engine.maximize_acceleration(output_acceleration);
+        output_acceleration = engine.maximize_acceleration(output_acceleration);
         return output_acceleration;
     }
 
@@ -186,21 +177,21 @@ public class SimpleTactic extends Tactic {
      * Calculates the new acceleration of the drone
      */
     private void calculateAcceleration() {
-        D3Vector output_acceleration = m_engine.maximize_acceleration(m_gps.getAcceleration());
+        D3Vector output_acceleration = engine.maximize_acceleration(gps.getAcceleration());
         output_acceleration = this.accelerateByNoMovement(output_acceleration);
         output_acceleration = this.brakeForWall(output_acceleration);
         output_acceleration = this.accelerateAfterWall(output_acceleration);
-        m_engine.changeAcceleration(output_acceleration);
+        engine.changeAcceleration(output_acceleration);
     }
 
     /**
      * Checks if a bullet can be fired by the gun.
      */
     private void calculateGun() {
-        Optional<Tuple<String, D3Vector>> target = m_radar.getNearestTarget();
+        Optional<Tuple<String, D3Vector>> target = radar.getNearestTarget();
         if (target.isPresent()) {
-            if (target.get().getRight().distance_between(m_gps.getPosition()) <= m_gun.getMaxDistance()) {
-                m_gun.fireBullet(target.get().getRight().sub(m_gps.getPosition()).toPoolCoordinate());
+            if (target.get().getRight().distance_between(gps.getPosition()) <= gun.getMaxDistance()) {
+                gun.fireBullet(target.get().getRight().sub(gps.getPosition()).toPoolCoordinate());
             }
         }
     }

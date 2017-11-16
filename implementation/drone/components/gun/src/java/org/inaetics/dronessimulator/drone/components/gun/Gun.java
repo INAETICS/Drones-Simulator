@@ -55,7 +55,7 @@ public class Gun {
     /**
      * The speed of the bullet
      */
-    private final double BULLET_SPEED = 150.0;
+    private final double BULLET_SPEED = 300.0;
 
     /**
      * The maximum distance the gun can aim

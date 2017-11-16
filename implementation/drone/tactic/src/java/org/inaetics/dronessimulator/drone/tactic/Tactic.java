@@ -12,6 +12,11 @@ import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
 import org.inaetics.dronessimulator.discovery.api.instances.TacticInstance;
+import org.inaetics.dronessimulator.drone.components.engine.Engine;
+import org.inaetics.dronessimulator.drone.components.gps.GPS;
+import org.inaetics.dronessimulator.drone.components.gun.Gun;
+import org.inaetics.dronessimulator.drone.components.radar.Radar;
+import org.inaetics.dronessimulator.drone.components.radio.Radio;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
@@ -44,6 +49,13 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
      * Discoverer bundle
      */
     private volatile Discoverer m_discoverer;
+
+    // drone components
+    protected volatile Radar radar;
+    protected volatile GPS gps;
+    protected volatile Engine engine;
+    protected volatile Gun gun;
+    protected volatile Radio radio;
 
     private Instance simulationInstance;
     private boolean registered = false;
@@ -135,7 +147,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     public void destroy() {
     }
 
-    protected void configSimulation() {
+    private void configSimulation() {
         try {
             m_discoverer.register(simulationInstance);
             log.info("Registered tactic " + toString());
@@ -145,7 +157,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
         }
     }
 
-    protected void unconfigSimulation() {
+    private void unconfigSimulation() {
         if (registered) {
             try {
                 m_discoverer.unregister(simulationInstance);
@@ -160,16 +172,18 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     /**
      * Start the simulation.
      */
-    protected void startSimulation() {
+    private void startSimulation() {
         this.startThread();
 
         log.info("Started simulation!");
+
+        initializeTactics();
     }
 
     /**
      * Pauses the simulation.
      */
-    protected void pauseSimulation() {
+    private void pauseSimulation() {
         this.pauseThread();
 
         log.info("Paused drone!");
@@ -178,7 +192,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     /**
      * Resumes the simulation.
      */
-    protected void resumeSimulation() {
+    private void resumeSimulation() {
         this.resumeThread();
 
         log.info("Resumed drone!");
@@ -187,7 +201,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     /**
      * Stops the simulation.
      */
-    protected void stopSimulation() {
+    private void stopSimulation() {
         this.stopThread();
         unconfigSimulation();
 
@@ -212,14 +226,14 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
      *
      * @param killMessage the received killMessage
      */
-    public void handleKillMessage(KillMessage killMessage) {
+    private void handleKillMessage(KillMessage killMessage) {
         if (killMessage.getIdentifier().equals(m_drone.getIdentifier())) {
             log.info("Found kill message! Quitting for now...");
             this.stopSimulation();
         }
     }
 
-    public String getIdentifier() {
+    protected String getIdentifier() {
         return m_drone.getIdentifier();
     }
 
@@ -227,6 +241,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     /**
      * -- Abstract metods
      */
+    abstract void initializeTactics();
     /**
      * Method which is called to calculate and perform the new tactics. A tactic should implement this method with its own logic.
      */

@@ -3,7 +3,7 @@ package org.inaetics.dronessimulator.drone.droneinit;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
@@ -18,12 +18,8 @@ import java.util.UUID;
  * The initial bundle in the drone dependency tree
  * Generates the id of the drone
  */
+@Log4j
 public class DroneInit {
-    /**
-     * The logger
-     */
-    private static final Logger logger = Logger.getLogger(DroneInit.class);
-
     /**
      * The identifier of this drone
      */
@@ -51,7 +47,7 @@ public class DroneInit {
      * On startup register Drone in Discovery.
      */
     public void start() throws IOException {
-        logger.info("Starting the drone now!");
+        log.info("Starting the drone now!");
         this.registerDroneService();
     }
 
@@ -59,7 +55,7 @@ public class DroneInit {
      * On startup unregister Drone in Discovery.
      */
     public void stop() throws IOException {
-        logger.info("Stopping the drone now!");
+        log.info("Stopping the drone now!");
         this.unregisterDroneService();
     }
 

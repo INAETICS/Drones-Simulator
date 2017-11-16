@@ -2,7 +2,7 @@ package org.inaetics.dronessimulator.drone.components.gps;
 
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
@@ -17,20 +17,16 @@ import java.io.IOException;
 /**
  * The GPS drone component
  */
+@Log4j
 public class GPS implements MessageHandler {
-    /**
-     * The logger
-     */
-    private final static Logger logger = Logger.getLogger(GPS.class);
-
     /**
      * Reference to the Subscriber bundle
      */
-    private volatile Subscriber m_subscriber;
+    private volatile Subscriber subscriber;
     /**
      * Reference to the Drone Init bundle
      */
-    private volatile DroneInit m_drone;
+    private volatile DroneInit drone;
 
     /**
      * Last known position of this drone in the architecture
@@ -59,11 +55,11 @@ public class GPS implements MessageHandler {
      */
     public void start() {
         try {
-            this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
+            this.subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
-            logger.fatal(e);
+            log.fatal(e);
         }
-        this.m_subscriber.addHandler(StateMessage.class, this);
+        this.subscriber.addHandler(StateMessage.class, this);
     }
 
     /**
@@ -72,7 +68,7 @@ public class GPS implements MessageHandler {
     public void handleMessage(Message message) {
         if (message instanceof StateMessage){
             StateMessage stateMessage = (StateMessage) message;
-            if (stateMessage.getIdentifier().equals(this.m_drone.getIdentifier())){
+            if (stateMessage.getIdentifier().equals(this.drone.getIdentifier())) {
                 if (stateMessage.getPosition().isPresent()) {
                     this.setPosition(stateMessage.getPosition().get());
                 }

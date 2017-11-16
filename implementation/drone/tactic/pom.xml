@@ -19,37 +19,30 @@
         <dependency>
             <groupId>org.inaetics.dronessimulator.pubsub</groupId>
             <artifactId>pubsub-api</artifactId>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.drone</groupId>
             <artifactId>drone-init</artifactId>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.drone.components</groupId>
             <artifactId>components-radar</artifactId>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.drone.components</groupId>
             <artifactId>components-gps</artifactId>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.drone.components</groupId>
             <artifactId>components-engine</artifactId>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.drone.components</groupId>
             <artifactId>components-gun</artifactId>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.drone.components</groupId>
             <artifactId>components-radio</artifactId>
-            <version>0.1</version>
         </dependency>
     </dependencies>
 

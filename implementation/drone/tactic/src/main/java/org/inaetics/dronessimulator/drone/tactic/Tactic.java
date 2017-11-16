@@ -30,33 +30,28 @@ import java.io.IOException;
 @Log4j
 public abstract class Tactic extends ManagedThread implements MessageHandler {
 
-    /**
-     * Architecture Event controller bundle
-     */
-    private volatile ArchitectureEventController m_architectureEventController;
-
-    /**
-     * Drone Init bundle
-     */
-    private volatile DroneInit m_drone;
-
-    /**
-     * Subscriber bundle
-     */
-    private volatile Subscriber m_subscriber;
-
-    /**
-     * Discoverer bundle
-     */
-    private volatile Discoverer m_discoverer;
-
     // drone components
     protected volatile Radar radar;
     protected volatile GPS gps;
     protected volatile Engine engine;
     protected volatile Gun gun;
     protected volatile Radio radio;
-
+    /**
+     * Architecture Event controller bundle
+     */
+    private volatile ArchitectureEventController m_architectureEventController;
+    /**
+     * Drone Init bundle
+     */
+    private volatile DroneInit m_drone;
+    /**
+     * Subscriber bundle
+     */
+    private volatile Subscriber m_subscriber;
+    /**
+     * Discoverer bundle
+     */
+    private volatile Discoverer m_discoverer;
     private Instance simulationInstance;
     private boolean registered = false;
 
@@ -70,56 +65,41 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     }
 
     /**
-     * Registers the handlers for the architectureEventController on startup. And registers the subscriber. Starts the tactic.
+     * Registers the handlers for the architectureEventController on startup. And registers the subscriber. Starts the
+     * tactic.
      */
     public final void startTactic() {
         m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG,
-                (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
-                    this.configSimulation();
-                }
+                (SimulationState fromState, SimulationAction action, SimulationState toState) -> this.configSimulation()
         );
 
         m_architectureEventController.addHandler(SimulationState.CONFIG, SimulationAction.START, SimulationState.RUNNING,
-                (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
-                    this.startSimulation();
-                }
+                (SimulationState fromState, SimulationAction action, SimulationState toState) -> this.startSimulation()
         );
 
         m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.PAUSE, SimulationState.PAUSED,
-                (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
-                    this.pauseSimulation();
-                }
+                (SimulationState fromState, SimulationAction action, SimulationState toState) -> this.pauseSimulation()
         );
 
         m_architectureEventController.addHandler(SimulationState.PAUSED, SimulationAction.RESUME, SimulationState.RUNNING,
-                (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
-                    this.resumeSimulation();
-                }
+                (SimulationState fromState, SimulationAction action, SimulationState toState) -> this.resumeSimulation()
         );
 
 
         m_architectureEventController.addHandler(SimulationState.CONFIG, SimulationAction.STOP, SimulationState.INIT,
-                (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
-                    this.stopSimulation();
-                }
+                (SimulationState fromState, SimulationAction action, SimulationState toState) -> this.stopSimulation()
         );
 
         m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.STOP, SimulationState.INIT,
-                (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
-                    this.stopSimulation();
-                }
+                (SimulationState fromState, SimulationAction action, SimulationState toState) -> this.stopSimulation()
         );
 
         m_architectureEventController.addHandler(SimulationState.PAUSED, SimulationAction.STOP, SimulationState.INIT,
-                (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
-                    this.stopSimulation();
-                }
+                (SimulationState fromState, SimulationAction action, SimulationState toState) -> this.stopSimulation()
         );
 
         m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.GAMEOVER, SimulationState.DONE,
-                (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
-                    this.stopSimulation();
-                }
+                (SimulationState fromState, SimulationAction action, SimulationState toState) -> this.stopSimulation()
         );
 
         simulationInstance = new TacticInstance(m_drone.getIdentifier());
@@ -266,8 +246,10 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
      * -- Abstract metods
      */
     abstract void initializeTactics();
+
     /**
-     * Method which is called to calculate and perform the new tactics. A tactic should implement this method with its own logic.
+     * Method which is called to calculate and perform the new tactics. A tactic should implement this method with its
+     * own logic.
      */
     abstract void calculateTactics();
 }

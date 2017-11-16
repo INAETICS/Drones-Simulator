@@ -1,29 +1,29 @@
 package org.inaetics.dronessimulator.drone.components.radio;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j;
-import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.common.protocol.*;
+import org.inaetics.dronessimulator.common.protocol.TacticMessage;
+import org.inaetics.dronessimulator.common.protocol.TeamTopic;
+import org.inaetics.dronessimulator.common.protocol.TextMessage;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
-import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
-
+import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Radio component wich makes drone to drone communication possible.
  */
 @Log4j
+@NoArgsConstructor //OSGi constructor
+@AllArgsConstructor //Testing constructor
 public class Radio implements MessageHandler {
-    /**
-     * The logger
-     */
-    private static final Logger logger = Logger.getLogger(Radio.class);
-
     /** Reference to Subscriber bundle */
     private volatile Subscriber m_subscriber;
     /** Reference to Publisher bundle */
@@ -43,7 +43,7 @@ public class Radio implements MessageHandler {
         try {
             this.m_subscriber.addTopic(topic);
         } catch (IOException e) {
-            logger.fatal(e);
+            log.fatal(e);
         }
         this.m_subscriber.addHandler(TextMessage.class, this);
         this.m_subscriber.addHandler(TacticMessage.class, this);
@@ -61,7 +61,7 @@ public class Radio implements MessageHandler {
         try{
             m_publisher.send(topic, msg);
         } catch(IOException e){
-            logger.fatal(e);
+            log.fatal(e);
         }
     }
 
@@ -69,7 +69,7 @@ public class Radio implements MessageHandler {
         try{
             m_publisher.send(topic, msg);
         } catch(IOException e){
-            logger.fatal(e);
+            log.fatal(e);
         }
     }
 
@@ -77,7 +77,7 @@ public class Radio implements MessageHandler {
      * Retrieves the queue with received messages
      * @return queue with messages
      */
-    public ConcurrentLinkedQueue<Message> getMessages(){
+    public final ConcurrentLinkedQueue<Message> getMessages() {
         return received_queue;
     }
 
@@ -88,4 +88,19 @@ public class Radio implements MessageHandler {
         received_queue.add(message);
     }
 
+    /**
+     * This method gets the first message in the queue that is of the given class, and removes it from the queue.
+     *
+     * @param messageClass the class of the message that should be returned
+     * @return The found message, or null if there was no message found.
+     */
+    public final <M extends Message> M getMessage(Class<M> messageClass) {
+        Optional<Message> messageOptional = getMessages().stream().filter(messageClass::isInstance).findFirst();
+        if (messageOptional.isPresent()) {
+            Message message = messageOptional.get();
+            getMessages().remove(message);
+            return messageClass.cast(message);
+        }
+        return null;
+    }
 }

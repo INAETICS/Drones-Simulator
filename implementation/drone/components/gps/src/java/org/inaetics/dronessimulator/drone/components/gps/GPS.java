@@ -13,6 +13,8 @@ import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * The GPS drone component
@@ -27,6 +29,8 @@ public class GPS implements MessageHandler {
      * Reference to the Drone Init bundle
      */
     private volatile DroneInit drone;
+
+    private List<GPSCallback> callbacks = new LinkedList<>();
 
     /**
      * Last known position of this drone in the architecture
@@ -81,8 +85,18 @@ public class GPS implements MessageHandler {
                 if(stateMessage.getDirection().isPresent()){
                     this.setDirection(stateMessage.getDirection().get());
                 }
+                //Run callbacks
+                callbacks.forEach(callback -> callback.run(stateMessage));
             }
         }
     }
 
+    public final void registerCallback(GPSCallback callback) {
+        callbacks.add(callback);
+    }
+
+    @FunctionalInterface
+    public interface GPSCallback {
+        void run(StateMessage newState);
+    }
 }

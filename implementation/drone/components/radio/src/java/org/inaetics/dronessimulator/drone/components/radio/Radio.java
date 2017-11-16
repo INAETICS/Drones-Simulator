@@ -1,10 +1,8 @@
 package org.inaetics.dronessimulator.drone.components.radio;
 
+import lombok.extern.log4j.Log4j;
 import org.apache.log4j.Logger;
-import org.inaetics.dronessimulator.common.protocol.TeamTopic;
-import org.inaetics.dronessimulator.common.protocol.TextMessage;
-import org.inaetics.dronessimulator.common.protocol.MessageTopic;
-import org.inaetics.dronessimulator.common.protocol.StateMessage;
+import org.inaetics.dronessimulator.common.protocol.*;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
@@ -19,6 +17,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 /**
  * Radio component wich makes drone to drone communication possible.
  */
+@Log4j
 public class Radio implements MessageHandler {
     /**
      * The logger
@@ -32,7 +31,7 @@ public class Radio implements MessageHandler {
     /** Reference to Drone Init bundle */
     private volatile DroneInit m_drone;
     /** Queue with received strings */
-    private ConcurrentLinkedQueue<String> received_queue = new ConcurrentLinkedQueue<String>();
+    private ConcurrentLinkedQueue<Message> received_queue = new ConcurrentLinkedQueue<>();
 
     private Topic topic;
 
@@ -46,8 +45,8 @@ public class Radio implements MessageHandler {
         } catch (IOException e) {
             logger.fatal(e);
         }
-        this.m_subscriber.addHandler(StateMessage.class, this);
         this.m_subscriber.addHandler(TextMessage.class, this);
+        this.m_subscriber.addHandler(TacticMessage.class, this);
     }
 
     /**
@@ -56,9 +55,17 @@ public class Radio implements MessageHandler {
      */
 
     public void sendText(String text){
-        logger.debug("Topic: " + topic.getName() + "Message sent: " + text);
+
         TextMessage msg = new TextMessage();
         msg.setText(text);
+        try{
+            m_publisher.send(topic, msg);
+        } catch(IOException e){
+            logger.fatal(e);
+        }
+    }
+
+    public void send(Message msg) {
         try{
             m_publisher.send(topic, msg);
         } catch(IOException e){
@@ -70,7 +77,7 @@ public class Radio implements MessageHandler {
      * Retrieves the queue with received messages
      * @return queue with messages
      */
-    public ConcurrentLinkedQueue<String> getMessages(){
+    public ConcurrentLinkedQueue<Message> getMessages(){
         return received_queue;
     }
 
@@ -78,11 +85,7 @@ public class Radio implements MessageHandler {
      * -- MESSAGEHANDLER
      */
     public void handleMessage(Message message) {
-        if (message instanceof TextMessage){
-            TextMessage textMessage = (TextMessage) message;
-            received_queue.add(textMessage.getText());
-
-        }
+        received_queue.add(message);
     }
 
 }

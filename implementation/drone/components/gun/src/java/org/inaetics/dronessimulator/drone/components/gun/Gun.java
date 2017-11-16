@@ -12,6 +12,8 @@ import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 import java.util.UUID;
 
@@ -57,6 +59,8 @@ public class Gun {
      */
     private long nextShotAtMs = lastShotAtMs;
 
+    private List<GunCallback> callbacks = new LinkedList<GunCallback>();
+
     // -- GETTERS
 
     /**
@@ -101,8 +105,19 @@ public class Gun {
             } catch(IOException e){
                 log.fatal(e);
             }
+            //Run all the callbacks
+            callbacks.forEach(callback -> callback.run(msg));
 
-            Logger.getLogger(Gun.class).info("Firing bullet! Next shot possible in " + ((double) (nextShotAtMs - currentTimeMs) / 1000) + " seconds.");
+            log.info("Firing bullet! Next shot possible in " + ((double) (nextShotAtMs - currentTimeMs) / 1000) + " seconds.");
         }
+    }
+
+    public final void registerCallback(GunCallback callback) {
+        callbacks.add(callback);
+    }
+
+    @FunctionalInterface
+    public interface GunCallback {
+        void run(FireBulletMessage fireBulletMessage);
     }
 }

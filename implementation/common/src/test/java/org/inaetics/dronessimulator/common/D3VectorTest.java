@@ -217,4 +217,14 @@ public class D3VectorTest {
         Assert.assertEquals("a2", Math.atan(-1/Math.sqrt(2)) ,p.getAngle2(), 0.01);
         Assert.assertEquals("l", v_pos_neg_neg.length(), p.getLength(), 0.01);
     }
+
+    @Test
+    public void testSerialization() {
+        D3Vector d = D3Vector.fromString(v_neg_neg_neg.toString());
+        Assert.assertEquals(v_neg_neg_neg, d);
+
+        D3Vector d2 = D3Vector.fromString(v_zero_pos_neg.toString());
+        Assert.assertEquals(v_zero_pos_neg, d2);
+
+    }
 }

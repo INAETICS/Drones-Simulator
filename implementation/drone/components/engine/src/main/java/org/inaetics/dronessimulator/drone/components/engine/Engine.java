@@ -5,12 +5,14 @@ import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.MovementMessage;
-import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
+import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * The engine component in a drone
@@ -31,11 +33,14 @@ public class Engine {
      * The Publisher bundle
      */
     private volatile Publisher m_publisher;
+
     /**
      * The Drone Init bundle
      */
     private volatile DroneInit m_drone;
     private volatile GPS m_gps;
+
+    private List<EngineCallback> callbacks = new LinkedList<>();
 
     /**
      * Limit the acceleration
@@ -93,11 +98,10 @@ public class Engine {
     public D3Vector stagnate_acceleration(D3Vector input) {
         D3Vector output = input;
         // Change acceleration if velocity is close to the maximum velocity
-        if (m_gps.getVelocity().length() >= (MAX_VELOCITY - (MAX_VELOCITY * 0.1))) {
-            double factor = 0.25;
-            D3Vector test_acceleration = m_gps.getAcceleration().scale(factor);
-            if (m_gps.getVelocity().add(test_acceleration).length() <= m_gps.getVelocity().add(input).length()) {
-                output = test_acceleration;
+        if (m_gps.getVelocity().length() >= (MAX_VELOCITY * 0.9)) {
+            double maxAcceleration = MAX_VELOCITY - m_gps.getVelocity().length();
+            if (output.length() > maxAcceleration) {
+                output = output.scale(maxAcceleration / output.length());
             }
         }
         return output;
@@ -124,5 +128,17 @@ public class Engine {
         } catch (IOException e) {
             log.fatal(e);
         }
+
+        //Run all callbacks
+        callbacks.forEach(callback -> callback.run(msg));
+    }
+
+    public final void registerCallback(EngineCallback callback) {
+        callbacks.add(callback);
+    }
+
+    @FunctionalInterface
+    public interface EngineCallback {
+        void run(MovementMessage movementMessage);
     }
 }

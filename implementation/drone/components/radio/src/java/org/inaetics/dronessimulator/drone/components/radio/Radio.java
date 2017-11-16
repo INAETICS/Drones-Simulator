@@ -39,8 +39,7 @@ public class Radio implements MessageHandler {
      * FELIX CALLBACKS
      */
     public void start() {
-//        topic = new TeamTopic(m_drone.getTeamname());
-        topic = MessageTopic.TEAM1;
+        topic = new TeamTopic(m_drone.getTeamname());
         try {
             this.m_subscriber.addTopic(topic);
         } catch (IOException e) {
@@ -48,7 +47,6 @@ public class Radio implements MessageHandler {
         }
         this.m_subscriber.addHandler(TextMessage.class, this);
         this.m_subscriber.addHandler(TacticMessage.class, this);
-        this.m_subscriber.addHandler(Message.class, this);
     }
 
     /**
@@ -68,7 +66,6 @@ public class Radio implements MessageHandler {
     }
 
     public void send(Message msg) {
-        logger.debug("Topic: " + topic.getName() + "Message sent: " + msg.toString());
         try{
             m_publisher.send(topic, msg);
         } catch(IOException e){

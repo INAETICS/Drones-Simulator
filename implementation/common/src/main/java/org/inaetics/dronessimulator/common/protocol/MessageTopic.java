@@ -21,9 +21,7 @@ public enum MessageTopic implements Topic {
     /**
      * All messages relating to changing architecture stuff e.g. the current state
      */
-    ARCHITECTURE ("Architecture"),
-
-    TEAM1("Team1");
+    ARCHITECTURE ("Architecture");
 
     private String name;
 

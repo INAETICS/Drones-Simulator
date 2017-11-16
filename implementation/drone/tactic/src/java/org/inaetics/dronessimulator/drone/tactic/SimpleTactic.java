@@ -35,51 +35,7 @@ public class SimpleTactic extends Tactic {
     void calculateTactics() {
         this.calculateAcceleration();
         this.calculateGun();
-//        this.talkToTeam();
     }
-
-    /**
-     * -- FUNCTIONS
-     */
-
-//    private void talkToTeam() {
-//        List<String> messages = getTeamMessages();
-//        if (LocalDateTime.now().isAfter(nextpoll) && messages.isEmpty()) {
-//            sendMessage("Identify yourself!");
-//            nextpoll.plusSeconds(1);
-//        } else {
-//            for (String msg : messages) {
-//                String sender = msg.substring(msg.indexOf('(') + 1, msg.indexOf(')'));
-//                String text = msg.substring(msg.indexOf(')') + 1);
-//                switch (text) {
-//                    case "Identify yourself!":
-//                        sendMessage("");
-//                        break;
-//                    // more cases here
-//                }
-//                if (teamMates.contains(sender)) {
-//                    teamMates.add(sender);
-//                }
-//            }
-//        }
-//    }
-
-//    private void sendMessage(String msg) {
-//        radio.sendText("(" + this.getIdentifier() + ")" + msg);
-//    }
-//
-//    private List<String> getTeamMessages() {
-//        List<String> r = new ArrayList<>();
-//
-//        ConcurrentLinkedQueue<Message> messages = radio.getMessages();
-//        while (!messages.isEmpty()) {
-//            Message msg = messages.poll();
-//            if (!msg.equals(msg.substring(msg.indexOf('(') + 1, msg.indexOf(')')))) {
-//                r.add(msg);
-//            }
-//        }
-//        return r;
-//    }
 
     /**
      * Accelerate the drone when the current acceleration is 0 m/s.

@@ -109,15 +109,10 @@ public class Engine {
         D3Vector output = input;
 
         // Change acceleration if velocity is close to the maximum velocity
-        if (m_gps.getVelocity().length() >= (this.getMaxVelocity() - (this.getMaxVelocity() * 0.1))) {
-            double x = MAX_VELOCITY * 0.1;
-            double y = m_gps.getVelocity().length() - MAX_VELOCITY*0.9;
-            double factor = (y / x);
-            logger.debug("#### factor = " + factor);
-
-            double scaledMaxAcceleration = this.getMaxAcceleration() * factor;
-            if (input.length() > scaledMaxAcceleration) {
-                input.scale(scaledMaxAcceleration / input.length());
+        if (m_gps.getVelocity().length() >= (MAX_VELOCITY * 0.9)) {
+            double maxAcceleration = MAX_VELOCITY - m_gps.getVelocity().length();
+            if (output.length() > maxAcceleration) {
+                output = output.scale(maxAcceleration / output.length());
             }
         }
         return output;

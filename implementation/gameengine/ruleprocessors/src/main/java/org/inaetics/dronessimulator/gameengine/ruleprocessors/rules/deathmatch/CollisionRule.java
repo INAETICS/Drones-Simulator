@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class CollisionRule extends Rule {
     /** How much damage a collision between drones causes */
-    public static final int COLLISION_DAMAGE = Drone.DRONE_MAX_HEALTH;
+    private static final int COLLISION_DAMAGE = Drone.DRONE_MAX_HEALTH;
 
     @Override
     public void configRule() {
@@ -60,6 +60,7 @@ public class CollisionRule extends Rule {
      * @return The events due to the collision
      */
     private List<GameEngineEvent> handleCollision(GameEntity e1, GameEntity e2) {
+        //TODO refactor and make this more efficient for more possible entities.
         List<GameEngineEvent> results = new ArrayList<>();
 
         EntityType e1Type = e1.getType();

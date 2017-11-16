@@ -1,5 +1,7 @@
 package org.inaetics.dronessimulator.discovery.api;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 
@@ -9,26 +11,48 @@ import java.util.Map;
 /**
  * Interface which describes a part of a system.
  */
+@EqualsAndHashCode
 public class Instance {
-    /** The type of this instance. */
+    /**
+     * Prefix for all etcd paths.
+     */
+    private static final String PATH_PREFIX = "/";
+    /**
+     * Prefix/location for instance references.
+     */
+    private static final String INSTANCE_DIR = "instances";
+    /**
+     * The type of this instance.
+     */
+    @Getter
     private Type type;
 
-    /** The group of this instance. */
+    /**
+     * The group of this instance.
+     */
+    @Getter
     private Group group;
 
-    /** The name of this instance. */
+    /**
+     * The name of this instance.
+     */
+    @Getter
     private String name;
 
-    /** The properties this instance has. */
+    /**
+     * The properties this instance has.
+     */
+    @Getter
     private Map<String, String> properties;
 
     /**
      * Instantiates a new instance with the given type, group, name and properties. This constructor can be used to
      * build a quick instance. However, it is recommended to subclass this class and use your own constructor together
      * with overriding the setInitialProperties method.
-     * @param type The type of this instance.
-     * @param group The group of this instance.
-     * @param name The name of this instance.
+     *
+     * @param type       The type of this instance.
+     * @param group      The group of this instance.
+     * @param name       The name of this instance.
      * @param properties The properties of this instance.
      */
     public Instance(Type type, Group group, String name, Map<String, String> properties) {
@@ -42,49 +66,63 @@ public class Instance {
 
     /**
      * Instantiates a new instance with the given type, group, name and properties.
-     * @param type The type of this instance.
+     *
+     * @param type  The type of this instance.
      * @param group The group of this instance.
-     * @param name The name of this instance.
+     * @param name  The name of this instance.
      */
     public Instance(Type type, Group group, String name) {
         this(type, group, name, null);
     }
 
     /**
-     * Gets the type of this instance.
-     * @return The type.
+     * Builds an etcd path from a number of strings.
+     *
+     * @param segments The segments of the path.
+     * @return The constructed path.
      */
-    public Type getType() {
-        return this.type;
+    public static String buildPath(String... segments) {
+        return PATH_PREFIX + String.join("/", segments);
     }
 
     /**
-     * Gets the group this instance belongs to.
-     * @return The group.
+     * Builds an etcd path for the given instance.
+     *
+     * @param instance The instance to build the path for.
+     * @return The path for the instance.
      */
-    public Group getGroup() {
-        return this.group;
+    public static String buildInstancePath(Instance instance) {
+        return buildInstancePath(instance.getType(), instance.getGroup(), instance.getName());
     }
 
     /**
-     * Gets the name of this instance.
-     * @return The name.
+     * Builds an etcd path for the given parameters.
+     *
+     * @param type  The type of the instance.
+     * @param group The group of the instance.
+     * @param name  The name of the instance.
+     * @return The path for the instance.
      */
-    public String getName() {
-        return this.name;
+    static String buildInstancePath(Type type, Group group, String name) {
+        return buildInstancePath(type.getStr(), group.getStr(), name);
     }
 
     /**
-     * Gets the map containing properties to be set for this instance.
-     * @return The properties for this instance.
+     * Builds an etcd path for the given parameters.
+     *
+     * @param type  The type of the instance.
+     * @param group The group of the instance.
+     * @param name  The name of the instance.
+     * @return The path for the instance.
      */
-    public Map<String, String> getProperties() {
-        return this.properties;
+    static String buildInstancePath(String type, String group, String name) {
+        return buildPath(INSTANCE_DIR, type, group, name);
     }
 
     /**
      * Sets the initial properties of this instance. This method is called from the constructor and only once. Override
      * this method to add your own properties to the given map.
+     *
      * @param properties The properties of this instance.
      */
     protected void setInitialProperties(Map<String, String> properties) {

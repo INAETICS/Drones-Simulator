@@ -2,10 +2,11 @@ package org.inaetics.dronessimulator.common.protocol;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -14,6 +15,7 @@ import java.util.Optional;
  */
 @Getter
 @Setter
+@ToString
 public class MovementMessage extends ProtocolMessage {
     /** Indentifier of object */
     private String identifier = null;
@@ -34,10 +36,6 @@ public class MovementMessage extends ProtocolMessage {
 
     @Override
     public List<MessageTopic> getTopics() {
-        List<MessageTopic> topics = new ArrayList<>();
-
-        topics.add(MessageTopic.MOVEMENTS);
-
-        return topics;
+        return Collections.singletonList(MessageTopic.MOVEMENTS);
     }
 }

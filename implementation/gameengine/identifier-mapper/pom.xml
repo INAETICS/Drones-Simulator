@@ -10,6 +10,33 @@
     <modelVersion>4.0.0</modelVersion>
 
     <packaging>bundle</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.dependencymanager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator</groupId>
+            <artifactId>architecture-event-controller</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator</groupId>
+            <artifactId>common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator</groupId>
+            <artifactId>common-test</artifactId>
+            <type>test-jar</type>
+        </dependency>
+    </dependencies>
 
     <groupId>org.inaetics.dronessimulator.gameengine</groupId>
     <artifactId>gameengine-identifier-mapper</artifactId>

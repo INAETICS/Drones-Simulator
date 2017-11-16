@@ -3,6 +3,7 @@ package org.inaetics.dronessimulator.drone.tactic;
 import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
+import org.inaetics.dronessimulator.drone.components.engine.Engine;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 
 import java.time.LocalDateTime;
@@ -47,9 +48,9 @@ public class SimpleTactic extends Tactic {
         D3Vector output_acceleration = input_acceleration;
         if (gps.getAcceleration().length() == 0 && gps.getVelocity().length() == 0) {
 
-            double x = ThreadLocalRandom.current().nextDouble(-engine.getMaxAcceleration(), engine.getMaxAcceleration());
-            double y = ThreadLocalRandom.current().nextDouble(-engine.getMaxAcceleration(), engine.getMaxAcceleration());
-            double z = ThreadLocalRandom.current().nextDouble(-engine.getMaxAcceleration(), engine.getMaxAcceleration());
+            double x = ThreadLocalRandom.current().nextDouble(-Engine.MAX_ACCELERATION, Engine.MAX_ACCELERATION);
+            double y = ThreadLocalRandom.current().nextDouble(-Engine.MAX_ACCELERATION, Engine.MAX_ACCELERATION);
+            double z = ThreadLocalRandom.current().nextDouble(-Engine.MAX_ACCELERATION, Engine.MAX_ACCELERATION);
             output_acceleration = new D3Vector(x, y, z);
         }
         return output_acceleration;
@@ -63,7 +64,7 @@ public class SimpleTactic extends Tactic {
      */
     private D3Vector brakeForWall(D3Vector input_acceleration) {
         D3Vector output_acceleration = input_acceleration;
-        double aantal_seconden_tot_nul = gps.getVelocity().length() / engine.getMaxAcceleration();
+        double aantal_seconden_tot_nul = gps.getVelocity().length() / Engine.MAX_ACCELERATION;
         D3Vector berekende_position = gps.getVelocity().scale(0.5).scale(aantal_seconden_tot_nul).add(gps.getPosition());
 
         if (berekende_position.getX() >= MAX_DEVIATION_POSTION ||
@@ -92,35 +93,38 @@ public class SimpleTactic extends Tactic {
 
         if (gps.getPosition().getX() >= MAX_DEVIATION_POSTION ||
                 gps.getPosition().getX() <= 0) {
-            y = ThreadLocalRandom.current().nextDouble(-engine.getMaxAcceleration(), engine.getMaxAcceleration());
-            z = ThreadLocalRandom.current().nextDouble(-engine.getMaxAcceleration(), engine.getMaxAcceleration());
+            y = ThreadLocalRandom.current().nextDouble(-Engine.MAX_ACCELERATION, Engine.MAX_ACCELERATION);
+            z = ThreadLocalRandom.current().nextDouble(-Engine.MAX_ACCELERATION, Engine.MAX_ACCELERATION);
 
-            if (gps.getPosition().getX() >= MAX_DEVIATION_POSTION) {
-                x = -engine.getMaxAcceleration();
-            } else if (gps.getPosition().getX() <= 0) {
-                x = engine.getMaxAcceleration();
+            if(gps.getPosition().getX() >= MAX_DEVIATION_POSTION){
+                x = - Engine.MAX_ACCELERATION;
+            }
+            else if(gps.getPosition().getX() <= 0){
+                x = Engine.MAX_ACCELERATION;
             }
         }
 
         if (gps.getPosition().getY() >= MAX_DEVIATION_POSTION || gps.getPosition().getY() <= 0) {
-            x = ThreadLocalRandom.current().nextDouble(-engine.getMaxAcceleration(), engine.getMaxAcceleration());
-            z = ThreadLocalRandom.current().nextDouble(-engine.getMaxAcceleration(), engine.getMaxAcceleration());
+            x = ThreadLocalRandom.current().nextDouble(-Engine.MAX_ACCELERATION, Engine.MAX_ACCELERATION);
+            z = ThreadLocalRandom.current().nextDouble(-Engine.MAX_ACCELERATION, Engine.MAX_ACCELERATION);
 
-            if (gps.getPosition().getY() >= MAX_DEVIATION_POSTION) {
-                y = -engine.getMaxAcceleration();
-            } else if (gps.getPosition().getY() <= 0) {
-                y = engine.getMaxAcceleration();
+            if(gps.getPosition().getY() >= MAX_DEVIATION_POSTION){
+                y = - Engine.MAX_ACCELERATION;
+            }
+            else if(gps.getPosition().getY() <= 0){
+                y = Engine.MAX_ACCELERATION;
             }
         }
 
         if (gps.getPosition().getZ() >= MAX_Z_DEVIATION_POSTION || gps.getPosition().getZ() <= 0) {
-            x = ThreadLocalRandom.current().nextDouble(-engine.getMaxAcceleration(), engine.getMaxAcceleration());
-            y = ThreadLocalRandom.current().nextDouble(-engine.getMaxAcceleration(), engine.getMaxAcceleration());
+            x = ThreadLocalRandom.current().nextDouble(-Engine.MAX_ACCELERATION, Engine.MAX_ACCELERATION);
+            y = ThreadLocalRandom.current().nextDouble(-Engine.MAX_ACCELERATION, Engine.MAX_ACCELERATION);
 
-            if (gps.getPosition().getZ() >= MAX_Z_DEVIATION_POSTION) {
-                z = -engine.getMaxAcceleration();
-            } else if (gps.getPosition().getZ() <= 0) {
-                z = engine.getMaxAcceleration();
+            if(gps.getPosition().getZ() >= MAX_Z_DEVIATION_POSTION){
+                z = - Engine.MAX_ACCELERATION;
+            }
+            else if(gps.getPosition().getZ() <= 0){
+                z = Engine.MAX_ACCELERATION;
             }
         }
 

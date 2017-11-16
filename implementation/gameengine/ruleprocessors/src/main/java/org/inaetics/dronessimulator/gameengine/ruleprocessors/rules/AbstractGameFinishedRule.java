@@ -17,6 +17,7 @@ public abstract class AbstractGameFinishedRule extends Rule {
     private static final Logger logger = Logger.getLogger(AbstractGameFinishedRule.class);
     protected final IdentifierMapper idMapper;
     private AtomicBoolean gameFinishedEventWasSend = new AtomicBoolean(false);
+    private AtomicBoolean wasGameFinishedInPreviousRun = new AtomicBoolean(false);
 
     public AbstractGameFinishedRule(IdentifierMapper idMapper) {
         this.idMapper = idMapper;
@@ -26,6 +27,7 @@ public abstract class AbstractGameFinishedRule extends Rule {
     public void configRule() {
         logger.debug("Set gameFinishedEventWasSend to false so a new game finished event can be send if this game ends");
         gameFinishedEventWasSend.set(false);
+        wasGameFinishedInPreviousRun.set(false);
     }
 
     @Override
@@ -34,8 +36,12 @@ public abstract class AbstractGameFinishedRule extends Rule {
             CurrentStateEvent currentStateEvent = (CurrentStateEvent) msg;
             if (!gameFinishedEventWasSend.get()) {
                 if (gameIsFinished(currentStateEvent.getCurrentState())) {
-                    gameFinishedEventWasSend.set(true);
-                    return Collections.singletonList(new GameFinishedEvent(getWinner()));
+                    if (wasGameFinishedInPreviousRun.get()) {
+                        gameFinishedEventWasSend.set(true);
+                        return Collections.singletonList(new GameFinishedEvent(getWinner()));
+                    } else {
+                        wasGameFinishedInPreviousRun.set(true);
+                    }
                 } else if (noDronesLeft(currentStateEvent.getCurrentState())) {
                     //This is a very unlikely case because there will probably be an order in which the drones are killed.
                     gameFinishedEventWasSend.set(true);

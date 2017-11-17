@@ -11,8 +11,8 @@ import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The engine component in a drone
@@ -40,7 +40,7 @@ public class Engine {
     private volatile DroneInit m_drone;
     private volatile GPS m_gps;
 
-    private List<EngineCallback> callbacks = new LinkedList<>();
+    private Set<EngineCallback> callbacks = new HashSet<>();
 
     /**
      * Limit the acceleration
@@ -100,8 +100,8 @@ public class Engine {
         // Change acceleration if velocity is close to the maximum velocity
         if (m_gps.getVelocity().length() >= (MAX_VELOCITY * 0.9)) {
             double maxAcceleration = MAX_VELOCITY - m_gps.getVelocity().length();
-            if (output.length() > maxAcceleration) {
-                output = output.scale(maxAcceleration / output.length());
+            if (Math.abs(output.length()) > Math.abs(maxAcceleration)) {
+                output = output.scale(maxAcceleration / output.length() == 0 ? 1 : output.length());
             }
         }
         return output;
@@ -118,6 +118,11 @@ public class Engine {
         acceleration = this.limit_acceleration(acceleration);
         acceleration = this.limit_velocity(acceleration);
         acceleration = this.stagnate_acceleration(acceleration);
+
+        if (Double.isNaN(acceleration.getX()) || Double.isNaN(acceleration.getY()) || Double.isNaN(acceleration.getZ())) {
+            throw new IllegalArgumentException("Acceleration is not a number. Input acceleration: " +
+                    "" + input_acceleration.toString() + ", Output acceleration: " + acceleration.toString());
+        }
 
         MovementMessage msg = new MovementMessage();
         msg.setAcceleration(acceleration);

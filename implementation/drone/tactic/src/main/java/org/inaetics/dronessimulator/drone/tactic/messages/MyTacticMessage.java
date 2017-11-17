@@ -46,6 +46,10 @@ public abstract class MyTacticMessage {
         return getClass().getSimpleName();
     }
 
+    public static <M extends MyTacticMessage> boolean checkType(TacticMessage newMessage, Class<M> messageClass) {
+        return messageClass.getSimpleName().equals(newMessage.get("type"));
+    }
+
     public static class MESSAGETYPES {
         public static final String HeartbeatMessage = HeartbeatMessage.class.getSimpleName();
         public static final String RadarImageMessage = RadarImageMessage.class.getSimpleName();

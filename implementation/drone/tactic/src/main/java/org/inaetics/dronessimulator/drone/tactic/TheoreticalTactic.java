@@ -6,12 +6,12 @@ import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.protocol.TacticMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
-import org.inaetics.dronessimulator.drone.tactic.messages.HeartbeatMessage;
-import org.inaetics.dronessimulator.drone.tactic.messages.MyTacticMessage;
-import org.inaetics.dronessimulator.drone.tactic.messages.RadarImageMessage;
+import org.inaetics.dronessimulator.drone.tactic.messages.*;
+import org.inaetics.dronessimulator.pubsub.api.Message;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -22,10 +22,9 @@ public class TheoreticalTactic extends Tactic {
     private static final long ttlLeader = 2; //seconds
     private DroneType droneType;
     private String idLeader;
-    private HashMap<String, LocalDateTime> teammembers = new HashMap<>();
+    private HashMap<String, Tuple<LocalDateTime, List<String>>> teammembers = new HashMap<>();
     private Map<String, D3Vector> mapOfTheWorld = new HashMap<>();
     private Thread handleBroadcastMessagesThread;
-    private Thread listenToInstructionsThread;
     private D3Vector targetLocation;
 
     public final DroneType getType() {
@@ -43,10 +42,8 @@ public class TheoreticalTactic extends Tactic {
     @Override
     void initializeTactics() {
         droneType = getType();
-        handleBroadcastMessagesThread = new Thread(this::handleBroadcastMessages);
+        handleBroadcastMessagesThread = new Thread(this::handleReceivedTacticMessages);
         handleBroadcastMessagesThread.start();
-        listenToInstructionsThread = new Thread(this::listenToInstructions);
-        listenToInstructionsThread.start();
         switch (droneType) {
             case GUN:
                 //Send a message if you fire a bullet
@@ -63,6 +60,7 @@ public class TheoreticalTactic extends Tactic {
         }
         targetLocation = new D3Vector(Math.random() * Settings.ARENA_WIDTH, Math.random() * Settings.ARENA_HEIGHT, Math.random() * Settings.ARENA_DEPTH);
         radio.sendText("Move " + getIdentifier() + " to " + targetLocation.toString());
+        log.info("Move " + getIdentifier() + " to " + targetLocation.toString());
     }
 
     /**
@@ -83,17 +81,23 @@ public class TheoreticalTactic extends Tactic {
     void calculateTactics() {
         manageOutgoingCommunication();
         moveToRandomLocation();
-    }
-
-    private void moveToRandomLocation() {
-        D3Vector position = gps.getPosition();
-        if (position.distance_between(targetLocation) < 1) {
-            if (gps.getVelocity().length() != 0) {
-                engine.changeAcceleration(new D3Vector());
+        //Check leader
+        if (!checkIfLeaderIsAlive()) {
+            //Leader is not alive
+            findLeader();
+            //Check if the new found leader is alive. This is done to avoid side-effects of a function
+            if (!checkIfLeaderIsAlive()) {
+                //If it could not find a new (alive) leader, just start shooting if possible to any direction.
+                if (DroneType.GUN.equals(droneType)) {
+                    randomShooting();
+                }
             }
         }
-        D3Vector move = targetLocation.sub(position.add(gps.getVelocity()));
-        engine.changeAcceleration(move);
+    }
+
+    @Override
+    void finalizeTactics() {
+        handleBroadcastMessagesThread.interrupt();
     }
 
     /**
@@ -111,12 +115,14 @@ public class TheoreticalTactic extends Tactic {
         }
     }
 
-    private void handleBroadcastMessages() {
+    private void handleReceivedTacticMessages() {
         TacticMessage newMessage = radio.getMessage(TacticMessage.class);
+        log.debug("Has message? " + (newMessage != null));
         if (newMessage != null) {
             log.debug("Received a message with type " + String.valueOf(newMessage.get("type")));
-            if (HeartbeatMessage.class.getName().equals(newMessage.get("type"))) {
-                teammembers.put(newMessage.get("id"), LocalDateTime.now());
+            if (MyTacticMessage.checkType(newMessage, HeartbeatMessage.class)) {
+                teammembers.put(newMessage.get("id"), new Tuple<>(LocalDateTime.now(),
+                        Arrays.asList(newMessage.get("components").split(","))));
                 mapOfTheWorld.put(newMessage.get("id"), D3Vector.fromString(newMessage.get("position")));
                 switch (droneType) {
                     case GUN:
@@ -125,38 +131,71 @@ public class TheoreticalTactic extends Tactic {
 
                         break;
                 }
+            } else if (MyTacticMessage.checkType(newMessage, InstructionMessage.class)) {
+                executeInstruction(InstructionMessage.InstructionType.valueOf(newMessage.get(InstructionMessage.
+                        InstructionType.class.getSimpleName())), D3Vector.fromString(newMessage.get("target")));
             }
+
         }
     }
 
     private boolean checkIfLeaderIsAlive() {
-        return teammembers.get(idLeader) != null && teammembers.get(idLeader).isBefore(LocalDateTime.now().minusSeconds(ttlLeader));
+        return teammembers.get(idLeader) != null && teammembers.get(idLeader).getLeft().isBefore(LocalDateTime.now()
+                .minusSeconds(ttlLeader));
     }
 
-    private void listenToInstructions() {
-        if (checkIfLeaderIsAlive()) {
-            //TODO
-        } else {
-            //Leader is not alive
-            findLeader();
-            //Check if the new found leader is alive. This is done to avoid side-effects of a function
-            if (!checkIfLeaderIsAlive()) {
-                //If it could not find a new (alive) leader, just start shooting if possible to any direction.
-                if (DroneType.GUN.equals(droneType)) {
-                    randomShooting();
+    private void executeInstruction(InstructionMessage.InstructionType instructionType, D3Vector targetLocation) {
+        switch (instructionType) {
+            case SHOOT:
+                if (hasComponents("gun")) {
+                    gun.fireBullet(targetLocation.toPoolCoordinate());
+                } else {
+                    log.error("Could not execute instruction " + instructionType + " with target " + String.valueOf
+                            (targetLocation));
                 }
+                break;
+            case MOVE:
+                if (hasComponents("engine", "gps")) {
+                    moveToLocation(targetLocation);
+                } else {
+                    log.error("Could not execute instruction " + instructionType + " with target " + String.valueOf
+                            (targetLocation));
+                }
+                break;
+        }
+    }
+
+    private void moveToRandomLocation() {
+        moveToLocation(targetLocation);
+    }
+
+    private void moveToLocation(D3Vector location) {
+        D3Vector position = gps.getPosition();
+        if (position.distance_between(location) < 1) {
+            if (gps.getVelocity().length() != 0) {
+                engine.changeAcceleration(engine.limit_acceleration(gps.getVelocity().scale(-1)));
             }
+        } else {
+            D3Vector move = location.sub(position.add(gps.getVelocity()));
+            engine.changeAcceleration(move);
         }
     }
 
     private void findLeader() {
         //TODO
+        if (idLeader == null) {
+            radio.sendText("Request leader");
+            for (Message message = radio.getMessage(TacticMessage.class); message != null; ) {
+
+            }
+        }
         idLeader = "found leader id";
     }
 
     private void randomShooting() {
         //TODO
-        gun.fireBullet(new D3Vector().toPoolCoordinate());
+        D3Vector randomLocation = new D3Vector();
+        executeInstruction(InstructionMessage.InstructionType.SHOOT, randomLocation);
     }
 
     private void sendRadarimage() {

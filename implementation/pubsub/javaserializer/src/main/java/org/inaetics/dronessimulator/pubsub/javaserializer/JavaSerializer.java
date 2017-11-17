@@ -25,7 +25,7 @@ public class JavaSerializer implements Serializer {
 
         out.writeObject(message);
 
-        logger.debug("Message {} serialized to bytes", message.toString());
+//        logger.debug("Message {} serialized to bytes", message.toString());
 
         out.close();
         byteStream.close();
@@ -48,7 +48,7 @@ public class JavaSerializer implements Serializer {
 
         try {
             message = (Message) in.readObject();
-            logger.debug("Deserialized message {} from bytes", message.toString());
+//            logger.debug("Deserialized message {} from bytes", message.toString());
         } catch (ClassCastException e) {
             // This is not a valid message so we can drop it.
             logger.warn("Invalid message offered for deserialization, message dropped", e);

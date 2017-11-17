@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import java.util.LinkedList;
+import java.util.HashSet;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -33,7 +33,7 @@ public class EngineTest {
         current_acceleration = new D3Vector(1, 1, 1);
         when(gps.getVelocity()).thenReturn(current_velocity);
         when(gps.getAcceleration()).thenReturn(current_acceleration);
-        engine = new Engine(publisher, drone, gps, new LinkedList<>());
+        engine = new Engine(publisher, drone, gps, new HashSet<>());
     }
 
     @Test
@@ -43,9 +43,13 @@ public class EngineTest {
 
         //Permitted acceleration should be passed
         Assert.assertEquals(new D3Vector(5, 5, 5), engine.limit_acceleration(new D3Vector(5, 5, 5)));
+        Assert.assertEquals(new D3Vector(-5, -5, -5), engine.limit_acceleration(new D3Vector(-5, -5, -5)));
+        Assert.assertEquals(new D3Vector(-5, 5, -5), engine.limit_acceleration(new D3Vector(-5, 5, -5)));
+        Assert.assertEquals(new D3Vector(-5, 5, 5), engine.limit_acceleration(new D3Vector(-5, 5, 5)));
 
         //Excessive acceleration should be limited
         Assert.assertEquals(new D3Vector(10, 0, 0), engine.limit_acceleration(new D3Vector(1000, 0, 0)));
+        Assert.assertEquals(new D3Vector(-10, 0, 0), engine.limit_acceleration(new D3Vector(-1000, 0, 0)));
     }
 
     @Test
@@ -83,6 +87,17 @@ public class EngineTest {
 
         //The drone should never fly faster than its max velocity
         //The drone should never accelerate faster than its max acceleration
+    }
+
+    @Test
+    public void testChangeAcceleration() {
+        gps.setAcceleration(D3Vector.fromString("(x:-3.4427316345680223, y:-9.363483685842366, z:-0.6875842910570499)"));
+        gps.setPosition(D3Vector.fromString("(x:366.30329775852334, y:183.53828228906738, z:53.59830231645528)"));
+        gps.setVelocity(D3Vector.fromString("(x:-10.047801568808978, y:-17.60877350319855, z:0.9541791137955318)"));
+
+//        D3Vector in = D3Vector.fromString("(x:-23.613400167909106, y:172.40476530548727, z:95.8106379471248)");
+//        engine.changeAcceleration(in);
+        engine.changeAcceleration(new D3Vector());
     }
 
 }

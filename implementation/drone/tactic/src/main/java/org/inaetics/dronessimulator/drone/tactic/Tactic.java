@@ -23,6 +23,7 @@ import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -251,6 +252,12 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
         return result;
     }
 
+    protected void validateRequiredComponents(String... requiredComponents) throws MissingComponentsException {
+        if (!hasComponents(requiredComponents)) {
+            throw new MissingComponentsException(requiredComponents);
+        }
+    }
+
     /**
      * -- Abstract metods
      */
@@ -263,4 +270,11 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     abstract void calculateTactics();
 
     abstract void finalizeTactics();
+
+    public class MissingComponentsException extends Exception {
+        public MissingComponentsException(String... requiredComponents) {
+            super("One of the following components is missing that was required: " + Arrays.toString
+                    (requiredComponents));
+        }
+    }
 }

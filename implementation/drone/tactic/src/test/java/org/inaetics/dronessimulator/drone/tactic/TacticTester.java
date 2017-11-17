@@ -21,11 +21,6 @@ public class TacticTester {
     private TheoreticalTactic tactic;
     private MockPublisher publisher;
 
-    public static void main(String[] args) throws NoSuchFieldException, IllegalAccessException, InstantiationException {
-
-
-    }
-
     @Before
     public void setup() throws IllegalAccessException, NoSuchFieldException, InstantiationException {
         droneInit = new DroneInit();

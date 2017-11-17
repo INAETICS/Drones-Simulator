@@ -13,7 +13,7 @@ import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.lang.reflect.Field;
-import java.util.LinkedList;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.mockito.Mockito.mock;
@@ -22,10 +22,10 @@ public class TacticTesterHelper {
     public static <T extends Tactic> T getTactic(Class<T> tacticClass, Publisher publisher, Subscriber
             subscriber, DroneInit droneInit) throws NoSuchFieldException, IllegalAccessException, InstantiationException {
         T tactic = tacticClass.newInstance();
-        tactic.gps = new GPS(subscriber, droneInit, new LinkedList<>(), D3Vector.UNIT, D3Vector.UNIT, D3Vector.UNIT,
+        tactic.gps = new GPS(subscriber, droneInit, new HashSet<>(), D3Vector.UNIT, D3Vector.UNIT, D3Vector.UNIT,
                 D3PolarCoordinate.UNIT);
         tactic.gps.start();
-        tactic.engine = new Engine(publisher, droneInit, tactic.gps, new LinkedList<>());
+        tactic.engine = new Engine(publisher, droneInit, tactic.gps, new HashSet<>());
         tactic.radio = new Radio(subscriber, publisher, droneInit, new ConcurrentLinkedQueue<>(), null);
         tactic.radio.start();
         tactic.radar = new Radar(mock(ArchitectureEventController.class), subscriber, droneInit, mock(Discoverer.class),

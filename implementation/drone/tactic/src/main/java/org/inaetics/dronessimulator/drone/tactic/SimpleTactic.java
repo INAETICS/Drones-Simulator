@@ -36,6 +36,11 @@ public class SimpleTactic extends Tactic {
         this.calculateGun();
     }
 
+    @Override
+    void finalizeTactics() {
+
+    }
+
     /**
      * Accelerate the drone when the current acceleration is 0 m/s.
      *

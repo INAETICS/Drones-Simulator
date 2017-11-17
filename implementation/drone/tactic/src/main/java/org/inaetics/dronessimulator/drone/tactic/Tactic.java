@@ -23,6 +23,7 @@ import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * The abstract tactic each drone tactic should extend
@@ -54,6 +55,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     private volatile Discoverer m_discoverer;
     private Instance simulationInstance;
     private boolean registered = false;
+    private AtomicBoolean initialized = new AtomicBoolean(false);
 
     /**
      * Thread implementation
@@ -157,7 +159,10 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
 
         log.info("Started simulation!");
 
-        initializeTactics();
+        if (!initialized.get()) {
+            initializeTactics();
+            initialized.set(true);
+        }
     }
 
     /**
@@ -185,6 +190,10 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
         this.stopThread();
         unconfigSimulation();
 
+        if (initialized.get()) {
+            finalizeTactics();
+            initialized.set(false);
+        }
         log.info("Stopped drone!");
     }
 
@@ -252,4 +261,6 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
      * own logic.
      */
     abstract void calculateTactics();
+
+    abstract void finalizeTactics();
 }

@@ -1,7 +1,9 @@
 package org.inaetics.dronessimulator.common.protocol;
 
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.ArrayList;
@@ -12,6 +14,8 @@ import java.util.List;
  */
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class TextMessage extends ProtocolMessage {
     /**
      * the actual message

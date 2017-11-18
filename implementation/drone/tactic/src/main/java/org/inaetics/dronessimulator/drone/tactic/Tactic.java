@@ -24,6 +24,8 @@ import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -31,7 +33,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Log4j
 public abstract class Tactic extends ManagedThread implements MessageHandler {
-
+    public static final long tacticTimout = 1000;
     // drone components
     protected volatile Radar radar;
     protected volatile GPS gps;
@@ -39,13 +41,13 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     protected volatile Gun gun;
     protected volatile Radio radio;
     /**
+     * Drone Init bundle
+     */
+    protected volatile DroneInit m_drone;
+    /**
      * Architecture Event controller bundle
      */
     private volatile ArchitectureEventController m_architectureEventController;
-    /**
-     * Drone Init bundle
-     */
-    private volatile DroneInit m_drone;
     /**
      * Subscriber bundle
      */
@@ -63,8 +65,8 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
      */
     @Override
     protected final void work() throws InterruptedException {
-        this.calculateTactics();
-        Thread.sleep(200);
+        //Start a timed thread that is interupped after a specified timeout
+        new Timer(true).schedule(new TimedTask(this::calculateTactics, tacticTimout), 0);
     }
 
     /**
@@ -261,20 +263,46 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     /**
      * -- Abstract metods
      */
-    abstract void initializeTactics();
+    protected abstract void initializeTactics();
 
     /**
      * Method which is called to calculate and perform the new tactics. A tactic should implement this method with its
      * own logic.
      */
-    abstract void calculateTactics();
+    protected abstract void calculateTactics();
 
-    abstract void finalizeTactics();
+    protected abstract void finalizeTactics();
 
     public class MissingComponentsException extends Exception {
         public MissingComponentsException(String... requiredComponents) {
             super("One of the following components is missing that was required: " + Arrays.toString
                     (requiredComponents));
         }
+    }
+
+
+    /**
+     * A TimerTask that interrupts the specified thread when run.
+     */
+    private class TimedTask extends TimerTask {
+
+        private Thread threadToInterrupt;
+        private long timeout;
+
+        TimedTask(Runnable codeToRun, long i_timeout) {
+            this.threadToInterrupt = new Thread(codeToRun);
+            timeout = i_timeout;
+        }
+
+        @Override
+        public void run() {
+            try {
+                Thread.sleep(timeout);
+            } catch (InterruptedException e) {
+                log.error(e);
+            }
+            threadToInterrupt.interrupt();
+        }
+
     }
 }

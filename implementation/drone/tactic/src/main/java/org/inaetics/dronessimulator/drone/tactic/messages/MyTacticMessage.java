@@ -50,10 +50,16 @@ public abstract class MyTacticMessage {
         return messageClass.getSimpleName().equals(newMessage.get("type"));
     }
 
+    public static <M extends MyTacticMessage> boolean checkType(TacticMessage newMessage, String messageType) {
+        return messageType != null && messageType.equals(newMessage.get("type"));
+    }
+
     public static class MESSAGETYPES {
         public static final String HeartbeatMessage = HeartbeatMessage.class.getSimpleName();
         public static final String RadarImageMessage = RadarImageMessage.class.getSimpleName();
         public static final String FiredBulletMessage = "FiredBulletMessage";
+        public static final String SearchLeaderMessage = "SearchLeaderMessage";
+        public static final String IsLeaderMessage = "IsLeaderMessage";
 
         public static List<String> getMessageTypes() {
             return Arrays.asList(Arrays.stream(MESSAGETYPES.class.getFields()).map(field -> {

@@ -6,6 +6,7 @@ import org.inaetics.dronessimulator.common.protocol.TacticMessage;
 import org.inaetics.dronessimulator.common.protocol.TeamTopic;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.drone.tactic.messages.HeartbeatMessage;
+import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.test.concurrent.MockPublisher;
 import org.junit.Assert;
@@ -41,6 +42,33 @@ public class TacticTester {
                 TacticMessage())));
         publisher.getReceivedMessages().forEach(message -> log.debug("Message on topic \"" + message.getLeft().getName
                 () + "\" with content: " + message.getRight().toString()));
+    }
+
+    @Test
+    public void testGettingALeader() throws IllegalAccessException, NoSuchFieldException, InstantiationException {
+        Tuple<Publisher, Subscriber> pubSub = TacticTesterHelper.getConnectedMockPubSub();
+        Tactic tactic = TacticTesterHelper.getTactic(TheoreticalTactic.class, pubSub.getLeft(), pubSub.getRight(),
+                droneInit);
+        tactic.initializeTactics();
+        tactic.startTactic();
+        Tactic tactic2 = TacticTesterHelper.getTactic(TheoreticalTactic.class, pubSub.getLeft(), pubSub.getRight(),
+                droneInit);
+        tactic2.initializeTactics();
+        tactic2.startTactic();
+//        for (int i = 0; i < 10; i++) {
+        try {
+            tactic.work();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        try {
+            tactic2.work();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+//        }
+        tactic.stopTactic();
+        tactic2.stopTactic();
     }
 
 }

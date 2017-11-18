@@ -7,7 +7,6 @@ import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.protocol.TacticMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.tactic.messages.*;
-import org.inaetics.dronessimulator.pubsub.api.Message;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -15,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Log4j
 @NoArgsConstructor //An OSGi constructor
@@ -25,7 +25,8 @@ public class TheoreticalTactic extends Tactic {
     private HashMap<String, Tuple<LocalDateTime, List<String>>> teammembers = new HashMap<>();
     private Map<String, D3Vector> mapOfTheWorld = new HashMap<>();
     private Thread handleBroadcastMessagesThread;
-    private D3Vector targetLocation;
+    private D3Vector targetMoveLocation;
+    private AtomicBoolean searchingForLeader = new AtomicBoolean(false);
 
     public final DroneType getType() {
         DroneType droneType;
@@ -40,7 +41,7 @@ public class TheoreticalTactic extends Tactic {
     }
 
     @Override
-    void initializeTactics() {
+    protected void initializeTactics() {
         droneType = getType();
         handleBroadcastMessagesThread = new Thread(this::handleReceivedTacticMessages);
         handleBroadcastMessagesThread.start();
@@ -58,9 +59,7 @@ public class TheoreticalTactic extends Tactic {
             case RADAR:
                 break;
         }
-        targetLocation = new D3Vector(Math.random() * Settings.ARENA_WIDTH, Math.random() * Settings.ARENA_HEIGHT, Math.random() * Settings.ARENA_DEPTH);
-        radio.sendText("Move " + getIdentifier() + " to " + targetLocation.toString());
-        log.info("Move " + getIdentifier() + " to " + targetLocation.toString());
+        log.debug("Tactic initialized for drone with type " + droneType);
     }
 
     /**
@@ -78,11 +77,12 @@ public class TheoreticalTactic extends Tactic {
      * it is destroyed and therefore possible new leaders will show up.
      */
     @Override
-    void calculateTactics() {
+    protected void calculateTactics() {
         manageOutgoingCommunication();
-        moveToRandomLocation();
+//        moveToRandomLocation();
         //Check leader
         if (!checkIfLeaderIsAlive()) {
+            log.debug("Find a new leader");
             //Leader is not alive
             findLeader();
             //Check if the new found leader is alive. This is done to avoid side-effects of a function
@@ -92,11 +92,16 @@ public class TheoreticalTactic extends Tactic {
                     randomShooting();
                 }
             }
+        } else if (idLeader.equals(getIdentifier())) {
+            sendInstructions();
+        }
+        if (targetMoveLocation != null) {
+            moveToLocation(targetMoveLocation);
         }
     }
 
     @Override
-    void finalizeTactics() {
+    protected void finalizeTactics() {
         handleBroadcastMessagesThread.interrupt();
     }
 
@@ -134,17 +139,24 @@ public class TheoreticalTactic extends Tactic {
             } else if (MyTacticMessage.checkType(newMessage, InstructionMessage.class)) {
                 executeInstruction(InstructionMessage.InstructionType.valueOf(newMessage.get(InstructionMessage.
                         InstructionType.class.getSimpleName())), D3Vector.fromString(newMessage.get("target")));
+            } else if (MyTacticMessage.checkType(newMessage, MyTacticMessage.MESSAGETYPES.SearchLeaderMessage) &&
+                    droneType.equals(DroneType.RADAR) && idLeader == null) {
+                idLeader = getIdentifier();
+                radio.send(new DataMessage(this, MyTacticMessage.MESSAGETYPES.IsLeaderMessage).getMessage());
+                targetMoveLocation = new D3Vector(Math.random() * Settings.ARENA_WIDTH, Math.random() * Settings.ARENA_HEIGHT, Math.random() * Settings.ARENA_DEPTH);
+                log.info("Drone " + getIdentifier() + " is the leader of team " + m_drone.getTeamname());
             }
 
         }
     }
 
     private boolean checkIfLeaderIsAlive() {
-        return teammembers.get(idLeader) != null && teammembers.get(idLeader).getLeft().isBefore(LocalDateTime.now()
-                .minusSeconds(ttlLeader));
+        return idLeader != null && teammembers.get(idLeader) != null && teammembers.get(idLeader).getLeft().isBefore
+                (LocalDateTime.now().minusSeconds(ttlLeader));
     }
 
     private void executeInstruction(InstructionMessage.InstructionType instructionType, D3Vector targetLocation) {
+        log.debug("Execute instruction " + instructionType + " with target " + String.valueOf(targetLocation));
         switch (instructionType) {
             case SHOOT:
                 if (hasComponents("gun")) {
@@ -156,6 +168,8 @@ public class TheoreticalTactic extends Tactic {
                 break;
             case MOVE:
                 if (hasComponents("engine", "gps")) {
+                    this.targetMoveLocation = targetLocation; //Store the target location to move there if there is no
+                    // new instruction.
                     moveToLocation(targetLocation);
                 } else {
                     log.error("Could not execute instruction " + instructionType + " with target " + String.valueOf
@@ -163,10 +177,6 @@ public class TheoreticalTactic extends Tactic {
                 }
                 break;
         }
-    }
-
-    private void moveToRandomLocation() {
-        moveToLocation(targetLocation);
     }
 
     private void moveToLocation(D3Vector location) {
@@ -182,25 +192,37 @@ public class TheoreticalTactic extends Tactic {
     }
 
     private void findLeader() {
-        //TODO
+        if (searchingForLeader.get()) return; //If we are already searching, there is no need to do it again.
         if (idLeader == null) {
-            radio.sendText("Request leader");
-            for (Message message = radio.getMessage(TacticMessage.class); message != null; ) {
-
+            searchingForLeader.set(true);
+            log.debug("Searching for leader");
+            radio.send(new DataMessage(this, MyTacticMessage.MESSAGETYPES.SearchLeaderMessage).getMessage());
+            for (TacticMessage message = radio.getMessage(TacticMessage.class); message != null; ) {
+                log.debug("findLeader found a message of type" + message.get("type") + ", with content: " + message.toString
+                        ());
+                if (message.get("type").equals(MyTacticMessage.MESSAGETYPES.IsLeaderMessage)) {
+                    idLeader = message.get("id");
+                } else {
+                    radio.getMessages().add(message);//Re-add it if we are not using it here
+                }
             }
+            searchingForLeader.set(false);
         }
-        idLeader = "found leader id";
     }
 
     private void randomShooting() {
         //TODO
-        D3Vector randomLocation = new D3Vector();
+        log.debug("RANDOM SHOOTING AND MOVING!!!");
+        D3Vector randomLocation = new D3Vector(Math.random() * Settings.ARENA_WIDTH, Math.random() * Settings
+                .ARENA_HEIGHT, Math.random() * Settings.ARENA_DEPTH);
         executeInstruction(InstructionMessage.InstructionType.SHOOT, randomLocation);
+        executeInstruction(InstructionMessage.InstructionType.MOVE, randomLocation);
     }
 
     private void sendRadarimage() {
         List<Tuple<String, D3Vector>> currentRadar = radar.getRadar();
         RadarImageMessage radarImageMessage = new RadarImageMessage(this, currentRadar);
+        log.debug("sendRadarimage: " + radarImageMessage.getMessage().toString());
         radio.send(radarImageMessage.getMessage());
     }
 
@@ -211,6 +233,12 @@ public class TheoreticalTactic extends Tactic {
             heartbeatMessage.setIsLeader(true);
         }
         radio.send(heartbeatMessage.getMessage());
+    }
+
+    private void sendInstructions() {
+        log.debug("sendInstructions type: MOVE, location: " + targetMoveLocation.toString());
+        radio.send(new InstructionMessage(this, InstructionMessage.InstructionType.MOVE, targetMoveLocation).getMessage
+                ());
     }
 
     private int calculateUtility() {

@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.drone.tactic;
 
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.Tuple;
@@ -14,7 +15,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 @Log4j
 @NoArgsConstructor //An OSGi constructor
@@ -26,7 +26,7 @@ public class TheoreticalTactic extends Tactic {
     private Map<String, D3Vector> mapOfTheWorld = new HashMap<>();
     private Thread handleBroadcastMessagesThread;
     private D3Vector targetMoveLocation;
-    private AtomicBoolean searchingForLeader = new AtomicBoolean(false);
+    private TimeoutTimer lastRequestForLeader = new TimeoutTimer(3000); //3 sec
 
     public final DroneType getType() {
         DroneType droneType;
@@ -86,7 +86,8 @@ public class TheoreticalTactic extends Tactic {
             //Leader is not alive
             findLeader();
             //Check if the new found leader is alive. This is done to avoid side-effects of a function
-            if (!checkIfLeaderIsAlive()) {
+            if (lastRequestForLeader.timeIsExceeded()) { //If the last request is more
+                // than 3 seconds ago and there still is no leader, just do random stuff
                 //If it could not find a new (alive) leader, just start shooting if possible to any direction.
                 if (DroneType.GUN.equals(droneType)) {
                     randomShooting();
@@ -145,6 +146,9 @@ public class TheoreticalTactic extends Tactic {
                 radio.send(new DataMessage(this, MyTacticMessage.MESSAGETYPES.IsLeaderMessage).getMessage());
                 targetMoveLocation = new D3Vector(Math.random() * Settings.ARENA_WIDTH, Math.random() * Settings.ARENA_HEIGHT, Math.random() * Settings.ARENA_DEPTH);
                 log.info("Drone " + getIdentifier() + " is the leader of team " + m_drone.getTeamname());
+            } else if (MyTacticMessage.checkType(newMessage, MyTacticMessage.MESSAGETYPES.IsLeaderMessage)) {
+                idLeader = newMessage.get("id");
+                lastRequestForLeader.reset();
             }
 
         }
@@ -192,21 +196,10 @@ public class TheoreticalTactic extends Tactic {
     }
 
     private void findLeader() {
-        if (searchingForLeader.get()) return; //If we are already searching, there is no need to do it again.
         if (idLeader == null) {
-            searchingForLeader.set(true);
             log.debug("Searching for leader");
             radio.send(new DataMessage(this, MyTacticMessage.MESSAGETYPES.SearchLeaderMessage).getMessage());
-            for (TacticMessage message = radio.getMessage(TacticMessage.class); message != null; ) {
-                log.debug("findLeader found a message of type" + message.get("type") + ", with content: " + message.toString
-                        ());
-                if (message.get("type").equals(MyTacticMessage.MESSAGETYPES.IsLeaderMessage)) {
-                    idLeader = message.get("id");
-                } else {
-                    radio.getMessages().add(message);//Re-add it if we are not using it here
-                }
-            }
-            searchingForLeader.set(false);
+            lastRequestForLeader.reset();
         }
     }
 
@@ -247,5 +240,21 @@ public class TheoreticalTactic extends Tactic {
 
     private enum DroneType {
         GUN, RADAR
+    }
+
+
+    @RequiredArgsConstructor
+    private class TimeoutTimer {
+        private final long timeout; //ms
+        private long lastTime;
+
+        public synchronized void reset() {
+            lastTime = System.currentTimeMillis();
+        }
+
+        public synchronized boolean timeIsExceeded() {
+            return (lastTime + timeout) < System.currentTimeMillis();
+        }
+
     }
 }

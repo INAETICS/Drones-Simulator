@@ -267,7 +267,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
 
     /**
      * Method which is called to calculate and perform the new tactics. A tactic should implement this method with its
-     * own logic.
+     * own logic. Note that the code in this block must be executed within 1000ms and this method is called repeatedly.
      */
     protected abstract void calculateTactics();
 
@@ -279,7 +279,6 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
                     (requiredComponents));
         }
     }
-
 
     /**
      * A TimerTask that interrupts the specified thread when run.
@@ -296,6 +295,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
 
         @Override
         public void run() {
+            threadToInterrupt.start();
             try {
                 Thread.sleep(timeout);
             } catch (InterruptedException e) {

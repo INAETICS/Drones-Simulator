@@ -60,10 +60,28 @@ public class TacticTesterHelper {
                 field -> {
                     field.setAccessible(true);
                     field.set(target, value);
+                    return Optional.empty();
 
                 },
                 field1 -> field1.getName().equals(fieldname)
         );
+    }
+
+    static Object getField(Object target, String fieldname) throws IllegalAccessException,
+            NoSuchFieldException {
+        Optional<Optional<Object>> result = doWithFields(target.getClass(),
+                field -> {
+                    field.setAccessible(true);
+                    return Optional.ofNullable(field.get(target));
+
+                },
+                field1 -> field1.getName().equals(fieldname)
+        ).stream().filter(Optional::isPresent).findFirst();
+        if (result.isPresent() && result.get().isPresent()) {
+            return result.get().get();
+        } else {
+            return null;
+        }
     }
 
     /**
@@ -74,16 +92,19 @@ public class TacticTesterHelper {
      * @param fc     - the callback to invoke for each field
      * @param ff     - the filter that determines the fields to apply the callback to
      */
-    private static void doWithFields(Class<?> aClass, FieldCallback fc, FieldFilter ff) throws IllegalAccessException {
+    private static List<Optional<Object>> doWithFields(Class<?> aClass, FieldCallback fc, FieldFilter ff) throws
+            IllegalAccessException {
         Class<?> i = aClass;
+        List<Optional<Object>> results = new LinkedList<>();
         while (i != null && i != Object.class) {
             for (Field field : i.getDeclaredFields()) {
                 if (!field.isSynthetic() && ff.matches(field)) {
-                    fc.doWith(field);
+                    results.add(fc.doWith(field));
                 }
             }
             i = i.getSuperclass();
         }
+        return results;
     }
 
     public static <E> Tuple<Publisher, Subscriber> getConnectedMockPubSub() {
@@ -149,6 +170,6 @@ public class TacticTesterHelper {
 
     @FunctionalInterface
     private interface FieldCallback {
-        void doWith(final Field field) throws IllegalArgumentException, IllegalAccessException;
+        Optional<Object> doWith(final Field field) throws IllegalArgumentException, IllegalAccessException;
     }
 }

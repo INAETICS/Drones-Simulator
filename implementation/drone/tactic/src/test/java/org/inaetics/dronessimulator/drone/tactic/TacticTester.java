@@ -47,26 +47,34 @@ public class TacticTester {
     @Test
     public void testGettingALeader() throws IllegalAccessException, NoSuchFieldException, InstantiationException {
         Tuple<Publisher, Subscriber> pubSub = TacticTesterHelper.getConnectedMockPubSub();
+        DroneInit drone1 = new DroneInit();
+        DroneInit drone2 = new DroneInit();
         Tactic tactic = TacticTesterHelper.getTactic(TheoreticalTactic.class, pubSub.getLeft(), pubSub.getRight(),
-                droneInit);
+                drone1);
         tactic.initializeTactics();
         tactic.startTactic();
         Tactic tactic2 = TacticTesterHelper.getTactic(TheoreticalTactic.class, pubSub.getLeft(), pubSub.getRight(),
-                droneInit);
+                drone2);
         tactic2.initializeTactics();
         tactic2.startTactic();
-//        for (int i = 0; i < 10; i++) {
-        try {
-            tactic.work();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        for (int i = 0; i < 10; i++) {
+            try {
+                tactic.work();
+                log.debug("do work");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            try {
+                tactic2.work();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
-        try {
-            tactic2.work();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-//        }
+        Object leader1 = TacticTesterHelper.getField(tactic, "idLeader");
+        Object leader2 = TacticTesterHelper.getField(tactic2, "idLeader");
+        Assert.assertNotNull(leader1);
+        Assert.assertNotNull(leader2);
+        Assert.assertEquals(leader1, leader2);
         tactic.stopTactic();
         tactic2.stopTactic();
     }

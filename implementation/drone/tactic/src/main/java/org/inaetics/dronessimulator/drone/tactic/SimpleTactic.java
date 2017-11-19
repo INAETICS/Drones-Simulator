@@ -23,7 +23,7 @@ public class SimpleTactic extends Tactic {
     private LocalDateTime nextpoll = LocalDateTime.now();
 
     @Override
-    void initializeTactics() {
+    protected void initializeTactics() {
 
     }
 
@@ -31,13 +31,13 @@ public class SimpleTactic extends Tactic {
      * -- IMPLEMENT FUNCTIONS
      */
 
-    void calculateTactics() {
+    protected void calculateTactics() {
         this.calculateAcceleration();
         this.calculateGun();
     }
 
     @Override
-    void finalizeTactics() {
+    protected void finalizeTactics() {
 
     }
 

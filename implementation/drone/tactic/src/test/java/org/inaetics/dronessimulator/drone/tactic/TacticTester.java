@@ -45,7 +45,7 @@ public class TacticTester {
     }
 
     @Test
-    public void testGettingALeader() throws IllegalAccessException, NoSuchFieldException, InstantiationException {
+    public void testGettingALeader() throws IllegalAccessException, NoSuchFieldException, InstantiationException, InterruptedException {
         Tuple<Publisher, Subscriber> pubSub = TacticTesterHelper.getConnectedMockPubSub();
         DroneInit drone1 = new DroneInit();
         DroneInit drone2 = new DroneInit();
@@ -57,25 +57,41 @@ public class TacticTester {
                 drone2);
         tactic2.initializeTactics();
         tactic2.startTactic();
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 20 ; i++) {
             try {
                 tactic.work();
-                log.debug("do work");
+                log.debug("do work 1");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
             try {
                 tactic2.work();
+                log.debug("do work 2");
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
         }
         Object leader1 = TacticTesterHelper.getField(tactic, "idLeader");
         Object leader2 = TacticTesterHelper.getField(tactic2, "idLeader");
+        //After a while they should have the same leader
         Assert.assertNotNull(leader1);
         Assert.assertNotNull(leader2);
         Assert.assertEquals(leader1, leader2);
+
+        //When the leader dies, the remaining drone should be its own leader.
         tactic.stopTactic();
+        Thread.sleep(TheoreticalTactic.ttlLeader* 1000);
+        for (int i = 0; i < 20; i++) {
+            try {
+                tactic2.work();
+                log.debug("do work 2");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+        Object leader3 = TacticTesterHelper.getField(tactic2, "idLeader");
+        Assert.assertNotNull(leader3);
+        Assert.assertEquals("The only drone is not its own leader anymore",tactic2.getIdentifier(), leader3);
         tactic2.stopTactic();
     }
 

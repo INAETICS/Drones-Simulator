@@ -18,6 +18,7 @@ public class HeartbeatMessage extends MyTacticMessage {
         data.put("direction", gps.getDirection().toString());
         data.put("velocity", gps.getVelocity().toString());
         data.put("acceleration", gps.getAcceleration().toString());
+        data.put("components", String.join(",", tactic.getAvailableComponents().toArray(new String[]{})));
     }
 
     public void setIsLeader(boolean isLeader) {

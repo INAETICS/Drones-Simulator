@@ -4,6 +4,8 @@ package org.inaetics.dronessimulator.drone.tactic;
 import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.common.ManagedThread;
+import org.inaetics.dronessimulator.common.Settings;
+import org.inaetics.dronessimulator.common.TimeoutTimer;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.KillMessage;
@@ -24,8 +26,8 @@ import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -33,7 +35,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Log4j
 public abstract class Tactic extends ManagedThread implements MessageHandler {
-    public static final long tacticTimout = 1000;
+    public static final long tacticTimout = 1;//tck
     // drone components
     protected volatile Radar radar;
     protected volatile GPS gps;
@@ -59,14 +61,22 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     private Instance simulationInstance;
     private boolean registered = false;
     private AtomicBoolean initialized = new AtomicBoolean(false);
+    private final TimeoutTimer workTimoutTimer = new TimeoutTimer(tacticTimout*Settings.TICK_TIME);
 
     /**
      * Thread implementation
      */
     @Override
     protected final void work() throws InterruptedException {
-        //Start a timed thread that is interupped after a specified timeout
-        new Timer(true).schedule(new TimedTask(this::calculateTactics, tacticTimout), 0);
+        //Start a timed thread that is interrupted after a specified timeout
+        Thread t = new Thread(this::calculateTactics);
+        t.start();
+        workTimoutTimer.reset();
+        while (t.isAlive()) {
+            if (workTimoutTimer.timeIsExceeded()) {
+                t.interrupt();
+            }
+        }
     }
 
     /**
@@ -129,8 +139,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     }
 
     @Override
-    public final void destroy() {
-    }
+    public final void destroy() {}
 
     private void configSimulation() {
         try {
@@ -197,6 +206,10 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
             finalizeTactics();
             initialized.set(false);
         }
+
+        //Optionally stop started threads
+        //TODO
+
         log.info("Stopped drone!");
     }
 
@@ -254,10 +267,31 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
         return result;
     }
 
-    protected void validateRequiredComponents(String... requiredComponents) throws MissingComponentsException {
+    protected final void validateRequiredComponents(String... requiredComponents) throws MissingComponentsException {
         if (!hasComponents(requiredComponents)) {
             throw new MissingComponentsException(requiredComponents);
         }
+    }
+
+
+    public final Set<String> getAvailableComponents() {
+        Set<String> componentlist = new HashSet<>();
+        if (radar != null) {
+            componentlist.add("radar");
+        }
+        if (gps != null) {
+            componentlist.add("gps");
+        }
+        if (engine != null) {
+            componentlist.add("engine");
+        }
+        if (radio != null) {
+            componentlist.add("radio");
+        }
+        if (gun != null) {
+            componentlist.add("gun");
+        }
+        return componentlist;
     }
 
     /**
@@ -267,7 +301,8 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
 
     /**
      * Method which is called to calculate and perform the new tactics. A tactic should implement this method with its
-     * own logic. Note that the code in this block must be executed within 1000ms and this method is called repeatedly.
+     * own logic. Note that the code in this block must be executed within 1 tick see Settings.TICK_TIME and this
+     * method is called repeatedly.
      */
     protected abstract void calculateTactics();
 
@@ -278,31 +313,5 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
             super("One of the following components is missing that was required: " + Arrays.toString
                     (requiredComponents));
         }
-    }
-
-    /**
-     * A TimerTask that interrupts the specified thread when run.
-     */
-    private class TimedTask extends TimerTask {
-
-        private Thread threadToInterrupt;
-        private long timeout;
-
-        TimedTask(Runnable codeToRun, long i_timeout) {
-            this.threadToInterrupt = new Thread(codeToRun);
-            timeout = i_timeout;
-        }
-
-        @Override
-        public void run() {
-            threadToInterrupt.start();
-            try {
-                Thread.sleep(timeout);
-            } catch (InterruptedException e) {
-                log.error(e);
-            }
-            threadToInterrupt.interrupt();
-        }
-
     }
 }

@@ -62,19 +62,23 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     private boolean registered = false;
     private AtomicBoolean initialized = new AtomicBoolean(false);
     private final TimeoutTimer workTimoutTimer = new TimeoutTimer(tacticTimout*Settings.TICK_TIME);
+    private final TimeoutTimer ticker = new TimeoutTimer(Settings.TICK_TIME);
 
     /**
      * Thread implementation
      */
     @Override
     protected final void work() throws InterruptedException {
-        //Start a timed thread that is interrupted after a specified timeout
-        Thread t = new Thread(this::calculateTactics);
-        t.start();
-        workTimoutTimer.reset();
-        while (t.isAlive()) {
-            if (workTimoutTimer.timeIsExceeded()) {
-                t.interrupt();
+        if (ticker.timeIsExceeded()) {
+            ticker.reset();
+            //Start a timed thread that is interrupted after a specified timeout
+            Thread t = new Thread(this::calculateTactics);
+            t.start();
+            workTimoutTimer.reset();
+            while (t.isAlive()) {
+                if (workTimoutTimer.timeIsExceeded()) {
+                    t.interrupt();
+                }
             }
         }
     }
@@ -235,6 +239,9 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
         if (killMessage.getIdentifier().equals(m_drone.getIdentifier())) {
             log.info("Found kill message! Quitting for now...");
             this.stopSimulation();
+//            if (!log.isDebugEnabled()){
+//                System.exit(10);
+//            }
         }
     }
 

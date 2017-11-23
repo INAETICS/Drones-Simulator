@@ -2,9 +2,9 @@ package org.inaetics.dronessimulator.gameengine.ruleprocessors;
 
 
 import lombok.extern.log4j.Log4j;
-import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.common.Settings;
+import org.inaetics.dronessimulator.common.TimeoutTimer;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
@@ -23,6 +23,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 @Log4j
 public class RuleProcessors extends Thread implements IRuleProcessors {
+    public static final TimeoutTimer INTERVAL_RULES_TIMEOUT = new TimeoutTimer(Settings.TICK_TIME * 3);
     private ArchitectureEventController m_architectureEventController;
 
     /**
@@ -41,6 +42,7 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
      * Active rules. Should end SendMessages to broadcast the messages to other subsystems.
      */
     private List<Rule> rules;
+    private List<Rule> intervalRules;
 
     @Override
     public void start() {
@@ -51,6 +53,8 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
         this.incomingEvents = this.m_driver.getOutgoingQueue();
 
         this.rules = RuleSets.getRulesForGameMode(Settings.GAME_MODE, this.m_publisher, this.m_id_mapper);
+        this.intervalRules = RuleSets.getIntervalRulesForGameMode(Settings.GAME_MODE, this.m_publisher, this
+                .m_id_mapper);
 
         m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG,
                 (SimulationState from, SimulationAction action, SimulationState to) -> {
@@ -75,7 +79,12 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
             }
 
             if (msg != null) {
-                this.processEventsForRules(Collections.singletonList(msg));
+                this.processEventsForRules(this.rules, Collections.singletonList(msg));
+                if (INTERVAL_RULES_TIMEOUT.timeIsExceeded()) {
+                    INTERVAL_RULES_TIMEOUT.reset();
+                    log.info("Run inteval rules");
+                    processEventsForRules(this.intervalRules, Collections.singletonList(msg));
+                }
             } else {
                 log.error("Received event on incoming queue but was null!");
             }
@@ -89,9 +98,9 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
      *
      * @param events The events to process.
      */
-    public void processEventsForRules(List<GameEngineEvent> events) {
+    public void processEventsForRules(List<Rule> rulesToProcess, List<GameEngineEvent> events) {
         List<GameEngineEvent> allEvents = events;
-        for (Rule rule : this.rules) {
+        for (Rule rule : rulesToProcess) {
             allEvents = this.processEventsForRule(allEvents, rule);
         }
     }
@@ -115,6 +124,9 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
 
     public void configRules() {
         for (Rule rule : rules) {
+            rule.configRule();
+        }
+        for (Rule rule : intervalRules) {
             rule.configRule();
         }
     }

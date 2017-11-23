@@ -126,6 +126,7 @@ public class Engine {
 
         MovementMessage msg = new MovementMessage();
         msg.setAcceleration(acceleration);
+        log.info("Move with acc: " + acceleration.toString());
         msg.setIdentifier(m_drone.getIdentifier());
 
         try {

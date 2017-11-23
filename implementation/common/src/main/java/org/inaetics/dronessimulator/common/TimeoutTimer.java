@@ -6,10 +6,10 @@ import java.time.LocalDateTime;
 
 @RequiredArgsConstructor
 public class TimeoutTimer {
-    private final long timeout; //ms
+    private final double timeout; //ms
     private long lastTime;
 
-    public static boolean isTimeExceeded(long startTime, long timeout) {
+    public static boolean isTimeExceeded(long startTime, double timeout) {
         return (startTime + timeout) < System.currentTimeMillis();
     }
     public static boolean isTimeExceeded(LocalDateTime startTime, long timeout) {

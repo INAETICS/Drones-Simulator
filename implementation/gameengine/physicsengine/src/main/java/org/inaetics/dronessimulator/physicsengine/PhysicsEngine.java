@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.physicsengine;
 
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.ManagedThread;
+import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.EntityUpdate;
 
@@ -93,7 +94,7 @@ public class PhysicsEngine extends ManagedThread implements IPhysicsEngine {
         long timestep_ms = current_ms - current_step_started_at_ms;
         this.current_step_started_at_ms = current_ms;
 
-        return ((double) timestep_ms) / 1000;
+        return ((double) timestep_ms) / Settings.TICK_TIME;
     }
 
     /**

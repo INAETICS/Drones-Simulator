@@ -20,6 +20,24 @@ public class RuleSets {
         result.add(new KillOutOfBounds());
         result.add(new CollisionRule());
         result.add(new KillEntitiesRule());
+
+        //Game mode specific rules
+        switch (gameMode) {
+            case DEATHMATCH:
+                break;
+            case TEAMPLAY:
+                break;
+        }
+
+        //This must always be the last
+        result.add(new SendMessages(publisher, idMapper));
+        return result;
+    }
+
+    public static List<Rule> getIntervalRulesForGameMode(GameMode gameMode, Publisher publisher, IdentifierMapper
+            idMapper) {
+        List<Rule> result = new LinkedList<>();
+        //General rules that are applicable in any game mode
         result.add(new RemoveStrayBullets());
         result.add(new RemoveStaleStateData());
 

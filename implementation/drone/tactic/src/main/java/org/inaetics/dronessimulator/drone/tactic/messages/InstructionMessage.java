@@ -12,9 +12,10 @@ public class InstructionMessage extends MyTacticMessage {
     @Getter(AccessLevel.PROTECTED)
     private Map<String, String> data = new HashMap<>();
 
-    public InstructionMessage(Tactic tactic, InstructionType type, D3Vector target) {
+    public InstructionMessage(Tactic tactic, InstructionType type, String instructionIsFor, D3Vector target) {
         super(tactic);
         data.put(InstructionType.class.getSimpleName(), type.name());
+        data.put("receiver", instructionIsFor);
         data.put("target", String.valueOf(target));
     }
 

@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.*;
 import org.inaetics.dronessimulator.common.protocol.TacticMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
+import org.inaetics.dronessimulator.drone.components.engine.Engine;
 import org.inaetics.dronessimulator.drone.tactic.messages.*;
 
 import java.time.LocalDateTime;
@@ -23,7 +24,8 @@ public class TheoreticalTactic extends Tactic {
     private HashMap<String, Tuple<LocalDateTime, List<String>>> teammembers = new HashMap<>();
     private Map<String, D3Vector> mapOfTheWorld = new HashMap<>();
     private ManagedThread handleBroadcastMessagesThread;
-    private D3Vector targetMoveLocation;
+    private HashMap<String, D3Vector> targetMoveLocations = new HashMap<>();
+    private D3Vector myTargetMoveLocation;
     private TimeoutTimer lastRequestForLeader = new TimeoutTimer(3000); //3 sec
 
     public final DroneType getType() {
@@ -94,16 +96,16 @@ public class TheoreticalTactic extends Tactic {
         } else if (idLeader.equals(getIdentifier())) {
             sendInstructions();
         }
-        if (targetMoveLocation != null) {
-            moveToLocation(targetMoveLocation);
+        if (myTargetMoveLocation != null) {
+            moveToLocation(myTargetMoveLocation);
         }
     }
 
     @Override
     protected void finalizeTactics() {
-        handleBroadcastMessagesThread.interrupt();
+        handleBroadcastMessagesThread.stopThread();
         log.info("Tactic for " + getIdentifier() + " stopped. This tactic had as leader: " + idLeader + ", and " +
-                "targetMoveLocation: " + targetMoveLocation);
+                "myTargetMoveLocation: " + myTargetMoveLocation);
     }
 
     /**
@@ -134,19 +136,20 @@ public class TheoreticalTactic extends Tactic {
                     teammembers.put(newMessage.get("id"), new Tuple<>(LocalDateTime.now(), Arrays.asList(newMessage.get("components").split(","))));
                     mapOfTheWorld.put(newMessage.get("id"), D3Vector.fromString(newMessage.get("position")));
                 } else if (MyTacticMessage.checkType(newMessage, InstructionMessage.class)) {
-                    executeInstruction(InstructionMessage.InstructionType.valueOf(newMessage.get(InstructionMessage.
-                            InstructionType.class.getSimpleName())), D3Vector.fromString(newMessage.get("target")));
+                    if (newMessage.get("receiver").equals(getIdentifier())) {
+                        executeInstruction(InstructionMessage.InstructionType.valueOf(newMessage.get(InstructionMessage.
+                                InstructionType.class.getSimpleName())), D3Vector.fromString(newMessage.get("target")));
+                    }
                 } else if (MyTacticMessage.checkType(newMessage, MyTacticMessage.MESSAGETYPES.SearchLeaderMessage) &&
                         droneType.equals(DroneType.RADAR) && idLeader == null) {
                     //Become a leader yourself and prepare
                     setLeader(getIdentifier());
                     radio.send(new DataMessage(this, MyTacticMessage.MESSAGETYPES.IsLeaderMessage).getMessage());
-                    targetMoveLocation = new D3Vector((Math.random() * (Settings.ARENA_WIDTH-200)+100), (Math.random
-                            () * (Settings.ARENA_HEIGHT-200)+100), (Math.random() * (Settings.ARENA_DEPTH-200)+100));
                     log.info("Drone " + getIdentifier() + " is the leader of team " + m_drone.getTeamname());
                 } else if (MyTacticMessage.checkType(newMessage, MyTacticMessage.MESSAGETYPES.IsLeaderMessage)) {
                     setLeader(newMessage.get("id"));
                     lastRequestForLeader.reset();
+                    targetMoveLocations = new HashMap<>();
                 }
             }
         }
@@ -171,7 +174,7 @@ public class TheoreticalTactic extends Tactic {
                 break;
             case MOVE:
                 if (hasComponents("engine", "gps")) {
-                    this.targetMoveLocation = targetLocation; //Store the target location to move there if there is no
+                    this.myTargetMoveLocation = targetLocation; //Store the target location to move there if there is no
                     // new instruction.
                     moveToLocation(targetLocation);
                 } else {
@@ -183,15 +186,30 @@ public class TheoreticalTactic extends Tactic {
     }
 
     private void moveToLocation(D3Vector location) {
-        log.debug("Moving to " + location.toString());
         D3Vector position = gps.getPosition();
+        log.info("Moving to " + location.toString() + " from " + position.toString());
         if (position.distance_between(location) < 1) {
             if (gps.getVelocity().length() != 0) {
-                engine.changeAcceleration(engine.limit_acceleration(gps.getVelocity().scale(-1)));
+                D3Vector move = engine.limit_acceleration(gps.getVelocity().scale(-1));
+                log.info("WE ARE CLOSE!" + move.toString());
+                engine.changeAcceleration(move);
             }
         } else {
-            D3Vector move = location.sub(position.add(gps.getVelocity()));
-            engine.changeAcceleration(move);
+            D3Vector targetAcceleration;
+            double distance = gps.getPosition().distance_between(location);
+            double decelDistance = (gps.getVelocity().length() * gps.getVelocity().length()) / (2 * Engine.MAX_ACCELERATION);
+            if (distance > decelDistance) //we are still far, continue accelerating (if possible)
+            {
+                targetAcceleration = engine.maximize_acceleration(location.sub(gps.getPosition()));
+            } else    //we are about to reach the target, let's start decelerating.
+            {
+                targetAcceleration = gps.getVelocity().normalize().scale(-(gps.getVelocity().length() * gps
+                        .getVelocity()
+                        .length()) / (2 * distance));
+            }
+//            D3Vector move = location.sub(position.add(gps.getVelocity()));
+            log.info("WE ARE NOT CLOSE!" + targetAcceleration.toString());
+            engine.changeAcceleration(targetAcceleration);
         }
     }
 
@@ -234,9 +252,24 @@ public class TheoreticalTactic extends Tactic {
     }
 
     private void sendInstructions() {
-        log.debug("sendInstructions type: MOVE, location: " + targetMoveLocation.toString());
-        radio.send(new InstructionMessage(this, InstructionMessage.InstructionType.MOVE, targetMoveLocation).getMessage
-                ());
+        for (String teammember : teammembers.keySet()) {
+            D3Vector targetMoveLocation = targetMoveLocations.get(teammember);
+            if (targetMoveLocation == null) {
+                targetMoveLocation = calculateRandomPositionInField();
+                targetMoveLocations.put(teammember, targetMoveLocation);
+            }
+            log.debug("sendInstructions type: MOVE, to " + teammember + "location: " + targetMoveLocation.toString());
+            radio.send(new InstructionMessage(this, InstructionMessage.InstructionType.MOVE, teammember,
+                    targetMoveLocation).getMessage());
+        }
+    }
+
+    private D3Vector calculateRandomPositionInField() {
+        return new D3Vector(
+                (Math.random() * (Settings.ARENA_WIDTH - 200) + 100),
+                (Math.random() * (Settings.ARENA_HEIGHT - 200) + 100),
+                (Math.random() * (Settings.ARENA_DEPTH - 200) + 100)
+        );
     }
 
     private int calculateUtility(InstructionMessage.InstructionType type, D3Vector target) {

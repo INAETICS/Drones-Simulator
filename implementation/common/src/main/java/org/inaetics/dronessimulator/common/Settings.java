@@ -7,7 +7,7 @@ public class Settings {
     public static final double ARENA_DEPTH = Float.parseFloat(v("ARENA_DEPTH", "800"));
     public static final double ARENA_WIDTH = Float.parseFloat(v("ARENA_WIDTH", "800"));
     public static final GameMode GAME_MODE = GameMode.valueOf(v("GAME_MODE", "DEATHMATCH"));
-    public static final long TICK_TIME = 1000;//ms
+    public static final double TICK_TIME = 1000.0;//ms
 
 
     private static String v(String variableName, String defaultValue) {

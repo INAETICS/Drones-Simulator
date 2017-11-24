@@ -3,8 +3,10 @@ package org.inaetics.dronessimulator.drone.components.engine;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j;
+import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.MovementMessage;
+import org.inaetics.dronessimulator.common.protocol.TargetMoveLocationMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
@@ -21,14 +23,6 @@ import java.util.Set;
 @NoArgsConstructor //This is the constructor for OSGi
 @AllArgsConstructor //This is a constructor for test purposes.
 public class Engine {
-    /**
-     * The max acceleration of this engine in m/s^2
-     */
-    public static final int MAX_ACCELERATION = 10;
-    /**
-     * The max velocity of this engine in m/s
-     */
-    private static final int MAX_VELOCITY = 20;
     /**
      * The Publisher bundle
      */
@@ -51,8 +45,8 @@ public class Engine {
     public D3Vector limit_acceleration(D3Vector input) {
         D3Vector output = input;
         // Prevent that the acceleration exceeds te maximum acceleration
-        if (input.length() > MAX_ACCELERATION) {
-            double correctionFactor = MAX_ACCELERATION / input.length();
+        if (input.length() > Settings.MAX_DRONE_ACCELERATION) {
+            double correctionFactor = Settings.MAX_DRONE_ACCELERATION / input.length();
             output = input.scale(correctionFactor);
         }
         return output;
@@ -66,8 +60,8 @@ public class Engine {
      */
     public D3Vector maximize_acceleration(D3Vector input) {
         D3Vector output = input;
-        if (input.length() < MAX_ACCELERATION && input.length() != 0) {
-            double correctionFactor = MAX_ACCELERATION / input.length();
+        if (input.length() < Settings.MAX_DRONE_ACCELERATION && input.length() != 0) {
+            double correctionFactor = Settings.MAX_DRONE_ACCELERATION / input.length();
             output = input.scale(correctionFactor);
         }
         return output;
@@ -83,7 +77,8 @@ public class Engine {
     private D3Vector limit_velocity(D3Vector input) {
         D3Vector output = input;
         // Check velocity
-        if (m_gps.getVelocity().length() >= MAX_VELOCITY && m_gps.getVelocity().add(input).length() >= m_gps.getVelocity().length()) {
+        if (m_gps.getVelocity().length() >= Settings.MAX_DRONE_VELOCITY && m_gps.getVelocity().add(input).length() >= m_gps.getVelocity()
+                .length()) {
             output = new D3Vector();
         }
         return output;
@@ -98,8 +93,8 @@ public class Engine {
     public D3Vector stagnate_acceleration(D3Vector input) {
         D3Vector output = input;
         // Change acceleration if velocity is close to the maximum velocity
-        if (m_gps.getVelocity().length() >= (MAX_VELOCITY * 0.9)) {
-            double maxAcceleration = MAX_VELOCITY - m_gps.getVelocity().length();
+        if (m_gps.getVelocity().length() >= (Settings.MAX_DRONE_VELOCITY * 0.9)) {
+            double maxAcceleration = Settings.MAX_DRONE_VELOCITY - m_gps.getVelocity().length();
             if (Math.abs(output.length()) > Math.abs(maxAcceleration)) {
                 output = output.scale(maxAcceleration / output.length() == 0 ? 1 : output.length());
             }
@@ -134,9 +129,19 @@ public class Engine {
         } catch (IOException e) {
             log.fatal(e);
         }
+    }
 
-        //Run all callbacks
-        callbacks.forEach(callback -> callback.run(msg));
+    public void moveTo(D3Vector location) {
+        TargetMoveLocationMessage msg = new TargetMoveLocationMessage();
+        msg.setTargetLocation(location);
+        log.info("Move to: " + location.toString());
+        msg.setIdentifier(m_drone.getIdentifier());
+
+        try {
+            m_publisher.send(MessageTopic.MOVEMENTS, msg);
+        } catch (IOException e) {
+            log.fatal(e);
+        }
     }
 
     public final void registerCallback(EngineCallback callback) {

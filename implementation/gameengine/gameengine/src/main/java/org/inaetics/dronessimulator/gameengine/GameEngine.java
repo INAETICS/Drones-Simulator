@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 /**
  * Wrapper around PhysicsEngine. Sets up and connects all handlers with each other.
@@ -116,6 +115,8 @@ public class GameEngine {
         this.m_subscriber.addHandler(FireBulletMessage.class, this.fireBulletMessageHandler);
         this.m_subscriber.addHandler(KillMessage.class, this.killMessageHandler);
         this.m_subscriber.addHandler(MovementMessage.class, this.movementMessageHandler);
+        this.m_subscriber.addHandler(TargetMoveLocationMessage.class, (message) -> m_physicsEngineDriver.changeTargetLocationEntity((
+                (TargetMoveLocationMessage) message).getIdentifier(), ((TargetMoveLocationMessage) message).getTargetLocation().orElse(null)));
         this.m_subscriber.addHandler(StateMessage.class, this.stateMessageHandler);
 
         // Setup discoverer
@@ -169,7 +170,8 @@ public class GameEngine {
                         , 50);
                 numberSpawned++;
                 String team = DroneInstance.getTeamname(m_discoverer, protocolId);
-                this.m_physicsEngineDriver.addNewEntity(new Drone(gameengineId, team, Drone.DRONE_MAX_HEALTH, position, new D3Vector(), new D3Vector(), new D3PolarCoordinate()), protocolId);
+                this.m_physicsEngineDriver.addNewEntity(new Drone(gameengineId, team, Drone.DRONE_MAX_HEALTH,
+                        position, new D3Vector(), new D3Vector(), new D3PolarCoordinate(), position), protocolId);
                 log.info("Added new drone " + protocolId + " as " + gameengineId);
             }
         });

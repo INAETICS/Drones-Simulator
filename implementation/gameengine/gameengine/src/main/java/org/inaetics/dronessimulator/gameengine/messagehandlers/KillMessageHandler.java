@@ -2,7 +2,6 @@ package org.inaetics.dronessimulator.gameengine.messagehandlers;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j;
-import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.protocol.KillMessage;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
@@ -10,16 +9,14 @@ import org.inaetics.dronessimulator.discovery.api.instances.DroneInstance;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
-import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 
 @AllArgsConstructor
 @Log4j
-public class KillMessageHandler implements MessageHandler {
+public class KillMessageHandler implements MessageHandler<KillMessage> {
     /** The physics engine to update entities in. */
     private final IPhysicsEngineDriver physicsEngineDriver;
 
@@ -32,9 +29,8 @@ public class KillMessageHandler implements MessageHandler {
     private final Discoverer discoverer;
 
     @Override
-    public void handleMessage(Message message) {
+    public void handleMessage(KillMessage killMessage) {
         // Kill the entity
-        KillMessage killMessage = (KillMessage) message;
         physicsEngineDriver.removeEntity(killMessage.getIdentifier());
         if (EntityType.DRONE.equals(killMessage.getEntityType())) {
             try {

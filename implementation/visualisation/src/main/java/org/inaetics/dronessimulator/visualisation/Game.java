@@ -17,11 +17,13 @@ import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import lombok.extern.log4j.Log4j;
-import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventControllerService;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
-import org.inaetics.dronessimulator.common.protocol.*;
+import org.inaetics.dronessimulator.common.protocol.GameFinishedMessage;
+import org.inaetics.dronessimulator.common.protocol.KillMessage;
+import org.inaetics.dronessimulator.common.protocol.MessageTopic;
+import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
@@ -39,7 +41,9 @@ import org.inaetics.dronessimulator.pubsub.rabbitmq.publisher.RabbitPublisher;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitSubscriber;
 import org.inaetics.dronessimulator.visualisation.controls.PannableCanvas;
 import org.inaetics.dronessimulator.visualisation.controls.SceneGestures;
-import org.inaetics.dronessimulator.visualisation.messagehandlers.*;
+import org.inaetics.dronessimulator.visualisation.messagehandlers.GameFinishedHandler;
+import org.inaetics.dronessimulator.visualisation.messagehandlers.KillMessageHandler;
+import org.inaetics.dronessimulator.visualisation.messagehandlers.StateMessageHandler;
 import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
 
 import java.io.IOException;
@@ -337,9 +341,6 @@ public class Game extends Application {
             log.info("Connected RabbitMQ!");
 
 
-            this.subscriber.addHandler(CollisionMessage.class, new CollisionMessageHandler());
-            this.subscriber.addHandler(DamageMessage.class, new DamageMessageHandler());
-            this.subscriber.addHandler(FireBulletMessage.class, new FireBulletMessageHandler());
             this.subscriber.addHandler(KillMessage.class, new KillMessageHandler(this.entities));
             this.subscriber.addHandler(StateMessage.class, new StateMessageHandler(uiUpdates, this.entities));
             this.subscriber.addHandlerIfNotExists(GameFinishedMessage.class, new GameFinishedHandler(primaryStage));

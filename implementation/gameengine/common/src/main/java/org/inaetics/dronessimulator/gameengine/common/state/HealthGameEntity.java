@@ -25,7 +25,7 @@ public abstract class HealthGameEntity<C extends GameEntity<C>> extends GameEnti
      * @param direction Direction of the new entity.
      */
     public HealthGameEntity(int entityId, int hp, D3Vector position, D3Vector velocity, D3Vector acceleration, D3PolarCoordinate direction) {
-        super(entityId, position, velocity, acceleration, direction);
+        super(entityId, null, position, velocity, acceleration, direction);
 
         this.hp = hp;
     }

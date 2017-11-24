@@ -21,7 +21,8 @@ public class TestGameStateManager {
 
     @Test
     public void testAdd() {
-        Drone drone = new Drone(1, null, new D3Vector(), new D3Vector(), new D3Vector(), new D3PolarCoordinate());
+        Drone drone = new Drone(1, null, new D3Vector(), new D3Vector(), new D3Vector(), new D3PolarCoordinate(),
+                new D3Vector());
         this.gameStateManager.addEntityState(drone);
         this.gameStateManager.addEntityState(new Bullet(2, 100, drone, new D3Vector(), new D3Vector(), new D3Vector(), new D3PolarCoordinate()));
 
@@ -33,7 +34,8 @@ public class TestGameStateManager {
 
     @Test
     public void testRemove() {
-        Drone drone = new Drone(1, null, new D3Vector(), new D3Vector(), new D3Vector(), new D3PolarCoordinate());
+        Drone drone = new Drone(1, null, new D3Vector(), new D3Vector(), new D3Vector(), new D3PolarCoordinate(),
+                new D3Vector());
         this.gameStateManager.addEntityState(drone);
 
         Assert.assertEquals(drone, this.gameStateManager.getById(1));

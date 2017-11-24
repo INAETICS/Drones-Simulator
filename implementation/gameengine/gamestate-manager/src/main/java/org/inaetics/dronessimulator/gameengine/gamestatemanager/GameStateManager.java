@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
  */
 @Getter
 public class GameStateManager implements IGameStateManager {
+    @SuppressWarnings("unused") //Is set through OSGi
     private volatile ArchitectureEventController m_architectureEventController;
 
     /** State by id. */

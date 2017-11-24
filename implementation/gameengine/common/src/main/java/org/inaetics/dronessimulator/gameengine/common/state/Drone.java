@@ -19,15 +19,21 @@ public class Drone extends HealthGameEntity<Drone> {
     @Getter
     private final String teamname;
 
+    @Getter
+    private D3Vector targetLocation;
+
     //Test constructor
-    public Drone(int id, String teamname, D3Vector position, D3Vector velocity, D3Vector acceleration, D3PolarCoordinate direction) {
+    public Drone(int id, String teamname, D3Vector position, D3Vector velocity, D3Vector acceleration,
+                 D3PolarCoordinate direction, D3Vector targetLocation) {
         super(id, DRONE_MAX_HEALTH, position, velocity, acceleration, direction);
         this.teamname = teamname;
+        this.targetLocation = targetLocation;
     }
 
-    public Drone(int id, String teamname, int currentHP, D3Vector position, D3Vector velocity, D3Vector acceleration, D3PolarCoordinate direction) {
+    public Drone(int id, String teamname, int currentHP, D3Vector position, D3Vector velocity, D3Vector acceleration, D3PolarCoordinate direction, D3Vector targetLocation) {
         super(id, currentHP, position, velocity, acceleration, direction);
         this.teamname = teamname;
+        this.targetLocation = targetLocation;
     }
 
     /**
@@ -40,6 +46,7 @@ public class Drone extends HealthGameEntity<Drone> {
 
     @Override
     public synchronized Drone deepCopy() {
-        return new Drone(this.getEntityId(), this.getTeamname(), this.getHp(), this.getPosition(), this.getVelocity(), this.getAcceleration(), this.getDirection());
+        return new Drone(this.getEntityId(), this.getTeamname(), this.getHp(), this.getPosition(), this.getVelocity()
+                , this.getAcceleration(), this.getDirection(), this.getTargetLocation());
     }
 }

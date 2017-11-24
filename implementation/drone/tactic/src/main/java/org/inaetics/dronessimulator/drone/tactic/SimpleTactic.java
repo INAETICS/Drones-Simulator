@@ -3,7 +3,6 @@ package org.inaetics.dronessimulator.drone.tactic;
 import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
-import org.inaetics.dronessimulator.drone.components.engine.Engine;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -51,9 +50,9 @@ public class SimpleTactic extends Tactic {
         D3Vector output_acceleration = input_acceleration;
         if (gps.getAcceleration().length() == 0 && gps.getVelocity().length() == 0) {
 
-            double x = ThreadLocalRandom.current().nextDouble(-Engine.MAX_ACCELERATION, Engine.MAX_ACCELERATION);
-            double y = ThreadLocalRandom.current().nextDouble(-Engine.MAX_ACCELERATION, Engine.MAX_ACCELERATION);
-            double z = ThreadLocalRandom.current().nextDouble(-Engine.MAX_ACCELERATION, Engine.MAX_ACCELERATION);
+            double x = ThreadLocalRandom.current().nextDouble(-Settings.MAX_DRONE_ACCELERATION, Settings.MAX_DRONE_ACCELERATION);
+            double y = ThreadLocalRandom.current().nextDouble(-Settings.MAX_DRONE_ACCELERATION, Settings.MAX_DRONE_ACCELERATION);
+            double z = ThreadLocalRandom.current().nextDouble(-Settings.MAX_DRONE_ACCELERATION, Settings.MAX_DRONE_ACCELERATION);
             output_acceleration = new D3Vector(x, y, z);
         }
         return output_acceleration;
@@ -67,7 +66,7 @@ public class SimpleTactic extends Tactic {
      */
     private D3Vector brakeForWall(D3Vector input_acceleration) {
         D3Vector output_acceleration = input_acceleration;
-        double aantal_seconden_tot_nul = gps.getVelocity().length() / Engine.MAX_ACCELERATION;
+        double aantal_seconden_tot_nul = gps.getVelocity().length() / Settings.MAX_DRONE_ACCELERATION;
         D3Vector berekende_position = gps.getVelocity().scale(0.5).scale(aantal_seconden_tot_nul).add(gps.getPosition());
 
         if (berekende_position.getX() >= MAX_DEVIATION_POSTION ||
@@ -76,7 +75,7 @@ public class SimpleTactic extends Tactic {
                 berekende_position.getY() <= 0 ||
                 berekende_position.getZ() >= MAX_Z_DEVIATION_POSTION ||
                 berekende_position.getZ() <= 0) {
-            output_acceleration = engine.maximize_acceleration(engine.limit_acceleration(gps.getVelocity().scale(-1)));
+//            output_acceleration = engine.maximize_acceleration(engine.limit_acceleration(gps.getVelocity().scale(-1)));
         }
         return output_acceleration;
     }
@@ -96,38 +95,38 @@ public class SimpleTactic extends Tactic {
 
         if (gps.getPosition().getX() >= MAX_DEVIATION_POSTION ||
                 gps.getPosition().getX() <= 0) {
-            y = ThreadLocalRandom.current().nextDouble(-Engine.MAX_ACCELERATION, Engine.MAX_ACCELERATION);
-            z = ThreadLocalRandom.current().nextDouble(-Engine.MAX_ACCELERATION, Engine.MAX_ACCELERATION);
+            y = ThreadLocalRandom.current().nextDouble(-Settings.MAX_DRONE_ACCELERATION, Settings.MAX_DRONE_ACCELERATION);
+            z = ThreadLocalRandom.current().nextDouble(-Settings.MAX_DRONE_ACCELERATION, Settings.MAX_DRONE_ACCELERATION);
 
             if(gps.getPosition().getX() >= MAX_DEVIATION_POSTION){
-                x = - Engine.MAX_ACCELERATION;
+                x = -Settings.MAX_DRONE_ACCELERATION;
             }
             else if(gps.getPosition().getX() <= 0){
-                x = Engine.MAX_ACCELERATION;
+                x = Settings.MAX_DRONE_ACCELERATION;
             }
         }
 
         if (gps.getPosition().getY() >= MAX_DEVIATION_POSTION || gps.getPosition().getY() <= 0) {
-            x = ThreadLocalRandom.current().nextDouble(-Engine.MAX_ACCELERATION, Engine.MAX_ACCELERATION);
-            z = ThreadLocalRandom.current().nextDouble(-Engine.MAX_ACCELERATION, Engine.MAX_ACCELERATION);
+            x = ThreadLocalRandom.current().nextDouble(-Settings.MAX_DRONE_ACCELERATION, Settings.MAX_DRONE_ACCELERATION);
+            z = ThreadLocalRandom.current().nextDouble(-Settings.MAX_DRONE_ACCELERATION, Settings.MAX_DRONE_ACCELERATION);
 
             if(gps.getPosition().getY() >= MAX_DEVIATION_POSTION){
-                y = - Engine.MAX_ACCELERATION;
+                y = -Settings.MAX_DRONE_ACCELERATION;
             }
             else if(gps.getPosition().getY() <= 0){
-                y = Engine.MAX_ACCELERATION;
+                y = Settings.MAX_DRONE_ACCELERATION;
             }
         }
 
         if (gps.getPosition().getZ() >= MAX_Z_DEVIATION_POSTION || gps.getPosition().getZ() <= 0) {
-            x = ThreadLocalRandom.current().nextDouble(-Engine.MAX_ACCELERATION, Engine.MAX_ACCELERATION);
-            y = ThreadLocalRandom.current().nextDouble(-Engine.MAX_ACCELERATION, Engine.MAX_ACCELERATION);
+            x = ThreadLocalRandom.current().nextDouble(-Settings.MAX_DRONE_ACCELERATION, Settings.MAX_DRONE_ACCELERATION);
+            y = ThreadLocalRandom.current().nextDouble(-Settings.MAX_DRONE_ACCELERATION, Settings.MAX_DRONE_ACCELERATION);
 
             if(gps.getPosition().getZ() >= MAX_Z_DEVIATION_POSTION){
-                z = - Engine.MAX_ACCELERATION;
+                z = -Settings.MAX_DRONE_ACCELERATION;
             }
             else if(gps.getPosition().getZ() <= 0){
-                z = Engine.MAX_ACCELERATION;
+                z = Settings.MAX_DRONE_ACCELERATION;
             }
         }
 

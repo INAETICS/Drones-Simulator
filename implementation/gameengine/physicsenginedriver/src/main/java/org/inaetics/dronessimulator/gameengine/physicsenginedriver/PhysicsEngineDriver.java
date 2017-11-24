@@ -8,18 +8,16 @@ import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
+import org.inaetics.dronessimulator.gameengine.common.Size;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
+import org.inaetics.dronessimulator.gameengine.common.state.Drone;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 import org.inaetics.dronessimulator.gameengine.common.state.HealthGameEntity;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.physicsengine.Entity;
 import org.inaetics.dronessimulator.physicsengine.IPhysicsEngine;
-import org.inaetics.dronessimulator.physicsengine.Size;
-import org.inaetics.dronessimulator.physicsengine.entityupdate.AccelerationEntityUpdate;
-import org.inaetics.dronessimulator.physicsengine.entityupdate.DirectionEntityUpdate;
-import org.inaetics.dronessimulator.physicsengine.entityupdate.PositionEntityUpdate;
-import org.inaetics.dronessimulator.physicsengine.entityupdate.VelocityEntityUpdate;
+import org.inaetics.dronessimulator.physicsengine.entityupdate.*;
 
 import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -65,7 +63,6 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
         Logger.getLogger(PhysicsEngineDriver.class).info("Starting PhysicsEngine Driver...");
         this.engineObserver = new PhysicsEngineObserver(this.outgoingQueue, m_stateManager);
         m_physicsEngine.setObserver(engineObserver);
-        m_physicsEngine.setTimeBetweenBroadcastms(30L);
 
         m_architectureEventController.addHandler(SimulationState.CONFIG, SimulationAction.START, SimulationState.RUNNING, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
             logger.info("Starting simulation!");
@@ -162,6 +159,33 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
         }
     }
 
+    /**
+     * Converts a game entity to a physics engine entity.
+     *
+     * @param g The game entity.
+     * @return The new physics engine entity.
+     */
+    private static Entity gameEntityToPhysicsEntity(GameEntity g) {
+        Size size;
+
+        if (g.getType().equals(EntityType.DRONE)) {
+            size = new Size(10, 10, 10);
+            return new Entity.DroneEntity(g.getEntityId(), size, g.getPosition(), g.getVelocity(), g.getAcceleration
+                    (), g.getDirection(), ((Drone) g).getTargetLocation());
+        } else if (g.getType().equals(EntityType.BULLET)) {
+            size = new Size(1, 1, 1);
+        } else {
+            size = new Size(100, 100, 100);
+        }
+
+        return new Entity(g.getEntityId(), size, g.getPosition(), g.getVelocity(), g.getAcceleration(), g.getDirection());
+    }
+
+    @Override
+    public void changeTargetLocationEntity(int entityId, D3Vector newTarget) {
+        this.m_physicsEngine.addUpdate(entityId, new TargetLocationEntityUpdate(newTarget));
+    }
+
     @Override
     public void changeVelocityEntity(int entityId, D3Vector newVelocity) {
         this.m_physicsEngine.addUpdate(entityId, new VelocityEntityUpdate(newVelocity));
@@ -221,22 +245,9 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
         m_physicsEngine.stopEngine();
     }
 
-    /**
-     * Converts a game entity to a physics engine entity.
-     * @param g The game entity.
-     * @return The new physics engine entity.
-     */
-    private static Entity gameEntityToPhysicsEntity(GameEntity g) {
-        Size size;
-
-        if(g.getType().equals(EntityType.DRONE)) {
-            size = new Size(10, 10, 10);
-        } else if(g.getType().equals(EntityType.BULLET)) {
-            size = new Size(1, 1, 1);
-        } else {
-            size = new Size(100, 100, 100);
-        }
-
-        return new Entity(g.getEntityId(), size, g.getPosition(), g.getVelocity(), g.getAcceleration(), g.getDirection());
+    @Override
+    public void changeTargetLocationEntity(String protocolId, D3Vector newTarget) {
+        Optional<Integer> gameEngineId = m_id_mapper.fromProtocolToGameEngineId(protocolId);
+        gameEngineId.ifPresent(entityId -> this.changeTargetLocationEntity(entityId, newTarget));
     }
 }

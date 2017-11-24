@@ -5,7 +5,6 @@ import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.*;
 import org.inaetics.dronessimulator.common.protocol.TacticMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
-import org.inaetics.dronessimulator.drone.components.engine.Engine;
 import org.inaetics.dronessimulator.drone.tactic.messages.*;
 
 import java.time.LocalDateTime;
@@ -197,7 +196,8 @@ public class TheoreticalTactic extends Tactic {
         } else {
             D3Vector targetAcceleration;
             double distance = gps.getPosition().distance_between(location);
-            double decelDistance = (gps.getVelocity().length() * gps.getVelocity().length()) / (2 * Engine.MAX_ACCELERATION);
+            double decelDistance = (gps.getVelocity().length() * gps.getVelocity().length()) / (2 * Settings
+                    .MAX_DRONE_ACCELERATION);
             if (distance > decelDistance) //we are still far, continue accelerating (if possible)
             {
                 targetAcceleration = engine.maximize_acceleration(location.sub(gps.getPosition()));
@@ -211,6 +211,7 @@ public class TheoreticalTactic extends Tactic {
             log.info("WE ARE NOT CLOSE!" + targetAcceleration.toString());
             engine.changeAcceleration(targetAcceleration);
         }
+//        engine.moveTo(location);
     }
 
     private void findLeader() {
@@ -267,8 +268,8 @@ public class TheoreticalTactic extends Tactic {
     private D3Vector calculateRandomPositionInField() {
         return new D3Vector(
                 (Math.random() * (Settings.ARENA_WIDTH - 200) + 100),
-                (Math.random() * (Settings.ARENA_HEIGHT - 200) + 100),
-                (Math.random() * (Settings.ARENA_DEPTH - 200) + 100)
+                (Math.random() * (Settings.ARENA_DEPTH - 200) + 100),
+                (Math.random() * (Settings.ARENA_HEIGHT - 200) + 100)
         );
     }
 

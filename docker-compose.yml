@@ -46,6 +46,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    ports:
+      - "8000:8000"
     environment:
       DRONE_TEAM: "teamthales"
       DRONE_COMPONENTS: "gps,radar,radio"

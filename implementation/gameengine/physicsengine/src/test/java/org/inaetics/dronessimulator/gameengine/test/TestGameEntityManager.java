@@ -1,9 +1,9 @@
 package org.inaetics.dronessimulator.gameengine.test;
 
 import org.inaetics.dronessimulator.common.vector.D3Vector;
+import org.inaetics.dronessimulator.gameengine.common.Size;
 import org.inaetics.dronessimulator.physicsengine.Entity;
 import org.inaetics.dronessimulator.physicsengine.EntityManager;
-import org.inaetics.dronessimulator.physicsengine.Size;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.AccelerationEntityUpdate;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.PositionEntityUpdate;
 import org.inaetics.dronessimulator.physicsengine.entityupdate.VelocityEntityUpdate;

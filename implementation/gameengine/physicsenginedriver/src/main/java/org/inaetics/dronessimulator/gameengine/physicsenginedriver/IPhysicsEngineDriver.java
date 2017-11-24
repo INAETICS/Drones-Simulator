@@ -65,6 +65,22 @@ public interface IPhysicsEngineDriver {
     void changePositionEntity(String protocolId, D3Vector newPosition);
 
     /**
+     * Change the target location of the given game entity.
+     *
+     * @param entityId  The id of the entity.
+     * @param newTarget The new position.
+     */
+    void changeTargetLocationEntity(int entityId, D3Vector newTarget);
+
+    /**
+     * Change the target location of the given game entity.
+     *
+     * @param protocolId The protocol id of the entity.
+     * @param newTarget  The new position.
+     */
+    void changeTargetLocationEntity(String protocolId, D3Vector newTarget);
+
+    /**
      * Change the velocity of the given game entity.
      * @param entityId The id of the entity.
      * @param newVelocity The new velocity.

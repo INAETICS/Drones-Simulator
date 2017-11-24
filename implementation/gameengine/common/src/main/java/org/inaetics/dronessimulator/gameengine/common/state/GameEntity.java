@@ -1,23 +1,26 @@
 package org.inaetics.dronessimulator.gameengine.common.state;
 
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
+import org.inaetics.dronessimulator.gameengine.common.Size;
 
 /**
  * An entity in the physics engine with some added game state.
  */
 @AllArgsConstructor
+@RequiredArgsConstructor
 @EqualsAndHashCode(callSuper=false)
 public abstract class GameEntity<C extends GameEntity<C>> {
     /** Id of the game entity. Should match with an entity id in the engine. */
     @Getter
     private final int entityId;
+
+    /** The size of the non-rotating hitbox around the entity. */
+    @Getter
+    private final Size size;
 
     /** Position of the entity in the engine. */
     @Getter @Setter

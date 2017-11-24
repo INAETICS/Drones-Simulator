@@ -32,7 +32,7 @@ public class PhysicsEngine extends ManagedThread implements IPhysicsEngine {
     private long last_state_broadcast_at_ms;
 
     /** Time between broadcasts of the current state. In milliseconds. */
-    private long broadcast_state_every_ms;
+    private final long broadcast_state_every_ms;
 
     /** The entity manager which manages all changes and state of entities. */
     private final EntityManager entityManager;
@@ -50,7 +50,7 @@ public class PhysicsEngine extends ManagedThread implements IPhysicsEngine {
     public PhysicsEngine() {
         this.current_step_started_at_ms = System.currentTimeMillis();
         this.last_state_broadcast_at_ms = this.current_step_started_at_ms;
-        this.broadcast_state_every_ms = -1;
+        this.broadcast_state_every_ms = Settings.TICK_TIME;
 
         this.currentCollisions = new HashMap<>();
         this.entityManager = new EntityManager(this.currentCollisions);
@@ -64,11 +64,6 @@ public class PhysicsEngine extends ManagedThread implements IPhysicsEngine {
      */
     public EntityManager getEntityManager() {
         return this.entityManager;
-    }
-
-    @Override
-    public void setTimeBetweenBroadcastms(long broadcast_state_every_ms) {
-        this.broadcast_state_every_ms = broadcast_state_every_ms;
     }
 
     @Override
@@ -123,13 +118,13 @@ public class PhysicsEngine extends ManagedThread implements IPhysicsEngine {
     }
 
     private void stageCollision(Entity entity, Map<Integer, Entity> allEntities) {
-        int e1Id = entity.getId();
+        int e1Id = entity.getEntityId();
 
         for(Map.Entry<Integer, Entity> e2 : allEntities.entrySet()) {
             Entity otherEntity = e2.getValue();
-            int e2Id = otherEntity.getId();
+            int e2Id = otherEntity.getEntityId();
 
-            if(entity.getId() != otherEntity.getId()) {
+            if (entity.getEntityId() != otherEntity.getEntityId()) {
                 if(entity.collides(otherEntity)) {
                     startCollision(e1Id, entity, e2Id, otherEntity);
                 } else {
@@ -203,7 +198,7 @@ public class PhysicsEngine extends ManagedThread implements IPhysicsEngine {
 
         long current_step_ended_at_ms = System.currentTimeMillis();
         long current_step_took_ms = current_step_ended_at_ms - current_step_started_at_ms;
-        long diff = 10 - current_step_took_ms;
+        long diff = Settings.TICK_TIME - current_step_took_ms;
 
         if(diff > 0) {
             Thread.sleep(diff);

@@ -12,9 +12,11 @@ public class TestGameDamage {
 
     @Test
     public void testDamage() {
-        Drone shooter = new Drone(1, null, new D3Vector(), new D3Vector(), new D3Vector(), new D3PolarCoordinate());
+        Drone shooter = new Drone(1, null, new D3Vector(), new D3Vector(), new D3Vector(), new D3PolarCoordinate(),
+                new D3Vector());
         Bullet bullet = new Bullet(2, 100, shooter, new D3Vector(), new D3Vector(), new D3Vector(), new D3PolarCoordinate());
-        Drone target = new Drone(3, null, new D3Vector(), new D3Vector(), new D3Vector(), new D3PolarCoordinate());
+        Drone target = new Drone(3, null, new D3Vector(), new D3Vector(), new D3Vector(), new D3PolarCoordinate(),
+                new D3Vector());
 
         target.damage(bullet.getDmg());
 

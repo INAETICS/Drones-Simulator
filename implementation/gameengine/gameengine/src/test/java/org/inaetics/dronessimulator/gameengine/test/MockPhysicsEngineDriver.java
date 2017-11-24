@@ -23,6 +23,7 @@ public class MockPhysicsEngineDriver implements IPhysicsEngineDriver{
     private D3Vector newPosition = null;
     private D3Vector newVelocity = null;
     private D3Vector newAcceleration = null;
+    private D3Vector newTarget = null;
     private D3PolarCoordinate newDirection = null;
 
     public MockPhysicsEngineDriver(IdentifierMapper id_mapper) {
@@ -80,6 +81,21 @@ public class MockPhysicsEngineDriver implements IPhysicsEngineDriver{
 
         if(gameengineId.isPresent()) {
             this.changePositionEntity(gameengineId.get(), newPosition);
+        }
+    }
+
+    @Override
+    public void changeTargetLocationEntity(int entityId, D3Vector newTarget) {
+        this.newTarget = newTarget;
+        this.moved = entityId;
+    }
+
+    @Override
+    public void changeTargetLocationEntity(String protocolId, D3Vector newTarget) {
+        Optional<Integer> gameengineId = this.id_mapper.fromProtocolToGameEngineId(protocolId);
+
+        if (gameengineId.isPresent()) {
+            this.changeTargetLocationEntity(gameengineId.get(), newTarget);
         }
     }
 

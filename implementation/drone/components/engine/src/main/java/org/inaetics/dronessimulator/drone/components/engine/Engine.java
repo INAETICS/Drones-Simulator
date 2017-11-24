@@ -118,6 +118,7 @@ public class Engine {
         acceleration = this.limit_acceleration(acceleration);
         acceleration = this.limit_velocity(acceleration);
         acceleration = this.stagnate_acceleration(acceleration);
+        log.debug("5671 - What i want=" + input_acceleration + ", what i got=" + acceleration);
 
         if (Double.isNaN(acceleration.getX()) || Double.isNaN(acceleration.getY()) || Double.isNaN(acceleration.getZ())) {
             throw new IllegalArgumentException("Acceleration is not a number. Input acceleration: " +

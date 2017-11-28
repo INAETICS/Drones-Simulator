@@ -9,15 +9,13 @@ import org.inaetics.dronessimulator.drone.tactic.messages.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Log4j
 @NoArgsConstructor //An OSGi constructor
 public class TheoreticalTactic extends Tactic {
     public static final long ttlLeader = 2; //seconds
+    private static final double MOVE_GENERATION_DELTA = 1.0;
     private DroneType droneType;
     private String idLeader;
     private HashMap<String, Tuple<LocalDateTime, List<String>>> teammembers = new HashMap<>();
@@ -254,15 +252,63 @@ public class TheoreticalTactic extends Tactic {
 
     private void sendInstructions() {
         for (String teammember : teammembers.keySet()) {
-            D3Vector targetMoveLocation = targetMoveLocations.get(teammember);
-            if (targetMoveLocation == null) {
-                targetMoveLocation = calculateRandomPositionInField();
-                targetMoveLocations.put(teammember, targetMoveLocation);
+            Map<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer> utilityMap = new HashMap<>();
+
+            //Generate utility calculations to move in any of the 26 directions
+            generateUtilityCalculations(utilityMap, teammember, InstructionMessage.InstructionType.MOVE);
+            //Generate utility for movement towards a different drone and shooting towards a drone
+            for (Map.Entry<String, D3Vector> enemy : mapOfTheWorld.entrySet()) {
+                utilityMap.put(
+                        new Tuple<>(InstructionMessage.InstructionType.MOVE, enemy.getValue()),
+                        calculateUtility(
+                                InstructionMessage.InstructionType.MOVE,
+                                enemy.getValue(),
+                                teammembers.get(teammember).getRight()
+                        )
+                );
+
+                if (teammembers.get(teammember).getRight().contains("gun")) {
+                    utilityMap.put(
+                            new Tuple<>(InstructionMessage.InstructionType.SHOOT, enemy.getValue()),
+                            calculateUtility(
+                                    InstructionMessage.InstructionType.SHOOT,
+                                    enemy.getValue(),
+                                    teammembers.get(teammember).getRight()
+                            )
+                    );
+                }
             }
-            log.debug("sendInstructions type: MOVE, to " + teammember + "location: " + targetMoveLocation.toString());
-            radio.send(new InstructionMessage(this, InstructionMessage.InstructionType.MOVE, teammember,
-                    targetMoveLocation).getMessage());
+            Tuple<InstructionMessage.InstructionType, D3Vector> highesUtilityParams = utilityMap.entrySet().stream()
+                    .sorted(Comparator.comparingInt(Map.Entry::getValue)).findFirst().get().getKey();
+            log.debug("sendInstructions type: " + highesUtilityParams.getLeft() + ", to " + teammember + "location: " +
+                    highesUtilityParams.getRight().toString());
+            radio.send(new InstructionMessage(this, highesUtilityParams.getLeft(), teammember,
+                    highesUtilityParams.getRight()).getMessage());
         }
+    }
+
+    private void generateUtilityCalculations(Map<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer> utilityMap, String teammember, InstructionMessage.InstructionType instructionType) {
+        D3Vector currentLocation = mapOfTheWorld.get(teammember);
+        for (double ix = -MOVE_GENERATION_DELTA; ix <= MOVE_GENERATION_DELTA; ix += MOVE_GENERATION_DELTA) {
+            for (double iy = -MOVE_GENERATION_DELTA; iy <= MOVE_GENERATION_DELTA; iy += MOVE_GENERATION_DELTA) {
+                for (double iz = -MOVE_GENERATION_DELTA; iz <= MOVE_GENERATION_DELTA; iz += MOVE_GENERATION_DELTA) {
+                    if (ix != 0 && iy != 0 && iz != 0) {
+                        D3Vector targetLocation = currentLocation.add(new D3Vector(ix, iy, iz));
+                        utilityMap.put(
+                                new Tuple<>(instructionType, targetLocation),
+                                calculateUtility(
+                                        instructionType,
+                                        targetLocation,
+                                        teammembers.get(teammember).getRight()
+                                )
+                        );
+                    } else {
+                        log.info("Skipped the current location"); //TODO remove
+                    }
+                }
+            }
+        }
+
     }
 
     private D3Vector calculateRandomPositionInField() {
@@ -273,8 +319,12 @@ public class TheoreticalTactic extends Tactic {
         );
     }
 
-    private int calculateUtility(InstructionMessage.InstructionType type, D3Vector target) {
+    private int calculateUtility(InstructionMessage.InstructionType type, D3Vector target, List<String> availableComponents) {
         int utility = 0;
+        if (type.equals(InstructionMessage.InstructionType.SHOOT) && !availableComponents.contains("gun")) {
+            return -1; //We cannot shoot, so all utility should be negative
+        }
+        //Drones that are close have a high likelyhood to kill you, so shoot if possible
         for (Map.Entry<String, D3Vector> entry : mapOfTheWorld.entrySet()) {
             if (!teammembers.containsKey(entry.getKey())) {
                 utility += entry.getValue().distance_between(target);

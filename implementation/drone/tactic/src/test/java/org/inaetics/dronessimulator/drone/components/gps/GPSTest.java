@@ -11,11 +11,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 
 import static org.inaetics.dronessimulator.test.concurrent.D3VectorMatcher.closeTo;
 import static org.mockito.Mockito.mock;
 
+@SuppressWarnings("ConstantConditions") //Ignore all the issues with the "get" on optionals
 public class GPSTest {
     private GPS gps;
     private DroneInit drone;
@@ -37,7 +39,7 @@ public class GPSTest {
         msg1.setAcceleration(new D3Vector(1, 1, 1));
         msg1.setVelocity(new D3Vector(2, 2, 2));
         msg1.setPosition(new D3Vector(3, 3, 3));
-        Thread.sleep((long) ((double) Settings.TICK_TIME * 1000)); //Sleep 1 second to make sure that there is something to interpolate
+        Thread.sleep(1000); //Sleep 1 second to make sure that there is something to interpolate
         gps.handleMessage(msg1);
 
         StateMessage msg2 = new StateMessage();
@@ -45,13 +47,13 @@ public class GPSTest {
         msg2.setAcceleration(new D3Vector(1, 1, 1));
         msg2.setVelocity(new D3Vector(2, 2, 2));
         msg2.setPosition(new D3Vector(3, 3, 3));
-        Thread.sleep((long) ((double) Settings.TICK_TIME * 1000)); //Sleep 1 second to make sure that there is something to interpolate
+        Thread.sleep(1000); //Sleep 1 second to make sure that there is something to interpolate
         gps.handleMessage(msg2);
 
         D3Vector nextAcceleration = msg2.getAcceleration().get();
-        D3Vector nextVelocity = nextVelocity(new D3Vector(0, 0, 0).add(nextAcceleration), (double) Settings.TICK_TIME,
-                msg2.getVelocity().get());
-        D3Vector nextPosition = nextPosition(nextVelocity, (double) Settings.TICK_TIME, msg2.getPosition().get());
+        D3Vector nextVelocity = nextVelocity(new D3Vector(0, 0, 0).add(nextAcceleration), Settings
+                .getTickTime(ChronoUnit.SECONDS), msg2.getVelocity().get());
+        D3Vector nextPosition = nextPosition(nextVelocity, Settings.getTickTime(ChronoUnit.SECONDS), msg2.getPosition().get());
 
         Assert.assertThat(gps.getAcceleration(), closeTo(nextAcceleration, 0.1));
         Assert.assertThat(gps.getVelocity(), closeTo(nextVelocity, 0.1));
@@ -66,7 +68,7 @@ public class GPSTest {
         msg1.setAcceleration(new D3Vector(1, 1, 1));
         msg1.setVelocity(new D3Vector(2, 2, 2));
         msg1.setPosition(new D3Vector(3, 3, 3));
-        Thread.sleep((long) ((double) Settings.TICK_TIME * 1000)); //Sleep 1 second to make sure that there is something to interpolate
+        Thread.sleep(1000); //Sleep 1 second to make sure that there is something to interpolate
         gps.handleMessage(msg1);
 
         StateMessage msg2 = new StateMessage();
@@ -74,13 +76,12 @@ public class GPSTest {
         msg2.setAcceleration(new D3Vector(2, 2, 2));
         msg2.setVelocity(new D3Vector(3, 3, 3));
         msg2.setPosition(new D3Vector(6, 6, 6));
-        Thread.sleep((long) ((double) Settings.TICK_TIME * 1000)); //Sleep 1 second to make sure that there is something to interpolate
+        Thread.sleep(1000); //Sleep 1 second to make sure that there is something to interpolate
         gps.handleMessage(msg2);
 
         D3Vector nextAcceleration = msg2.getAcceleration().get();
-        D3Vector nextVelocity = nextVelocity(new D3Vector(0, 0, 0).add(nextAcceleration), (double) Settings.TICK_TIME,
-                msg2.getVelocity().get());
-        D3Vector nextPosition = nextPosition(nextVelocity, (double) Settings.TICK_TIME, msg2.getPosition().get());
+        D3Vector nextVelocity = nextVelocity(new D3Vector(0, 0, 0).add(nextAcceleration), Settings.getTickTime(ChronoUnit.SECONDS), msg2.getVelocity().get());
+        D3Vector nextPosition = nextPosition(nextVelocity, Settings.getTickTime(ChronoUnit.SECONDS), msg2.getPosition().get());
 
         Assert.assertThat(gps.getAcceleration(), closeTo(nextAcceleration, 0.1));
         Assert.assertThat(gps.getVelocity(), closeTo(nextVelocity, 0.1));
@@ -123,9 +124,10 @@ public class GPSTest {
         Thread.sleep(1000); //Sleep 1 second to make sure that there is something to interpolate
 
         D3Vector nextAcceleration = msg2.getAcceleration().get();
-        D3Vector nextVelocity = nextVelocity(new D3Vector(0, 0, 0).add(nextAcceleration), (double) Settings.TICK_TIME,
+        D3Vector nextVelocity = nextVelocity(new D3Vector(0, 0, 0).add(nextAcceleration), Settings
+                        .getTickTime(ChronoUnit.SECONDS),
                 msg2.getVelocity().get());
-        D3Vector nextPosition = nextPosition(nextVelocity, (double) Settings.TICK_TIME, msg2.getPosition().get());
+        D3Vector nextPosition = nextPosition(nextVelocity, Settings.getTickTime(ChronoUnit.SECONDS), msg2.getPosition().get());
 
         Assert.assertThat(gps.getAcceleration(), closeTo(nextAcceleration, 0.1));
         Assert.assertThat(gps.getVelocity(), closeTo(nextVelocity, 0.1));
@@ -140,7 +142,7 @@ public class GPSTest {
         msg1.setAcceleration(new D3Vector(1, 1, 1));
         msg1.setVelocity(new D3Vector(2, 2, 2));
         msg1.setPosition(new D3Vector(3, 3, 3));
-        Thread.sleep((long) ((double) Settings.TICK_TIME * 1000)); //Sleep 1 second to make sure that there is something to interpolate
+        Thread.sleep(1000); //Sleep 1 second to make sure that there is something to interpolate
         gps.handleMessage(msg1);
 
         StateMessage msg2 = new StateMessage();

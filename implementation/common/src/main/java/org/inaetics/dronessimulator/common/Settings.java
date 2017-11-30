@@ -1,5 +1,7 @@
 package org.inaetics.dronessimulator.common;
 
+import java.time.temporal.ChronoUnit;
+
 public class Settings {
     public static final String ETCD_HOST = v("ETCD_HOST", "localhost");
     public static final String ETCD_PORT = v("ETCD_PORT", "4001");
@@ -22,5 +24,24 @@ public class Settings {
         String value = System.getenv(variableName);
 
         return value != null ? value : defaultValue;
+    }
+
+    public static double getTickTime(ChronoUnit temporalUnit) {
+        switch (temporalUnit) {
+            case NANOS:
+                return getTickTime(ChronoUnit.MICROS) * 1000d;
+            case MICROS:
+                return getTickTime(ChronoUnit.MILLIS) * 1000d;
+            case MILLIS:
+                return TICK_TIME;
+            case SECONDS:
+                return getTickTime(ChronoUnit.MILLIS) / 1000d;
+            case MINUTES:
+                return getTickTime(ChronoUnit.SECONDS) / 60d;
+            case HOURS:
+                return getTickTime(ChronoUnit.MINUTES) / 60d;
+            default:
+                throw new IllegalArgumentException(temporalUnit.name() + " is not (yet) supported");
+        }
     }
 }

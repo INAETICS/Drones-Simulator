@@ -84,25 +84,45 @@ public class GPS implements MessageHandler {
             if (stateMessage.getIdentifier().equals(this.drone.getIdentifier())) {
                 double deltaNow = ChronoUnit.MILLIS.between(stateMessage.getTimestamp(), LocalTime.now());
                 if (previousMessage != null && deltaNow > Settings.TICK_TIME) {
-                    //Use the previous message to make a better guess of the location the drone probably is.
                     double deltaMessages = ChronoUnit.MILLIS.between(previousMessage.getTimestamp(), stateMessage
                             .getTimestamp());
+                    if (!(deltaMessages > 0)) {
+                        //We cannot use two messages that were send at the same time since this will create a NaN. To
+                        // avoid getting this multiple times, we do not update the last message.
+                        return;
+                    }
+                    //Use the previous message to make a better guess of the location the drone probably is.
 
-                    D3Vector deltaAcceleration = stateMessage.getAcceleration().get().normalize().scale(stateMessage
-                            .getAcceleration().get().sub(previousMessage.getAcceleration().get()).length() / deltaMessages);
+                    D3Vector deltaAcceleration;
+                    if (stateMessage.getAcceleration().get().equals(D3Vector.ZERO)) {
+                        deltaAcceleration = D3Vector.ZERO;
+                    } else {
+                        deltaAcceleration = stateMessage.getAcceleration().get().normalize().scale(stateMessage
+                                .getAcceleration().get().sub(previousMessage.getAcceleration().get()).length() / deltaMessages);
+                    }
                     D3Vector estimatedAcceleration = stateMessage.getAcceleration().get().add(deltaAcceleration
                             .scale(deltaNow / 1000));
                     setAcceleration(estimatedAcceleration);
 
-                    D3Vector deltaVelocity = stateMessage.getVelocity().get().normalize().scale(stateMessage
-                            .getVelocity().get().sub(previousMessage.getVelocity().get()).length() / deltaMessages);
+                    D3Vector deltaVelocity;
+                    if (stateMessage.getAcceleration().get().equals(D3Vector.ZERO)) {
+                        deltaVelocity = D3Vector.ZERO;
+                    } else {
+                        deltaVelocity = stateMessage.getVelocity().get().normalize().scale(stateMessage
+                                .getVelocity().get().sub(previousMessage.getVelocity().get()).length() / deltaMessages);
+                    }
                     D3Vector estimatedVelocity = stateMessage.getVelocity().get().add(deltaVelocity
                             .scale(deltaNow / 1000)).add(estimatedAcceleration.scale(Settings.TICK_TIME / 1000d));
                     setVelocity(estimatedVelocity);
 
 
-                    D3Vector deltaPosition = stateMessage.getPosition().get().normalize().scale(stateMessage
-                            .getPosition().get().sub(previousMessage.getPosition().get()).length() / deltaMessages);
+                    D3Vector deltaPosition;
+                    if (stateMessage.getAcceleration().get().equals(D3Vector.ZERO)) {
+                        deltaPosition = D3Vector.ZERO;
+                    } else {
+                        deltaPosition = stateMessage.getPosition().get().normalize().scale(stateMessage
+                                .getPosition().get().sub(previousMessage.getPosition().get()).length() / deltaMessages);
+                    }
                     D3Vector estimatedPosition = stateMessage.getPosition().get().add(deltaPosition
                             .scale(deltaNow / 1000)).add(estimatedVelocity.scale(Settings.TICK_TIME / 1000d));
                     setPosition(estimatedPosition);

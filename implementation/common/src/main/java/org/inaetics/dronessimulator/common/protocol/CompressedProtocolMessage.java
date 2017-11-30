@@ -1,21 +1,20 @@
 package org.inaetics.dronessimulator.common.protocol;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+
+@AllArgsConstructor
+@NoArgsConstructor
 public class CompressedProtocolMessage extends ProtocolMessage {
 
     private List<ProtocolMessage> msgs = new ArrayList<>();
-
-    public CompressedProtocolMessage() {
-
-    }
-
-    public CompressedProtocolMessage(List<ProtocolMessage> stateMessages) {
-        msgs = stateMessages;
-    }
 
     public void add(ProtocolMessage msg) {
         msgs.add(msg);
@@ -57,12 +56,8 @@ public class CompressedProtocolMessage extends ProtocolMessage {
 
     @Override
     public String toString() {
-        String str = "(CompressedProtocolMessage{";
-        for (ProtocolMessage msg : msgs) {
-            str += msg.toString() + ", ";
-        }
-        str.subSequence(0, str.lastIndexOf(","));
-        str += "}";
-        return str;
+        return "(CompressedProtocolMessage{" +
+                String.join(",", msgs.stream().map(Object::toString).collect(Collectors.toList())) +
+                "}";
     }
 }

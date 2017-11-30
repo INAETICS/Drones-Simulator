@@ -18,8 +18,8 @@ public class BasicTactic extends Tactic {
     D3Vector moveTarget = new D3Vector(ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300));
     D3Vector attackTarget = null;
 
-    D3Vector lastPosition;
-    D3Vector lastAttackTarget;
+    private D3Vector lastPosition;
+    private D3Vector lastAttackTarget;
 
     Map<String, LocalDateTime> radarDrones = new HashMap<>();
     Map<String, LocalDateTime> gunDrones = new HashMap<>();
@@ -69,7 +69,7 @@ public class BasicTactic extends Tactic {
 
         calculateMovement();
 
-        if (isRadar && (lastPosition == null || !gps.getPosition().equals(lastPosition))) {
+        if (isRadar && (lastPosition == null || gps.getPosition().distance_between(lastPosition) > 1)) {
             organizeMovement();
             lastPosition = gps.getPosition();
         }

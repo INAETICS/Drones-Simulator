@@ -5,10 +5,8 @@ import org.inaetics.dronessimulator.common.protocol.MovementMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.contrib.java.lang.system.EnvironmentVariables;
 
 import java.util.HashSet;
 
@@ -23,6 +21,9 @@ public class EngineTest {
     private D3Vector current_velocity;
     private D3Vector current_acceleration;
 
+    @Rule
+    public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
+
     @Before
     public void setup() {
         publisher = new MockPublisher();
@@ -34,6 +35,8 @@ public class EngineTest {
         when(gps.getVelocity()).thenReturn(current_velocity);
         when(gps.getAcceleration()).thenReturn(current_acceleration);
         engine = new Engine(publisher, drone, gps, new HashSet<>());
+        environmentVariables.set("MAX_DRONE_ACCELERATION", "10");
+        environmentVariables.set("MAX_DRONE_VELOCITY", "20");
     }
 
     @Test

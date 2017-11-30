@@ -11,11 +11,11 @@ public class Settings {
     /**
      * The max acceleration of this engine in m/s^2
      */
-    public static final double MAX_DRONE_ACCELERATION = 3d;
+    public static final double MAX_DRONE_ACCELERATION = Double.parseDouble(v("MAX_DRONE_ACCELERATION", "3"));
     /**
      * The max velocity of this engine in m/s
      */
-    public static final double MAX_DRONE_VELOCITY = 7d;
+    public static final double MAX_DRONE_VELOCITY = Double.parseDouble(v("MAX_DRONE_VELOCITY", "7"));
 
 
     private static String v(String variableName, String defaultValue) {

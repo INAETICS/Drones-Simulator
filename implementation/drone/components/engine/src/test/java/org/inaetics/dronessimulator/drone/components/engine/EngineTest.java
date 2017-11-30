@@ -34,7 +34,7 @@ public class EngineTest {
         current_acceleration = new D3Vector(1, 1, 1);
         when(gps.getVelocity()).thenReturn(current_velocity);
         when(gps.getAcceleration()).thenReturn(current_acceleration);
-        engine = new Engine(publisher, drone, gps, new HashSet<>());
+        engine = new Engine(publisher, drone, gps, new HashSet<>(), null);
         environmentVariables.set("MAX_DRONE_ACCELERATION", "10");
         environmentVariables.set("MAX_DRONE_VELOCITY", "20");
     }

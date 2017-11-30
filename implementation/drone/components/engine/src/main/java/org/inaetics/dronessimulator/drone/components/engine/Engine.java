@@ -121,7 +121,6 @@ public class Engine {
 
         MovementMessage msg = new MovementMessage();
         msg.setAcceleration(acceleration);
-        log.info("Move with acc: " + acceleration.toString());
         msg.setIdentifier(m_drone.getIdentifier());
 
         try {
@@ -129,8 +128,12 @@ public class Engine {
         } catch (IOException e) {
             log.fatal(e);
         }
+
+        //Run all callbacks
+        callbacks.forEach(callback -> callback.run(msg));
     }
 
+    @Deprecated
     public void moveTo(D3Vector location) {
         TargetMoveLocationMessage msg = new TargetMoveLocationMessage();
         msg.setTargetLocation(location);
@@ -143,6 +146,7 @@ public class Engine {
             log.fatal(e);
         }
     }
+
 
     public final void registerCallback(EngineCallback callback) {
         callbacks.add(callback);

@@ -7,15 +7,15 @@ public class Settings {
     public static final double ARENA_DEPTH = Float.parseFloat(v("ARENA_DEPTH", "800"));
     public static final double ARENA_WIDTH = Float.parseFloat(v("ARENA_WIDTH", "800"));
     public static final GameMode GAME_MODE = GameMode.valueOf(v("GAME_MODE", "DEATHMATCH"));
-    public static final long TICK_TIME = 250;//ms
+    public static final long TICK_TIME = 33;//ms
     /**
      * The max acceleration of this engine in m/s^2
      */
-    public static final double MAX_DRONE_ACCELERATION = Double.parseDouble(v("MAX_DRONE_ACCELERATION", "3"));
+    public static final double MAX_DRONE_ACCELERATION = Double.parseDouble(v("MAX_DRONE_ACCELERATION", "10"));
     /**
      * The max velocity of this engine in m/s
      */
-    public static final double MAX_DRONE_VELOCITY = Double.parseDouble(v("MAX_DRONE_VELOCITY", "7"));
+    public static final double MAX_DRONE_VELOCITY = Double.parseDouble(v("MAX_DRONE_VELOCITY", "20"));
 
 
     private static String v(String variableName, String defaultValue) {

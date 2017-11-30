@@ -1,8 +1,8 @@
 package org.inaetics.dronessimulator.drone.tactic;
 
 import lombok.extern.log4j.Log4j;
+import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
-import org.inaetics.dronessimulator.drone.components.engine.Engine;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -34,52 +34,49 @@ public class BasicTactic extends Tactic {
     private LocalDateTime lastUpdateTactics = LocalDateTime.now().minusSeconds(10);
 
     @Override
-    void initializeTactics() {
+    protected void initializeTactics() {
         log.info("Initializing tactics..");
         // determine whether i'm radarDrone or gunDrone
         if (radar != null) {
             isRadar = true;
         }
 
-        // set up thread for communication
-        comm = new BasicTacticCommunication(this, radio);
-        commThread = new Thread(comm);
-        commThread.start();
-
-        heartbeat = new BasicTacticHeartbeat(this, comm);
-        heartbeatThread = new Thread(heartbeat);
-        heartbeatThread.start();
-
-        if (!isRadar) {
-            comm.sendMessage(null, ProtocolTags.CONNECT_REQUEST, null);
-        }
+//        // set up thread for communication
+//        comm = new BasicTacticCommunication(this, radio);
+//        commThread = new Thread(comm);
+//        commThread.start();
+//
+//        heartbeat = new BasicTacticHeartbeat(this, comm);
+//        heartbeatThread = new Thread(heartbeat);
+//        heartbeatThread.start();
+//
+//        if (!isRadar) {
+//            comm.sendMessage(null, ProtocolTags.CONNECT_REQUEST, null);
+//        }
     }
 
 
     @Override
-    void calculateTactics() {
+    protected void calculateTactics() {
 
         if (LocalDateTime.now().isAfter(lastUpdateTactics.plusSeconds(1))) {
             lastUpdateTactics = LocalDateTime.now();
             updateTactics();
         }
-        log.debug("does 1");
         if (moveTarget == null) {
             moveTarget = new D3Vector(ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300));
         }
 
         calculateMovement();
-        log.debug("does 2");
-        if (isRadar && (lastPosition == null || !gps.getPosition().equals(lastPosition))){
-            log.debug("does 2.5");
-        organizeMovement();
-        lastPosition = gps.getPosition();
+
+        if (isRadar && (lastPosition == null || !gps.getPosition().equals(lastPosition))) {
+            organizeMovement();
+            lastPosition = gps.getPosition();
         }
-        log.debug("does 3");
     }
 
     @Override
-    void finalizeTactics() {
+    protected void finalizeTactics() {
 //        comm.stop();
     }
 
@@ -121,7 +118,7 @@ public class BasicTactic extends Tactic {
             }
         } else {
             log.debug("Velocity is: " + gps.getVelocity().length());
-            if (velocity == 0 || position.distance_between(moveTarget) > ((velocity * velocity) / (2 * Engine.MAX_ACCELERATION))) {
+            if (velocity == 0 || position.distance_between(moveTarget) > ((velocity * velocity) / (2 * Settings.MAX_DRONE_ACCELERATION))) {
                 log.debug("accelerating..");
                 engine.changeAcceleration(moveTarget.sub(position.add(gps.getVelocity())));
             } else {

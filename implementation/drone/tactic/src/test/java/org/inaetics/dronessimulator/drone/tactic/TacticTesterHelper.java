@@ -36,7 +36,7 @@ public class TacticTesterHelper {
             tactic.gps.start();
         }
         if (componentList.contains("engine") || components.length == 0) {
-            tactic.engine = new Engine(publisher, droneInit, tactic.gps, new HashSet<>());
+            tactic.engine = new Engine(publisher, droneInit, tactic.gps, new HashSet<>(), null);
         }
 
         if (componentList.contains("radio") || components.length == 0) {

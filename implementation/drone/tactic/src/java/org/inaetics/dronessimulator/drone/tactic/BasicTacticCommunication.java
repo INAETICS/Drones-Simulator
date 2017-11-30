@@ -8,6 +8,7 @@ import org.inaetics.dronessimulator.drone.components.radio.Radio;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 import static org.inaetics.dronessimulator.drone.tactic.ProtocolTags.*;
 
@@ -26,24 +27,36 @@ public class BasicTacticCommunication implements Runnable {
 
     @Override
     public void run() {
+        LocalDateTime lastLoop;
 
         while (go) {
+            lastLoop = LocalDateTime.now();
 
             // get next message from queue and check if it is TacticMessage
             Message msg0 = radio.getMessages().poll();
-            if (msg0 == null || !(msg0 instanceof TacticMessage)) {
-                continue;
+            if (msg0 != null || msg0 instanceof TacticMessage) {
+                // cast it
+                TacticMessage msg = (TacticMessage) msg0;
+
+                handleMessage(msg);
+            }
+            long diff = lastLoop.until(LocalDateTime.now(), ChronoUnit.MILLIS);
+            if (diff < 100) {
+                try {
+                    Thread.sleep(diff);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
 
-            // cast it
-            TacticMessage msg = (TacticMessage) msg0;
-
-            handleMessage(msg);
         }
     }
 
     private void handleMessage(TacticMessage msg) {
         String id = msg.get("id");
+        if (msg.get("id").equals(tactic.getIdentifier()) || !(msg.get("receiver").equals(tactic.getIdentifier()) || msg.get("receiver").equals("all"))) {
+            return;
+        }
         switch (ProtocolTags.valueOf(msg.get("tag"))) {
             case HEARTBEAT_GUN:
                 tactic.gunDrones.put(id, LocalDateTime.now());
@@ -66,8 +79,10 @@ public class BasicTacticCommunication implements Runnable {
                 break;
             case CONNECT_CONFIRM:
                 if (tactic.isRadar) {
-                    tactic.myGunDrones.add(id);
-                    log.info("gun drone " + id + " added");
+                    if (!tactic.myGunDrones.contains(id)) {
+                        tactic.myGunDrones.add(id);
+                        log.info("gun drone " + id + " added");
+                    }
                 } else if (tactic.bossDrone.equals("")) {
                     sendMessage(id, CONNECT_CONFIRM, null);
                     tactic.bossDrone = id;

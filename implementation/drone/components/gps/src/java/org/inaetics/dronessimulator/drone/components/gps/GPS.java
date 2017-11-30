@@ -90,21 +90,21 @@ public class GPS implements MessageHandler {
 
                     D3Vector deltaAcceleration = stateMessage.getAcceleration().get().normalize().scale(stateMessage
                             .getAcceleration().get().sub(previousMessage.getAcceleration().get()).length() / deltaMessages);
-                    D3Vector estimatedAcceleration = stateMessage.getAcceleration().get().add(deltaAcceleration)
-                            .scale(deltaNow / 1000);
+                    D3Vector estimatedAcceleration = stateMessage.getAcceleration().get().add(deltaAcceleration
+                            .scale(deltaNow / 1000));
                     setAcceleration(estimatedAcceleration);
 
                     D3Vector deltaVelocity = stateMessage.getVelocity().get().normalize().scale(stateMessage
                             .getVelocity().get().sub(previousMessage.getVelocity().get()).length() / deltaMessages);
-                    D3Vector estimatedVelocity = stateMessage.getVelocity().get().add(deltaVelocity)
-                            .scale(deltaNow / 1000).add(estimatedAcceleration);
+                    D3Vector estimatedVelocity = stateMessage.getVelocity().get().add(deltaVelocity
+                            .scale(deltaNow / 1000)).add(estimatedAcceleration.scale(Settings.TICK_TIME / 1000d));
                     setVelocity(estimatedVelocity);
 
 
                     D3Vector deltaPosition = stateMessage.getPosition().get().normalize().scale(stateMessage
                             .getPosition().get().sub(previousMessage.getPosition().get()).length() / deltaMessages);
-                    D3Vector estimatedPosition = stateMessage.getPosition().get().add(deltaPosition)
-                            .scale(deltaNow / 1000).add(estimatedVelocity);
+                    D3Vector estimatedPosition = stateMessage.getPosition().get().add(deltaPosition
+                            .scale(deltaNow / 1000)).add(estimatedVelocity.scale(Settings.TICK_TIME / 1000d));
                     setPosition(estimatedPosition);
                 } else {
                     if (stateMessage.getPosition().isPresent()) {

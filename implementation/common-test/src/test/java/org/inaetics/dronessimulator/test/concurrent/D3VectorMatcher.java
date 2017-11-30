@@ -21,7 +21,7 @@ public class D3VectorMatcher extends TypeSafeMatcher<D3Vector> {
     }
 
     public boolean matchesSafely(D3Vector item) {
-        return this.actualDelta(item) <= 0.0D;
+        return this.actualDelta(item).getX() <= 0.0D && this.actualDelta(item).getY() <= 0.0D && this.actualDelta(item).getZ() <= 0.0D;
     }
 
     public void describeMismatchSafely(D3Vector item, Description mismatchDescription) {
@@ -33,7 +33,11 @@ public class D3VectorMatcher extends TypeSafeMatcher<D3Vector> {
                 .value);
     }
 
-    private double actualDelta(D3Vector item) {
-        return Math.abs(item.sub(this.value).length()) - this.delta;
+    private D3Vector actualDelta(D3Vector item) {
+        return new D3Vector(
+                Math.abs(item.getX() - (this.value.getX())) - this.delta,
+                Math.abs(item.getY() - (this.value.getY())) - this.delta,
+                Math.abs(item.getZ() - (this.value.getZ())) - this.delta
+        );
     }
 }

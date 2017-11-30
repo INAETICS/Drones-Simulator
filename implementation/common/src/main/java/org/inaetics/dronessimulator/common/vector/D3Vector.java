@@ -213,6 +213,11 @@ public class D3Vector implements Serializable {
         return "(x:" + x + ", y:" + y + ", z:" + z + ")";
     }
 
+    public String toString(int length) {
+        String formatString = "(x:%." + length + "f, y:%." + length + "f, z:%." + length + "f)";
+        return String.format(formatString, x, y, z);
+    }
+
     public static D3Vector fromString(String str) {
         Pattern pattern = Pattern.compile("\\(x:(-?[0-9.]*), y:(-?[0-9.]*), z:(-?[0-9.]*)\\)");
         Matcher matcher = pattern.matcher(str);

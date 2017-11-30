@@ -72,6 +72,9 @@ public abstract class ManagedThread extends Thread {
      */
     public void startThread() {
         synchronized (started) {
+            if (!super.isAlive()){
+                super.start();
+            }
             started.set(true);
             started.notifyAll();
         }

@@ -8,6 +8,9 @@ services:
       - "4001:4001"
     healthcheck:
       test: curl localhost:4001/v2/keys
+      interval: 5s
+      timeout: 5s
+      retries: 300
   rabbitmq:
     build: ./docker_images/rabbitmq
     ports:
@@ -16,6 +19,9 @@ services:
     env_file: config.env
     healthcheck:
       test: /opt/healthcheck.sh
+      interval: 5s
+      timeout: 5s
+      retries: 300
     depends_on:
       etcd:
         condition: service_healthy
@@ -40,6 +46,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    ports:
+      - "8000:8000"
     environment:
       DRONE_TEAM: "teamthales"
       DRONE_COMPONENTS: "gps,radar,radio"

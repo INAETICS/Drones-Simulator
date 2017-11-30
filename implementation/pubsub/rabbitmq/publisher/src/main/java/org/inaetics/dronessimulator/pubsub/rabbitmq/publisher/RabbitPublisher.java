@@ -61,10 +61,8 @@ public class RabbitPublisher extends RabbitConnection implements Publisher {
             this.declareTopic(topic);
 
             // Drop null messages and when a serializer is absent
-            Serializer serializer = this.serializer;
-
             if (message != null && serializer != null) {
-                logger.debug("Preparing to send message {} to topic {}", message.toString(), topic.getName());
+//                logger.debug("Preparing to send message {} to topic {}", message.toString(), topic.getName());
                 byte[] serializedMessage = serializer.serialize(message);
                 this.channel.basicPublish(topic.getName(), "", null, serializedMessage);
                 logger.debug("Sent message {} to topic {}", message.toString(), topic.getName());

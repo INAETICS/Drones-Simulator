@@ -1,7 +1,6 @@
 package org.inaetics.dronessimulator.drone.components.gun;
 
 import lombok.extern.log4j.Log4j;
-import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.protocol.FireBulletMessage;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
@@ -12,9 +11,9 @@ import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Random;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -59,7 +58,7 @@ public class Gun {
      */
     private long nextShotAtMs = lastShotAtMs;
 
-    private List<GunCallback> callbacks = new LinkedList<GunCallback>();
+    private Set<GunCallback> callbacks = new HashSet<>();
 
     // -- GETTERS
 

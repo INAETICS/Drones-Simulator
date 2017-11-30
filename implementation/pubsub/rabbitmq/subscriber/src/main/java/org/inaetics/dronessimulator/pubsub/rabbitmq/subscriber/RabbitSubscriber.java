@@ -3,6 +3,7 @@ package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 import com.rabbitmq.client.ConnectionFactory;
 import lombok.Getter;
 import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.common.protocol.CompressedProtocolMessage;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
@@ -174,6 +175,14 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     @Override
     public void receive(Message message) {
         logger.debug("Message {} received by queue {}", message.toString(), this.identifier);
+
+        // check if compressed message, then receive recursively
+        if (message.getClass().equals(CompressedProtocolMessage.class)) {
+            ((CompressedProtocolMessage) message).stream().forEach(this::receive);
+            return;
+        }
+
+        // apparently not a compressed message, lets continue
         Collection<MessageHandler> handlers = RabbitSubscriber.handlers.get(message.getClass());
 
         // Pass the message to every defined handler

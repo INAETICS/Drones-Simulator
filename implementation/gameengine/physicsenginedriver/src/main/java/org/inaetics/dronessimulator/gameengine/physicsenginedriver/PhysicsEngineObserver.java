@@ -40,8 +40,8 @@ public class PhysicsEngineObserver implements PhysicsEngineEventObserver {
 
     @Override
     public void collisionStartHandler(Entity e1, Entity e2) {
-        GameEntity g1 = this.stateManager.getById(e1.getId());
-        GameEntity g2 = this.stateManager.getById(e2.getId());
+        GameEntity g1 = this.stateManager.getById(e1.getEntityId());
+        GameEntity g2 = this.stateManager.getById(e2.getEntityId());
 
         if(g1 != null && g2 != null) {
             this.updateGameEntityFromPhysicsEngine(e1, g1);
@@ -53,8 +53,8 @@ public class PhysicsEngineObserver implements PhysicsEngineEventObserver {
 
     @Override
     public void collisionStopHandler(Entity e1, Entity e2) {
-        GameEntity g1 = this.stateManager.getById(e1.getId());
-        GameEntity g2 = this.stateManager.getById(e2.getId());
+        GameEntity g1 = this.stateManager.getById(e1.getEntityId());
+        GameEntity g2 = this.stateManager.getById(e2.getEntityId());
 
         if(g1 != null && g2 != null) {
             this.updateGameEntityFromPhysicsEngine(e1, g1);
@@ -69,7 +69,7 @@ public class PhysicsEngineObserver implements PhysicsEngineEventObserver {
         List<GameEntity> stateCopy = new ArrayList<>(currentState.size());
 
         for(Entity physicsEntity : currentState) {
-            int id = physicsEntity.getId();
+            int id = physicsEntity.getEntityId();
             GameEntity gameEntity = this.stateManager.getById(id);
 
             if(gameEntity != null) {
@@ -88,13 +88,13 @@ public class PhysicsEngineObserver implements PhysicsEngineEventObserver {
      * @param gameEntity The game entity to update.
      */
     private void updateGameEntityFromPhysicsEngine(Entity physicsEntity, GameEntity gameEntity) {
-        if(physicsEntity.getId() == gameEntity.getEntityId()) {
+        if (physicsEntity.getEntityId() == gameEntity.getEntityId()) {
             gameEntity.setPosition(physicsEntity.getPosition());
             gameEntity.setVelocity(physicsEntity.getVelocity());
             gameEntity.setAcceleration(physicsEntity.getAcceleration());
             gameEntity.setDirection(physicsEntity.getDirection());
         } else {
-            Logger.getLogger(GameEntity.class).fatal("Tried to update state from entity, but ids did not match. Received: " + physicsEntity.getId() + ". Needed: " + gameEntity.getEntityId());
+            Logger.getLogger(GameEntity.class).fatal("Tried to update state from entity, but ids did not match. Received: " + physicsEntity.getEntityId() + ". Needed: " + gameEntity.getEntityId());
         }
     }
 }

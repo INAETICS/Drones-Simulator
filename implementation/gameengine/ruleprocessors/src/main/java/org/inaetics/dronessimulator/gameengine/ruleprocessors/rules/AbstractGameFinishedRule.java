@@ -33,6 +33,7 @@ public abstract class AbstractGameFinishedRule extends Rule {
     @Override
     public List<GameEngineEvent> process(GameEngineEvent msg) {
         if (msg instanceof CurrentStateEvent) {
+            log.debug("PROCESS MESSAGE IN GAMEFINISHEDHANDLER");
             CurrentStateEvent currentStateEvent = (CurrentStateEvent) msg;
             if (!gameFinishedEventWasSend.get()) {
                 if (gameIsFinished(currentStateEvent.getCurrentState())) {

@@ -1,6 +1,8 @@
 package org.inaetics.dronessimulator.drone.components.gps;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
@@ -13,13 +15,15 @@ import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * The GPS drone component
  */
 @Log4j
+@NoArgsConstructor //OSGi constructor
+@AllArgsConstructor //Testing constructor
 public class GPS implements MessageHandler {
     /**
      * Reference to the Subscriber bundle
@@ -30,7 +34,7 @@ public class GPS implements MessageHandler {
      */
     private volatile DroneInit drone;
 
-    private List<GPSCallback> callbacks = new LinkedList<>();
+    private Set<GPSCallback> callbacks = new HashSet<>();
 
     /**
      * Last known position of this drone in the architecture

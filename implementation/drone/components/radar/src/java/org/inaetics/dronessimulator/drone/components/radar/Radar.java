@@ -1,8 +1,10 @@
 package org.inaetics.dronessimulator.drone.components.radar;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
@@ -11,13 +13,13 @@ import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.protocol.KillMessage;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
-import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.discovery.api.instances.DroneInstance;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.Message;
@@ -32,12 +34,10 @@ import java.util.stream.Collectors;
 /**
  * The Radar drone component
  */
+@Log4j
+@NoArgsConstructor //OSGi constructor
+@AllArgsConstructor //Testing constructor
 public class Radar implements MessageHandler {
-    /**
-     * The logger
-     */
-    private static final Logger logger = Logger.getLogger(Radar.class);
-
     /**
      * Reference to Architecture Event Controller bundle
      */
@@ -89,7 +89,7 @@ public class Radar implements MessageHandler {
         try {
             this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
-            logger.fatal(e);
+            log.fatal(e);
         }
         this.m_subscriber.addHandler(StateMessage.class, this);
         this.m_subscriber.addHandler(KillMessage.class, this);

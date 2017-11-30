@@ -4,6 +4,8 @@ import org.inaetics.dronessimulator.common.Tuple;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Three-dimensional polar coordinate.
@@ -190,6 +192,16 @@ public class D3PolarCoordinate implements Serializable {
      */
     public String toString() {
         return "(a1:" + this.angle1_x_y + ", a2: " + this.angle2_x_z + " l:" + this.length + ")";
+    }
+
+    public static D3PolarCoordinate fromString(String str){
+        Pattern pattern = Pattern.compile("\\(a1:(-?[0-9.]*), a2:(-?[0-9.]*), l:(-?[0-9.]*)\\)");
+        Matcher matcher = pattern.matcher(str);
+        if (matcher.matches()) {
+            return new D3PolarCoordinate(Double.parseDouble(matcher.group(1)), Double.parseDouble(matcher.group(2)), Double.parseDouble(matcher.group(3)));
+        }
+
+        return null;
     }
 
     /**

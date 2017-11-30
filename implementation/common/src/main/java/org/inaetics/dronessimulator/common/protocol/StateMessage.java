@@ -5,6 +5,7 @@ import lombok.Setter;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 
+import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +14,8 @@ import java.util.Optional;
  * Message used by the game state to communicate state changes to other nodes.
  */
 public class StateMessage extends ProtocolMessage {
+    @Getter
+    private final LocalTime timestamp = LocalTime.now();
     /**
      * Indentifier of object
      */

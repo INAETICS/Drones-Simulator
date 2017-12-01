@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j;
+import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
@@ -15,6 +16,8 @@ import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.io.IOException;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -36,25 +39,31 @@ public class GPS implements MessageHandler {
 
     private Set<GPSCallback> callbacks = new HashSet<>();
 
+    private StateMessage previousMessage;
+
     /**
      * Last known position of this drone in the architecture
      */
-    @Getter @Setter
+    @Getter
+    @Setter
     private volatile D3Vector position = new D3Vector();
     /**
      * Last known velocity of this drone in the architecture
      */
-    @Getter @Setter
+    @Getter
+    @Setter
     private volatile D3Vector velocity = new D3Vector();
     /**
      * Last known acceleration of this drone in the architecture
      */
-    @Getter @Setter
+    @Getter
+    @Setter
     private volatile D3Vector acceleration = new D3Vector();
     /**
      * Last known direction of this drone in the architecture
      */
-    @Getter @Setter
+    @Getter
+    @Setter
     private volatile D3PolarCoordinate direction = new D3PolarCoordinate();
 
 
@@ -74,21 +83,73 @@ public class GPS implements MessageHandler {
      * -- MESSAGEHANDLER
      */
     public void handleMessage(Message message) {
-        if (message instanceof StateMessage){
+        if (message instanceof StateMessage) {
             StateMessage stateMessage = (StateMessage) message;
             if (stateMessage.getIdentifier().equals(this.drone.getIdentifier())) {
-                if (stateMessage.getPosition().isPresent()) {
-                    this.setPosition(stateMessage.getPosition().get());
+                double deltaNow = ChronoUnit.MILLIS.between(stateMessage.getTimestamp(), LocalTime.now());
+                if (previousMessage != null && deltaNow > Settings.TICK_TIME) {
+                    double deltaMessages = ChronoUnit.MILLIS.between(previousMessage.getTimestamp(), stateMessage
+                            .getTimestamp());
+                    if (deltaMessages <= 0) {
+                        //We cannot use two messages that were send at the same time since this will create a NaN. To
+                        // avoid getting this multiple times, we do not update the last message.
+                        return;
+                    }
+
+                    //Use the previous message to make a better guess of the location the drone probably is.
+                    if (stateMessage.getAcceleration().isPresent() && previousMessage.getAcceleration().isPresent()) {
+                        D3Vector deltaAcceleration;
+                        if (stateMessage.getAcceleration().get().equals(D3Vector.ZERO)) {
+                            deltaAcceleration = D3Vector.ZERO;
+                        } else {
+                            deltaAcceleration = stateMessage.getAcceleration().get().normalize().scale(stateMessage
+                                    .getAcceleration().get().sub(previousMessage.getAcceleration().get()).length() / deltaMessages);
+                        }
+                        D3Vector estimatedAcceleration = stateMessage.getAcceleration().get().add(deltaAcceleration
+                                .scale(deltaNow / 1000));
+                        setAcceleration(estimatedAcceleration);
+
+                        if (stateMessage.getVelocity().isPresent() && previousMessage.getVelocity().isPresent()) {
+                            D3Vector deltaVelocity;
+                            if (stateMessage.getAcceleration().get().equals(D3Vector.ZERO)) {
+                                deltaVelocity = D3Vector.ZERO;
+                            } else {
+                                deltaVelocity = stateMessage.getVelocity().get().normalize().scale(stateMessage
+                                        .getVelocity().get().sub(previousMessage.getVelocity().get()).length() / deltaMessages);
+                            }
+                            D3Vector estimatedVelocity = stateMessage.getVelocity().get().add(deltaVelocity
+                                    .scale(deltaNow / 1000)).add(estimatedAcceleration.scale(Settings.TICK_TIME / 1000d));
+                            setVelocity(estimatedVelocity);
+
+                            if (stateMessage.getPosition().isPresent() && previousMessage.getPosition().isPresent()) {
+                                D3Vector deltaPosition;
+                                if (stateMessage.getAcceleration().get().equals(D3Vector.ZERO)) {
+                                    deltaPosition = D3Vector.ZERO;
+                                } else {
+                                    deltaPosition = stateMessage.getPosition().get().normalize().scale(stateMessage
+                                            .getPosition().get().sub(previousMessage.getPosition().get()).length() / deltaMessages);
+                                }
+                                D3Vector estimatedPosition = stateMessage.getPosition().get().add(deltaPosition
+                                        .scale(deltaNow / 1000)).add(estimatedVelocity.scale(Settings.TICK_TIME / 1000d));
+                                setPosition(estimatedPosition);
+                            }
+                        }
+                    }
+                } else {
+                    if (stateMessage.getPosition().isPresent()) {
+                        this.setPosition(stateMessage.getPosition().get());
+                    }
+                    if (stateMessage.getAcceleration().isPresent()) {
+                        this.setAcceleration(stateMessage.getAcceleration().get());
+                    }
+                    if (stateMessage.getVelocity().isPresent()) {
+                        this.setVelocity(stateMessage.getVelocity().get());
+                    }
+                    if (stateMessage.getDirection().isPresent()) {
+                        this.setDirection(stateMessage.getDirection().get());
+                    }
                 }
-                if (stateMessage.getAcceleration().isPresent()) {
-                    this.setAcceleration(stateMessage.getAcceleration().get());
-                }
-                if (stateMessage.getVelocity().isPresent()) {
-                    this.setVelocity(stateMessage.getVelocity().get());
-                }
-                if(stateMessage.getDirection().isPresent()){
-                    this.setDirection(stateMessage.getDirection().get());
-                }
+                previousMessage = stateMessage;
                 //Run callbacks
                 callbacks.forEach(callback -> callback.run(stateMessage));
             }

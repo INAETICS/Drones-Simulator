@@ -7,7 +7,7 @@ import org.inaetics.dronessimulator.common.vector.D3Vector;
 @Log4j
 public class MoveToLocationTactic extends Tactic {
     private D3Vector randomLocation;
-
+  
     public MoveToLocationTactic() {
         this.randomLocation = new D3Vector(Math.random() * (Settings.ARENA_WIDTH - 200) + 100, (Math.random() * Settings
                 .ARENA_HEIGHT - 200) + 100, Math.random() * (Settings.ARENA_DEPTH - 200) + 100);

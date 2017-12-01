@@ -44,7 +44,7 @@ public abstract class Drone extends BaseEntity {
      */
     void updateUI() {
         super.updateUI();
-        heightText.setText("HP: " + currentHP + "/100 Height: " + (int) position.getZ());
+        heightText.setText("HP: " + currentHP + "/100 Location: " + position.toString(2));
         heightText.relocate(getSpriteX() + Settings.DRONE_WIDTH / 2.0 * (1 - getScale()), getSpriteY() + Settings.DRONE_HEIGHT / 2.0 * (1 - getScale()) - 20);
     }
 

@@ -133,13 +133,13 @@ public class Engine {
         }
 
         if (change) {
-            lastAcceleration = acceleration;
             log.debug("Message saved! -> " + lastAcceleration + " | " + acceleration);
             MovementMessage msg = new MovementMessage();
             msg.setAcceleration(acceleration);
             msg.setIdentifier(m_drone.getIdentifier());
 
             try {
+                log.info("Acceleration: " + msg);
                 m_publisher.send(MessageTopic.MOVEMENTS, msg);
             } catch (IOException e) {
                 log.fatal(e);
@@ -148,6 +148,7 @@ public class Engine {
             //Run all callbacks
             callbacks.forEach(callback -> callback.run(msg));
         }
+        lastAcceleration = acceleration;
     }
 
     @Deprecated

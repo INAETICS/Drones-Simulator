@@ -155,7 +155,8 @@ public class GameEngine {
         m_discoverer.addHandlers(true, addHandlers, Collections.emptyList(), removeHandlers);
 
         // Setup Architecture Event listeners!
-        m_architectureEventListener.addHandler(SimulationState.CONFIG, SimulationAction.START, SimulationState.RUNNING, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
+        m_architectureEventListener.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG, (SimulationState fromState, SimulationAction
+                action, SimulationState toState) -> {
             log.info("Adding " + lobbiedDrones.size() + " drones to simulation");
             int dronesInLobby = lobbiedDrones.size();
             D2Vector center = new D2Vector(Settings.ARENA_WIDTH / 2, Settings.ARENA_DEPTH / 2);

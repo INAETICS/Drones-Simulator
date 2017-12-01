@@ -23,7 +23,7 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 @Log4j
 public class RuleProcessors extends Thread implements IRuleProcessors {
-    public static final TimeoutTimer INTERVAL_RULES_TIMEOUT = new TimeoutTimer(Settings.TICK_TIME * 3);
+    public static final TimeoutTimer INTERVAL_RULES_TIMEOUT = new TimeoutTimer(Settings.TICK_TIME * 10); //Run interval rules once every 10 iterations.
     private ArchitectureEventController m_architectureEventController;
 
     /**
@@ -61,6 +61,8 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
                     configRules();
                 }
         );
+        //When the user presses start, reset the Interval rules timeout
+        m_architectureEventController.addHandler(SimulationState.CONFIG, SimulationAction.START, SimulationState.RUNNING, (f, a, t) -> INTERVAL_RULES_TIMEOUT.reset());
 
         super.start();
     }

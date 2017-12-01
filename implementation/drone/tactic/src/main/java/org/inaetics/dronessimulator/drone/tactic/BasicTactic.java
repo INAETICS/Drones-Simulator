@@ -15,16 +15,11 @@ import java.util.concurrent.ThreadLocalRandom;
 @Log4j
 public class BasicTactic extends Tactic {
     private static final int DRONE_TIMEOUT = 2; // seconds
-
-    D3Vector moveTarget = new D3Vector(ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300));
+    private final TimeoutTimer tacticTimer = new TimeoutTimer(1000); //ms
+    D3Vector moveTarget = null;
     D3Vector attackTarget = null;
-
-    private D3Vector lastPosition;
-    private D3Vector lastAttackTarget;
-
     Map<String, LocalDateTime> radarDrones = new HashMap<>();
     Map<String, LocalDateTime> gunDrones = new HashMap<>();
-
     boolean isRadar = false;
     String bossDrone = "";
     List<String> myGunDrones = new ArrayList<>();
@@ -32,7 +27,8 @@ public class BasicTactic extends Tactic {
     BasicTacticHeartbeat heartbeat;
     Thread commThread;
     Thread heartbeatThread;
-    private final TimeoutTimer tacticTimer = new TimeoutTimer(1000); //ms
+    private D3Vector lastPosition;
+    private D3Vector lastAttackTarget;
 
     @Override
     protected void initializeTactics() {
@@ -107,29 +103,35 @@ public class BasicTactic extends Tactic {
     }
 
     private void calculateMovement() {
+
         D3Vector position = gps.getPosition();
         log.debug("distance to target = " + position.distance_between(moveTarget));
 
         double distance = position.distance_between(moveTarget);
         double velocity = gps.getVelocity().length();
 
-        if (position.distance_between(moveTarget) < 1) {
-            if (gps.getVelocity().length() != 0) {
-                engine.changeAcceleration(gps.getVelocity().scale(-1));
-            }
-        } else {
-            log.debug("Velocity is: " + gps.getVelocity().length());
-            if (velocity == 0 || position.distance_between(moveTarget) > ((velocity * velocity) / (2 * Settings.MAX_DRONE_ACCELERATION))) {
-                log.debug("accelerating..");
-                engine.changeAcceleration(moveTarget.sub(position.add(gps.getVelocity())));
-            } else {
-                log.debug("decelerating..");
-                double acceleration = -(velocity * velocity) / (2 * distance);
-                D3Vector newAcceleration = (moveTarget.sub(position)).normalize().scale(acceleration);
-                log.debug(String.format("CALCULOG d=%f, v=%f, a=%f", distance, velocity, acceleration));
+        // stationary, on target
+        if (distance < 1 && velocity == 0) {
+            log.debug("TEST21 - " + position.toString() + " - doing nothing.. ");
+            engine.changeAcceleration(new D3Vector());
+        }
 
-                engine.changeAcceleration(newAcceleration);
-            }
+        // stationary/not stationary, not on target, accelerating
+        else if (distance > ((velocity * velocity) / (2 * Settings.MAX_DRONE_ACCELERATION))) {
+            D3Vector newAcceleration = moveTarget.sub(position);
+            log.debug("TEST21 - " + position.toString() + " - accelerating.. " + newAcceleration);
+            engine.changeAcceleration(newAcceleration);
+        }
+
+        // not stationary, not on target, decelerating
+        else if (distance != 0) {
+
+            double acceleration = -(velocity * velocity) / (2 * distance);
+            D3Vector newAcceleration = (gps.getVelocity()).normalize().scale(acceleration);
+            log.debug(String.format("CALCULOG d=%f, v=%f, a=%f", distance, velocity, acceleration));
+
+            log.debug("TEST21 - " + position.toString() + " - decelerating.. " + newAcceleration);
+            engine.changeAcceleration(newAcceleration);
         }
     }
 

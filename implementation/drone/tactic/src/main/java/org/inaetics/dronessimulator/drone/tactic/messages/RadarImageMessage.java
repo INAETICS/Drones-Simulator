@@ -3,6 +3,7 @@ package org.inaetics.dronessimulator.drone.tactic.messages;
 import lombok.AccessLevel;
 import lombok.Getter;
 import org.inaetics.dronessimulator.common.Tuple;
+import org.inaetics.dronessimulator.common.protocol.TacticMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.tactic.Tactic;
 
@@ -17,5 +18,11 @@ public class RadarImageMessage extends MyTacticMessage {
     public RadarImageMessage(Tactic tactic, List<Tuple<String, D3Vector>> radarImage) {
         super(tactic);
         radarImage.forEach(tup -> data.put(tup.getLeft(), tup.getRight().toString()));
+    }
+
+    public static Map<String, D3Vector> parseData(TacticMessage rawMessage) {
+        Map<String, D3Vector> data = new HashMap<>();
+        rawMessage.entrySet().stream().filter(e -> !e.getKey().equals("id") && !e.getKey().equals("type")).forEach(e -> data.put(e.getKey(), D3Vector.fromString(e.getValue())));
+        return data;
     }
 }

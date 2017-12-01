@@ -107,17 +107,33 @@ public class TacticTester {
 
     @Test
     public void testCalculateUtility() throws NoSuchFieldException, IllegalAccessException {
-        tactic.gps.setPosition(D3Vector.UNIT);
+        //Create the world
         Map<String, Tuple<LocalDateTime, List<String>>> teammembers = new ConcurrentHashMap<>();
         Map<String, D3Vector> mapOfTheWorld = new ConcurrentHashMap<>();
-        mapOfTheWorld.put("enemyDrone", new D3Vector(100, 100, 100));
+        mapOfTheWorld.put("enemyDrone", new D3Vector(100, 100, 50));
         setField(tactic, "teammembers", teammembers);
         setField(tactic, "mapOfTheWorld", mapOfTheWorld);
-        int utility = tactic.calculateUtility(InstructionMessage.InstructionType.MOVE, new D3Vector(50, 50, 50), Arrays.asList("gun", "engine", "radio", "radio"));
 
-        Assert.assertEquals((int) new D3Vector(Settings.ARENA_WIDTH, Settings.ARENA_DEPTH, Settings.ARENA_HEIGHT).length() - (int) new D3Vector(50, 50, 50).length(),
-                utility);
-        //TODO
+        //Move towards a drone since we have a gun
+        tactic.gps.setPosition(D3Vector.UNIT);
+        int utility = tactic.calculateUtility(InstructionMessage.InstructionType.MOVE, tactic.gps.getPosition(), new D3Vector(50, 50, 50), Arrays.asList("gun",
+                "engine", "radio", "radio"));
+        Assert.assertEquals((int) new D3Vector(Settings.ARENA_WIDTH, Settings.ARENA_DEPTH, Settings.ARENA_HEIGHT).length() - (int) new D3Vector(50, 50,
+                0).length(), utility);
+
+        //Do not move out of bounds
+        tactic.gps.setPosition(D3Vector.UNIT);
+        utility = tactic.calculateUtility(InstructionMessage.InstructionType.MOVE, tactic.gps.getPosition(), new D3Vector(-1, -1, -1), Arrays.asList("gun",
+                "engine", "radio", "radio"));
+        Assert.assertEquals(-1, utility);
+
+        //Move away from a drone if you do not have a gun. The higher the distance, the better
+        tactic.gps.setPosition(D3Vector.UNIT);
+        utility = tactic.calculateUtility(InstructionMessage.InstructionType.MOVE, tactic.gps.getPosition(), new D3Vector(50, 50, 50), Arrays.asList("engine",
+                "radio", "radio"));
+        Assert.assertEquals((int) new D3Vector(50, 50, 50).distance_between(mapOfTheWorld.get("enemyDrone")), utility);
+
+        //
     }
 
 }

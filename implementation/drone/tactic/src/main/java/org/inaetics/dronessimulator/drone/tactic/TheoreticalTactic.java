@@ -22,8 +22,8 @@ public class TheoreticalTactic extends Tactic {
     private static final double MAX_ARENA_DISTANCE = new D3Vector(Settings.ARENA_WIDTH, Settings.ARENA_DEPTH, Settings.ARENA_HEIGHT).length();
     private DroneType droneType;
     private String idLeader;
-    private Map<String, Tuple<LocalDateTime, List<String>>> teammembers = new ConcurrentHashMap<>();
-    private Map<String, D3Vector> mapOfTheWorld = new ConcurrentHashMap<>();
+    private Map<String, List<String>> teammembers = new ConcurrentHashMap<>();
+    private Map<String, Tuple<LocalDateTime, D3Vector>> mapOfTheWorld = new ConcurrentHashMap<>();
     private ManagedThread handleBroadcastMessagesThread;
     private HashMap<String, D3Vector> targetMoveLocations = new HashMap<>();
     private D3Vector myTargetMoveLocation;
@@ -134,8 +134,10 @@ public class TheoreticalTactic extends Tactic {
             if (newMessage != null) {
                 log.debug("Received a message with type " + String.valueOf(newMessage.get("type")));
                 if (MyTacticMessage.checkType(newMessage, HeartbeatMessage.class)) {
-                    teammembers.put(newMessage.get("id"), new Tuple<>(LocalDateTime.now(), Arrays.asList(newMessage.get("components").split(","))));
-                    mapOfTheWorld.put(newMessage.get("id"), D3Vector.fromString(newMessage.get("position")));
+                    teammembers.put(newMessage.get("id"), Arrays.asList(newMessage.get("components").split(",")));
+                    mapOfTheWorld.put(newMessage.get("id"), new Tuple<>(LocalDateTime.now(), D3Vector.fromString(newMessage.get("position"))));
+                } else if (MyTacticMessage.checkType(newMessage, RadarImageMessage.class)) {
+                    RadarImageMessage.parseData(newMessage).forEach((k, v) -> mapOfTheWorld.put(k, new Tuple<>(LocalDateTime.now(), v)));
                 } else if (MyTacticMessage.checkType(newMessage, InstructionMessage.class)) {
                     if (newMessage.get("receiver").equals(getIdentifier())) {
                         executeInstruction(InstructionMessage.InstructionType.valueOf(newMessage.get(InstructionMessage.InstructionType.class.getSimpleName())),
@@ -256,44 +258,59 @@ public class TheoreticalTactic extends Tactic {
 
     private void sendInstructions() {
         for (String teammember : teammembers.keySet()) {
-            Map<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer> utilityMap = new HashMap<>();
+            Map<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer> utilityMapMove = new HashMap<>();
+            Map<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer> utilityMapShoot = new HashMap<>();
 
             //Generate utility calculations to move in any of the 26 directions
-            generateUtilityCalculations(utilityMap, teammember, InstructionMessage.InstructionType.MOVE);
+            generateUtilityCalculations(utilityMapMove, teammember, InstructionMessage.InstructionType.MOVE);
             //Generate utility for movement towards a different drone and shooting towards a drone
-            for (Map.Entry<String, D3Vector> enemy : mapOfTheWorld.entrySet()) {
-                utilityMap.put(
-                        new Tuple<>(InstructionMessage.InstructionType.MOVE, enemy.getValue()),
+            for (Map.Entry<String, Tuple<LocalDateTime, D3Vector>> enemy : mapOfTheWorld.entrySet()) {
+                utilityMapMove.put(
+                        new Tuple<>(InstructionMessage.InstructionType.MOVE, enemy.getValue().getRight()),
                         calculateUtility(
                                 InstructionMessage.InstructionType.MOVE,
-                                enemy.getValue(),
-                                teammembers.get(teammember).getRight()
+                                mapOfTheWorld.get(teammember).getRight(),
+                                enemy.getValue().getRight(),
+                                teammembers.get(teammember)
                         )
                 );
 
-                if (teammembers.get(teammember).getRight().contains("gun")) {
-                    utilityMap.put(
-                            new Tuple<>(InstructionMessage.InstructionType.SHOOT, enemy.getValue()),
+                if (teammembers.get(teammember).contains("gun")) {
+                    utilityMapShoot.put(
+                            new Tuple<>(InstructionMessage.InstructionType.SHOOT, enemy.getValue().getRight()),
                             calculateUtility(
                                     InstructionMessage.InstructionType.SHOOT,
-                                    enemy.getValue(),
-                                    teammembers.get(teammember).getRight()
+                                    mapOfTheWorld.get(teammember).getRight(),
+                                    enemy.getValue().getRight(),
+                                    teammembers.get(teammember)
                             )
                     );
                 }
             }
-            Map.Entry<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer> highestUtility = utilityMap.entrySet().stream().sorted(Comparator.comparingInt(Map.Entry::getValue)).findFirst().get();
-            Tuple<InstructionMessage.InstructionType, D3Vector> highesUtilityParams = highestUtility.getKey();
-            log.info("sendInstructions type: " + highesUtilityParams.getLeft() + ", to " + teammember + "location: " +
-                    highesUtilityParams.getRight().toString() + ", because its utility was " + highestUtility.getValue() + " out of " + Arrays.toString(utilityMap.values()
-                    .toArray()));
-            radio.send(new InstructionMessage(this, highesUtilityParams.getLeft(), teammember,
-                    highesUtilityParams.getRight()).getMessage());
+            Optional<Map.Entry<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer>> highestUtilityShoot = utilityMapShoot.entrySet().stream().sorted((i2, i1)
+                    -> Integer.compare(i1.getValue(), i2.getValue())).findFirst();
+            if (highestUtilityShoot.isPresent()) {
+                Tuple<InstructionMessage.InstructionType, D3Vector> highesUtilityParams = highestUtilityShoot.get().getKey();
+                log.info("sendInstructions type: " + highesUtilityParams.getLeft() + ", to " + teammember + "location: " +
+                        highesUtilityParams.getRight().toString() + ", because its utility was " + highestUtilityShoot.get().getValue() + " out of " + Arrays.toString
+                        (utilityMapShoot.values().toArray()));
+                radio.send(new InstructionMessage(this, highesUtilityParams.getLeft(), teammember, highesUtilityParams.getRight()).getMessage());
+            }
+            Optional<Map.Entry<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer>> highestUtilityMove = utilityMapMove.entrySet().stream().sorted((i2, i1)
+                    -> Integer.compare(i1.getValue(), i2.getValue())).findFirst();
+            if (highestUtilityMove.isPresent()) {
+                Tuple<InstructionMessage.InstructionType, D3Vector> highesUtilityParams = highestUtilityMove.get().getKey();
+                log.info("sendInstructions type: " + highesUtilityParams.getLeft() + ", to " + teammember + "location: " +
+                        highesUtilityParams.getRight().toString() + ", because its utility was " + highestUtilityMove.get().getValue() + " out of " + Arrays.toString
+                        (utilityMapMove.values().toArray()));
+                radio.send(new InstructionMessage(this, highesUtilityParams.getLeft(), teammember, highesUtilityParams.getRight()).getMessage());
+            }
+
         }
     }
 
     private void generateUtilityCalculations(Map<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer> utilityMap, String teammember, InstructionMessage.InstructionType instructionType) {
-        D3Vector currentLocation = mapOfTheWorld.get(teammember);
+        D3Vector currentLocation = mapOfTheWorld.get(teammember).getRight();
         for (double ix = -MOVE_GENERATION_DELTA; ix <= MOVE_GENERATION_DELTA; ix += MOVE_GENERATION_DELTA) {
             for (double iy = -MOVE_GENERATION_DELTA; iy <= MOVE_GENERATION_DELTA; iy += MOVE_GENERATION_DELTA) {
                 for (double iz = -MOVE_GENERATION_DELTA; iz <= MOVE_GENERATION_DELTA; iz += MOVE_GENERATION_DELTA) {
@@ -302,8 +319,9 @@ public class TheoreticalTactic extends Tactic {
                             new Tuple<>(instructionType, targetLocation),
                             calculateUtility(
                                     instructionType,
+                                    mapOfTheWorld.get(teammember).getRight(),
                                     targetLocation,
-                                    teammembers.get(teammember).getRight()
+                                    teammembers.get(teammember)
                             )
                     );
                 }
@@ -320,7 +338,7 @@ public class TheoreticalTactic extends Tactic {
         );
     }
 
-    public int calculateUtility(InstructionMessage.InstructionType type, D3Vector target, List<String> availableComponents) {
+    public Integer calculateUtility(InstructionMessage.InstructionType type, D3Vector droneLocation, D3Vector target, List<String> availableComponents) {
         int utility = 0;
         if (type.equals(InstructionMessage.InstructionType.SHOOT) && !availableComponents.contains("gun")) {
             return -1; //We cannot shoot, so all utility should be negative
@@ -329,17 +347,16 @@ public class TheoreticalTactic extends Tactic {
                 new D3Vector(Settings.ARENA_WIDTH, Settings.ARENA_DEPTH, Settings.ARENA_HEIGHT), target)) {
             return -1; //We never want to move to a location that is out of the bounds of the game
         }
-        //Drones that are close have a high likelyhood to kill you, so shoot if possible and move in the opposite
-        // direction
-        for (Map.Entry<String, D3Vector> entry : mapOfTheWorld.entrySet()) {
+        //Drones that are close have a high likelyhood to kill you, so shoot if possible and move in the opposite direction
+        for (Map.Entry<String, Tuple<LocalDateTime, D3Vector>> entry : mapOfTheWorld.entrySet()) {
             if (!teammembers.containsKey(entry.getKey())) {
-                Map.Entry<String, D3Vector> enemy = entry;
+                Map.Entry<String, Tuple<LocalDateTime, D3Vector>> enemy = entry;
                 if (type.equals(InstructionMessage.InstructionType.SHOOT)) {
                     //Shooting at the closest enemy gives the highest utility
                     if (target.equals(enemy.getValue())) //If the target to shoot is at the same position as the enemy
-                        utility += (MAX_ARENA_DISTANCE - target.distance_between(gps.getPosition())) * SHOOTING_WEIGHT;
+                        utility += (MAX_ARENA_DISTANCE - target.distance_between(droneLocation)) * SHOOTING_WEIGHT;
                 } else {
-                    double distanceToEnemy = enemy.getValue().distance_between(target);
+                    double distanceToEnemy = enemy.getValue().getRight().distance_between(target);
                     if (availableComponents.contains("gun")) {
                         //Moving towards a target when you can shoot it, is a good idea, so the utility is bigger if
                         // we move towards the enemy.
@@ -348,6 +365,11 @@ public class TheoreticalTactic extends Tactic {
                         //We cannot shoot it, so evade it.
                         utility += (distanceToEnemy * MOVING_WEIGHT);
                     }
+                }
+            } else {
+                if (type.equals(InstructionMessage.InstructionType.MOVE)) {
+                    //Move with teammates over moving alone
+                    utility += (MAX_ARENA_DISTANCE - (int) entry.getValue().getRight().distance_between(droneLocation)) * MOVING_WEIGHT;
                 }
             }
         }

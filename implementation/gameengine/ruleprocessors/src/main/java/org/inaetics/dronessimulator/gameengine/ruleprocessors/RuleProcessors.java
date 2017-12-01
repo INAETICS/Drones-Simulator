@@ -56,11 +56,7 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
         this.intervalRules = RuleSets.getIntervalRulesForGameMode(Settings.GAME_MODE, this.m_publisher, this
                 .m_id_mapper);
 
-        m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG,
-                (SimulationState from, SimulationAction action, SimulationState to) -> {
-                    configRules();
-                }
-        );
+        m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG, (from, action, to) -> configRules());
         //When the user presses start, reset the Interval rules timeout
         m_architectureEventController.addHandler(SimulationState.CONFIG, SimulationAction.START, SimulationState.RUNNING, (f, a, t) -> INTERVAL_RULES_TIMEOUT.reset());
 

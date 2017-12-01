@@ -210,7 +210,9 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
         super.connect();
 
         // Define queue
-        this.channel.queueDeclare(this.identifier, false, false, true, null);
+        Map<String, Object> args = new HashMap<String, Object>();
+        args.put("x-message-ttl", 33);
+        this.channel.queueDeclare(this.identifier, false, false, true, args);
         logger.debug("RabbitMQ queue {} declared", this.identifier);
 
         // Bind exchanges to queue
@@ -228,7 +230,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
 
         // Start new consumer
         this.consumer = new RabbitMessageConsumer(this);
-        this.channel.basicConsume(this.identifier, false, this.consumer);
+        this.channel.basicConsume(this.identifier, true, this.consumer);
         logger.debug("New RabbitMQ consumer started");
 
         // Cancel old consumer if we have one

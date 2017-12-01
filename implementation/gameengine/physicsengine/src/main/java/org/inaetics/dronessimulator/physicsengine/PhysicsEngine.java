@@ -198,7 +198,7 @@ public class PhysicsEngine extends ManagedThread implements IPhysicsEngine {
 
         long current_step_ended_at_ms = System.currentTimeMillis();
         long current_step_took_ms = current_step_ended_at_ms - current_step_started_at_ms;
-        long diff = 10 - current_step_took_ms; //TODO use some settings variable here
+        long diff = Settings.TICK_TIME - current_step_took_ms; //TODO use some settings variable here
 
         if(diff > 0) {
             Thread.sleep(diff);

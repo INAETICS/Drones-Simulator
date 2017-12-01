@@ -4,13 +4,18 @@ import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 @Log4j
 public class MoveToLocationTactic extends Tactic {
     private D3Vector randomLocation;
   
     public MoveToLocationTactic() {
-        this.randomLocation = new D3Vector(Math.random() * (Settings.ARENA_WIDTH - 200) + 100, (Math.random() * Settings
-                .ARENA_HEIGHT - 200) + 100, Math.random() * (Settings.ARENA_DEPTH - 200) + 100);
+        this.randomLocation = new D3Vector(
+                ThreadLocalRandom.current().nextInt(100, (int) Settings.ARENA_WIDTH - 100),
+                ThreadLocalRandom.current().nextInt(100, (int) Settings.ARENA_HEIGHT - 100),
+                ThreadLocalRandom.current().nextInt(100, (int) Settings.ARENA_DEPTH - 100)
+        );
     }
 
     @Override

@@ -3,6 +3,7 @@ package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 import com.rabbitmq.client.ConnectionFactory;
 import lombok.Getter;
 import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.protocol.CompressedProtocolMessage;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.pubsub.api.Message;
@@ -210,8 +211,8 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
         super.connect();
 
         // Define queue
-        Map<String, Object> args = new HashMap<String, Object>();
-        args.put("x-message-ttl", 33);
+        Map<String, Object> args = new HashMap<>();
+        args.put("x-message-ttl", Settings.TICK_TIME);
         this.channel.queueDeclare(this.identifier, false, false, true, args);
         logger.debug("RabbitMQ queue {} declared", this.identifier);
 

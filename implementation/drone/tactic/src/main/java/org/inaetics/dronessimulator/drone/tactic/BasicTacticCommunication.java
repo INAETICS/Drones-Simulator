@@ -27,7 +27,6 @@ public class BasicTacticCommunication implements Runnable {
 
     @Override
     public void run() {
-        LocalDateTime lastLoop;
 
         while (go) {
 

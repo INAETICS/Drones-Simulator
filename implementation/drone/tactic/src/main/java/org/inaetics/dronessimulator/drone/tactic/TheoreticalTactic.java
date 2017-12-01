@@ -10,16 +10,20 @@ import org.inaetics.dronessimulator.drone.tactic.messages.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Log4j
 @NoArgsConstructor //An OSGi constructor
 public class TheoreticalTactic extends Tactic {
     public static final long ttlLeader = 2; //seconds
     private static final double MOVE_GENERATION_DELTA = 1.0;
+    private static final double SHOOTING_WEIGHT = 1;
+    private static final double MOVING_WEIGHT = 1;
+    private static final double MAX_ARENA_DISTANCE = new D3Vector(Settings.ARENA_WIDTH, Settings.ARENA_DEPTH, Settings.ARENA_HEIGHT).length();
     private DroneType droneType;
     private String idLeader;
-    private HashMap<String, Tuple<LocalDateTime, List<String>>> teammembers = new HashMap<>();
-    private Map<String, D3Vector> mapOfTheWorld = new HashMap<>();
+    private Map<String, Tuple<LocalDateTime, List<String>>> teammembers = new ConcurrentHashMap<>();
+    private Map<String, D3Vector> mapOfTheWorld = new ConcurrentHashMap<>();
     private ManagedThread handleBroadcastMessagesThread;
     private HashMap<String, D3Vector> targetMoveLocations = new HashMap<>();
     private D3Vector myTargetMoveLocation;
@@ -134,8 +138,8 @@ public class TheoreticalTactic extends Tactic {
                     mapOfTheWorld.put(newMessage.get("id"), D3Vector.fromString(newMessage.get("position")));
                 } else if (MyTacticMessage.checkType(newMessage, InstructionMessage.class)) {
                     if (newMessage.get("receiver").equals(getIdentifier())) {
-                        executeInstruction(InstructionMessage.InstructionType.valueOf(newMessage.get(InstructionMessage.
-                                InstructionType.class.getSimpleName())), D3Vector.fromString(newMessage.get("target")));
+                        executeInstruction(InstructionMessage.InstructionType.valueOf(newMessage.get(InstructionMessage.InstructionType.class.getSimpleName())),
+                                D3Vector.fromString(newMessage.get("target")));
                     }
                 } else if (MyTacticMessage.checkType(newMessage, MyTacticMessage.MESSAGETYPES.SearchLeaderMessage) &&
                         droneType.equals(DroneType.RADAR) && idLeader == null) {
@@ -278,10 +282,11 @@ public class TheoreticalTactic extends Tactic {
                     );
                 }
             }
-            Tuple<InstructionMessage.InstructionType, D3Vector> highesUtilityParams = utilityMap.entrySet().stream()
-                    .sorted(Comparator.comparingInt(Map.Entry::getValue)).findFirst().get().getKey();
-            log.debug("sendInstructions type: " + highesUtilityParams.getLeft() + ", to " + teammember + "location: " +
-                    highesUtilityParams.getRight().toString());
+            Map.Entry<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer> highestUtility = utilityMap.entrySet().stream().sorted(Comparator.comparingInt(Map.Entry::getValue)).findFirst().get();
+            Tuple<InstructionMessage.InstructionType, D3Vector> highesUtilityParams = highestUtility.getKey();
+            log.info("sendInstructions type: " + highesUtilityParams.getLeft() + ", to " + teammember + "location: " +
+                    highesUtilityParams.getRight().toString() + ", because its utility was " + highestUtility.getValue() + " out of " + Arrays.toString(utilityMap.values()
+                    .toArray()));
             radio.send(new InstructionMessage(this, highesUtilityParams.getLeft(), teammember,
                     highesUtilityParams.getRight()).getMessage());
         }
@@ -292,19 +297,15 @@ public class TheoreticalTactic extends Tactic {
         for (double ix = -MOVE_GENERATION_DELTA; ix <= MOVE_GENERATION_DELTA; ix += MOVE_GENERATION_DELTA) {
             for (double iy = -MOVE_GENERATION_DELTA; iy <= MOVE_GENERATION_DELTA; iy += MOVE_GENERATION_DELTA) {
                 for (double iz = -MOVE_GENERATION_DELTA; iz <= MOVE_GENERATION_DELTA; iz += MOVE_GENERATION_DELTA) {
-                    if (ix != 0 && iy != 0 && iz != 0) {
-                        D3Vector targetLocation = currentLocation.add(new D3Vector(ix, iy, iz));
-                        utilityMap.put(
-                                new Tuple<>(instructionType, targetLocation),
-                                calculateUtility(
-                                        instructionType,
-                                        targetLocation,
-                                        teammembers.get(teammember).getRight()
-                                )
-                        );
-                    } else {
-                        log.info("Skipped the current location"); //TODO remove
-                    }
+                    D3Vector targetLocation = currentLocation.add(new D3Vector(ix, iy, iz));
+                    utilityMap.put(
+                            new Tuple<>(instructionType, targetLocation),
+                            calculateUtility(
+                                    instructionType,
+                                    targetLocation,
+                                    teammembers.get(teammember).getRight()
+                            )
+                    );
                 }
             }
         }
@@ -319,18 +320,53 @@ public class TheoreticalTactic extends Tactic {
         );
     }
 
-    private int calculateUtility(InstructionMessage.InstructionType type, D3Vector target, List<String> availableComponents) {
+    public int calculateUtility(InstructionMessage.InstructionType type, D3Vector target, List<String> availableComponents) {
         int utility = 0;
         if (type.equals(InstructionMessage.InstructionType.SHOOT) && !availableComponents.contains("gun")) {
             return -1; //We cannot shoot, so all utility should be negative
         }
-        //Drones that are close have a high likelyhood to kill you, so shoot if possible
+        if (type.equals(InstructionMessage.InstructionType.MOVE) && !insideRange(D3Vector.ZERO,
+                new D3Vector(Settings.ARENA_WIDTH, Settings.ARENA_DEPTH, Settings.ARENA_HEIGHT), target)) {
+            return -1; //We never want to move to a location that is out of the bounds of the game
+        }
+        //Drones that are close have a high likelyhood to kill you, so shoot if possible and move in the opposite
+        // direction
         for (Map.Entry<String, D3Vector> entry : mapOfTheWorld.entrySet()) {
             if (!teammembers.containsKey(entry.getKey())) {
-                utility += entry.getValue().distance_between(target);
+                Map.Entry<String, D3Vector> enemy = entry;
+                if (type.equals(InstructionMessage.InstructionType.SHOOT)) {
+                    //Shooting at the closest enemy gives the highest utility
+                    if (target.equals(enemy.getValue())) //If the target to shoot is at the same position as the enemy
+                        utility += (MAX_ARENA_DISTANCE - target.distance_between(gps.getPosition())) * SHOOTING_WEIGHT;
+                } else {
+                    double distanceToEnemy = enemy.getValue().distance_between(target);
+                    if (availableComponents.contains("gun")) {
+                        //Moving towards a target when you can shoot it, is a good idea, so the utility is bigger if
+                        // we move towards the enemy.
+                        utility += (MAX_ARENA_DISTANCE - distanceToEnemy) * MOVING_WEIGHT;
+                    } else {
+                        //We cannot shoot it, so evade it.
+                        utility += (distanceToEnemy * MOVING_WEIGHT);
+                    }
+                }
             }
         }
         return utility; //TODO
+    }
+
+    private boolean insideRange(D3Vector startRange, D3Vector endRange, D3Vector testedLocation) {
+        return
+                //Check the x location
+                testedLocation.getX() > startRange.getX() &&
+                        testedLocation.getX() < endRange.getX() &&
+                        //Check the y location
+                        testedLocation.getY() > startRange.getY() &&
+                        testedLocation.getY() < endRange.getY() &&
+                        //Check the z location
+                        testedLocation.getZ() > startRange.getZ() &&
+                        testedLocation.getZ() < endRange.getZ();
+
+
     }
 
     private enum DroneType {

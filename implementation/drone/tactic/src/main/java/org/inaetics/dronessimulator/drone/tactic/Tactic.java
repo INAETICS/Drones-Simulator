@@ -237,7 +237,11 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
      */
     private void handleKillMessage(KillMessage killMessage) {
         if (killMessage.getIdentifier().equals(m_drone.getIdentifier())) {
-            log.info("Found kill message! Quitting for now...");
+            log.info("Found kill message! Quitting for now... Last known movements: \n" +
+                    "\tposition: " + gps.getPosition().toString() + "\n" +
+                    "\tvelocity: " + gps.getVelocity().toString() + "\n" +
+                    "\tacceleration: " + gps.getAcceleration().toString() + "\n"
+            );
             this.stopSimulation();
 //            if (!log.isDebugEnabled()){
 //                System.exit(10);

@@ -20,7 +20,7 @@ public class MoveToLocationTacticTest {
     public void testComparison() {
         DroneInit drone = new DroneInit();
         drone.setIdentifier("1");
-        GPS gps = new GPS(mock(Subscriber.class), drone, new HashSet<>(), D3Vector.UNIT, D3Vector.UNIT, D3Vector
+        GPS gps = new GPS(mock(Subscriber.class), drone, new HashSet<>(), null, D3Vector.UNIT, D3Vector.UNIT, D3Vector
                 .UNIT, D3PolarCoordinate.UNIT);
         gps.start();
 

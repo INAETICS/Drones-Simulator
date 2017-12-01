@@ -111,14 +111,14 @@ public class BasicTactic extends Tactic {
         double velocity = gps.getVelocity().length();
 
         // stationary, on target
-        if (distance < 1 && velocity == 0) {
+        if (distance < 1 && velocity < 1) {
             log.debug("TEST21 - " + position.toString() + " - doing nothing.. ");
             engine.changeAcceleration(new D3Vector());
         }
 
         // stationary/not stationary, not on target, accelerating
         else if (distance > ((velocity * velocity) / (2 * Settings.MAX_DRONE_ACCELERATION))) {
-            D3Vector newAcceleration = moveTarget.sub(position);
+            D3Vector newAcceleration = moveTarget.sub(position).scale(0.5);
             log.debug("TEST21 - " + position.toString() + " - accelerating.. " + newAcceleration);
             engine.changeAcceleration(newAcceleration);
         }

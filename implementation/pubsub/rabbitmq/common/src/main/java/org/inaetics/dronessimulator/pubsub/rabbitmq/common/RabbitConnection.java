@@ -10,9 +10,7 @@ import org.osgi.service.cm.ManagedService;
 
 import java.io.IOException;
 import java.net.ConnectException;
-import java.util.Collection;
-import java.util.Dictionary;
-import java.util.HashSet;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -230,7 +228,8 @@ public abstract class RabbitConnection implements ManagedService {
         }
 
         if (!declaredTopics.contains(topic)) {
-            channel.exchangeDeclare(topic.getName(), BuiltinExchangeType.FANOUT, false);
+            Map<String, Object> args = new HashMap<>();
+            channel.exchangeDeclare(topic.getName(), BuiltinExchangeType.TOPIC, false);
             declaredTopics.add(topic);
             getLogger().debug("RabbitMQ exchange {} declared", topic.getName());
         }

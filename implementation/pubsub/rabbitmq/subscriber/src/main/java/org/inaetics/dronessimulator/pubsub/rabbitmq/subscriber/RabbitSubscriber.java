@@ -3,6 +3,8 @@ package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 import com.rabbitmq.client.ConnectionFactory;
 import lombok.Getter;
 import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.common.Settings;
+import org.inaetics.dronessimulator.common.protocol.CompressedProtocolMessage;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
@@ -174,6 +176,14 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     @Override
     public void receive(Message message) {
         logger.debug("Message {} received by queue {}", message.toString(), this.identifier);
+
+        // check if compressed message, then receive recursively
+        if (message.getClass().equals(CompressedProtocolMessage.class)) {
+            ((CompressedProtocolMessage) message).stream().forEach(this::receive);
+            return;
+        }
+
+        // apparently not a compressed message, lets continue
         Collection<MessageHandler> handlers = RabbitSubscriber.handlers.get(message.getClass());
 
         // Pass the message to every defined handler
@@ -201,7 +211,9 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
         super.connect();
 
         // Define queue
-        this.channel.queueDeclare(this.identifier, false, false, true, null);
+        Map<String, Object> args = new HashMap<>();
+        args.put("x-message-ttl", Settings.TICK_TIME);
+        this.channel.queueDeclare(this.identifier, false, false, true, args);
         logger.debug("RabbitMQ queue {} declared", this.identifier);
 
         // Bind exchanges to queue
@@ -219,7 +231,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
 
         // Start new consumer
         this.consumer = new RabbitMessageConsumer(this);
-        this.channel.basicConsume(this.identifier, false, this.consumer);
+        this.channel.basicConsume(this.identifier, true, this.consumer);
         logger.debug("New RabbitMQ consumer started");
 
         // Cancel old consumer if we have one

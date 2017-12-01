@@ -31,12 +31,13 @@ public class TacticTesterHelper {
         T tactic = tacticClass.newInstance();
         List<String> componentList = Arrays.asList(components);
         if (componentList.contains("gps") || components.length == 0) {
-            tactic.gps = new GPS(subscriber, droneInit, new HashSet<>(), D3Vector.UNIT, D3Vector.UNIT, D3Vector.UNIT,
+            tactic.gps = new GPS(subscriber, droneInit, new HashSet<>(), null, D3Vector.UNIT, D3Vector.UNIT, D3Vector
+                    .UNIT,
                     D3PolarCoordinate.UNIT);
             tactic.gps.start();
         }
         if (componentList.contains("engine") || components.length == 0) {
-            tactic.engine = new Engine(publisher, droneInit, tactic.gps, new HashSet<>());
+            tactic.engine = new Engine(publisher, droneInit, tactic.gps, new HashSet<>(), null);
         }
 
         if (componentList.contains("radio") || components.length == 0) {
@@ -55,7 +56,8 @@ public class TacticTesterHelper {
         return tactic;
     }
 
-    static void setField(Object target, String fieldname, Object value) throws NoSuchFieldException, IllegalAccessException {
+    public static void setField(Object target, String fieldname, Object value) throws NoSuchFieldException,
+            IllegalAccessException {
         doWithFields(target.getClass(),
                 field -> {
                     field.setAccessible(true);

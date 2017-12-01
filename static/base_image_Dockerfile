@@ -1,4 +1,4 @@
-FROM dockmob/java
+FROM openjdk:8
 
 # Install Felix
 ENV FELIX_VERSION 5.6.0

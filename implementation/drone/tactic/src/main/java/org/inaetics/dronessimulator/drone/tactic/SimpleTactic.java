@@ -75,7 +75,7 @@ public class SimpleTactic extends Tactic {
                 berekende_position.getY() <= 0 ||
                 berekende_position.getZ() >= MAX_Z_DEVIATION_POSTION ||
                 berekende_position.getZ() <= 0) {
-//            output_acceleration = engine.maximize_acceleration(engine.limit_acceleration(gps.getVelocity().scale(-1)));
+            output_acceleration = engine.maximize_acceleration(engine.limit_acceleration(gps.getVelocity().scale(-1)));
         }
         return output_acceleration;
     }

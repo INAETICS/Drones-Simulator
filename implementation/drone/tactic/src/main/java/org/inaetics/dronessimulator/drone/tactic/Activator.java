@@ -25,7 +25,7 @@ public class Activator extends DependencyActivatorBase {
     private static final Logger logger = Logger.getLogger(Activator.class);
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
-        Tactic tactic = new TheoreticalTactic();
+        Tactic tactic = new MoveToLocationTactic();
 
         Component component = createComponent()
                                .setInterface(Tactic.class.getName(), null)

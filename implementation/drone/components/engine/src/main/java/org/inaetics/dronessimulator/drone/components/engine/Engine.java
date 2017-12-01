@@ -35,6 +35,8 @@ public class Engine {
     private volatile GPS m_gps;
 
     private Set<EngineCallback> callbacks = new HashSet<>();
+    
+    private D3Vector lastAcceleration;
 
     /**
      * Limit the acceleration
@@ -119,18 +121,37 @@ public class Engine {
                     "" + input_acceleration.toString() + ", Output acceleration: " + acceleration.toString());
         }
 
-        MovementMessage msg = new MovementMessage();
-        msg.setAcceleration(acceleration);
-        log.info("Move with acc: " + acceleration.toString());
-        msg.setIdentifier(m_drone.getIdentifier());
-
-        try {
-            m_publisher.send(MessageTopic.MOVEMENTS, msg);
-        } catch (IOException e) {
-            log.fatal(e);
+        Boolean change = true;
+        if (lastAcceleration != null) {
+            double diffX = Math.abs(lastAcceleration.getX() - acceleration.getX());
+            double diffY = Math.abs(lastAcceleration.getY() - acceleration.getY());
+            double diffZ = Math.abs(lastAcceleration.getZ() - acceleration.getZ());
+            double diffTot = diffX + diffY + diffZ;
+            if (diffTot < 3) {
+                change = false;
+            }
         }
+
+        if (change) {
+            log.debug("Message saved! -> " + lastAcceleration + " | " + acceleration);
+            MovementMessage msg = new MovementMessage();
+            msg.setAcceleration(acceleration);
+            msg.setIdentifier(m_drone.getIdentifier());
+
+            try {
+                log.info("Acceleration: " + msg);
+                m_publisher.send(MessageTopic.MOVEMENTS, msg);
+            } catch (IOException e) {
+                log.fatal(e);
+            }
+
+            //Run all callbacks
+            callbacks.forEach(callback -> callback.run(msg));
+        }
+        lastAcceleration = acceleration;
     }
 
+    @Deprecated
     public void moveTo(D3Vector location) {
         TargetMoveLocationMessage msg = new TargetMoveLocationMessage();
         msg.setTargetLocation(location);
@@ -143,6 +164,7 @@ public class Engine {
             log.fatal(e);
         }
     }
+
 
     public final void registerCallback(EngineCallback callback) {
         callbacks.add(callback);

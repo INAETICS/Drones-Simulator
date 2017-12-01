@@ -89,7 +89,7 @@ public class PhysicsEngine extends ManagedThread implements IPhysicsEngine {
         long timestep_ms = current_ms - current_step_started_at_ms;
         this.current_step_started_at_ms = current_ms;
 
-        return ((double) timestep_ms) / Settings.TICK_TIME;
+        return ((double) timestep_ms) / 1000; //TODO Use some setting variable here
     }
 
     /**
@@ -198,7 +198,7 @@ public class PhysicsEngine extends ManagedThread implements IPhysicsEngine {
 
         long current_step_ended_at_ms = System.currentTimeMillis();
         long current_step_took_ms = current_step_ended_at_ms - current_step_started_at_ms;
-        long diff = Settings.TICK_TIME - current_step_took_ms;
+        long diff = Settings.TICK_TIME - current_step_took_ms; //TODO use some settings variable here
 
         if(diff > 0) {
             Thread.sleep(diff);

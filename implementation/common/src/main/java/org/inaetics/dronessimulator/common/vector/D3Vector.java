@@ -10,8 +10,8 @@ import java.util.regex.Pattern;
  */
 public class D3Vector implements Serializable {
     /** The unity vector. */
-    public transient final static D3Vector UNIT = new D3Vector(1,1,1);
-    public transient final static D3Vector ZERO = new D3Vector(0, 0, 0);
+    public static final transient D3Vector UNIT = new D3Vector(1, 1, 1);
+    public static final transient D3Vector ZERO = new D3Vector(0, 0, 0);
 
     /** X coordinate of this vector. */
     private final double x;

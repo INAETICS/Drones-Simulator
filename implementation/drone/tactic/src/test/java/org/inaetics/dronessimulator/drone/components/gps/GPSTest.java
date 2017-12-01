@@ -11,6 +11,7 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 
@@ -34,20 +35,18 @@ public class GPSTest {
     @Test
     public void handleMessageNoChange() throws Exception {
         TacticTesterHelper.setField(gps, "previousMessage", null);
-        StateMessage msg1 = new StateMessage();
+        StateMessage msg1 = new StateMessage(LocalTime.now().minusSeconds(2));
         msg1.setIdentifier(drone.getIdentifier());
         msg1.setAcceleration(new D3Vector(1, 1, 1));
         msg1.setVelocity(new D3Vector(2, 2, 2));
         msg1.setPosition(new D3Vector(3, 3, 3));
-        Thread.sleep(1000); //Sleep 1 second to make sure that there is something to interpolate
         gps.handleMessage(msg1);
 
-        StateMessage msg2 = new StateMessage();
+        StateMessage msg2 = new StateMessage(LocalTime.now().minusSeconds(1));
         msg2.setIdentifier(drone.getIdentifier());
         msg2.setAcceleration(new D3Vector(1, 1, 1));
         msg2.setVelocity(new D3Vector(2, 2, 2));
         msg2.setPosition(new D3Vector(3, 3, 3));
-        Thread.sleep(1000); //Sleep 1 second to make sure that there is something to interpolate
         gps.handleMessage(msg2);
 
         D3Vector nextAcceleration = msg2.getAcceleration().get();
@@ -63,20 +62,18 @@ public class GPSTest {
     @Test
     public void handleMessageIncreasing() throws Exception {
         TacticTesterHelper.setField(gps, "previousMessage", null);
-        StateMessage msg1 = new StateMessage();
+        StateMessage msg1 = new StateMessage(LocalTime.now().minusSeconds(2));
         msg1.setIdentifier(drone.getIdentifier());
         msg1.setAcceleration(new D3Vector(1, 1, 1));
         msg1.setVelocity(new D3Vector(2, 2, 2));
         msg1.setPosition(new D3Vector(3, 3, 3));
-        Thread.sleep(1000); //Sleep 1 second to make sure that there is something to interpolate
         gps.handleMessage(msg1);
 
-        StateMessage msg2 = new StateMessage();
+        StateMessage msg2 = new StateMessage(LocalTime.now().minusSeconds(1));
         msg2.setIdentifier(drone.getIdentifier());
         msg2.setAcceleration(new D3Vector(2, 2, 2));
         msg2.setVelocity(new D3Vector(3, 3, 3));
         msg2.setPosition(new D3Vector(6, 6, 6));
-        Thread.sleep(1000); //Sleep 1 second to make sure that there is something to interpolate
         gps.handleMessage(msg2);
 
         D3Vector nextAcceleration = msg2.getAcceleration().get();
@@ -107,21 +104,19 @@ public class GPSTest {
     @Test
     public void handleMessageDecreasing() throws Exception {
         TacticTesterHelper.setField(gps, "previousMessage", null);
-        StateMessage msg1 = new StateMessage();
+        StateMessage msg1 = new StateMessage(LocalTime.now().minusSeconds(2));
         msg1.setIdentifier(drone.getIdentifier());
         msg1.setAcceleration(new D3Vector(1, 1, 1));
         msg1.setVelocity(new D3Vector(2, 2, 2));
         msg1.setPosition(new D3Vector(3, 3, 3));
         gps.handleMessage(msg1);
-        Thread.sleep(1000); //Sleep 1 second to make sure that there is something to interpolate
 
-        StateMessage msg2 = new StateMessage();
+        StateMessage msg2 = new StateMessage(LocalTime.now().minusSeconds(1));
         msg2.setIdentifier(drone.getIdentifier());
         msg2.setAcceleration(new D3Vector(-1, -1, -1));
         msg2.setVelocity(new D3Vector(-2, -2, -2));
         msg2.setPosition(new D3Vector(-3, -3, -3));
         gps.handleMessage(msg2);
-        Thread.sleep(1000); //Sleep 1 second to make sure that there is something to interpolate
 
         D3Vector nextAcceleration = msg2.getAcceleration().get();
         D3Vector nextVelocity = nextVelocity(new D3Vector(0, 0, 0).add(nextAcceleration), Settings
@@ -137,12 +132,11 @@ public class GPSTest {
     @Test
     public void handleMessageNoDelay() throws Exception {
         TacticTesterHelper.setField(gps, "previousMessage", null);
-        StateMessage msg1 = new StateMessage();
+        StateMessage msg1 = new StateMessage(LocalTime.now().minusSeconds(1));
         msg1.setIdentifier(drone.getIdentifier());
         msg1.setAcceleration(new D3Vector(1, 1, 1));
         msg1.setVelocity(new D3Vector(2, 2, 2));
         msg1.setPosition(new D3Vector(3, 3, 3));
-        Thread.sleep(1000); //Sleep 1 second to make sure that there is something to interpolate
         gps.handleMessage(msg1);
 
         StateMessage msg2 = new StateMessage();

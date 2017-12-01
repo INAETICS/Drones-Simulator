@@ -2,6 +2,7 @@ package org.inaetics.dronessimulator.drone.tactic;
 
 import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.Settings;
+import org.inaetics.dronessimulator.common.TimeoutTimer;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 
 import java.time.LocalDateTime;
@@ -31,7 +32,7 @@ public class BasicTactic extends Tactic {
     BasicTacticHeartbeat heartbeat;
     Thread commThread;
     Thread heartbeatThread;
-    private LocalDateTime lastUpdateTactics = LocalDateTime.now().minusSeconds(10);
+    private final TimeoutTimer tacticTimer = new TimeoutTimer(1000); //ms
 
     @Override
     protected void initializeTactics() {
@@ -59,8 +60,8 @@ public class BasicTactic extends Tactic {
     @Override
     protected void calculateTactics() {
 
-        if (LocalDateTime.now().isAfter(lastUpdateTactics.plusSeconds(1))) {
-            lastUpdateTactics = LocalDateTime.now();
+        if (tacticTimer.timeIsExceeded()) {
+            tacticTimer.reset();
             updateTactics();
         }
         if (moveTarget == null) {

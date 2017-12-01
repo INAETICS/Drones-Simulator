@@ -27,10 +27,8 @@ public class BasicTacticCommunication implements Runnable {
 
     @Override
     public void run() {
-        LocalDateTime lastLoop;
 
         while (go) {
-            lastLoop = LocalDateTime.now();
 
             // get next message from queue and check if it is TacticMessage
             Message msg0 = radio.getMessages().poll();
@@ -39,14 +37,6 @@ public class BasicTacticCommunication implements Runnable {
                 TacticMessage msg = (TacticMessage) msg0;
 
                 handleMessage(msg);
-            }
-            long diff = lastLoop.until(LocalDateTime.now(), ChronoUnit.MILLIS);
-            if (diff < 100) {
-                try {
-                    Thread.sleep(diff);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
             }
 
         }

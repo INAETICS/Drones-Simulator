@@ -229,7 +229,7 @@ public abstract class RabbitConnection implements ManagedService {
 
         if (!declaredTopics.contains(topic)) {
             Map<String, Object> args = new HashMap<>();
-            channel.exchangeDeclare(topic.getName(), BuiltinExchangeType.FANOUT, false);
+            channel.exchangeDeclare(topic.getName(), BuiltinExchangeType.TOPIC, false);
             declaredTopics.add(topic);
             getLogger().debug("RabbitMQ exchange {} declared", topic.getName());
         }

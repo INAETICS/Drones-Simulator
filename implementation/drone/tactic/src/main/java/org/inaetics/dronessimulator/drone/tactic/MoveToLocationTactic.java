@@ -7,26 +7,33 @@ import org.inaetics.dronessimulator.common.vector.D3Vector;
 @Log4j
 public class MoveToLocationTactic extends Tactic {
     private D3Vector randomLocation;
-
-    @Override
-    protected void initializeTactics() {
-        randomLocation = new D3Vector(Math.random() * (Settings.ARENA_WIDTH - 200) + 100, (Math.random() * Settings
+  
+    public MoveToLocationTactic() {
+        this.randomLocation = new D3Vector(Math.random() * (Settings.ARENA_WIDTH - 200) + 100, (Math.random() * Settings
                 .ARENA_HEIGHT - 200) + 100, Math.random() * (Settings.ARENA_DEPTH - 200) + 100);
     }
 
     @Override
+    protected void initializeTactics() {
+        log.info("Initializing tactics..");
+    }
+
+    @Override
     protected void calculateTactics() {
-        moveToLocation(randomLocation);
+        log.info("calculateTactics.. {}", randomLocation);
+        calculateMovement(randomLocation);
     }
 
     @Override
     protected void finalizeTactics() {
-
+        log.info("Finalizing tactics..");
     }
 
-    private void moveToLocation(D3Vector location) {
+    void moveToLocation(D3Vector location) {
         D3Vector position = gps.getPosition();
-        log.debug("Moving to " + location.toString() + " from " + position.toString());
+        log.info(String.format("location: %s", location));
+        log.info(String.format("position: %s", position));
+        log.info("Moving to " + location.toString() + " from " + position.toString());
         if (position.distance_between(location) < 1) {
             if (gps.getVelocity().length() != 0) {
                 D3Vector move = engine.limit_acceleration(gps.getVelocity().scale(-1));
@@ -48,8 +55,11 @@ public class MoveToLocationTactic extends Tactic {
         }
     }
 
-    private void calculateMovement(D3Vector moveTarget) {
+    void calculateMovement(D3Vector moveTarget) {
         D3Vector position = gps.getPosition();
+        log.info(String.format("location: %s", moveTarget));
+        log.info(String.format("position: %s", position));
+        log.info("Moving to " + moveTarget.toString() + " from " + position.toString());
 
         double distance = position.distance_between(moveTarget);
         double velocity = gps.getVelocity().length();

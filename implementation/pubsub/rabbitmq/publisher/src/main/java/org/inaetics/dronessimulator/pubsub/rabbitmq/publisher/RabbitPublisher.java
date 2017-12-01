@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.publisher;
 
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.ConnectionFactory;
 import lombok.Getter;
 import org.apache.log4j.Logger;
@@ -64,7 +65,7 @@ public class RabbitPublisher extends RabbitConnection implements Publisher {
             if (message != null && serializer != null) {
 //                logger.debug("Preparing to send message {} to topic {}", message.toString(), topic.getName());
                 byte[] serializedMessage = serializer.serialize(message);
-                this.channel.basicPublish(topic.getName(), "", null, serializedMessage);
+                this.channel.basicPublish(topic.getName(), "", new AMQP.BasicProperties.Builder().deliveryMode(1).build(), serializedMessage);
                 logger.debug("Sent message {} to topic {}", message.toString(), topic.getName());
             }
         } catch (IOException e) {

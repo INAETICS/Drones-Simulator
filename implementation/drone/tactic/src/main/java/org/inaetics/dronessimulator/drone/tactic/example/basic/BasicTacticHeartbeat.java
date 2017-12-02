@@ -1,10 +1,10 @@
-package org.inaetics.dronessimulator.drone.tactic;
+package org.inaetics.dronessimulator.drone.tactic.example.basic;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 
-import static org.inaetics.dronessimulator.drone.tactic.ProtocolTags.HEARTBEAT_GUN;
-import static org.inaetics.dronessimulator.drone.tactic.ProtocolTags.HEARTBEAT_RADAR;
+import static org.inaetics.dronessimulator.drone.tactic.example.basic.ProtocolTags.HEARTBEAT_GUN;
+import static org.inaetics.dronessimulator.drone.tactic.example.basic.ProtocolTags.HEARTBEAT_RADAR;
 
 public class BasicTacticHeartbeat implements Runnable{
 

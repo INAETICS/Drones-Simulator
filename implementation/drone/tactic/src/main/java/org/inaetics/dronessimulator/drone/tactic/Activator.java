@@ -13,6 +13,8 @@ import org.inaetics.dronessimulator.drone.components.gun.Gun;
 import org.inaetics.dronessimulator.drone.components.radar.Radar;
 import org.inaetics.dronessimulator.drone.components.radio.Radio;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
+import org.inaetics.dronessimulator.drone.tactic.example.SimpleTactic;
+import org.inaetics.dronessimulator.drone.tactic.example.utility.TheoreticalTactic;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.osgi.framework.BundleContext;
 
@@ -25,7 +27,8 @@ public class Activator extends DependencyActivatorBase {
     private static final Logger logger = Logger.getLogger(Activator.class);
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
-        Tactic tactic = new TheoreticalTactic();
+        Tactic tactic = createNewTactic();
+        new TheoreticalTactic();
 
         Component component = createComponent()
                                .setInterface(Tactic.class.getName(), null)
@@ -61,6 +64,19 @@ public class Activator extends DependencyActivatorBase {
         );
 
         dependencyManager.add(component);
+    }
+
+    private Tactic createNewTactic() {
+        try {
+            Class<?> possibleTacticClass = Class.forName(System.getenv("DRONE_TACTIC"));
+            Object possibleTactic = possibleTacticClass.newInstance();
+            return (Tactic) possibleTactic;
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | ClassCastException e) {
+            logger.fatal(String.format("Could not find a tactic with name: %s. Please provide a fully classified class name that extends %s.java. The exception was: " +
+                    "%s:%s", System.getenv("DRONE_TACTIC"), Tactic.class.getName(), e.getClass().getSimpleName(), e.getMessage()), e);
+        }
+        //By default return SimpleTactic
+        return new SimpleTactic();
     }
 
     public List<ServiceDependency> getDroneComponents(DependencyManager dm) {

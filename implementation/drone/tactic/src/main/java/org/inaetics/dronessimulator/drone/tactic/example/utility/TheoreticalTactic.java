@@ -1,11 +1,12 @@
-package org.inaetics.dronessimulator.drone.tactic;
+package org.inaetics.dronessimulator.drone.tactic.example.utility;
 
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.*;
 import org.inaetics.dronessimulator.common.protocol.TacticMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
-import org.inaetics.dronessimulator.drone.tactic.messages.*;
+import org.inaetics.dronessimulator.drone.tactic.Tactic;
+import org.inaetics.dronessimulator.drone.tactic.example.utility.messages.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -23,7 +24,7 @@ public class TheoreticalTactic extends Tactic {
     private DroneType droneType;
     private String idLeader;
     private Map<String, List<String>> teammembers = new ConcurrentHashMap<>();
-    private Map<String, Tuple<LocalDateTime, D3Vector>> mapOfTheWorld = new ConcurrentHashMap<>();
+    private Map<String, Tuple<LocalDateTime, D3Vector>> mapOfTheWorld = new ConcurrentHashMap<>(); //TODO remove stale data
     private ManagedThread handleBroadcastMessagesThread;
     private HashMap<String, D3Vector> targetMoveLocations = new HashMap<>();
     private D3Vector myTargetMoveLocation;
@@ -79,6 +80,8 @@ public class TheoreticalTactic extends Tactic {
      */
     @Override
     protected void calculateTactics() {
+        //Remove old data from the map
+        mapOfTheWorld.entrySet().removeIf(e -> TimeoutTimer.isTimeExceeded(e.getValue().getLeft(), ttlLeader));
         manageOutgoingCommunication();
 //        moveToRandomLocation();
         //Check leader
@@ -287,18 +290,19 @@ public class TheoreticalTactic extends Tactic {
                     );
                 }
             }
-            Optional<Map.Entry<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer>> highestUtilityShoot = utilityMapShoot.entrySet().stream().sorted((i2, i1)
-                    -> Integer.compare(i1.getValue(), i2.getValue())).findFirst();
-            if (highestUtilityShoot.isPresent()) {
+            Optional<Map.Entry<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer>> highestUtilityShoot =
+                    utilityMapShoot.entrySet().stream().sorted((i2, i1) -> Integer.compare(i1.getValue(), i2.getValue())).findFirst();
+            if (highestUtilityShoot.isPresent() && highestUtilityShoot.get().getValue() > 0) {
                 Tuple<InstructionMessage.InstructionType, D3Vector> highesUtilityParams = highestUtilityShoot.get().getKey();
                 log.info("sendInstructions type: " + highesUtilityParams.getLeft() + ", to " + teammember + "location: " +
                         highesUtilityParams.getRight().toString() + ", because its utility was " + highestUtilityShoot.get().getValue() + " out of " + Arrays.toString
                         (utilityMapShoot.values().toArray()));
                 radio.send(new InstructionMessage(this, highesUtilityParams.getLeft(), teammember, highesUtilityParams.getRight()).getMessage());
             }
-            Optional<Map.Entry<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer>> highestUtilityMove = utilityMapMove.entrySet().stream().sorted((i2, i1)
-                    -> Integer.compare(i1.getValue(), i2.getValue())).findFirst();
-            if (highestUtilityMove.isPresent()) {
+
+            Optional<Map.Entry<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer>> highestUtilityMove =
+                    utilityMapMove.entrySet().stream().sorted((i2, i1) -> Integer.compare(i1.getValue(), i2.getValue())).findFirst();
+            if (highestUtilityMove.isPresent() && highestUtilityMove.get().getValue() > 0) {
                 Tuple<InstructionMessage.InstructionType, D3Vector> highesUtilityParams = highestUtilityMove.get().getKey();
                 log.info("sendInstructions type: " + highesUtilityParams.getLeft() + ", to " + teammember + "location: " +
                         highesUtilityParams.getRight().toString() + ", because its utility was " + highestUtilityMove.get().getValue() + " out of " + Arrays.toString

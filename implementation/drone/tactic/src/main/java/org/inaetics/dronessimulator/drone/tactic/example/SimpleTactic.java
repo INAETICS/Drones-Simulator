@@ -1,8 +1,9 @@
-package org.inaetics.dronessimulator.drone.tactic;
+package org.inaetics.dronessimulator.drone.tactic.example;
 
 import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
+import org.inaetics.dronessimulator.drone.tactic.Tactic;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

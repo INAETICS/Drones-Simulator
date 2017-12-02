@@ -1,4 +1,4 @@
-package org.inaetics.dronessimulator.drone.tactic.messages;
+package org.inaetics.dronessimulator.drone.tactic.example.utility.messages;
 
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;

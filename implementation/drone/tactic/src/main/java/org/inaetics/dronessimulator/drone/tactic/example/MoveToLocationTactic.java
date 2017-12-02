@@ -1,8 +1,9 @@
-package org.inaetics.dronessimulator.drone.tactic;
+package org.inaetics.dronessimulator.drone.tactic.example;
 
 import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
+import org.inaetics.dronessimulator.drone.tactic.Tactic;
 
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -34,7 +35,7 @@ public class MoveToLocationTactic extends Tactic {
         log.info("Finalizing tactics..");
     }
 
-    void moveToLocation(D3Vector location) {
+    public void moveToLocation(D3Vector location) {
         D3Vector position = gps.getPosition();
         log.info(String.format("location: %s", location));
         log.info(String.format("position: %s", position));
@@ -60,7 +61,7 @@ public class MoveToLocationTactic extends Tactic {
         }
     }
 
-    void calculateMovement(D3Vector moveTarget) {
+    public void calculateMovement(D3Vector moveTarget) {
         D3Vector position = gps.getPosition();
         log.info(String.format("location: %s", moveTarget));
         log.info(String.format("position: %s", position));

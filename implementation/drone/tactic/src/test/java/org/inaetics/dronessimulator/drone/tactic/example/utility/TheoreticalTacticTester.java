@@ -1,4 +1,4 @@
-package org.inaetics.dronessimulator.drone.tactic;
+package org.inaetics.dronessimulator.drone.tactic.example.utility;
 
 import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.Settings;
@@ -7,8 +7,9 @@ import org.inaetics.dronessimulator.common.protocol.TacticMessage;
 import org.inaetics.dronessimulator.common.protocol.TeamTopic;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.inaetics.dronessimulator.drone.tactic.messages.HeartbeatMessage;
-import org.inaetics.dronessimulator.drone.tactic.messages.InstructionMessage;
+import org.inaetics.dronessimulator.drone.tactic.TacticTesterHelper;
+import org.inaetics.dronessimulator.drone.tactic.example.utility.messages.HeartbeatMessage;
+import org.inaetics.dronessimulator.drone.tactic.example.utility.messages.InstructionMessage;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.test.concurrent.MockPublisher;
@@ -27,7 +28,7 @@ import static org.inaetics.dronessimulator.drone.tactic.TacticTesterHelper.setFi
 import static org.mockito.Mockito.mock;
 
 @Log4j
-public class TacticTester {
+public class TheoreticalTacticTester {
     private DroneInit droneInit;
     private TheoreticalTactic tactic;
     private MockPublisher publisher;
@@ -59,27 +60,17 @@ public class TacticTester {
         Tuple<Publisher, Subscriber> pubSub = TacticTesterHelper.getConnectedMockPubSub();
         DroneInit drone1 = new DroneInit();
         DroneInit drone2 = new DroneInit();
-        Tactic tactic = TacticTesterHelper.getTactic(TheoreticalTactic.class, pubSub.getLeft(), pubSub.getRight(),
+        TheoreticalTactic tactic = TacticTesterHelper.getTactic(TheoreticalTactic.class, pubSub.getLeft(), pubSub.getRight(),
                 drone1);
         tactic.initializeTactics();
         tactic.startTactic();
-        Tactic tactic2 = TacticTesterHelper.getTactic(TheoreticalTactic.class, pubSub.getLeft(), pubSub.getRight(),
+        TheoreticalTactic tactic2 = TacticTesterHelper.getTactic(TheoreticalTactic.class, pubSub.getLeft(), pubSub.getRight(),
                 drone2);
         tactic2.initializeTactics();
         tactic2.startTactic();
         for (int i = 0; i < 20; i++) {
-            try {
-                tactic.work();
-                log.debug("do work 1");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            try {
-                tactic2.work();
-                log.debug("do work 2");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            tactic.calculateTactics();
+            tactic2.calculateTactics();
         }
         Object leader1 = TacticTesterHelper.getField(tactic, "idLeader");
         Object leader2 = TacticTesterHelper.getField(tactic2, "idLeader");
@@ -92,12 +83,7 @@ public class TacticTester {
         tactic.stopTactic();
         Thread.sleep(TheoreticalTactic.ttlLeader * 1000);
         for (int i = 0; i < 20; i++) {
-            try {
-                tactic2.work();
-                log.debug("do work 2");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            tactic2.calculateTactics();
         }
         Object leader3 = TacticTesterHelper.getField(tactic2, "idLeader");
         Assert.assertNotNull(leader3);

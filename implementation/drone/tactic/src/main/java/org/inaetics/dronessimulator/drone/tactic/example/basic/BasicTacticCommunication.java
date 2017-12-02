@@ -1,6 +1,5 @@
-package org.inaetics.dronessimulator.drone.tactic;
+package org.inaetics.dronessimulator.drone.tactic.example.basic;
 
-import lombok.AllArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.protocol.TacticMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
@@ -8,9 +7,8 @@ import org.inaetics.dronessimulator.drone.components.radio.Radio;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
-import static org.inaetics.dronessimulator.drone.tactic.ProtocolTags.*;
+import static org.inaetics.dronessimulator.drone.tactic.example.basic.ProtocolTags.CONNECT_CONFIRM;
 
 @Log4j
 public class BasicTacticCommunication implements Runnable {

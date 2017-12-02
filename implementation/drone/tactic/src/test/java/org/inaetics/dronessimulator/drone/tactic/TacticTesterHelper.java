@@ -69,7 +69,7 @@ public class TacticTesterHelper {
         );
     }
 
-    static Object getField(Object target, String fieldname) throws IllegalAccessException,
+    public static Object getField(Object target, String fieldname) throws IllegalAccessException,
             NoSuchFieldException {
         Optional<Optional<Object>> result = doWithFields(target.getClass(),
                 field -> {

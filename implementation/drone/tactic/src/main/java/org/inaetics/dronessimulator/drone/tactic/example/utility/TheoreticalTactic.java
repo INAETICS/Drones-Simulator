@@ -24,11 +24,11 @@ public class TheoreticalTactic extends Tactic {
     private DroneType droneType;
     private String idLeader;
     private Map<String, List<String>> teammembers = new ConcurrentHashMap<>();
-    private Map<String, Tuple<LocalDateTime, D3Vector>> mapOfTheWorld = new ConcurrentHashMap<>(); //TODO remove stale data
+    private Map<String, Tuple<LocalDateTime, D3Vector>> mapOfTheWorld = new ConcurrentHashMap<>();
     private ManagedThread handleBroadcastMessagesThread;
     private HashMap<String, D3Vector> targetMoveLocations = new HashMap<>();
     private D3Vector myTargetMoveLocation;
-    private TimeoutTimer lastRequestForLeader = new TimeoutTimer(3000); //3 sec
+    private TimeoutTimer lastRequestForLeader = new TimeoutTimer(1000); //1 sec
 
     public final DroneType getType() {
         DroneType droneType;
@@ -174,8 +174,7 @@ public class TheoreticalTactic extends Tactic {
                 if (hasComponents("gun")) {
                     gun.fireBullet(targetLocation.toPoolCoordinate());
                 } else {
-                    log.error("Could not execute instruction " + instructionType + " with target " + String.valueOf
-                            (targetLocation));
+                    log.error("Could not execute instruction " + instructionType + " with target " + String.valueOf(targetLocation));
                 }
                 break;
             case MOVE:
@@ -184,8 +183,7 @@ public class TheoreticalTactic extends Tactic {
                     // new instruction.
                     moveToLocation(targetLocation);
                 } else {
-                    log.error("Could not execute instruction " + instructionType + " with target " + String.valueOf
-                            (targetLocation));
+                    log.error("Could not execute instruction " + instructionType + " with target " + String.valueOf(targetLocation));
                 }
                 break;
         }
@@ -357,7 +355,7 @@ public class TheoreticalTactic extends Tactic {
                 Map.Entry<String, Tuple<LocalDateTime, D3Vector>> enemy = entry;
                 if (type.equals(InstructionMessage.InstructionType.SHOOT)) {
                     //Shooting at the closest enemy gives the highest utility
-                    if (target.equals(enemy.getValue())) //If the target to shoot is at the same position as the enemy
+                    if (target.equals(enemy.getValue().getRight())) //If the target to shoot is at the same position as the enemy
                         utility += (MAX_ARENA_DISTANCE - target.distance_between(droneLocation)) * SHOOTING_WEIGHT;
                 } else {
                     double distanceToEnemy = enemy.getValue().getRight().distance_between(target);

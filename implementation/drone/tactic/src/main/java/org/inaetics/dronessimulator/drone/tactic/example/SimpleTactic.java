@@ -1,7 +1,6 @@
 package org.inaetics.dronessimulator.drone.tactic.example;
 
 import org.inaetics.dronessimulator.common.Settings;
-import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.tactic.Tactic;
 
@@ -151,10 +150,10 @@ public class SimpleTactic extends Tactic {
      * Checks if a bullet can be fired by the gun.
      */
     private void calculateGun() {
-        Optional<Tuple<String, D3Vector>> target = radar.getNearestTarget();
+        Optional<D3Vector> target = radar.getNearestTarget();
         if (target.isPresent()) {
-            if (target.get().getRight().distance_between(gps.getPosition()) <= gun.getMaxDistance()) {
-                gun.fireBullet(target.get().getRight().sub(gps.getPosition()).toPoolCoordinate());
+            if (target.get().distance_between(gps.getPosition()) <= gun.getMaxDistance()) {
+                gun.fireBullet(target.get().sub(gps.getPosition()).toPoolCoordinate());
             }
         }
     }

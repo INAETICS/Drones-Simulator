@@ -6,6 +6,9 @@ import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.protocol.TacticMessage;
 import org.inaetics.dronessimulator.common.protocol.TeamTopic;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
+import org.inaetics.dronessimulator.drone.components.engine.Engine;
+import org.inaetics.dronessimulator.drone.components.gun.Gun;
+import org.inaetics.dronessimulator.drone.components.radio.Radio;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.drone.tactic.TacticTesterHelper;
 import org.inaetics.dronessimulator.drone.tactic.example.utility.messages.HeartbeatMessage;
@@ -18,7 +21,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -94,30 +96,32 @@ public class TheoreticalTacticTester {
     @Test
     public void testCalculateUtility() throws NoSuchFieldException, IllegalAccessException {
         //Create the world
-        Map<String, Tuple<LocalDateTime, List<String>>> teammembers = new ConcurrentHashMap<>();
-        Map<String, D3Vector> mapOfTheWorld = new ConcurrentHashMap<>();
-        mapOfTheWorld.put("enemyDrone", new D3Vector(100, 100, 50));
+        Map<String, Tuple<D3Vector, List<String>>> teammembers = new ConcurrentHashMap<>();
+        Map<String, Tuple<LocalDateTime, D3Vector>> mapOfTheWorld = new ConcurrentHashMap<>();
+        mapOfTheWorld.put("enemyDrone", new Tuple<>(LocalDateTime.now(), new D3Vector(100, 100, 50)));
         setField(tactic, "teammembers", teammembers);
         setField(tactic, "mapOfTheWorld", mapOfTheWorld);
+        tactic.engine = new Engine();
+        tactic.radio = new Radio();
 
         //Move towards a drone since we have a gun
+//        CalculateUtilityHelper.CalculateUtilityParams test1Params = new CalculateUtilityHelper.CalculateUtilityParams(teammembers, mapOfTheWorld, InstructionMessage.InstructionType.MOVE, "1", new D3Vector(50, 50, 50));
         tactic.gps.setPosition(D3Vector.UNIT);
-        int utility = tactic.calculateUtility(InstructionMessage.InstructionType.MOVE, tactic.gps.getPosition(), new D3Vector(50, 50, 50), Arrays.asList("gun",
-                "engine", "radio", "radio"));
+        tactic.gun = new Gun();
+        int utility = tactic.calculateUtility(InstructionMessage.InstructionType.MOVE, tactic.getIdentifier(), new D3Vector(50, 50, 50));
         Assert.assertEquals((int) new D3Vector(Settings.ARENA_WIDTH, Settings.ARENA_DEPTH, Settings.ARENA_HEIGHT).length() - (int) new D3Vector(50, 50,
                 0).length(), utility);
 
         //Do not move out of bounds
         tactic.gps.setPosition(D3Vector.UNIT);
-        utility = tactic.calculateUtility(InstructionMessage.InstructionType.MOVE, tactic.gps.getPosition(), new D3Vector(-1, -1, -1), Arrays.asList("gun",
-                "engine", "radio", "radio"));
+        utility = tactic.calculateUtility(InstructionMessage.InstructionType.MOVE, tactic.getIdentifier(), new D3Vector(-1, -1, -1));
         Assert.assertEquals(-1, utility);
 
         //Move away from a drone if you do not have a gun. The higher the distance, the better
         tactic.gps.setPosition(D3Vector.UNIT);
-        utility = tactic.calculateUtility(InstructionMessage.InstructionType.MOVE, tactic.gps.getPosition(), new D3Vector(50, 50, 50), Arrays.asList("engine",
-                "radio", "radio"));
-        Assert.assertEquals((int) new D3Vector(50, 50, 50).distance_between(mapOfTheWorld.get("enemyDrone")), utility);
+        tactic.gun = null;
+        utility = tactic.calculateUtility(InstructionMessage.InstructionType.MOVE, tactic.getIdentifier(), new D3Vector(50, 50, 50));
+        Assert.assertEquals((int) new D3Vector(50, 50, 50).distance_between(mapOfTheWorld.get("enemyDrone").getRight()), utility);
 
         //
     }

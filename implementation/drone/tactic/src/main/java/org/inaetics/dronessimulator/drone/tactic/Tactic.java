@@ -37,10 +37,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class Tactic extends ManagedThread implements MessageHandler {
     public static final long tacticTimout = 1;//tck
     // drone components
-    protected volatile Radar radar;
+    public volatile Radar radar;
     public volatile GPS gps;
     public volatile Engine engine;
-    protected volatile Gun gun;
+    public volatile Gun gun;
     public volatile Radio radio;
     /**
      * Drone Init bundle

@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
-import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
@@ -20,7 +19,6 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
-import org.inaetics.dronessimulator.discovery.api.instances.DroneInstance;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
@@ -61,7 +59,7 @@ public class Radar implements MessageHandler {
     /**
      * Map of all last known entities and their positions (the first string is the id of the entity, the tuple's string is the team name if applicable and the D3Vector is the location)
      */
-    private final ConcurrentHashMap<String, Tuple<String, D3Vector>> allEntities = new ConcurrentHashMap<>();
+    private final Map<String, D3Vector> allEntities = new ConcurrentHashMap<>();
     /**
      * The range of this radar
      */
@@ -95,10 +93,7 @@ public class Radar implements MessageHandler {
         this.m_subscriber.addHandler(KillMessage.class, this);
 
         m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG,
-                (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
-                    allEntities.clear();
-                }
-        );
+                (SimulationState fromState, SimulationAction action, SimulationState toState) -> allEntities.clear());
     }
 
     /*
@@ -110,14 +105,13 @@ public class Radar implements MessageHandler {
      *
      * @return The entities in range
      */
-    public List<Tuple<String, D3Vector>> getRadar() {
-        List<Tuple<String, D3Vector>> results;
+    public List<D3Vector> getRadar() {
+        List<D3Vector> results;
 
         if (position != null) {
-            results = allEntities.entrySet()
+            results = allEntities.values()
                     .stream()
-                    .map(Map.Entry::getValue)
-                    .filter(drone -> position.distance_between(drone.getRight()) <= RADAR_RANGE)
+                    .filter(drone -> position.distance_between(drone) <= RADAR_RANGE)
                     .collect(Collectors.toList());
         } else {
             results = Collections.emptyList();
@@ -129,16 +123,12 @@ public class Radar implements MessageHandler {
     /**
      * Retrieves the nearest target in range
      *
-     * @return The nearest entity in range
+     * @return The nearest entity in range. Note that this could be a teammember
      */
-    public Optional<Tuple<String, D3Vector>> getNearestTarget() {
+    public Optional<D3Vector> getNearestTarget() {
         return getRadar()
                 .stream()
-                .filter(drone ->
-                        drone.getLeft() == null && this.m_drone.getTeamname() == null ||
-                                !drone.getLeft().equals(this.m_drone.getTeamname())
-                )
-                .sorted(Comparator.comparingDouble(e -> e.getRight().distance_between(position)))
+                .sorted(Comparator.comparingDouble(e -> e.distance_between(position)))
                 .findFirst();
     }
 
@@ -169,8 +159,7 @@ public class Radar implements MessageHandler {
             }
         } else {
             if (stateMessage.getPosition().isPresent() && stateMessage.getType().equals(EntityType.DRONE)) {
-                Tuple<String, D3Vector> droneModel = new Tuple<>(DroneInstance.getTeamname(m_discoverer, stateMessage.getIdentifier()), stateMessage.getPosition().get());
-                this.allEntities.put(stateMessage.getIdentifier(), droneModel);
+                this.allEntities.put(stateMessage.getIdentifier(), stateMessage.getPosition().get());
             }
         }
     }

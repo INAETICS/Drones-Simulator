@@ -30,7 +30,7 @@ public class Radio implements MessageHandler {
     private volatile Publisher m_publisher;
     /** Reference to Drone Init bundle */
     private volatile DroneInit m_drone;
-    /** Queue with received strings */
+    /** Queue with received messages */
     private ConcurrentLinkedQueue<Message> received_queue = new ConcurrentLinkedQueue<>();
 
     private Topic topic;

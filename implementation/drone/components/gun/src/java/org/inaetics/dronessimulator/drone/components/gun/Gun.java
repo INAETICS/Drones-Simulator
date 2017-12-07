@@ -107,7 +107,7 @@ public class Gun {
             //Run all the callbacks
             callbacks.forEach(callback -> callback.run(msg));
 
-            log.info("Firing bullet! Next shot possible in " + ((double) (nextShotAtMs - currentTimeMs) / 1000) + " seconds.");
+            log.info("Firing bullet in direction " + direction + "! Next shot possible in " + ((double) (nextShotAtMs - currentTimeMs) / 1000) + " seconds.");
         }
     }
 

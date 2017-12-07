@@ -17,6 +17,7 @@ public class BasicTactic extends Tactic {
     private static final int DRONE_TIMEOUT = 2; // seconds
     private final TimeoutTimer tacticTimer = new TimeoutTimer(1000); //ms
     D3Vector moveTarget = null;
+    D3Vector lastMoveTarget = null;
     D3Vector attackTarget = null;
     Map<String, LocalDateTime> radarDrones = new HashMap<>();
     Map<String, LocalDateTime> gunDrones = new HashMap<>();
@@ -29,6 +30,36 @@ public class BasicTactic extends Tactic {
     Thread heartbeatThread;
     private D3Vector lastPosition;
     private D3Vector lastAttackTarget;
+
+    protected static D3Vector calculateMovement(D3Vector position, D3Vector target, D3Vector velocity) {
+
+        double distance = position.distance_between(target);
+
+        // stationary, on target
+        if (distance < 1 && velocity.length() < 1) {
+            System.out.println("TEST22 | on target | " + position + " | " + target + " | " + distance + " | " + velocity.length() + " | " + new D3Vector().length());
+            return new D3Vector();
+        }
+
+        // stationary/not stationary, not on target, accelerating
+        else if (distance > ((velocity.length() * velocity.length()) / (2 * Settings.MAX_DRONE_ACCELERATION))) {
+            D3Vector newAcceleration = target.sub(position);
+            System.out.println("TEST22 | accelerating | " + position + " | " + target + " | " + distance + " | " + velocity.length() + " | " + newAcceleration.length());
+            return newAcceleration;
+        }
+
+        // not stationary, not on target, decelerating
+        else if (distance != 0) {
+
+            double acceleration = -(velocity.length() * velocity.length()) / (2 * distance);
+            D3Vector newAcceleration = velocity.normalize().scale(acceleration);
+
+            System.out.println("TEST22 | decelerating | " + position + " | " + target + " | " + distance + " | " + velocity.length() + " | " + new D3Vector().length());
+            return newAcceleration;
+        }
+        log.debug("field size = " + new D3Vector(Settings.ARENA_WIDTH, Settings.ARENA_DEPTH, Settings.ARENA_HEIGHT));
+        return new D3Vector();
+    }
 
     @Override
     protected void initializeTactics() {
@@ -52,24 +83,24 @@ public class BasicTactic extends Tactic {
 //        }
     }
 
-
     @Override
     protected void calculateTactics() {
 
-        if (tacticTimer.timeIsExceeded()) {
-            tacticTimer.reset();
-            updateTactics();
-        }
+//        if (tacticTimer.timeIsExceeded()) {
+//            tacticTimer.reset();
+//            updateTactics();
+//        }
         if (moveTarget == null) {
             moveTarget = new D3Vector(ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300));
+            log.debug("Initialized move target to: " + moveTarget);
         }
 
-        calculateMovement();
+        engine.changeAcceleration(calculateMovement(gps.getPosition(), moveTarget, gps.getVelocity()));
 
-        if (isRadar && (lastPosition == null || gps.getPosition().distance_between(lastPosition) > 1)) {
-            organizeMovement();
-            lastPosition = gps.getPosition();
-        }
+//        if (isRadar && (lastMoveTarget == null || !lastMoveTarget.equals(moveTarget))) {
+//            organizeMovement();
+//            lastMoveTarget = moveTarget;
+//        }
     }
 
     @Override
@@ -102,40 +133,12 @@ public class BasicTactic extends Tactic {
 
     }
 
-    private void calculateMovement() {
-
-        D3Vector position = gps.getPosition();
-        log.debug("distance to target = " + position.distance_between(moveTarget));
-
-        double distance = position.distance_between(moveTarget);
-        double velocity = gps.getVelocity().length();
-
-        // stationary, on target
-        if (distance < 1 && velocity < 1) {
-            log.debug("TEST21 - " + position.toString() + " - doing nothing.. ");
-            engine.changeAcceleration(new D3Vector());
-        }
-
-        // stationary/not stationary, not on target, accelerating
-        else if (distance > ((velocity * velocity) / (2 * Settings.MAX_DRONE_ACCELERATION))) {
-            D3Vector newAcceleration = moveTarget.sub(position).scale(0.5);
-            log.debug("TEST21 - " + position.toString() + " - accelerating.. " + newAcceleration);
-            engine.changeAcceleration(newAcceleration);
-        }
-
-        // not stationary, not on target, decelerating
-        else if (distance != 0) {
-
-            double acceleration = -(velocity * velocity) / (2 * distance);
-            D3Vector newAcceleration = (gps.getVelocity()).normalize().scale(acceleration);
-            log.debug(String.format("CALCULOG d=%f, v=%f, a=%f", distance, velocity, acceleration));
-
-            log.debug("TEST21 - " + position.toString() + " - decelerating.. " + newAcceleration);
-            engine.changeAcceleration(newAcceleration);
-        }
-    }
-
     private void organizeMovement() {
+
+        D3Vector moveFocus = gps.getPosition();
+        if (moveTarget != null) {
+            moveFocus = moveTarget;
+        }
 
         int number = myGunDrones.size();
         log.debug("number is " + number);
@@ -144,9 +147,9 @@ public class BasicTactic extends Tactic {
 
         int numberSpawned = 0;
         for (String id : myGunDrones) {
-            D3Vector gunPosition = new D3Vector(Math.cos(spawnAngle * numberSpawned) * spawnRadius + gps.getPosition().getX()
-                    , Math.sin(spawnAngle * numberSpawned) * spawnRadius + gps.getPosition().getY()
-                    , gps.getPosition().getZ());
+            D3Vector gunPosition = new D3Vector(Math.cos(spawnAngle * numberSpawned) * spawnRadius + moveFocus.getX()
+                    , Math.sin(spawnAngle * numberSpawned) * spawnRadius + moveFocus.getY()
+                    , moveFocus.getZ());
             numberSpawned++;
             comm.sendMessage(id, ProtocolTags.MOVE, gunPosition);
             log.debug("gundrone " + id + " target location set to " + gunPosition);

@@ -9,6 +9,8 @@ import org.inaetics.dronessimulator.drone.tactic.Tactic;
 import org.inaetics.dronessimulator.drone.tactic.example.utility.messages.*;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,7 +21,7 @@ import static org.inaetics.dronessimulator.drone.tactic.example.utility.Calculat
 @Log4j
 @NoArgsConstructor //An OSGi constructor
 public class TheoreticalTactic extends Tactic {
-    public static final long ttlLeader = 2; //seconds
+    public static final double ttlLeader = 3 * Settings.getTickTime(ChronoUnit.SECONDS); //seconds
     private DroneType droneType;
     private String idLeader;
     /**
@@ -33,7 +35,7 @@ public class TheoreticalTactic extends Tactic {
     private Map<String, Tuple<LocalDateTime, D3Vector>> mapOfTheWorld = new ConcurrentHashMap<>();
     private ManagedThread handleBroadcastMessagesThread;
     private D3Vector myTargetMoveLocation;
-    private TimeoutTimer lastRequestForLeader = new TimeoutTimer(1000); //1 sec
+    private TimeoutTimer lastRequestForLeader = new TimeoutTimer(1000); //1 sec //TODO check if this is really needed
 
     private DroneType getType() {
         DroneType droneType;
@@ -52,20 +54,20 @@ public class TheoreticalTactic extends Tactic {
         droneType = getType();
         handleBroadcastMessagesThread = new LambdaManagedThread(this::manageIncomingCommunication);
         handleBroadcastMessagesThread.startThread();
-//        switch (droneType) {
-//            case GUN:
-//                //Send a message if you fire a bullet
-//                gun.registerCallback((fireBulletMessage) -> {
-//                    DataMessage shotMessage = new DataMessage(this, MyTacticMessage.MESSAGETYPES.FiredBulletMessage);
-//                    shotMessage.getData().put("direction", String.valueOf(fireBulletMessage.getDirection().orElse(null)));
-//                    shotMessage.getData().put("velocity", String.valueOf(fireBulletMessage.getVelocity().orElse(null)));
-//                    shotMessage.getData().put("firedMoment", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
-//                    radio.send(shotMessage.getMessage());
-//                });
-//                break;
-//            case RADAR:
-//                break;
-//        }
+        switch (droneType) {
+            case GUN:
+                //Send a message if you fire a bullet
+                gun.registerCallback((fireBulletMessage) -> {
+                    DataMessage shotMessage = new DataMessage(this, MyTacticMessage.MESSAGETYPES.FIRED_BULLET_MESSAGE);
+                    shotMessage.getData().put("direction", String.valueOf(fireBulletMessage.getDirection().orElse(null)));
+                    shotMessage.getData().put("velocity", String.valueOf(fireBulletMessage.getVelocity().orElse(null)));
+                    shotMessage.getData().put("firedMoment", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+                    radio.send(shotMessage.getMessage());
+                });
+                break;
+            case RADAR:
+                break;
+        }
         log.debug("Tactic initialized for drone with type " + droneType);
     }
 
@@ -85,12 +87,12 @@ public class TheoreticalTactic extends Tactic {
      */
     @Override
     protected void calculateTactics() {
-        //Remove old data from the map
+        //Remove stale data from the map
         mapOfTheWorld.entrySet().removeIf(e -> TimeoutTimer.isTimeExceeded(e.getValue().getLeft(), ttlLeader));
-        teammembers.entrySet().removeIf(e ->
-                !mapOfTheWorld.containsKey(e.getKey())
-        );
+        teammembers.entrySet().removeIf(e -> !mapOfTheWorld.containsKey(e.getKey()));
+
         manageOutgoingCommunication();
+
         //Check leader
         if (!checkIfLeaderIsAlive()) {
             log.debug("Find a new leader, the leader was " + idLeader);
@@ -107,6 +109,8 @@ public class TheoreticalTactic extends Tactic {
         } else if (idLeader.equals(getIdentifier())) {
             sendInstructions();
         }
+
+        //Keep moving if we have a target move location. Otherwise we will overshoot our target since acceleration corrections are required.
         if (myTargetMoveLocation != null) {
             moveToLocation(myTargetMoveLocation);
         }
@@ -135,46 +139,48 @@ public class TheoreticalTactic extends Tactic {
     }
 
     /**
-     * This method handles all the required incoming communication. The method is called from within a thread. All
-     * outgoing communication should be done in manageOutgoingCommunication.
+     * This method handles all the required incoming communication. The method is called from within a thread.
+     * All outgoing communication should be done in manageOutgoingCommunication.
      */
     private void manageIncomingCommunication() {
         if (radio.getMessages().size() > 0) {
             TacticMessage newMessage = radio.getMessage(TacticMessage.class);
             if (newMessage != null) {
                 log.debug("Received a message with type " + String.valueOf(newMessage.get("type")));
-                if (MyTacticMessage.checkType(newMessage, HeartbeatMessage.class)) {
+                //@formatter:off
+                if (MyTacticMessage.checkType(newMessage,
+        HeartbeatMessage.class)) {
                     teammembers.put(newMessage.get("id"), new Tuple<>(D3Vector.fromString(newMessage.get("position")), Arrays.asList(newMessage.get("components").split(","))));
                     mapOfTheWorld.put(newMessage.get("id"), new Tuple<>(LocalDateTime.now(), D3Vector.fromString(newMessage.get("position"))));
-                } else if (MyTacticMessage.checkType(newMessage, RadarImageMessage.class)) {
-                    RadarImageMessage.parseData(newMessage).forEach((k, v) -> {
-                        mapOfTheWorld.put(k, new Tuple<>(LocalDateTime.now(), v));
-                    });
-                } else if (MyTacticMessage.checkType(newMessage, InstructionMessage.class)) {
-                    log.info("Received a message for {}, and I am {}", newMessage.get("receiver"), getIdentifier());
+                } else if (MyTacticMessage.checkType(newMessage,
+        RadarImageMessage.class)) {
+                    RadarImageMessage.parseData(newMessage).entrySet().parallelStream().
+                            forEach((e) -> mapOfTheWorld.put(e.getKey(), new Tuple<>(LocalDateTime.now(), e.getValue())));
+                } else if (MyTacticMessage.checkType(newMessage,
+        InstructionMessage.class)) {
                     if (newMessage.get("receiver").equals(getIdentifier())) {
-                        //TODO check if all instructions are properly executed
                         executeInstruction(InstructionMessage.InstructionType.valueOf(newMessage.get(InstructionMessage.InstructionType.class.getSimpleName())),
                                 D3Vector.fromString(newMessage.get("target")));
                     }
-                } else if (MyTacticMessage.checkType(newMessage, MyTacticMessage.MESSAGETYPES.SearchLeaderMessage) &&
-                        droneType.equals(DroneType.RADAR) && idLeader == null) {
+                } else if (MyTacticMessage.checkType(newMessage,
+        MyTacticMessage.MESSAGETYPES.SEARCH_LEADER_MESSAGE
+                ) && droneType.equals(DroneType.RADAR) && idLeader == null) {
                     //Become a leader yourself and prepare
                     setLeader(getIdentifier());
-                    radio.send(new DataMessage(this, MyTacticMessage.MESSAGETYPES.IsLeaderMessage).getMessage());
+                    radio.send(new DataMessage(this, MyTacticMessage.MESSAGETYPES.IS_LEADER_MESSAGE).getMessage());
                     log.info("Drone " + getIdentifier() + " is the leader of team " + m_drone.getTeamname());
-                } else if (MyTacticMessage.checkType(newMessage, MyTacticMessage.MESSAGETYPES.IsLeaderMessage)) {
+                } else if (MyTacticMessage.checkType(newMessage,
+        MyTacticMessage.MESSAGETYPES.IS_LEADER_MESSAGE)) {
                     setLeader(newMessage.get("id"));
                     lastRequestForLeader.reset();
                 }
+                //@formatter:on
             }
         }
     }
 
     private boolean checkIfLeaderIsAlive() {
-        LocalDateTime testingTime = LocalDateTime.now();
-        return idLeader != null && teammembers.get(idLeader) != null && !TimeoutTimer.isTimeExceeded(testingTime,
-                ttlLeader);
+        return idLeader != null && teammembers.get(idLeader) != null && !TimeoutTimer.isTimeExceeded(LocalDateTime.now(), ttlLeader);
     }
 
     private void executeInstruction(InstructionMessage.InstructionType instructionType, D3Vector targetLocation) {
@@ -233,7 +239,7 @@ public class TheoreticalTactic extends Tactic {
         //TODO Make this quicker (or just move even without info about the leader)
         if (idLeader == null) {
             log.debug("Searching for leader");
-            radio.send(new DataMessage(this, MyTacticMessage.MESSAGETYPES.SearchLeaderMessage).getMessage());
+            radio.send(new DataMessage(this, MyTacticMessage.MESSAGETYPES.SEARCH_LEADER_MESSAGE).getMessage());
             lastRequestForLeader.reset();
         }
     }
@@ -284,29 +290,29 @@ public class TheoreticalTactic extends Tactic {
     }
 
     private void sendInstructions() {
-        teammembers.keySet().parallelStream().forEach(teammember -> {
+        teammembers.entrySet().parallelStream().forEach(teammember -> {
             Map<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer> utilityMapMove = new HashMap<>();
             Map<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer> utilityMapShoot = new HashMap<>();
 
             //Generate utility calculations to move in any of the 26 directions
-            generateUtilityCalculations(utilityMapMove, InstructionMessage.InstructionType.MOVE, teammember);
+            generateUtilityCalculations(utilityMapMove, InstructionMessage.InstructionType.MOVE, teammember.getKey());
             //Generate utility for movement towards a different drone and shooting towards a drone
             mapOfTheWorld.entrySet().parallelStream().forEach(entry -> {
                 utilityMapMove.put(
                         new Tuple<>(InstructionMessage.InstructionType.MOVE, entry.getValue().getRight()),
                         calculateUtility(
                                 InstructionMessage.InstructionType.MOVE,
-                                teammember,
+                                teammember.getKey(),
                                 entry.getValue().getRight()
                         )
                 );
 
-                if (teammembers.get(teammember).getRight().contains("gun")) {
+                if (teammember.getValue().getRight().contains("gun")) {
                     utilityMapShoot.put(
                             new Tuple<>(InstructionMessage.InstructionType.SHOOT, entry.getValue().getRight()),
                             calculateUtility(
                                     InstructionMessage.InstructionType.SHOOT,
-                                    teammember,
+                                    teammember.getKey(),
                                     entry.getValue().getRight()
                             )
                     );
@@ -316,55 +322,48 @@ public class TheoreticalTactic extends Tactic {
                     utilityMapShoot.entrySet().parallelStream().max(Comparator.comparingInt(Entry::getValue));
             if (highestUtilityShoot.isPresent() && highestUtilityShoot.get().getValue() > 0) {
                 Tuple<InstructionMessage.InstructionType, D3Vector> highesUtilityParams = highestUtilityShoot.get().getKey();
-                log.info("sendInstructions type: " + highesUtilityParams.getLeft() + ", to " + teammember + "location: " +
-                        highesUtilityParams.getRight().toString() + ", because its utility was " + highestUtilityShoot.get().getValue() + " out of " + Arrays.toString
-                        (utilityMapShoot.values().toArray()));
-                radio.send(new InstructionMessage(this, highesUtilityParams.getLeft(), teammember, highesUtilityParams.getRight()).getMessage());
+                radio.send(new InstructionMessage(this, highesUtilityParams.getLeft(), teammember.getKey(), highesUtilityParams.getRight()).getMessage());
             }
 
             Optional<Entry<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer>> highestUtilityMove =
                     utilityMapMove.entrySet().parallelStream().max(Comparator.comparingInt(Entry::getValue));
             if (highestUtilityMove.isPresent() && highestUtilityMove.get().getValue() > 0) {
                 Tuple<InstructionMessage.InstructionType, D3Vector> highesUtilityParams = highestUtilityMove.get().getKey();
-                radio.send(new InstructionMessage(this, highesUtilityParams.getLeft(), teammember, highesUtilityParams.getRight()).getMessage());
+                radio.send(new InstructionMessage(this, highesUtilityParams.getLeft(), teammember.getKey(), highesUtilityParams.getRight()).getMessage());
             }
 
         });
     }
 
-    public void generateUtilityCalculations(Map<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer> utilityMap, InstructionMessage.InstructionType type,
-                                            String droneId) {
-        Tuple<LocalDateTime, D3Vector> teammember = mapOfTheWorld.get(droneId);
-        if (teammember == null) {
-            log.error("Team member with id " + droneId + " not found in mapOfTheWorld: " + mapOfTheWorld.entrySet());
-            return;
-        }
+    /**
+     * Use three for loops to walk over all neighboring positions of the current position and calculate the utility for that location.
+     *
+     * @param utilityMap the map to which the utility is added
+     * @param type       the instruction type for which we need to calculate the utility
+     * @param droneId    the id of the drone for which we will generate all this
+     */
+    private void generateUtilityCalculations(Map<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer> utilityMap, InstructionMessage.InstructionType type,
+                                             String droneId) {
         D3Vector currentLocation = mapOfTheWorld.get(droneId).getRight();
 
         IntStream.range(-MOVE_GENERATION_DELTA, MOVE_GENERATION_DELTA).parallel().forEach(x ->
                 IntStream.range(-MOVE_GENERATION_DELTA, MOVE_GENERATION_DELTA).parallel().forEach(y ->
-                        IntStream.range(-MOVE_GENERATION_DELTA, MOVE_GENERATION_DELTA).parallel().forEach(z -> {
-                            D3Vector targetLocation = currentLocation.add(new D3Vector(x, y, z));
-                            utilityMap.put(
-                                    new Tuple<>(type, targetLocation),
-                                    calculateUtility(type, droneId, targetLocation)
-                            );
-                        })
+                        IntStream.range(-MOVE_GENERATION_DELTA, MOVE_GENERATION_DELTA).parallel()
+                                .mapToObj(z -> currentLocation.add(new D3Vector(x, y, z)))
+                                .forEach(targetLocation -> utilityMap.put(
+                                        new Tuple<>(type, targetLocation),
+                                        calculateUtility(type, droneId, targetLocation)
+                                ))
                 )
         );
     }
 
+    /**
+     * Helper function that wraps the parameters into an object and calls the calculate utility on the correct object.
+     */
     int calculateUtility(InstructionMessage.InstructionType instructionType, String droneId, D3Vector target) {
         CalculateUtilityHelper.CalculateUtilityParams params = new CalculateUtilityHelper.CalculateUtilityParams(teammembers, mapOfTheWorld, instructionType, droneId, target);
         return new CalculateUtilityHelper(params).calculateUtility();
-    }
-
-    private D3Vector calculateRandomPositionInField() {
-        return new D3Vector(
-                (Math.random() * (Settings.ARENA_WIDTH - 200) + 100),
-                (Math.random() * (Settings.ARENA_DEPTH - 200) + 100),
-                (Math.random() * (Settings.ARENA_HEIGHT - 200) + 100)
-        );
     }
 
     private enum DroneType {

@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.drone.tactic;
 
 
+import lombok.Getter;
 import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.common.ManagedThread;
@@ -35,33 +36,41 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 @Log4j
 public abstract class Tactic extends ManagedThread implements MessageHandler {
-    public static final long tacticTimout = 1;//tck
+    private static final long TACTIC_TIMOUT = 1;//tck
+    private final TimeoutTimer workTimoutTimer = new TimeoutTimer(TACTIC_TIMOUT * Settings.TICK_TIME);
     // drone components
-    public volatile Radar radar;
-    public volatile GPS gps;
-    public volatile Engine engine;
-    public volatile Gun gun;
-    public volatile Radio radio;
+    @Getter
+    protected volatile Radar radar;
+    @Getter
+    protected volatile GPS gps;
+    @Getter
+    protected volatile Engine engine;
+    @Getter
+    protected volatile Gun gun;
     /**
      * Drone Init bundle
      */
     protected volatile DroneInit m_drone;
+    @Getter
+    protected volatile Radio radio;
     /**
      * Architecture Event controller bundle
      */
+    @SuppressWarnings("unused") //Assigned through OSGi
     private volatile ArchitectureEventController m_architectureEventController;
     /**
      * Subscriber bundle
      */
+    @SuppressWarnings("unused") //Assigned through OSGi
     private volatile Subscriber m_subscriber;
-    /**
-     * Discoverer bundle
-     */
-    private volatile Discoverer m_discoverer;
     private Instance simulationInstance;
     private boolean registered = false;
     private AtomicBoolean initialized = new AtomicBoolean(false);
-    private final TimeoutTimer workTimoutTimer = new TimeoutTimer(tacticTimout*Settings.TICK_TIME);
+    /**
+     * Discoverer bundle
+     */
+    @SuppressWarnings("unused") //Assigned through OSGi
+    private volatile Discoverer m_discoverer;
     private final TimeoutTimer ticker = new TimeoutTimer(Settings.TICK_TIME);
 
     /**
@@ -243,9 +252,9 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
                     "\tacceleration: " + gps.getAcceleration().toString() + "\n"
             );
             this.stopSimulation();
-//            if (!log.isDebugEnabled()){
-//                System.exit(10);
-//            }
+            if (!log.isDebugEnabled()) {
+                System.exit(10);
+            }
         }
     }
 
@@ -285,6 +294,11 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     }
 
 
+    /**
+     * Checks if the components are non-null.
+     *
+     * @return returns a set with all available components.
+     */
     public final Set<String> getAvailableComponents() {
         Set<String> componentlist = new HashSet<>();
         if (radar != null) {
@@ -317,6 +331,10 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
      */
     protected abstract void calculateTactics();
 
+
+    /**
+     * This method MIGHT be called when the drone is killed. This is not a guarantee. Use this to stop spawned threads to avoid infinite threads for each restart.
+     */
     protected abstract void finalizeTactics();
 
     public class MissingComponentsException extends Exception {

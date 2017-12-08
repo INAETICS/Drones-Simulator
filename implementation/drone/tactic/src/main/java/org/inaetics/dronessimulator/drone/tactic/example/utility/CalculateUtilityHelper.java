@@ -12,8 +12,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-
 
 @Log4j
 @RequiredArgsConstructor
@@ -25,6 +23,32 @@ public class CalculateUtilityHelper {
     private static final double MINIMAL_TEAM_DISTANCE = 15d;
     private final CalculateUtilityParams params;
 
+    private static boolean insideRange(D3Vector startRange, D3Vector endRange, D3Vector testedLocation) {
+        return
+                //Check the x location
+                testedLocation.getX() > startRange.getX() &&
+                        testedLocation.getX() < endRange.getX() &&
+                        //Check the y location
+                        testedLocation.getY() > startRange.getY() &&
+                        testedLocation.getY() < endRange.getY() &&
+                        //Check the z location
+                        testedLocation.getZ() > startRange.getZ() &&
+                        testedLocation.getZ() < endRange.getZ();
+    }
+
+    /**
+     * Really calculate the utility here. It is based on the following statements
+     * - If we do not have a gun, we cannot shoot -> utility becomes -1
+     * - Do not shoot yourself -> utility becomes -1
+     * - Do not move to a location that is outside the game area -> utility becomes -1
+     * - We would like to shoot the enemy that is closest.
+     * - We would like to move away from enemies if we cannot shoot it.
+     * - We would like to move towards enemies if we can shoot it because it will improve our accuracy.
+     * - We would like to move close to a team member, but not fly into it.
+     * - We do NOT want to shoot team members.
+     *
+     * @return the utility as an integer
+     */
     public Integer calculateUtility() {
         //Do some pre-checks first
         if (params.type.equals(InstructionMessage.InstructionType.SHOOT) && !params.droneHasComponent("gun")) {
@@ -46,10 +70,10 @@ public class CalculateUtilityHelper {
         forEachEnemy(enemy -> {
             if (params.type.equals(InstructionMessage.InstructionType.SHOOT)) {
                 //Shooting at the closest enemy gives the highest utility
-                if (params.target.equals(enemy.getValue())) //If the target to shoot is at the same position as the enemy
+                if (params.target.equals(enemy.getRight())) //If the target to shoot is at the same position as the enemy
                     utility[0] += (MAX_ARENA_DISTANCE - params.target.distance_between(params.getDroneLocation())) * SHOOTING_WEIGHT;
             } else {
-                double distanceToEnemy = enemy.getValue().distance_between(params.target);
+                double distanceToEnemy = enemy.getRight().distance_between(params.target);
                 if (params.droneHasComponent("gun")) {
                     //Moving towards a target when you can shoot it, is a good idea, so the utility is bigger if
                     // we move towards the enemy.
@@ -79,35 +103,19 @@ public class CalculateUtilityHelper {
                 }
             }
         });
-        return utility[0]; //TODO
+        return utility[0];
     }
 
-    private void forEachEnemy(Consumer<? super Map.Entry<String, D3Vector>> f) {
-        getEnemiesInWorld().entrySet().parallelStream().forEach(f);
+    private void forEachEnemy(Consumer<? super Tuple<String, D3Vector>> f) {
+        params.mapOfTheWorld.entrySet().parallelStream()
+                .filter(e -> !params.teammembers.containsKey(e.getKey()))
+                .map(e -> new Tuple<>(e.getKey(), e.getValue().getRight()))
+                .forEach(f);
     }
 
     private void forEachTeammember(Consumer<? super Map.Entry<String, Tuple<D3Vector, List<String>>>> f) {
         params.teammembers.entrySet().parallelStream().forEach(f);
     }
-
-    private Map<String, D3Vector> getEnemiesInWorld() {
-        return params.mapOfTheWorld.entrySet().parallelStream().filter(e -> !params.teammembers.containsKey(e.getKey()))
-                .collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().getRight()));
-    }
-
-    private boolean insideRange(D3Vector startRange, D3Vector endRange, D3Vector testedLocation) {
-        return
-                //Check the x location
-                testedLocation.getX() > startRange.getX() &&
-                        testedLocation.getX() < endRange.getX() &&
-                        //Check the y location
-                        testedLocation.getY() > startRange.getY() &&
-                        testedLocation.getY() < endRange.getY() &&
-                        //Check the z location
-                        testedLocation.getZ() > startRange.getZ() &&
-                        testedLocation.getZ() < endRange.getZ();
-    }
-
 
     /**
      * This is a data object that holds all the required parameters to calculate the utility of a move. This is useful to reduce the number of parameters given to the

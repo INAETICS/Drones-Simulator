@@ -20,7 +20,7 @@ public abstract class MyTacticMessage {
         return messageClass.getSimpleName().equals(newMessage.get("type"));
     }
 
-    public static <M extends MyTacticMessage> boolean checkType(TacticMessage newMessage, String messageType) {
+    public static boolean checkType(TacticMessage newMessage, String messageType) {
         return messageType != null && messageType.equals(newMessage.get("type"));
     }
 
@@ -55,12 +55,15 @@ public abstract class MyTacticMessage {
     }
 
     public static class MESSAGETYPES {
-        public static final String HeartbeatMessage = HeartbeatMessage.class.getSimpleName();
-        public static final String RadarImageMessage = RadarImageMessage.class.getSimpleName();
-        public static final String InstructionMessage = InstructionMessage.class.getSimpleName();
-        public static final String FiredBulletMessage = "FiredBulletMessage";
-        public static final String SearchLeaderMessage = "SearchLeaderMessage";
-        public static final String IsLeaderMessage = "IsLeaderMessage";
+        public static final String HEARTBEAT_MESSAGE = HeartbeatMessage.class.getSimpleName();
+        public static final String RADAR_IMAGE_MESSAGE = RadarImageMessage.class.getSimpleName();
+        public static final String INSTRUCTION_MESSAGE = InstructionMessage.class.getSimpleName();
+        public static final String FIRED_BULLET_MESSAGE = "FIRED_BULLET_MESSAGE";
+        public static final String SEARCH_LEADER_MESSAGE = "SEARCH_LEADER_MESSAGE";
+        public static final String IS_LEADER_MESSAGE = "IS_LEADER_MESSAGE";
+
+        private MESSAGETYPES() {
+        } //Do not instantiate this static helper (Enum-ish class)
 
         public static List<String> getMessageTypes() {
             return Arrays.asList(Arrays.stream(MESSAGETYPES.class.getFields()).map(field -> {
@@ -77,6 +80,6 @@ public abstract class MyTacticMessage {
     @AllArgsConstructor
     @ToString
     public class InvalidMessageTypeException extends RuntimeException {
-        private String invalidMessageType;
+        private final String invalidMessageType;
     }
 }

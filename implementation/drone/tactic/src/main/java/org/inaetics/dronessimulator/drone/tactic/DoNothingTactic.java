@@ -3,7 +3,7 @@ package org.inaetics.dronessimulator.drone.tactic;
 public class DoNothingTactic extends Tactic {
     @Override
     protected void initializeTactics() {
-
+        //Do nothing :P
     }
 
     @Override
@@ -13,6 +13,6 @@ public class DoNothingTactic extends Tactic {
 
     @Override
     protected void finalizeTactics() {
-
+        //Do nothing :P
     }
 }

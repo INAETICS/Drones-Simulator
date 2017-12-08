@@ -20,7 +20,7 @@ public class MoveToLocationTacticTest {
 
     @Test
     @Ignore
-    public void testComparison() {
+    public void testComparison() throws NoSuchFieldException, IllegalAccessException {
         DroneInit drone = new DroneInit();
         drone.setIdentifier("1");
         GPS gps = new GPS(mock(Subscriber.class), drone, new HashSet<>(), null, D3Vector.UNIT, D3Vector.UNIT, D3Vector
@@ -29,25 +29,25 @@ public class MoveToLocationTacticTest {
 
 
         MoveToLocationTactic tactic = new MoveToLocationTactic();
-        tactic.gps = gps;
+        TacticTesterHelper.setField(tactic, "gps", gps);
 
 
         final D3Vector[] result = new D3Vector[2];
-        tactic.engine = new Engine(mock(Publisher.class), drone, gps, new HashSet<>(), null) {
+        TacticTesterHelper.setField(tactic, "engine", new Engine(mock(Publisher.class), drone, gps, new HashSet<>(), null) {
             @Override
             public void changeAcceleration(D3Vector input_acceleration) {
                 super.changeAcceleration(input_acceleration);
                 result[0] = input_acceleration;
             }
-        };
+        });
         tactic.moveToLocation(new D3Vector(5, 5, 5));
-        tactic.engine = new Engine(mock(Publisher.class), drone, gps, new HashSet<>(), null) {
+        TacticTesterHelper.setField(tactic, "engine", new Engine(mock(Publisher.class), drone, gps, new HashSet<>(), null) {
             @Override
             public void changeAcceleration(D3Vector input_acceleration) {
                 super.changeAcceleration(input_acceleration);
                 result[1] = input_acceleration;
             }
-        };
+        });
         tactic.calculateMovement(new D3Vector(5, 5, 5));
         Assert.assertEquals(result[0], result[1]);
     }

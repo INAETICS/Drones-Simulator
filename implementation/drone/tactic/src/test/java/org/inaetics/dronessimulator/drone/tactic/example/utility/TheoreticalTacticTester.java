@@ -48,7 +48,7 @@ public class TheoreticalTacticTester {
     public void testCalculateTactics() {
         for (int i = 0; i < 10; i++) {
             tactic.calculateTactics();
-            tactic.radio.handleMessage(new HeartbeatMessage(tactic, tactic.gps).getMessage());
+            tactic.getRadio().handleMessage(new HeartbeatMessage(tactic, tactic.getGps()).getMessage());
         }
         Assert.assertTrue(publisher.getReceivedMessages().size() >= 10);
         Assert.assertThat(publisher.getReceivedMessages(), hasItem(new Tuple<>(new TeamTopic("unknown_team"), new
@@ -83,7 +83,7 @@ public class TheoreticalTacticTester {
 
         //When the leader dies, the remaining drone should be its own leader.
         tactic.stopTactic();
-        Thread.sleep(TheoreticalTactic.ttlLeader * 1000);
+        Thread.sleep((long) (TheoreticalTactic.ttlLeader * 1000));
         for (int i = 0; i < 20; i++) {
             tactic2.calculateTactics();
         }
@@ -101,25 +101,25 @@ public class TheoreticalTacticTester {
         mapOfTheWorld.put("enemyDrone", new Tuple<>(LocalDateTime.now(), new D3Vector(100, 100, 50)));
         setField(tactic, "teammembers", teammembers);
         setField(tactic, "mapOfTheWorld", mapOfTheWorld);
-        tactic.engine = new Engine();
-        tactic.radio = new Radio();
+        setField(tactic, "engine", new Engine());
+        setField(tactic, "radio", new Radio());
 
         //Move towards a drone since we have a gun
-//        CalculateUtilityHelper.CalculateUtilityParams test1Params = new CalculateUtilityHelper.CalculateUtilityParams(teammembers, mapOfTheWorld, InstructionMessage.InstructionType.MOVE, "1", new D3Vector(50, 50, 50));
-        tactic.gps.setPosition(D3Vector.UNIT);
-        tactic.gun = new Gun();
+//        CalculateUtilityHelper.CalculateUtilityParams test1Params = new CalculateUtilityHelper.CalculateUtilityParams(teammembers, mapOfTheWorld, INSTRUCTION_MESSAGE.InstructionType.MOVE, "1", new D3Vector(50, 50, 50));
+        tactic.getGps().setPosition(D3Vector.UNIT);
+        setField(tactic, "gun", new Gun());
         int utility = tactic.calculateUtility(InstructionMessage.InstructionType.MOVE, tactic.getIdentifier(), new D3Vector(50, 50, 50));
         Assert.assertEquals((int) new D3Vector(Settings.ARENA_WIDTH, Settings.ARENA_DEPTH, Settings.ARENA_HEIGHT).length() - (int) new D3Vector(50, 50,
                 0).length(), utility);
 
         //Do not move out of bounds
-        tactic.gps.setPosition(D3Vector.UNIT);
+        tactic.getGps().setPosition(D3Vector.UNIT);
         utility = tactic.calculateUtility(InstructionMessage.InstructionType.MOVE, tactic.getIdentifier(), new D3Vector(-1, -1, -1));
         Assert.assertEquals(-1, utility);
 
         //Move away from a drone if you do not have a gun. The higher the distance, the better
-        tactic.gps.setPosition(D3Vector.UNIT);
-        tactic.gun = null;
+        tactic.getGps().setPosition(D3Vector.UNIT);
+        setField(tactic, "gps", null);
         utility = tactic.calculateUtility(InstructionMessage.InstructionType.MOVE, tactic.getIdentifier(), new D3Vector(50, 50, 50));
         Assert.assertEquals((int) new D3Vector(50, 50, 50).distance_between(mapOfTheWorld.get("enemyDrone").getRight()), utility);
 

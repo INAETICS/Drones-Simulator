@@ -45,6 +45,8 @@ Each container that runs java will show a stack dump and a java process overview
 and the overview is generated with ps. The process overview also contains a HEX LWP. This is the nid in the stack dump.
 Please use the first HEX LWP to find the busiest thread and inspect the thread manually more.
 
+Besides this command you can also use jvmtop.sh. This program is located in /opt/jvmtop/jvmtop.sh within the container. Run it with 'docker exec <CONTAINERNAME OR
+CONTAINERID> /opt/jvmtop/jvmtop.sh --profile <PROCESS_ID>'
 "
 
 IFS='

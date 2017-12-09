@@ -46,6 +46,7 @@ cp "$STATIC/felix-config.properties" "$BASE_IMAGE/files/config.properties"
 
 # Copy the common dependencies to base image
 cp "$DEPENDENT_BUNDLES/"*".jar" "$BASE_IMAGE_DEPENDENCIES"
+cp -r "$STATIC/jvmtop" "$BASE_IMAGE/files/jvmtop"
 
 # Copy base image docker file
 cp "$STATIC/base_image_Dockerfile" "$BASE_IMAGE/Dockerfile"

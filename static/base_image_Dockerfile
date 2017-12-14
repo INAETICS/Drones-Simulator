@@ -16,6 +16,9 @@ ADD files/config.properties /opt/felix/current/conf/
 
 # Add the dependencies
 ADD files/dependencies/*.jar /opt/felix/current/bundle/
+ADD files/jvmtop /opt/jvmtop/
+
+RUN chmod +x /opt/jvmtop/jvmtop.sh
 
 WORKDIR /opt/felix/current
 

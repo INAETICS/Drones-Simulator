@@ -106,7 +106,7 @@ public class CalculateUtilityHelper {
         return utility[0];
     }
 
-    private void forEachEnemy(Consumer<? super Tuple<String, D3Vector>> f) {
+    void forEachEnemy(Consumer<? super Tuple<String, D3Vector>> f) {
         params.mapOfTheWorld.entrySet().parallelStream()
                 .filter(e -> !params.teammembers.containsKey(e.getKey()))
                 .map(e -> new Tuple<>(e.getKey(), e.getValue().getRight()))

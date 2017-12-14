@@ -83,7 +83,7 @@ public class TheoreticalTacticTester {
 
         //When the leader dies, the remaining drone should be its own leader.
         tactic.stopTactic();
-        Thread.sleep((long) (TheoreticalTactic.ttlLeader * 1000));
+        Thread.sleep((long) (TheoreticalTactic.TTL_DRONE * 1000));
         for (int i = 0; i < 20; i++) {
             tactic2.calculateTactics();
         }

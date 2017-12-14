@@ -21,7 +21,7 @@ import static org.inaetics.dronessimulator.drone.tactic.example.utility.Calculat
 @Log4j
 @NoArgsConstructor //An OSGi constructor
 public class TheoreticalTactic extends Tactic {
-    public static final double ttlLeader = 3 * Settings.getTickTime(ChronoUnit.SECONDS); //seconds
+    public static final double TTL_DRONE = 3 * Settings.getTickTime(ChronoUnit.SECONDS); //seconds
     private DroneType droneType;
     private String idLeader;
     /**
@@ -88,7 +88,7 @@ public class TheoreticalTactic extends Tactic {
     @Override
     protected void calculateTactics() {
         //Remove stale data from the map
-        mapOfTheWorld.entrySet().removeIf(e -> TimeoutTimer.isTimeExceeded(e.getValue().getLeft(), ttlLeader));
+        mapOfTheWorld.entrySet().removeIf(e -> TimeoutTimer.isTimeExceeded(e.getValue().getLeft(), TTL_DRONE));
         teammembers.entrySet().removeIf(e -> !mapOfTheWorld.containsKey(e.getKey()));
 
         manageOutgoingCommunication();
@@ -96,7 +96,9 @@ public class TheoreticalTactic extends Tactic {
         //Check leader
         if (!checkIfLeaderIsAlive()) {
             log.debug("Find a new leader, the leader was " + idLeader);
-            setLeader(null);
+            moveEvasively();
+            if (idLeader != null)
+                setLeader(null);
             //Leader is not alive
             findLeader();
             //Check if the new found leader is alive. This is done to avoid side-effects of a function
@@ -114,6 +116,14 @@ public class TheoreticalTactic extends Tactic {
         if (myTargetMoveLocation != null) {
             moveToLocation(myTargetMoveLocation);
         }
+    }
+
+    private void moveEvasively() {
+        executeInstruction(InstructionMessage.InstructionType.MOVE, getRandomLocation());
+    }
+
+    private D3Vector getRandomLocation() {
+        return new D3Vector(Math.random() * Settings.ARENA_WIDTH, Math.random() * Settings.ARENA_HEIGHT, Math.random() * Settings.ARENA_DEPTH);
     }
 
     @Override
@@ -152,6 +162,9 @@ public class TheoreticalTactic extends Tactic {
         HeartbeatMessage.class)) {
                     teammembers.put(newMessage.get("id"), new Tuple<>(D3Vector.fromString(newMessage.get("position")), Arrays.asList(newMessage.get("components").split(","))));
                     mapOfTheWorld.put(newMessage.get("id"), new Tuple<>(LocalDateTime.now(), D3Vector.fromString(newMessage.get("position"))));
+                    if (Boolean.parseBoolean(newMessage.get("isLeader")) && !newMessage.get("id").equals(idLeader)) {
+                        setLeader(newMessage.get("id"));
+                    }
                 } else if (MyTacticMessage.checkType(newMessage,
         RadarImageMessage.class)) {
                     RadarImageMessage.parseData(newMessage).entrySet().parallelStream().
@@ -180,7 +193,7 @@ public class TheoreticalTactic extends Tactic {
     }
 
     private boolean checkIfLeaderIsAlive() {
-        return idLeader != null && teammembers.get(idLeader) != null && !TimeoutTimer.isTimeExceeded(LocalDateTime.now(), ttlLeader);
+        return idLeader != null && teammembers.get(idLeader) != null && !TimeoutTimer.isTimeExceeded(mapOfTheWorld.get(idLeader).getLeft(), TTL_DRONE);
     }
 
     private void executeInstruction(InstructionMessage.InstructionType instructionType, D3Vector targetLocation) {
@@ -236,7 +249,6 @@ public class TheoreticalTactic extends Tactic {
     }
 
     private void findLeader() {
-        //TODO Make this quicker (or just move even without info about the leader)
         if (idLeader == null) {
             log.debug("Searching for leader");
             radio.send(new DataMessage(this, MyTacticMessage.MESSAGETYPES.SEARCH_LEADER_MESSAGE).getMessage());
@@ -250,12 +262,19 @@ public class TheoreticalTactic extends Tactic {
     }
 
     private void randomShooting() {
-        //TODO use mapoftheworld if there is anything present that is not a teammember
+        List<D3Vector> targets = new LinkedList<>();
+        if (mapOfTheWorld.size() > 1) {
+            //This is an unlikely case since anybody can become a leader, but this is a fallback.
+            CalculateUtilityHelper helper = new CalculateUtilityHelper(new CalculateUtilityHelper.CalculateUtilityParams(teammembers, mapOfTheWorld, InstructionMessage.InstructionType.SHOOT,
+                    getIdentifier(), null));
+            helper.forEachEnemy(enemy -> targets.add(enemy.getRight()));
+        }
         log.debug("RANDOM SHOOTING AND MOVING!!!");
-        D3Vector randomLocation = new D3Vector(Math.random() * Settings.ARENA_WIDTH, Math.random() * Settings
-                .ARENA_HEIGHT, Math.random() * Settings.ARENA_DEPTH);
-        executeInstruction(InstructionMessage.InstructionType.SHOOT, randomLocation);
-        executeInstruction(InstructionMessage.InstructionType.MOVE, randomLocation);
+        if (targets.isEmpty()) {
+            targets.add(getRandomLocation());
+        }
+        executeInstruction(InstructionMessage.InstructionType.SHOOT, targets.get(0));
+        executeInstruction(InstructionMessage.InstructionType.MOVE, targets.get(0));
     }
 
     private void sendRadarimage() {
@@ -264,7 +283,9 @@ public class TheoreticalTactic extends Tactic {
         List<D3Vector> unknownEntries = new LinkedList<>();
         //First map all teammembers so we known who are the enemies
         currentRadar.parallelStream().forEach(location -> {
-            Optional<Entry<String, Tuple<D3Vector, List<String>>>> teammember = teammembers.entrySet().stream().filter(e -> e.getValue().getLeft().equals(location)).findFirst();
+            Optional<Entry<String, Tuple<D3Vector, List<String>>>> teammember = teammembers.entrySet().parallelStream().filter(e ->
+                    e.getValue().getLeft().distance_between(location) < (Settings.MAX_DRONE_VELOCITY * Settings.getTickTime(ChronoUnit.SECONDS))
+            ).findFirst();
             if (teammember.isPresent()) {
                 enhancedRadarImage.put(teammember.get().getKey(), location);
             } else {

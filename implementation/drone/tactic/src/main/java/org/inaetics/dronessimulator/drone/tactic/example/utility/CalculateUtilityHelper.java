@@ -1,17 +1,17 @@
 package org.inaetics.dronessimulator.drone.tactic.example.utility;
 
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.Tuple;
+import org.inaetics.dronessimulator.common.model.Triple;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.tactic.example.utility.messages.InstructionMessage;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 @Log4j
 @RequiredArgsConstructor
@@ -70,10 +70,10 @@ public class CalculateUtilityHelper {
         forEachEnemy(enemy -> {
             if (params.type.equals(InstructionMessage.InstructionType.SHOOT)) {
                 //Shooting at the closest enemy gives the highest utility
-                if (params.target.equals(enemy.getRight())) //If the target to shoot is at the same position as the enemy
+                if (params.target.equals(enemy)) //If the target to shoot is at the same position as the enemy
                     utility[0] += (MAX_ARENA_DISTANCE - params.target.distance_between(params.getDroneLocation())) * SHOOTING_WEIGHT;
             } else {
-                double distanceToEnemy = enemy.getRight().distance_between(params.target);
+                double distanceToEnemy = enemy.distance_between(params.target);
                 if (params.droneHasComponent("gun")) {
                     //Moving towards a target when you can shoot it, is a good idea, so the utility is bigger if
                     // we move towards the enemy.
@@ -86,7 +86,7 @@ public class CalculateUtilityHelper {
         });
         forEachTeammember(teammember -> {
             if (!teammember.getKey().equals(params.droneId)) { //If the teammember is not the current drone
-                double distanceToTeammate = teammember.getValue().getLeft().distance_between(params.target);
+                double distanceToTeammate = teammember.getValue().getB().distance_between(params.target);
                 if (params.type.equals(InstructionMessage.InstructionType.MOVE)) {
                     //we do not want to crash into a teammate
                     if (distanceToTeammate < MINIMAL_TEAM_DISTANCE) {
@@ -106,14 +106,15 @@ public class CalculateUtilityHelper {
         return utility[0];
     }
 
-    void forEachEnemy(Consumer<? super Tuple<String, D3Vector>> f) {
-        params.mapOfTheWorld.entrySet().parallelStream()
-                .filter(e -> !params.teammembers.containsKey(e.getKey()))
-                .map(e -> new Tuple<>(e.getKey(), e.getValue().getRight()))
+    void forEachEnemy(Consumer<? super D3Vector> f) {
+        params.radarImage.parallelStream()
+                .map(Tuple::getRight)
+                .filter(e -> !params.teammembers.values().parallelStream().map(Triple::getB).collect(Collectors.toList()).contains(e))
+                .peek(e -> log.debug("Found enemy at: " + e.toString() + " This is my set of teammembers: " + params.teammembers + " This is the full radar: " + params.radarImage))
                 .forEach(f);
     }
 
-    private void forEachTeammember(Consumer<? super Map.Entry<String, Tuple<D3Vector, List<String>>>> f) {
+    private void forEachTeammember(Consumer<? super Map.Entry<String, Triple<LocalDateTime, D3Vector, List<String>>>> f) {
         params.teammembers.entrySet().parallelStream().forEach(f);
     }
 
@@ -121,21 +122,28 @@ public class CalculateUtilityHelper {
      * This is a data object that holds all the required parameters to calculate the utility of a move. This is useful to reduce the number of parameters given to the
      * calculate utility function. This will hopefully make the call to the function more readable.
      */
-    @Data
-    @RequiredArgsConstructor
+
     static class CalculateUtilityParams {
-        private final Map<String, Tuple<D3Vector, List<String>>> teammembers;
-        private final Map<String, Tuple<LocalDateTime, D3Vector>> mapOfTheWorld;
+        private final Map<String, Triple<LocalDateTime, D3Vector, List<String>>> teammembers;
+        private final Collection<Tuple<LocalDateTime, D3Vector>> radarImage;
         private final InstructionMessage.InstructionType type;
         private final String droneId;
         private final D3Vector target;
 
+        CalculateUtilityParams(Map<String, Triple<LocalDateTime, D3Vector, List<String>>> teammembers, Queue<Tuple<LocalDateTime, D3Vector>> radarImage, InstructionMessage.InstructionType type, String droneId, D3Vector target) {
+            this.teammembers = Collections.unmodifiableMap(teammembers);
+            this.radarImage = Collections.unmodifiableCollection(radarImage);
+            this.type = type;
+            this.droneId = droneId;
+            this.target = target;
+        }
+
         D3Vector getDroneLocation() {
-            return mapOfTheWorld.get(droneId).getRight();
+            return teammembers.get(droneId).getB();
         }
 
         boolean droneHasComponent(String component) {
-            return teammembers.get(droneId).getRight().contains(component);
+            return teammembers.get(droneId).getC().contains(component);
         }
     }
 }

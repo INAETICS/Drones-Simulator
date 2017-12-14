@@ -3,6 +3,7 @@ package org.inaetics.dronessimulator.drone.tactic.example.utility;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.*;
+import org.inaetics.dronessimulator.common.model.Triple;
 import org.inaetics.dronessimulator.common.protocol.TacticMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.tactic.Tactic;
@@ -14,6 +15,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import static org.inaetics.dronessimulator.drone.tactic.example.utility.CalculateUtilityHelper.MOVE_GENERATION_DELTA;
@@ -31,11 +34,11 @@ public class TheoreticalTactic extends Tactic {
      * The left item of the tuple is the location of the teammember
      * The right list of the tuple is a list of available components
      */
-    private Map<String, Tuple<D3Vector, List<String>>> teammembers = new ConcurrentHashMap<>();
-    private Map<String, Tuple<LocalDateTime, D3Vector>> mapOfTheWorld = new ConcurrentHashMap<>();
+    private Map<String, Triple<LocalDateTime, D3Vector, List<String>>> teammembers = new ConcurrentHashMap<>();
+    private Queue<Tuple<LocalDateTime, D3Vector>> radarImage = new ConcurrentLinkedQueue<>();
     private ManagedThread handleBroadcastMessagesThread;
     private D3Vector myTargetMoveLocation;
-    private TimeoutTimer lastRequestForLeader = new TimeoutTimer(1000); //1 sec //TODO check if this is really needed
+    private TimeoutTimer lastRequestForLeader = new TimeoutTimer(1000); //1 sec
 
     private DroneType getType() {
         DroneType droneType;
@@ -88,8 +91,8 @@ public class TheoreticalTactic extends Tactic {
     @Override
     protected void calculateTactics() {
         //Remove stale data from the map
-        mapOfTheWorld.entrySet().removeIf(e -> TimeoutTimer.isTimeExceeded(e.getValue().getLeft(), TTL_DRONE));
-        teammembers.entrySet().removeIf(e -> !mapOfTheWorld.containsKey(e.getKey()));
+        radarImage.removeIf(e -> TimeoutTimer.isTimeExceeded(e.getLeft(), TTL_DRONE));
+        teammembers.entrySet().removeIf(e -> TimeoutTimer.isTimeExceeded(e.getValue().getA(), TTL_DRONE));
 
         manageOutgoingCommunication();
 
@@ -160,15 +163,13 @@ public class TheoreticalTactic extends Tactic {
                 //@formatter:off
                 if (MyTacticMessage.checkType(newMessage,
         HeartbeatMessage.class)) {
-                    teammembers.put(newMessage.get("id"), new Tuple<>(D3Vector.fromString(newMessage.get("position")), Arrays.asList(newMessage.get("components").split(","))));
-                    mapOfTheWorld.put(newMessage.get("id"), new Tuple<>(LocalDateTime.now(), D3Vector.fromString(newMessage.get("position"))));
+                    teammembers.put(newMessage.get("id"), new Triple<>(LocalDateTime.now(), D3Vector.fromString(newMessage.get("position")), Arrays.asList(newMessage.get("components").split(","))));
                     if (Boolean.parseBoolean(newMessage.get("isLeader")) && !newMessage.get("id").equals(idLeader)) {
                         setLeader(newMessage.get("id"));
                     }
                 } else if (MyTacticMessage.checkType(newMessage,
         RadarImageMessage.class)) {
-                    RadarImageMessage.parseData(newMessage).entrySet().parallelStream().
-                            forEach((e) -> mapOfTheWorld.put(e.getKey(), new Tuple<>(LocalDateTime.now(), e.getValue())));
+                    radarImage = RadarImageMessage.parseData(newMessage).parallelStream().map((e) -> new Tuple<>(LocalDateTime.now(), e)).collect(Collectors.toCollection(ConcurrentLinkedQueue::new));
                 } else if (MyTacticMessage.checkType(newMessage,
         InstructionMessage.class)) {
                     if (newMessage.get("receiver").equals(getIdentifier())) {
@@ -193,7 +194,7 @@ public class TheoreticalTactic extends Tactic {
     }
 
     private boolean checkIfLeaderIsAlive() {
-        return idLeader != null && teammembers.get(idLeader) != null && !TimeoutTimer.isTimeExceeded(mapOfTheWorld.get(idLeader).getLeft(), TTL_DRONE);
+        return idLeader != null && teammembers.get(idLeader) != null && !TimeoutTimer.isTimeExceeded(teammembers.get(idLeader).getA(), TTL_DRONE);
     }
 
     private void executeInstruction(InstructionMessage.InstructionType instructionType, D3Vector targetLocation) {
@@ -263,11 +264,11 @@ public class TheoreticalTactic extends Tactic {
 
     private void randomShooting() {
         List<D3Vector> targets = new LinkedList<>();
-        if (mapOfTheWorld.size() > 1) {
+        if (radarImage.size() > 1) {
             //This is an unlikely case since anybody can become a leader, but this is a fallback.
-            CalculateUtilityHelper helper = new CalculateUtilityHelper(new CalculateUtilityHelper.CalculateUtilityParams(teammembers, mapOfTheWorld, InstructionMessage.InstructionType.SHOOT,
+            CalculateUtilityHelper helper = new CalculateUtilityHelper(new CalculateUtilityHelper.CalculateUtilityParams(teammembers, radarImage, InstructionMessage.InstructionType.SHOOT,
                     getIdentifier(), null));
-            helper.forEachEnemy(enemy -> targets.add(enemy.getRight()));
+            helper.forEachEnemy(targets::add);
         }
         log.debug("RANDOM SHOOTING AND MOVING!!!");
         if (targets.isEmpty()) {
@@ -278,25 +279,7 @@ public class TheoreticalTactic extends Tactic {
     }
 
     private void sendRadarimage() {
-        List<D3Vector> currentRadar = radar.getRadar();
-        Map<String, D3Vector> enhancedRadarImage = new ConcurrentHashMap<>();
-        List<D3Vector> unknownEntries = new LinkedList<>();
-        //First map all teammembers so we known who are the enemies
-        currentRadar.parallelStream().forEach(location -> {
-            Optional<Entry<String, Tuple<D3Vector, List<String>>>> teammember = teammembers.entrySet().parallelStream().filter(e ->
-                    e.getValue().getLeft().distance_between(location) < (Settings.MAX_DRONE_VELOCITY * Settings.getTickTime(ChronoUnit.SECONDS))
-            ).findFirst();
-            if (teammember.isPresent()) {
-                enhancedRadarImage.put(teammember.get().getKey(), location);
-            } else {
-                if (!unknownEntries.contains(location)) {
-                    unknownEntries.add(location);
-                }
-            }
-        });
-        IntStream.range(0, unknownEntries.size()).parallel().forEach(i -> enhancedRadarImage.put("unknown_" + i, unknownEntries.get(i)));
-
-        RadarImageMessage radarImageMessage = new RadarImageMessage(this, enhancedRadarImage);
+        RadarImageMessage radarImageMessage = new RadarImageMessage(this, radar.getRadar());
         log.debug("sendRadarimage: " + radarImageMessage.getMessage().toString());
         radio.send(radarImageMessage.getMessage());
     }
@@ -318,23 +301,23 @@ public class TheoreticalTactic extends Tactic {
             //Generate utility calculations to move in any of the 26 directions
             generateUtilityCalculations(utilityMapMove, InstructionMessage.InstructionType.MOVE, teammember.getKey());
             //Generate utility for movement towards a different drone and shooting towards a drone
-            mapOfTheWorld.entrySet().parallelStream().forEach(entry -> {
+            radarImage.parallelStream().forEach(entry -> {
                 utilityMapMove.put(
-                        new Tuple<>(InstructionMessage.InstructionType.MOVE, entry.getValue().getRight()),
+                        new Tuple<>(InstructionMessage.InstructionType.MOVE, entry.getRight()),
                         calculateUtility(
                                 InstructionMessage.InstructionType.MOVE,
                                 teammember.getKey(),
-                                entry.getValue().getRight()
+                                entry.getRight()
                         )
                 );
 
-                if (teammember.getValue().getRight().contains("gun")) {
+                if (teammember.getValue().getC().contains("gun")) {
                     utilityMapShoot.put(
-                            new Tuple<>(InstructionMessage.InstructionType.SHOOT, entry.getValue().getRight()),
+                            new Tuple<>(InstructionMessage.InstructionType.SHOOT, entry.getRight()),
                             calculateUtility(
                                     InstructionMessage.InstructionType.SHOOT,
                                     teammember.getKey(),
-                                    entry.getValue().getRight()
+                                    entry.getRight()
                             )
                     );
                 }
@@ -365,7 +348,7 @@ public class TheoreticalTactic extends Tactic {
      */
     private void generateUtilityCalculations(Map<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer> utilityMap, InstructionMessage.InstructionType type,
                                              String droneId) {
-        D3Vector currentLocation = mapOfTheWorld.get(droneId).getRight();
+        D3Vector currentLocation = teammembers.get(droneId).getB();
 
         IntStream.range(-MOVE_GENERATION_DELTA, MOVE_GENERATION_DELTA).parallel().forEach(x ->
                 IntStream.range(-MOVE_GENERATION_DELTA, MOVE_GENERATION_DELTA).parallel().forEach(y ->
@@ -383,7 +366,7 @@ public class TheoreticalTactic extends Tactic {
      * Helper function that wraps the parameters into an object and calls the calculate utility on the correct object.
      */
     int calculateUtility(InstructionMessage.InstructionType instructionType, String droneId, D3Vector target) {
-        CalculateUtilityHelper.CalculateUtilityParams params = new CalculateUtilityHelper.CalculateUtilityParams(teammembers, mapOfTheWorld, instructionType, droneId, target);
+        CalculateUtilityHelper.CalculateUtilityParams params = new CalculateUtilityHelper.CalculateUtilityParams(teammembers, radarImage, instructionType, droneId, target);
         return new CalculateUtilityHelper(params).calculateUtility();
     }
 

@@ -218,35 +218,12 @@ public class TheoreticalTactic extends Tactic {
         }
     }
 
-    private void moveToLocation(D3Vector location) {
-        //TODO replace with better move function
-        D3Vector position = gps.getPosition();
-        log.info("Moving to " + location.toString() + " from " + position.toString());
-        if (position.distance_between(location) < 1) {
-            if (gps.getVelocity().length() != 0) {
-                D3Vector move = engine.limit_acceleration(gps.getVelocity().scale(-1));
-                log.info("WE ARE CLOSE!" + move.toString());
-                engine.changeAcceleration(move);
-            }
-        } else {
-            D3Vector targetAcceleration;
-            double distance = gps.getPosition().distance_between(location);
-            double decelDistance = (gps.getVelocity().length() * gps.getVelocity().length()) / (2 * Settings
-                    .MAX_DRONE_ACCELERATION);
-            if (distance > decelDistance) //we are still far, continue accelerating (if possible)
-            {
-                targetAcceleration = engine.maximize_acceleration(location.sub(gps.getPosition()));
-            } else    //we are about to reach the target, let's start decelerating.
-            {
-                targetAcceleration = gps.getVelocity().normalize().scale(-(gps.getVelocity().length() * gps
-                        .getVelocity()
-                        .length()) / (2 * distance));
-            }
-//            D3Vector move = location.sub(position.add(gps.getVelocity()));
-            log.info("WE ARE NOT CLOSE!" + targetAcceleration.toString());
-            engine.changeAcceleration(targetAcceleration);
-        }
-//        engine.moveTo(location);
+    private void moveToLocation(D3Vector targetLocation) {
+        D3Vector currentPosition = gps.getPosition();
+        D3Vector preferrredVelocity = targetLocation.sub(currentPosition); //We would like to be at our target position in 1 step if possible, so travel the distance
+        // with one speed.
+        D3Vector actualSendVelocity = engine.changeVelocity(preferrredVelocity);
+        log.info("Moving to " + targetLocation + " from " + currentPosition + " with preferred velocity: " + preferrredVelocity + " but actual velocity: " + actualSendVelocity);
     }
 
     private void findLeader() {

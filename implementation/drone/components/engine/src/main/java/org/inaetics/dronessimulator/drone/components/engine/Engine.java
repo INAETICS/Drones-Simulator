@@ -168,9 +168,13 @@ public class Engine {
      */
     public D3Vector changeVelocity(D3Vector input) {
         D3Vector output = input;
-        System.out.println(output.length());
+        //Check if we are not accelerating too much (but only if we have MAX_DRONE_ACCELERATION higher than 0, to disable this)
+        if (Settings.MAX_DRONE_ACCELERATION > 0 && output.sub(m_gps.getVelocity()).length() > Settings.MAX_DRONE_ACCELERATION) {
+            double correctionFactor = Settings.MAX_DRONE_ACCELERATION / output.length();
+            output = output.scale(correctionFactor);
+        }
+        //Check if we are not moving too fast
         if (output.length() > Settings.MAX_DRONE_VELOCITY) {
-
             double correctionFactor = Settings.MAX_DRONE_VELOCITY / output.length();
             output = output.scale(correctionFactor);
 

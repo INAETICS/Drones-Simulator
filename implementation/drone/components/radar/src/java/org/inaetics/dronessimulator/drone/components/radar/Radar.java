@@ -154,12 +154,10 @@ public class Radar implements MessageHandler {
      */
     private void handleStateMessage(StateMessage stateMessage){
         if (stateMessage.getIdentifier().equals(this.m_drone.getIdentifier())){
-            if (stateMessage.getPosition().isPresent()) {
-                this.setPosition(stateMessage.getPosition().get());
-            }
+            stateMessage.getPosition().ifPresent(this::setPosition);
         } else {
-            if (stateMessage.getPosition().isPresent() && stateMessage.getType().equals(EntityType.DRONE)) {
-                this.allEntities.put(stateMessage.getIdentifier(), stateMessage.getPosition().get());
+            if (stateMessage.getType().equals(EntityType.DRONE)) {
+                stateMessage.getPosition().ifPresent(pos -> this.allEntities.put(stateMessage.getIdentifier(), pos));
             }
         }
     }

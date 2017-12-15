@@ -11,7 +11,6 @@ import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
@@ -19,6 +18,7 @@ import java.io.IOException;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -27,7 +27,7 @@ import java.util.Set;
 @Log4j
 @NoArgsConstructor //OSGi constructor
 @AllArgsConstructor //Testing constructor
-public class GPS implements MessageHandler {
+public class GPS implements MessageHandler<StateMessage> {
     /**
      * Reference to the Subscriber bundle
      */
@@ -82,77 +82,71 @@ public class GPS implements MessageHandler {
     /**
      * -- MESSAGEHANDLER
      */
-    public void handleMessage(Message message) {
-        if (message instanceof StateMessage) {
-            StateMessage stateMessage = (StateMessage) message;
-            if (stateMessage.getIdentifier().equals(this.drone.getIdentifier())) {
-                double deltaNow = ChronoUnit.MILLIS.between(stateMessage.getTimestamp(), LocalTime.now());
-                if (previousMessage != null && deltaNow > Settings.TICK_TIME) {
-                    double deltaMessages = ChronoUnit.MILLIS.between(previousMessage.getTimestamp(), stateMessage
-                            .getTimestamp());
-                    if (deltaMessages <= 0) {
-                        //We cannot use two messages that were send at the same time since this will create a NaN. To
-                        // avoid getting this multiple times, we do not update the last message.
-                        return;
-                    }
+    public void handleMessage(StateMessage message) {
+        if (message != null && message.getIdentifier().equals(this.drone.getIdentifier())) {
+            //Prepare some variables
+            double deltaNow = ChronoUnit.MILLIS.between(message.getTimestamp(), LocalTime.now());
+            Optional<D3Vector> optionalPosition = message.getPosition();
+            Optional<D3Vector> optionalVelocity = message.getVelocity();
+            Optional<D3Vector> optionalAccelration = message.getAcceleration();
+            Optional<D3PolarCoordinate> optionalDirection = message.getDirection();
 
-                    //Use the previous message to make a better guess of the location the drone probably is.
-                    if (stateMessage.getAcceleration().isPresent() && previousMessage.getAcceleration().isPresent()) {
-                        D3Vector deltaAcceleration;
-                        if (stateMessage.getAcceleration().get().equals(D3Vector.ZERO)) {
-                            deltaAcceleration = D3Vector.ZERO;
+            //Check if the message is recent
+            if (previousMessage != null && deltaNow > Settings.TICK_TIME) {
+                double deltaMessages = ChronoUnit.MILLIS.between(previousMessage.getTimestamp(), message.getTimestamp());
+                Optional<D3Vector> optionalPreviousPosition = previousMessage.getPosition();
+                Optional<D3Vector> optionalPreviousVelocity = previousMessage.getVelocity();
+                Optional<D3Vector> optionalPreviousAcceleration = previousMessage.getAcceleration();
+                Optional<D3PolarCoordinate> optionalPreviousDirection = previousMessage.getDirection();
+
+                if (deltaMessages <= 0) {
+                    //We cannot use two messages that were send at the same time since this will create a NaN. To
+                    // avoid getting this multiple times, we do not update the last message.
+                    return;
+                }
+
+                //Use the previous message to make a better guess of the location the drone probably is.
+                if (optionalAccelration.isPresent() && optionalPreviousAcceleration.isPresent()) {
+                    D3Vector deltaAcceleration;
+                    if (optionalAccelration.get().equals(D3Vector.ZERO)) {
+                        deltaAcceleration = D3Vector.ZERO;
+                    } else {
+                        deltaAcceleration = optionalAccelration.get().normalize().scale(optionalAccelration.get().sub(optionalPreviousAcceleration.get()).length() / deltaMessages);
+                    }
+                    D3Vector estimatedAcceleration = optionalAccelration.get().add(deltaAcceleration.scale(deltaNow / 1000));
+                    setAcceleration(estimatedAcceleration);
+
+                    if (optionalVelocity.isPresent() && optionalPreviousVelocity.isPresent()) {
+                        D3Vector deltaVelocity;
+                        if (optionalAccelration.get().equals(D3Vector.ZERO)) {
+                            deltaVelocity = D3Vector.ZERO;
                         } else {
-                            deltaAcceleration = stateMessage.getAcceleration().get().normalize().scale(stateMessage
-                                    .getAcceleration().get().sub(previousMessage.getAcceleration().get()).length() / deltaMessages);
+                            deltaVelocity = optionalVelocity.get().normalize().scale(optionalVelocity.get().sub(optionalPreviousVelocity.get()).length() / deltaMessages);
                         }
-                        D3Vector estimatedAcceleration = stateMessage.getAcceleration().get().add(deltaAcceleration
-                                .scale(deltaNow / 1000));
-                        setAcceleration(estimatedAcceleration);
+                        D3Vector estimatedVelocity = optionalVelocity.get().add(deltaVelocity.scale(deltaNow / 1000)).add(estimatedAcceleration.scale(Settings.getTickTime(ChronoUnit.SECONDS)));
+                        setVelocity(estimatedVelocity);
 
-                        if (stateMessage.getVelocity().isPresent() && previousMessage.getVelocity().isPresent()) {
-                            D3Vector deltaVelocity;
-                            if (stateMessage.getAcceleration().get().equals(D3Vector.ZERO)) {
-                                deltaVelocity = D3Vector.ZERO;
+                        if (optionalPosition.isPresent() && optionalPreviousPosition.isPresent()) {
+                            D3Vector deltaPosition;
+                            if (optionalAccelration.get().equals(D3Vector.ZERO)) {
+                                deltaPosition = D3Vector.ZERO;
                             } else {
-                                deltaVelocity = stateMessage.getVelocity().get().normalize().scale(stateMessage
-                                        .getVelocity().get().sub(previousMessage.getVelocity().get()).length() / deltaMessages);
+                                deltaPosition = optionalPosition.get().normalize().scale(optionalPosition.get().sub(optionalPreviousPosition.get()).length() / deltaMessages);
                             }
-                            D3Vector estimatedVelocity = stateMessage.getVelocity().get().add(deltaVelocity
-                                    .scale(deltaNow / 1000)).add(estimatedAcceleration.scale(Settings.TICK_TIME / 1000d));
-                            setVelocity(estimatedVelocity);
-
-                            if (stateMessage.getPosition().isPresent() && previousMessage.getPosition().isPresent()) {
-                                D3Vector deltaPosition;
-                                if (stateMessage.getAcceleration().get().equals(D3Vector.ZERO)) {
-                                    deltaPosition = D3Vector.ZERO;
-                                } else {
-                                    deltaPosition = stateMessage.getPosition().get().normalize().scale(stateMessage
-                                            .getPosition().get().sub(previousMessage.getPosition().get()).length() / deltaMessages);
-                                }
-                                D3Vector estimatedPosition = stateMessage.getPosition().get().add(deltaPosition
-                                        .scale(deltaNow / 1000)).add(estimatedVelocity.scale(Settings.TICK_TIME / 1000d));
-                                setPosition(estimatedPosition);
-                            }
+                            D3Vector estimatedPosition = optionalPosition.get().add(deltaPosition.scale(deltaNow / 1000)).add(estimatedVelocity.scale(Settings.getTickTime(ChronoUnit.SECONDS)));
+                            setPosition(estimatedPosition);
                         }
-                    }
-                } else {
-                    if (stateMessage.getPosition().isPresent()) {
-                        this.setPosition(stateMessage.getPosition().get());
-                    }
-                    if (stateMessage.getAcceleration().isPresent()) {
-                        this.setAcceleration(stateMessage.getAcceleration().get());
-                    }
-                    if (stateMessage.getVelocity().isPresent()) {
-                        this.setVelocity(stateMessage.getVelocity().get());
-                    }
-                    if (stateMessage.getDirection().isPresent()) {
-                        this.setDirection(stateMessage.getDirection().get());
                     }
                 }
-                previousMessage = stateMessage;
-                //Run callbacks
-                callbacks.forEach(callback -> callback.run(stateMessage));
+            } else {
+                optionalPosition.ifPresent(this::setPosition);
+                optionalAccelration.ifPresent(this::setAcceleration);
+                optionalVelocity.ifPresent(this::setVelocity);
+                optionalDirection.ifPresent(this::setDirection);
             }
+            previousMessage = message;
+            //Run callbacks
+            callbacks.forEach(callback -> callback.run(message));
         }
     }
 

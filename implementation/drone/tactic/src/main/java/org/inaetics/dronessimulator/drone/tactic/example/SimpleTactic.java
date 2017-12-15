@@ -23,7 +23,7 @@ public class SimpleTactic extends Tactic {
 
     @Override
     protected void initializeTactics() {
-
+        //Nothing to init
     }
 
     /**
@@ -37,7 +37,7 @@ public class SimpleTactic extends Tactic {
 
     @Override
     protected void finalizeTactics() {
-
+        //Nothing to destroy
     }
 
     /**

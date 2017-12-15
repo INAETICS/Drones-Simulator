@@ -57,8 +57,7 @@ public class TheoreticalTactic extends Tactic {
         droneType = getType();
         handleBroadcastMessagesThread = new LambdaManagedThread(this::manageIncomingCommunication);
         handleBroadcastMessagesThread.startThread();
-        switch (droneType) {
-            case GUN:
+        if (DroneType.GUN.equals(droneType)) {
                 //Send a message if you fire a bullet
                 gun.registerCallback((fireBulletMessage) -> {
                     DataMessage shotMessage = new DataMessage(this, MyTacticMessage.MESSAGETYPES.FIRED_BULLET_MESSAGE);
@@ -67,9 +66,6 @@ public class TheoreticalTactic extends Tactic {
                     shotMessage.getData().put("firedMoment", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
                     radio.send(shotMessage.getMessage());
                 });
-                break;
-            case RADAR:
-                break;
         }
         log.debug("Tactic initialized for drone with type " + droneType);
     }
@@ -156,7 +152,7 @@ public class TheoreticalTactic extends Tactic {
      * All outgoing communication should be done in manageOutgoingCommunication.
      */
     private void manageIncomingCommunication() {
-        if (radio.getMessages().size() > 0) {
+        if (!radio.getMessages().isEmpty()) {
             TacticMessage newMessage = radio.getMessage(TacticMessage.class);
             if (newMessage != null) {
                 log.debug("Received a message with type " + String.valueOf(newMessage.get("type")));

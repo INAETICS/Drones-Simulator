@@ -37,25 +37,25 @@ public class BasicTactic extends Tactic {
         double distance = position.distance_between(target);
 
         // stationary, on target
-        if (distance < 1 && velocity.length() < 1) {
-            System.out.println("TEST22 | on target | " + position + " | " + target + " | " + distance + " | " + velocity.length() + " | " + new D3Vector().length());
-            return new D3Vector();
-        }
+//        if (distance < 1) {
+//            System.out.println("TEST22 | on target | " + position + " | " + target + " | " + distance + " | " + velocity.length() + " | " + new D3Vector().length());
+//            return new D3Vector();
+//        }
 
-        // stationary/not stationary, not on target, accelerating
-        else if (distance > ((velocity.length() * velocity.length()) / (2 * Settings.MAX_DRONE_ACCELERATION))) {
+        // not on target, accelerating
+        if (distance > ((velocity.length() * velocity.length()) / (2 * Settings.MAX_DRONE_ACCELERATION))) {
             D3Vector newAcceleration = target.sub(position);
             System.out.println("TEST22 | accelerating | " + position + " | " + target + " | " + distance + " | " + velocity.length() + " | " + newAcceleration.length());
             return newAcceleration;
         }
 
         // not stationary, not on target, decelerating
-        else if (distance != 0) {
+        else if (distance > 1) {
 
             double acceleration = -(velocity.length() * velocity.length()) / (2 * distance);
             D3Vector newAcceleration = velocity.normalize().scale(acceleration);
 
-            System.out.println("TEST22 | decelerating | " + position + " | " + target + " | " + distance + " | " + velocity.length() + " | " + new D3Vector().length());
+            System.out.println("TEST22 | decelerating | " + position + " | " + target + " | " + distance + " | " + velocity.length() + " | " + newAcceleration.length());
             return newAcceleration;
         }
         log.debug("field size = " + new D3Vector(Settings.ARENA_WIDTH, Settings.ARENA_DEPTH, Settings.ARENA_HEIGHT));

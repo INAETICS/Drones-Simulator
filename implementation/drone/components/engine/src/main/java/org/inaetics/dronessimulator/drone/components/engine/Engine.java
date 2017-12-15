@@ -78,16 +78,16 @@ public class Engine {
      * @param input acceleration as a D3Vector
      * @return optimized acceleration as a D3Vector
      */
-    private D3Vector limit_velocity(D3Vector input) {
+    public D3Vector limit_velocity(D3Vector input) {
         D3Vector output = input;
-        // Check velocity
-        if (m_gps.getVelocity().length() >= Settings.MAX_DRONE_VELOCITY && m_gps.getVelocity().add(input).length() >= m_gps.getVelocity().length()) {
-            output = new D3Vector();
-        } else if (m_gps.getVelocity().add(input).length() > Settings.MAX_DRONE_VELOCITY) {
-            double diff = Settings.MAX_DRONE_VELOCITY - m_gps.getVelocity().length();
-            double correctionFactor = diff / input.length();
-            output = input.scale(correctionFactor);
-        }
+
+        if (m_gps.getVelocity().length() > Settings.MAX_DRONE_VELOCITY && m_gps.getVelocity().add(input).length() > Settings.MAX_DRONE_VELOCITY) {
+
+                double correctionFactor = Settings.MAX_DRONE_VELOCITY / input.length();
+                D3Vector outputCorrection = input.scale(correctionFactor);
+                output = outputCorrection;
+            }
+
         return output;
     }
 
@@ -120,10 +120,14 @@ public class Engine {
         D3Vector acceleration = input_acceleration;
 
         acceleration = this.limit_acceleration(acceleration);
+
+        D3Vector accelerationBetween = acceleration;
+
         acceleration = this.limit_velocity(acceleration);
+
 //        acceleration = this.stagnate_acceleration(acceleration);
 
-        log.debug("TESTACC | " + input_acceleration.length() + " | " + acceleration.length() + " | " + ((acceleration.length() > Settings.MAX_DRONE_ACCELERATION || m_gps.getVelocity().add(acceleration).length() > Settings.MAX_DRONE_VELOCITY) ? 1 : 0));
+        log.debug("TESTACC | " + input_acceleration.length() + " | " + accelerationBetween.length() + " | " + acceleration.length() + " | " + m_gps.getVelocity().length() + " | " + m_gps.getVelocity().add(acceleration).length());
 
         if (Double.isNaN(acceleration.getX()) || Double.isNaN(acceleration.getY()) || Double.isNaN(acceleration.getZ())) {
             throw new IllegalArgumentException("Acceleration is not a number. Input acceleration: " +
@@ -156,6 +160,35 @@ public class Engine {
             //Run all callbacks
             callbacks.forEach(callback -> callback.run(msg));
         }
+    }
+
+    /**
+     * Send the new desired velocity to the game-engine
+     * @param input The new velocity for the drone using this component
+     */
+    public D3Vector changeVelocity(D3Vector input) {
+        D3Vector output = input;
+        System.out.println(output.length());
+        if (output.length() > Settings.MAX_DRONE_VELOCITY) {
+
+            double correctionFactor = Settings.MAX_DRONE_VELOCITY / output.length();
+            output = output.scale(correctionFactor);
+
+        }
+
+        log.debug("CHANGEVELOCITY -> " + output + " | " + output.length() + " | " + m_gps.getAcceleration().length());
+
+        MovementMessage msg = new MovementMessage();
+        msg.setVelocity(output);
+        msg.setIdentifier(m_drone.getIdentifier());
+
+        try {
+            m_publisher.send(MessageTopic.MOVEMENTS, msg);
+        } catch (IOException e) {
+            log.fatal(e);
+        }
+
+        return output;
     }
 
     @Deprecated

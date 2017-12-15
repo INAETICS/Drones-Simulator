@@ -1,12 +1,15 @@
 package org.inaetics.dronessimulator.drone.tactic;
 
 import org.inaetics.dronessimulator.common.vector.D3Vector;
+import org.inaetics.dronessimulator.drone.tactic.example.basic.BasicTactic;
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class BasicTacticTest {
 
     @Test
+    @Ignore
     public void testCalculateMovement() {
 
         // accelerate towards target from stationary

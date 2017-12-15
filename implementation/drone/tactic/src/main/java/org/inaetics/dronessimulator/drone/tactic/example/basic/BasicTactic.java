@@ -32,7 +32,7 @@ public class BasicTactic extends Tactic {
     private D3Vector lastPosition;
     private D3Vector lastAttackTarget;
 
-    protected static D3Vector calculateMovement(D3Vector position, D3Vector target, D3Vector velocity) {
+    public static D3Vector calculateMovement(D3Vector position, D3Vector target, D3Vector velocity) {
 
         double distance = position.distance_between(target);
 

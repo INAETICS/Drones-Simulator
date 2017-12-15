@@ -4,9 +4,6 @@ import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.tactic.Tactic;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -17,9 +14,6 @@ public class SimpleTactic extends Tactic {
 
     private static final double MAX_DEVIATION_POSTION = Settings.ARENA_WIDTH;
     private static final double MAX_Z_DEVIATION_POSTION = Settings.ARENA_HEIGHT;
-
-    private List<String> teamMates = new ArrayList<>();
-    private LocalDateTime nextpoll = LocalDateTime.now();
 
     @Override
     protected void initializeTactics() {

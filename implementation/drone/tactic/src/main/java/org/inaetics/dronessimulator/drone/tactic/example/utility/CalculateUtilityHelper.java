@@ -60,8 +60,7 @@ public class CalculateUtilityHelper {
             return -1; //Do not shoot at yourself
         }
 
-        if (params.type.equals(InstructionMessage.InstructionType.MOVE) && !insideRange(D3Vector.ZERO,
-                new D3Vector(Settings.ARENA_WIDTH, Settings.ARENA_DEPTH, Settings.ARENA_HEIGHT), params.target)) {
+        if (params.type.equals(InstructionMessage.InstructionType.MOVE) && !insideRange(D3Vector.ZERO, Settings.ARENA, params.target)) {
             return -1; //We never want to move to a location that is out of the bounds of the game
         }
 

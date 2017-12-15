@@ -50,6 +50,7 @@ public class CalculateUtilityHelper {
      * @return the utility as an integer
      */
     public Integer calculateUtility() {
+        long starttime = System.currentTimeMillis();
         //Do some pre-checks first
         if (params.type.equals(InstructionMessage.InstructionType.SHOOT) && !params.droneHasComponent("gun")) {
             return -1; //We cannot shoot, so all utility should be negative
@@ -103,13 +104,12 @@ public class CalculateUtilityHelper {
                 }
             }
         });
+        log.debug("Utility calculations took:" + (System.currentTimeMillis() - starttime));
         return utility[0];
     }
 
     void forEachEnemy(Consumer<? super D3Vector> f) {
-        params.radarImage.parallelStream()
-                .map(Tuple::getRight)
-                .filter(e -> !params.teammembers.values().parallelStream().map(Triple::getB).collect(Collectors.toList()).contains(e))
+        params.enemies.parallelStream()
                 .peek(e -> log.debug("Found enemy at: " + e.toString() + " This is my set of teammembers: " + params.teammembers + " This is the full radar: " + params.radarImage))
                 .forEach(f);
     }
@@ -129,13 +129,27 @@ public class CalculateUtilityHelper {
         private final InstructionMessage.InstructionType type;
         private final String droneId;
         private final D3Vector target;
+        private final Collection<D3Vector> enemies;
 
         CalculateUtilityParams(Map<String, Triple<LocalDateTime, D3Vector, List<String>>> teammembers, Queue<Tuple<LocalDateTime, D3Vector>> radarImage, InstructionMessage.InstructionType type, String droneId, D3Vector target) {
             this.teammembers = Collections.unmodifiableMap(teammembers);
             this.radarImage = Collections.unmodifiableCollection(radarImage);
+            this.enemies = getEnemies(this.teammembers, this.radarImage);
             this.type = type;
             this.droneId = droneId;
             this.target = target;
+        }
+
+        private Collection<D3Vector> getEnemies(Map<String, Triple<LocalDateTime, D3Vector, List<String>>> teammembers, Collection<Tuple<LocalDateTime, D3Vector>> radarImage) {
+            List<D3Vector> enemies = radarImage.parallelStream()
+                    .map(Tuple::getRight) //Only get the positions
+                    .filter(ral -> teammembers.entrySet().parallelStream().map(tm -> tm.getValue().getB()) //Get positions of the teammembers
+                            .filter(t -> t.distance_between(ral) < Settings.MAX_DRONE_VELOCITY).count() == 0) //If there is a teammember close, it must be from that drone, so we only want the
+                    // ones that
+                    // do NOT have a teammember close
+                    .collect(Collectors.toList());
+            log.debug("Number of expected enemies(" + radarImage.size() + "+" + teammembers.size() + "): " + (radarImage.size() - teammembers.size()) + ". Number of found enemies" + enemies.size());
+            return enemies;
         }
 
         D3Vector getDroneLocation() {

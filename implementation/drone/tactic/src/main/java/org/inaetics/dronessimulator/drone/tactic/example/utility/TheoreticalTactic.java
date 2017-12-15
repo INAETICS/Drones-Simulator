@@ -279,7 +279,9 @@ public class TheoreticalTactic extends Tactic {
     }
 
     private void sendRadarimage() {
-        RadarImageMessage radarImageMessage = new RadarImageMessage(this, radar.getRadar());
+        List<D3Vector> currentRadar = radar.getRadar();
+        currentRadar.add(gps.getPosition());
+        RadarImageMessage radarImageMessage = new RadarImageMessage(this, currentRadar);
         log.debug("sendRadarimage: " + radarImageMessage.getMessage().toString());
         radio.send(radarImageMessage.getMessage());
     }
@@ -325,6 +327,7 @@ public class TheoreticalTactic extends Tactic {
             Optional<Entry<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer>> highestUtilityShoot =
                     utilityMapShoot.entrySet().parallelStream().max(Comparator.comparingInt(Entry::getValue));
             if (highestUtilityShoot.isPresent() && highestUtilityShoot.get().getValue() > 0) {
+                log.debug("ShootUtility:" + highestUtilityShoot.get() + " out of " + utilityMapShoot);
                 Tuple<InstructionMessage.InstructionType, D3Vector> highesUtilityParams = highestUtilityShoot.get().getKey();
                 radio.send(new InstructionMessage(this, highesUtilityParams.getLeft(), teammember.getKey(), highesUtilityParams.getRight()).getMessage());
             }
@@ -332,6 +335,7 @@ public class TheoreticalTactic extends Tactic {
             Optional<Entry<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer>> highestUtilityMove =
                     utilityMapMove.entrySet().parallelStream().max(Comparator.comparingInt(Entry::getValue));
             if (highestUtilityMove.isPresent() && highestUtilityMove.get().getValue() > 0) {
+                log.debug("MoveUtility:" + highestUtilityMove.get() + " out of " + utilityMapMove);
                 Tuple<InstructionMessage.InstructionType, D3Vector> highesUtilityParams = highestUtilityMove.get().getKey();
                 radio.send(new InstructionMessage(this, highesUtilityParams.getLeft(), teammember.getKey(), highesUtilityParams.getRight()).getMessage());
             }

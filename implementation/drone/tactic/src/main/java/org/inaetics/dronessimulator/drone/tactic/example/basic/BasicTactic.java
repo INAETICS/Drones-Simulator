@@ -16,16 +16,12 @@ import java.util.concurrent.ThreadLocalRandom;
 @Log4j
 public class BasicTactic extends Tactic {
     private static final int DRONE_TIMEOUT = 2; // seconds
-
-    D3Vector moveTarget = new D3Vector(ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300));
+    private final TimeoutTimer tacticTimer = new TimeoutTimer(1000); //ms
+    D3Vector moveTarget = null;
+    D3Vector lastMoveTarget = null;
     D3Vector attackTarget = null;
-
-    private D3Vector lastPosition;
-    private D3Vector lastAttackTarget;
-
     Map<String, LocalDateTime> radarDrones = new HashMap<>();
     Map<String, LocalDateTime> gunDrones = new HashMap<>();
-
     boolean isRadar = false;
     String bossDrone = "";
     List<String> myGunDrones = new ArrayList<>();
@@ -33,7 +29,38 @@ public class BasicTactic extends Tactic {
     BasicTacticHeartbeat heartbeat;
     Thread commThread;
     Thread heartbeatThread;
-    private final TimeoutTimer tacticTimer = new TimeoutTimer(1000); //ms
+    private D3Vector lastPosition;
+    private D3Vector lastAttackTarget;
+
+    protected static D3Vector calculateMovement(D3Vector position, D3Vector target, D3Vector velocity) {
+
+        double distance = position.distance_between(target);
+
+        // stationary, on target
+        if (distance < 1 && velocity.length() < 1) {
+            System.out.println("TEST22 | on target | " + position + " | " + target + " | " + distance + " | " + velocity.length() + " | " + new D3Vector().length());
+            return new D3Vector();
+        }
+
+        // stationary/not stationary, not on target, accelerating
+        else if (distance > ((velocity.length() * velocity.length()) / (2 * Settings.MAX_DRONE_ACCELERATION))) {
+            D3Vector newAcceleration = target.sub(position);
+            System.out.println("TEST22 | accelerating | " + position + " | " + target + " | " + distance + " | " + velocity.length() + " | " + newAcceleration.length());
+            return newAcceleration;
+        }
+
+        // not stationary, not on target, decelerating
+        else if (distance != 0) {
+
+            double acceleration = -(velocity.length() * velocity.length()) / (2 * distance);
+            D3Vector newAcceleration = velocity.normalize().scale(acceleration);
+
+            System.out.println("TEST22 | decelerating | " + position + " | " + target + " | " + distance + " | " + velocity.length() + " | " + new D3Vector().length());
+            return newAcceleration;
+        }
+        log.debug("field size = " + new D3Vector(Settings.ARENA_WIDTH, Settings.ARENA_DEPTH, Settings.ARENA_HEIGHT));
+        return new D3Vector();
+    }
 
     @Override
     protected void initializeTactics() {
@@ -57,24 +84,24 @@ public class BasicTactic extends Tactic {
 //        }
     }
 
-
     @Override
     protected void calculateTactics() {
 
-        if (tacticTimer.timeIsExceeded()) {
-            tacticTimer.reset();
-            updateTactics();
-        }
+//        if (tacticTimer.timeIsExceeded()) {
+//            tacticTimer.reset();
+//            updateTactics();
+//        }
         if (moveTarget == null) {
             moveTarget = new D3Vector(ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300));
+            log.debug("Initialized move target to: " + moveTarget);
         }
 
-        calculateMovement();
+        engine.changeAcceleration(calculateMovement(gps.getPosition(), moveTarget, gps.getVelocity()));
 
-        if (isRadar && (lastPosition == null || gps.getPosition().distance_between(lastPosition) > 1)) {
-            organizeMovement();
-            lastPosition = gps.getPosition();
-        }
+//        if (isRadar && (lastMoveTarget == null || !lastMoveTarget.equals(moveTarget))) {
+//            organizeMovement();
+//            lastMoveTarget = moveTarget;
+//        }
     }
 
     @Override
@@ -107,34 +134,12 @@ public class BasicTactic extends Tactic {
 
     }
 
-    private void calculateMovement() {
-        D3Vector position = gps.getPosition();
-        log.debug("distance to target = " + position.distance_between(moveTarget));
-
-        double distance = position.distance_between(moveTarget);
-        double velocity = gps.getVelocity().length();
-
-        if (position.distance_between(moveTarget) < 1) {
-            if (gps.getVelocity().length() != 0) {
-                engine.changeAcceleration(gps.getVelocity().scale(-1));
-            }
-        } else {
-            log.debug("Velocity is: " + gps.getVelocity().length());
-            if (velocity == 0 || position.distance_between(moveTarget) > ((velocity * velocity) / (2 * Settings.MAX_DRONE_ACCELERATION))) {
-                log.debug("accelerating..");
-                engine.changeAcceleration(moveTarget.sub(position.add(gps.getVelocity())));
-            } else {
-                log.debug("decelerating..");
-                double acceleration = -(velocity * velocity) / (2 * distance);
-                D3Vector newAcceleration = (moveTarget.sub(position)).normalize().scale(acceleration);
-                log.debug(String.format("CALCULOG d=%f, v=%f, a=%f", distance, velocity, acceleration));
-
-                engine.changeAcceleration(newAcceleration);
-            }
-        }
-    }
-
     private void organizeMovement() {
+
+        D3Vector moveFocus = gps.getPosition();
+        if (moveTarget != null) {
+            moveFocus = moveTarget;
+        }
 
         int number = myGunDrones.size();
         log.debug("number is " + number);
@@ -143,9 +148,9 @@ public class BasicTactic extends Tactic {
 
         int numberSpawned = 0;
         for (String id : myGunDrones) {
-            D3Vector gunPosition = new D3Vector(Math.cos(spawnAngle * numberSpawned) * spawnRadius + gps.getPosition().getX()
-                    , Math.sin(spawnAngle * numberSpawned) * spawnRadius + gps.getPosition().getY()
-                    , gps.getPosition().getZ());
+            D3Vector gunPosition = new D3Vector(Math.cos(spawnAngle * numberSpawned) * spawnRadius + moveFocus.getX()
+                    , Math.sin(spawnAngle * numberSpawned) * spawnRadius + moveFocus.getY()
+                    , moveFocus.getZ());
             numberSpawned++;
             comm.sendMessage(id, ProtocolTags.MOVE, gunPosition);
             log.debug("gundrone " + id + " target location set to " + gunPosition);

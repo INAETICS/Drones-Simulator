@@ -18,13 +18,13 @@ public class PublisherRunner implements Runnable {
     public static final long SLEEP_TIME = 1000;
 
     /** The publisher under test. */
-    private RabbitPublisher publisher;
+    private final RabbitPublisher publisher;
 
     /** The topic to send test messages on. */
-    private Topic topic;
+    private final Topic topic;
 
     /** List of messages to send. */
-    private ArrayList<Message> testMessages;
+    private final ArrayList<Message> testMessages;
 
     /**
      * @param connectionFactory The connection settings to use for tests.

@@ -15,10 +15,10 @@ public class SceneGestures {
     private static final double MIN_SCALE = 1.0d;
 
     /** Mouse drag context */
-    private DragContext sceneDragContext = new DragContext();
+    private final DragContext sceneDragContext = new DragContext();
 
     /** Pannable and zommable canvas */
-    private PannableCanvas canvas;
+    private final PannableCanvas canvas;
 
     /** Handlers for the mouse events */
     public SceneGestures(PannableCanvas canvas) {
@@ -52,7 +52,7 @@ public class SceneGestures {
     /**
      * The on mouse pressed event handler
      */
-    private EventHandler<MouseEvent> onMousePressedEventHandler = new EventHandler<MouseEvent>() {
+    private final EventHandler<MouseEvent> onMousePressedEventHandler = new EventHandler<MouseEvent>() {
 
         /**
          * Sets the current position of the mouse and the current position on the canvas
@@ -75,7 +75,7 @@ public class SceneGestures {
     /**
      * The on mouse dragged event handler
      */
-    private EventHandler<MouseEvent> onMouseDraggedEventHandler = new EventHandler<MouseEvent>() {
+    private final EventHandler<MouseEvent> onMouseDraggedEventHandler = new EventHandler<MouseEvent>() {
 
         /**
          * Moves the canvas within
@@ -100,7 +100,7 @@ public class SceneGestures {
     /**
      * Mouse wheel handler: zoom to pivot point
      */
-    private EventHandler<ScrollEvent> onScrollEventHandler = new EventHandler<ScrollEvent>() {
+    private final EventHandler<ScrollEvent> onScrollEventHandler = new EventHandler<ScrollEvent>() {
 
         /**
          * Zooms the canvas to the mouse pointer

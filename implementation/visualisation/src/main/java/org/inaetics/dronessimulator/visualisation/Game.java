@@ -100,7 +100,7 @@ public class Game extends Application {
     /**
      * check to see if the method onRabbitConnect is executed
      */
-    private AtomicBoolean onRabbitConnectExecuted = new AtomicBoolean(false);
+    private final AtomicBoolean onRabbitConnectExecuted = new AtomicBoolean(false);
     private Stage primaryStage;
     /**
      * counter for the logger to output once every 100 times
@@ -114,7 +114,7 @@ public class Game extends Application {
      * Close event handler
      * When the window closes, rabbitmq and the discoverer disconnect
      */
-    private EventHandler<WindowEvent> onCloseEventHandler = new EventHandler<WindowEvent>() {
+    private final EventHandler<WindowEvent> onCloseEventHandler = new EventHandler<WindowEvent>() {
         boolean isClosed = false;
 
         @Override
@@ -138,7 +138,7 @@ public class Game extends Application {
     };
     private RabbitConnectionInfo rabbitConnectionInfo;
 
-    private Instance visualisationInstance = new Instance(Type.SERVICE, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.SERVICES, "visualisation", new HashMap<>());
+    private final Instance visualisationInstance = new Instance(Type.SERVICE, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.SERVICES, "visualisation", new HashMap<>());
 
     /**
      * Instantiates a new game object

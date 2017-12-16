@@ -65,7 +65,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     private volatile Subscriber m_subscriber;
     private Instance simulationInstance;
     private boolean registered = false;
-    private AtomicBoolean initialized = new AtomicBoolean(false);
+    private final AtomicBoolean initialized = new AtomicBoolean(false);
     /**
      * Discoverer bundle
      */

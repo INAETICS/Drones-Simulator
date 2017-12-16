@@ -17,19 +17,19 @@ import static org.junit.Assert.assertTrue;
  */
 public class SubscriberRunner implements Runnable {
     /** The identifier of the subscriber queue. */
-    private String identifier;
+    private final String identifier;
 
     /** The subscriber under test. */
-    private RabbitSubscriber subscriber;
+    private final RabbitSubscriber subscriber;
 
     /** The topic to receive test messages from. */
-    private Topic topic;
+    private final Topic topic;
 
     /** List of received messages. */
-    private ArrayList<Message> testMessages;
+    private final ArrayList<Message> testMessages;
 
     /** Time to wait for messages. */
-    private long timeout;
+    private final long timeout;
 
     /**
      * @param connectionFactory The connection settings to use for tests.

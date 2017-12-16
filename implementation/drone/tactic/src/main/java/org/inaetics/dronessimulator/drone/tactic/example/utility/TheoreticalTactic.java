@@ -34,11 +34,11 @@ public class TheoreticalTactic extends Tactic {
      * The left item of the tuple is the location of the teammember
      * The right list of the tuple is a list of available components
      */
-    private Map<String, Triple<LocalDateTime, D3Vector, List<String>>> teammembers = new ConcurrentHashMap<>();
+    private final Map<String, Triple<LocalDateTime, D3Vector, List<String>>> teammembers = new ConcurrentHashMap<>();
     private Queue<Tuple<LocalDateTime, D3Vector>> radarImage = new ConcurrentLinkedQueue<>();
     private ManagedThread handleBroadcastMessagesThread;
     private D3Vector myTargetMoveLocation;
-    private TimeoutTimer lastRequestForLeader = new TimeoutTimer(1000); //1 sec
+    private final TimeoutTimer lastRequestForLeader = new TimeoutTimer(1000); //1 sec
 
     private DroneType getType() {
         DroneType droneType;

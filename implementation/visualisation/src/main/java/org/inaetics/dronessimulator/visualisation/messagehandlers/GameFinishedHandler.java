@@ -7,10 +7,9 @@ import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.protocol.GameFinishedMessage;
-import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 
-public class GameFinishedHandler implements MessageHandler {
+public class GameFinishedHandler implements MessageHandler<GameFinishedMessage> {
     private static final Logger logger = Logger.getLogger(GameFinishedHandler.class);
     private final Window mainWindow;
 
@@ -19,9 +18,7 @@ public class GameFinishedHandler implements MessageHandler {
     }
 
     @Override
-    public void handleMessage(Message message) {
-        GameFinishedMessage gameFinishedMessage = (GameFinishedMessage) message;
-
+    public void handleMessage(GameFinishedMessage gameFinishedMessage) {
         // Avoid throwing IllegalStateException by running from a non-JavaFX thread.
         Platform.runLater(() -> {
             Alert alert = new Alert(Alert.AlertType.INFORMATION);

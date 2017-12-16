@@ -1,7 +1,6 @@
 package org.inaetics.dronessimulator.visualisation.messagehandlers;
 
 import org.inaetics.dronessimulator.common.protocol.KillMessage;
-import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.visualisation.BaseEntity;
 
@@ -10,7 +9,7 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * The kill message handler class. Implements what to do when an entity (bullet, drone) is killed/removed.
  */
-public class KillMessageHandler implements MessageHandler {
+public class KillMessageHandler implements MessageHandler<KillMessage> {
     /** all the entities in the game */
     private final ConcurrentMap<String, BaseEntity> entities;
 
@@ -24,11 +23,10 @@ public class KillMessageHandler implements MessageHandler {
 
     /**
      * Retrieve the entity from the message and then from the entitites map and then delete it
-     * @param message The received message.
+     * @param killMessage The received message.
      */
     @Override
-    public void handleMessage(Message message) {
-        KillMessage killMessage = (KillMessage) message;
+    public void handleMessage(KillMessage killMessage) {
         BaseEntity baseEntity = entities.get(killMessage.getIdentifier());
 
         if(baseEntity != null) {

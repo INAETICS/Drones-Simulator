@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class HeartbeatMessage extends MyTacticMessage {
     @Getter(AccessLevel.PROTECTED)
-    private Map<String, String> data = new HashMap<>();
+    private final Map<String, String> data = new HashMap<>();
 
     public HeartbeatMessage(TheoreticalTactic tactic, GPS gps) {
         super(tactic);

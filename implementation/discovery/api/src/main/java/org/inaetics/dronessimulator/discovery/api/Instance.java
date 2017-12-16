@@ -25,25 +25,25 @@ public class Instance {
      * The type of this instance.
      */
     @Getter
-    private Type type;
+    private final Type type;
 
     /**
      * The group of this instance.
      */
     @Getter
-    private Group group;
+    private final Group group;
 
     /**
      * The name of this instance.
      */
     @Getter
-    private String name;
+    private final String name;
 
     /**
      * The properties this instance has.
      */
     @Getter
-    private Map<String, String> properties;
+    private final Map<String, String> properties;
 
     /**
      * Instantiates a new instance with the given type, group, name and properties. This constructor can be used to

@@ -57,7 +57,7 @@ public abstract class RabbitConnection implements ManagedService {
     /**
      * Collection of topics for which an exchange has been declared.
      */
-    private Collection<Topic> declaredTopics;
+    private final Collection<Topic> declaredTopics;
 
     /**
      * Sets up the connection for use.

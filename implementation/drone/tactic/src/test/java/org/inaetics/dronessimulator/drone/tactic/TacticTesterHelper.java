@@ -111,7 +111,7 @@ public class TacticTesterHelper {
 
     public static <E> Tuple<Publisher, Subscriber> getConnectedMockPubSub() {
         Subscriber subscriber = new Subscriber() {
-            private Map<Class<? extends Message>, Collection<MessageHandler>> handlers = new HashMap<>();
+            private final Map<Class<? extends Message>, Collection<MessageHandler<Message>>> handlers = new HashMap<>();
 
             @Override
             public void addTopic(Topic topic) throws IOException {
@@ -123,7 +123,7 @@ public class TacticTesterHelper {
 
             @Override
             public void addHandler(Class<? extends Message> messageClass, MessageHandler handler) {
-                Collection<MessageHandler> handlers = this.handlers.computeIfAbsent(messageClass, k -> new HashSet<>());
+                Collection<MessageHandler<Message>> handlers = this.handlers.computeIfAbsent(messageClass, k -> new HashSet<>());
                 handlers.add(handler);
             }
 
@@ -134,7 +134,7 @@ public class TacticTesterHelper {
 
             @Override
             public void removeHandler(Class<? extends Message> messageClass, MessageHandler handler) {
-                Collection<MessageHandler> handlers = this.handlers.get(messageClass);
+                Collection<MessageHandler<Message>> handlers = this.handlers.get(messageClass);
                 if (handlers != null) {
                     handlers.remove(handler);
                 }
@@ -142,11 +142,11 @@ public class TacticTesterHelper {
 
             @Override
             public void receive(Message message) {
-                Collection<MessageHandler> handlers = this.handlers.get(message.getClass());
+                Collection<MessageHandler<Message>> handlers = this.handlers.get(message.getClass());
 
                 // Pass the message to every defined handler
                 if (handlers != null) {
-                    for (MessageHandler handler : handlers) {
+                    for (MessageHandler<Message> handler : handlers) {
                         handler.handleMessage(message);
                     }
                 }

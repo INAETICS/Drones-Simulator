@@ -28,10 +28,10 @@ public class EtcdDiscoverer {
     private static final String DISCOVERABLE_CONFIG_DIR = "configs";
 
     /** The instances registered through this discoverer. */
-    private Set<Instance> myInstances;
+    private final Set<Instance> myInstances;
 
     /** The etcd client instance. */
-    private EtcdClient client;
+    private final EtcdClient client;
 
     /**
      * Instantiates a new etcd discoverer and connects to etcd using the given URI.

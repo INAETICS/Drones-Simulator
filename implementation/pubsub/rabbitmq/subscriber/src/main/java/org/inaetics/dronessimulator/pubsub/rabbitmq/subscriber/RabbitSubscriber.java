@@ -28,7 +28,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     private String identifier;
 
     /** The handlers for each message class this subscriber processes. */
-    private static Map<Class<? extends Message>, Collection<MessageHandler>> handlers = new HashMap<>();
+    private static final Map<Class<? extends Message>, Collection<MessageHandler<Message>>> handlers = new HashMap<>();
 
     /** The topics this subscriber is subscribed to. */
     private Map<Topic, String> topics;
@@ -137,7 +137,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     @Override
     public void addHandler(Class<? extends Message> messageClass, MessageHandler handler) {
         // Create new set for this message class if needed
-        Collection<MessageHandler> handlers = RabbitSubscriber.handlers.computeIfAbsent(messageClass, k -> new HashSet<>());
+        Collection<MessageHandler<Message>> handlers = RabbitSubscriber.handlers.computeIfAbsent(messageClass, k -> new HashSet<>());
         handlers.add(handler);
         logger.debug("Handler {} set for message class {}", handler, messageClass);
     }
@@ -145,7 +145,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     @Override
     public void addHandlerIfNotExists(Class<? extends Message> messageClass, MessageHandler handler) {
         // Create new set for this message class if needed
-        Collection<MessageHandler> handlers = RabbitSubscriber.handlers.computeIfAbsent(messageClass, k -> new HashSet<>());
+        Collection<MessageHandler<Message>> handlers = RabbitSubscriber.handlers.computeIfAbsent(messageClass, k -> new HashSet<>());
         if (handlers.stream().filter(h -> h.getClass().equals(handler.getClass())).count() == 0) {
             handlers.add(handler);
             logger.debug("Handler {} set for message class {}", handler, messageClass);
@@ -159,7 +159,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
      */
     @Override
     public void removeHandler(Class<? extends Message> messageClass, MessageHandler handler) {
-        Collection<MessageHandler> handlers = RabbitSubscriber.handlers.get(messageClass);
+        Collection<MessageHandler<Message>> handlers = RabbitSubscriber.handlers.get(messageClass);
 
         // Remove the handler for the class if any handler set is defined
         if (handlers != null) {
@@ -184,11 +184,11 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
         }
 
         // apparently not a compressed message, lets continue
-        Collection<MessageHandler> handlers = RabbitSubscriber.handlers.get(message.getClass());
+        Collection<MessageHandler<Message>> handlers = RabbitSubscriber.handlers.get(message.getClass());
 
         // Pass the message to every defined handler
         if (handlers != null) {
-            for (MessageHandler handler : handlers) {
+            for (MessageHandler<Message> handler : handlers) {
                 handler.handleMessage(message);
             }
         } else {

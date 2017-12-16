@@ -58,7 +58,7 @@ public class Gun {
      */
     private long nextShotAtMs = lastShotAtMs;
 
-    private Set<GunCallback> callbacks = new HashSet<>();
+    private final Set<GunCallback> callbacks = new HashSet<>();
 
     // -- GETTERS
 
@@ -97,10 +97,10 @@ public class Gun {
             msg.setPosition(gps.getPosition());
             msg.setAcceleration(new D3Vector());
 
-            nextShotAtMs = currentTimeMs + BASE_SHOT_TIME_BETWEEN + new Random().nextInt(MAX_OFFSET_SHOT_TIME);
-
             try{
                 publisher.send(MessageTopic.MOVEMENTS, msg);
+                lastShotAtMs = currentTimeMs;
+                nextShotAtMs = lastShotAtMs + BASE_SHOT_TIME_BETWEEN + new Random().nextInt(MAX_OFFSET_SHOT_TIME);
             } catch(IOException e){
                 log.fatal(e);
             }

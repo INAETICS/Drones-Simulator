@@ -23,7 +23,7 @@ public enum MessageTopic implements Topic {
      */
     ARCHITECTURE ("Architecture");
 
-    private String name;
+    private final String name;
 
     MessageTopic(String name) {
         this.name = name;

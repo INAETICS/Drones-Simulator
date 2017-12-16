@@ -20,7 +20,7 @@ public abstract class Drone extends BaseEntity {
     /** Current hitpoints of a drone */
     private int currentHP;
     /** Text attribute containing the height */
-    private Text heightText;
+    private final Text heightText;
 
     /**
      * Creates a drone based on a sprite

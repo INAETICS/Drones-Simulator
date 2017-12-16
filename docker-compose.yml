@@ -90,4 +90,4 @@ services:
     environment:
       DRONE_TEAM: "teamstudent"
       DRONE_COMPONENTS: "gps,radar,radio,gun"
-      DRONE_TACTIC: "org.inaetics.dronessimulator.drone.tactic.DoNothingTactic"
+      DRONE_TACTIC: "org.inaetics.dronessimulator.drone.tactic.example.SimpleTactic"

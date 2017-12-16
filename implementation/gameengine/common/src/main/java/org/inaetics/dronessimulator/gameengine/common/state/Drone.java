@@ -20,7 +20,7 @@ public class Drone extends HealthGameEntity<Drone> {
     private final String teamname;
 
     @Getter
-    private D3Vector targetLocation;
+    private final D3Vector targetLocation;
 
     //Test constructor
     public Drone(int id, String teamname, D3Vector position, D3Vector velocity, D3Vector acceleration,

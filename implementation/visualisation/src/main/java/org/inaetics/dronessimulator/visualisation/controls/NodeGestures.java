@@ -10,9 +10,9 @@ import javafx.scene.input.MouseEvent;
 public class NodeGestures {
 
     /** mouse drag context */
-    private DragContext nodeDragContext = new DragContext();
+    private final DragContext nodeDragContext = new DragContext();
     /** Canvas that can be zoomed and panned */
-    private PannableCanvas canvas;
+    private final PannableCanvas canvas;
 
     /**
      * Instantiates the listeners for making the canvas pannable and zoomable
@@ -27,24 +27,20 @@ public class NodeGestures {
      *
      * This sets the x and y coordinates, which are used when dragging
      */
-    private EventHandler<MouseEvent> onMousePressedEventHandler = new EventHandler<MouseEvent>() {
+    private EventHandler<MouseEvent> onMousePressedEventHandler = event -> {
 
-        public void handle(MouseEvent event) {
+        // left mouse button => dragging
+        if (!event.isPrimaryButtonDown())
+            return;
 
-            // left mouse button => dragging
-            if (!event.isPrimaryButtonDown())
-                return;
+        nodeDragContext.mouseAnchorX = event.getSceneX();
+        nodeDragContext.mouseAnchorY = event.getSceneY();
 
-            nodeDragContext.mouseAnchorX = event.getSceneX();
-            nodeDragContext.mouseAnchorY = event.getSceneY();
+        Node node = (Node) event.getSource();
+        System.out.format("%10f,%10f%n", node.getTranslateX(), node.getTranslateY());
 
-            Node node = (Node) event.getSource();
-            System.out.format("%10f,%10f%n", node.getTranslateX(), node.getTranslateY());
-
-            nodeDragContext.translateAnchorX = node.getTranslateX();
-            nodeDragContext.translateAnchorY = node.getTranslateY();
-
-        }
+        nodeDragContext.translateAnchorX = node.getTranslateX();
+        nodeDragContext.translateAnchorY = node.getTranslateY();
 
     };
 

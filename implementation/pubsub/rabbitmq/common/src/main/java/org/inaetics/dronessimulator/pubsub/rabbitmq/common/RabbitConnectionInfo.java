@@ -5,9 +5,7 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryStoredNode;
 import org.inaetics.dronessimulator.discovery.api.instances.RabbitInstance;
-import org.osgi.service.cm.ConfigurationException;
 
 import java.net.URISyntaxException;
 import java.security.KeyManagementException;

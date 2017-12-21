@@ -14,7 +14,6 @@ import org.inaetics.dronessimulator.drone.components.radar.Radar;
 import org.inaetics.dronessimulator.drone.components.radio.Radio;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.drone.tactic.example.SimpleTactic;
-import org.inaetics.dronessimulator.drone.tactic.example.utility.TheoreticalTactic;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.osgi.framework.BundleContext;
 
@@ -25,41 +24,42 @@ import java.util.stream.Collectors;
 
 public class Activator extends DependencyActivatorBase {
     private static final Logger logger = Logger.getLogger(Activator.class);
+
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
         Tactic tactic = createNewTactic();
 
         Component component = createComponent()
-                               .setInterface(Tactic.class.getName(), null)
-                               .setImplementation(tactic)
-                               .setCallbacks("init", "startTactic", "stopTactic", "destroy");
+                .setInterface(Tactic.class.getName(), null)
+                .setImplementation(tactic)
+                .setCallbacks("init", "startTactic", "stopTactic", "destroy");
 
         for (ServiceDependency dep : getDroneComponents(dependencyManager)) {
             component.add(dep);
         }
 
         component.add(
-            createServiceDependency()
-            .setService(ArchitectureEventController.class)
-            .setRequired(true)
+                createServiceDependency()
+                        .setService(ArchitectureEventController.class)
+                        .setRequired(true)
         );
 
         component.add(
-            createServiceDependency()
-            .setService(Subscriber.class)
-            .setRequired(true)
+                createServiceDependency()
+                        .setService(Subscriber.class)
+                        .setRequired(true)
         );
 
         component.add(
-            createServiceDependency()
-            .setService(Discoverer.class)
-            .setRequired(true)
+                createServiceDependency()
+                        .setService(Discoverer.class)
+                        .setRequired(true)
         );
 
         component.add(
-            createServiceDependency()
-            .setService(DroneInit.class)
-            .setRequired(true)
+                createServiceDependency()
+                        .setService(DroneInit.class)
+                        .setRequired(true)
         );
 
         dependencyManager.add(component);
@@ -84,7 +84,7 @@ public class Activator extends DependencyActivatorBase {
             envComponents = "radio,gps"; //Default components
         }
         envComponents += ",engine"; //A drone always needs an engine, so add that always to the componentlist
-        logger.info("Create drone with the following components: "+envComponents);
+        logger.info("Create drone with the following components: " + envComponents);
         List<String> componentStrings = Arrays.stream(envComponents.split(",")).map(String::trim).filter(c -> !c.isEmpty()).collect(Collectors.toList());
 
         // Inject dependencies based on the defined components

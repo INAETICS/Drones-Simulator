@@ -18,7 +18,7 @@ import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
 @Getter
 @Setter
 @ToString
-public class Entity extends GameEntity implements Cloneable {
+public class Entity extends GameEntity {
     /**
      * Creates an entity.
      *

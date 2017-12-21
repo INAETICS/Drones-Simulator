@@ -21,7 +21,6 @@ import org.inaetics.dronessimulator.drone.components.gun.Gun;
 import org.inaetics.dronessimulator.drone.components.radar.Radar;
 import org.inaetics.dronessimulator.drone.components.radio.Radio;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
@@ -35,7 +34,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * The abstract tactic each drone tactic should extend
  */
 @Log4j
-public abstract class Tactic extends ManagedThread implements MessageHandler {
+public abstract class Tactic extends ManagedThread implements MessageHandler<KillMessage> {
     private static final long TACTIC_TIMOUT = 1;//tck
     private final TimeoutTimer workTimoutTimer = new TimeoutTimer(TACTIC_TIMOUT * Settings.TICK_TIME);
     private final AtomicBoolean initialized = new AtomicBoolean(false);
@@ -49,20 +48,16 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     protected volatile Engine engine;
     @Getter
     protected volatile Gun gun;
-    /**
-     * Drone Init bundle
-     */
-    protected volatile DroneInit m_drone;
     @Getter
     protected volatile Radio radio;
+    /** The drone instance that can be used to get information about the current drone */
+    protected volatile DroneInit m_drone;
     /**
-     * Architecture Event controller bundle
+     * Architecture Event controller bundle that is used to listen to state updates.
      */
     @SuppressWarnings("unused") //Assigned through OSGi
     private volatile ArchitectureEventController m_architectureEventController;
-    /**
-     * Subscriber bundle
-     */
+    /** The Subscriber to use for receiving messages */
     @SuppressWarnings("unused") //Assigned through OSGi
     private volatile Subscriber m_subscriber;
     private Instance simulationInstance;
@@ -75,6 +70,8 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
 
     /**
      * Thread implementation
+     * <p>
+     * Work calls the calulateTactics everytime the ticker is exceeded. The ticker runs on {@link Settings#TICK_TIME} ms.
      */
     @Override
     protected final void work() throws InterruptedException {
@@ -93,42 +90,19 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     }
 
     /**
-     * Registers the handlers for the architectureEventController on startup. And registers the subscriber. Starts the
-     * tactic.
+     * Registers the handlers for the architectureEventController on startup. And registers the subscriber. Starts the tactic. This is called by Apache Felix.
      */
     public final void startTactic() {
-        m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG,
-                (SimulationState fromState, SimulationAction action, SimulationState toState) -> this.configSimulation()
-        );
-
-        m_architectureEventController.addHandler(SimulationState.CONFIG, SimulationAction.START, SimulationState.RUNNING,
-                (SimulationState fromState, SimulationAction action, SimulationState toState) -> this.startSimulation()
-        );
-
-        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.PAUSE, SimulationState.PAUSED,
-                (SimulationState fromState, SimulationAction action, SimulationState toState) -> this.pauseSimulation()
-        );
-
-        m_architectureEventController.addHandler(SimulationState.PAUSED, SimulationAction.RESUME, SimulationState.RUNNING,
-                (SimulationState fromState, SimulationAction action, SimulationState toState) -> this.resumeSimulation()
-        );
-
-
-        m_architectureEventController.addHandler(SimulationState.CONFIG, SimulationAction.STOP, SimulationState.INIT,
-                (SimulationState fromState, SimulationAction action, SimulationState toState) -> this.stopSimulation()
-        );
-
-        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.STOP, SimulationState.INIT,
-                (SimulationState fromState, SimulationAction action, SimulationState toState) -> this.stopSimulation()
-        );
-
-        m_architectureEventController.addHandler(SimulationState.PAUSED, SimulationAction.STOP, SimulationState.INIT,
-                (SimulationState fromState, SimulationAction action, SimulationState toState) -> this.stopSimulation()
-        );
-
-        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.GAMEOVER, SimulationState.DONE,
-                (SimulationState fromState, SimulationAction action, SimulationState toState) -> this.stopSimulation()
-        );
+        //@formatter:off
+        m_architectureEventController.addHandler(SimulationState.INIT,    SimulationAction.CONFIG,   SimulationState.CONFIG,  (f,a,t) -> this.configSimulation());
+        m_architectureEventController.addHandler(SimulationState.CONFIG,  SimulationAction.START,    SimulationState.RUNNING, (f,a,t) -> this.startSimulation());
+        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.PAUSE,    SimulationState.PAUSED,  (f,a,t) -> this.pauseSimulation());
+        m_architectureEventController.addHandler(SimulationState.PAUSED,  SimulationAction.RESUME,   SimulationState.RUNNING, (f,a,t) -> this.resumeSimulation());
+        m_architectureEventController.addHandler(SimulationState.CONFIG,  SimulationAction.STOP,     SimulationState.INIT,    (f,a,t) -> this.stopSimulation());
+        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.STOP,     SimulationState.INIT,    (f,a,t) -> this.stopSimulation());
+        m_architectureEventController.addHandler(SimulationState.PAUSED,  SimulationAction.STOP,     SimulationState.INIT,    (f,a,t) -> this.stopSimulation());
+        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.GAMEOVER, SimulationState.DONE,    (f,a,t) -> this.stopSimulation());
+        //@formatter:on
 
         simulationInstance = new TacticInstance(m_drone.getIdentifier());
 
@@ -137,6 +111,9 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
         super.start();
     }
 
+    /**
+     * Stop the thread when Apache Felix calls this method.
+     */
     public final void stopTactic() {
         this.stopThread();
         unconfigSimulation();
@@ -153,6 +130,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
 
     @Override
     public final void destroy() {
+        //Do nothing on shutdown
     }
 
     private void configSimulation() {
@@ -221,31 +199,15 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
             initialized.set(false);
         }
 
-        //Optionally stop started threads
-        //TODO
-
         log.info("Stopped drone!");
     }
 
-    //-- MESSAGEHANDLERS
-
     /**
-     * Handles a recieved message and calls the messagehandlers.
-     *
-     * @param message The received message.
-     */
-    public final void handleMessage(Message message) {
-        if (message instanceof KillMessage) {
-            handleKillMessage((KillMessage) message);
-        }
-    }
-
-    /**
-     * Handles a killMessage
+     * Handles a killMessage by stopping the tactic and exiting the process
      *
      * @param killMessage the received killMessage
      */
-    private void handleKillMessage(KillMessage killMessage) {
+    public void handleMessage(KillMessage killMessage) {
         if (killMessage.getIdentifier().equals(m_drone.getIdentifier())) {
             log.info("Found kill message! Quitting for now... Last known movements: \n" +
                     "\tposition: " + gps.getPosition().toString() + "\n" +
@@ -296,7 +258,6 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
         }
     }
 
-
     /**
      * Checks if the components are non-null.
      *
@@ -323,7 +284,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     }
 
     /**
-     * -- Abstract metods
+     * Method which is called when the tactic is started.
      */
     protected abstract void initializeTactics();
 
@@ -342,8 +303,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
 
     public class MissingComponentsException extends Exception {
         public MissingComponentsException(String... requiredComponents) {
-            super("One of the following components is missing that was required: " + Arrays.toString
-                    (requiredComponents));
+            super("One of the following components is missing that was required: " + Arrays.toString(requiredComponents));
         }
     }
 }

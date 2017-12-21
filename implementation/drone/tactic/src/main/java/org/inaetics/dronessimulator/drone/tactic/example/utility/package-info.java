@@ -1,4 +1,3 @@
-
 /**
  * This package contains an example tactic that uses a utility function. In the package messages there are the messages that are send between the drones. Note that
  * drones are only able to receive TacticMessages. This contains a Map with String key-value pairs. The CalculateUtilityHelper does the actual utility calculations so

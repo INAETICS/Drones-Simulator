@@ -175,8 +175,8 @@ public class TheoreticalTactic extends Tactic {
                 ) && droneType.equals(DroneType.RADAR) && idLeader == null) {
                     //Become a leader yourself and prepare
                     setLeader(getIdentifier());
-                    radio.send(new DataMessage(this, MyTacticMessage.MESSAGETYPES.IS_LEADER_MESSAGE).getMessage());
-                    log.info("Drone " + getIdentifier() + " is the leader of team " + m_drone.getTeamname());
+                    if (radio.send(new DataMessage(this, MyTacticMessage.MESSAGETYPES.IS_LEADER_MESSAGE).getMessage()))
+                        log.info("Drone " + getIdentifier() + " is the leader of team " + m_drone.getTeamname());
                 } else if (MyTacticMessage.checkType(newMessage,
         MyTacticMessage.MESSAGETYPES.IS_LEADER_MESSAGE)) {
                     setLeader(newMessage.get("id"));
@@ -223,8 +223,8 @@ public class TheoreticalTactic extends Tactic {
     private void findLeader() {
         if (idLeader == null) {
             log.debug("Searching for leader");
-            radio.send(new DataMessage(this, MyTacticMessage.MESSAGETYPES.SEARCH_LEADER_MESSAGE).getMessage());
-            lastRequestForLeader.reset();
+            if (radio.send(new DataMessage(this, MyTacticMessage.MESSAGETYPES.SEARCH_LEADER_MESSAGE).getMessage()))
+                lastRequestForLeader.reset();
         }
     }
 

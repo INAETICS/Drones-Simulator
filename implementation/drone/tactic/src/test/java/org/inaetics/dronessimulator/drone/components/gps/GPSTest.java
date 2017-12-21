@@ -13,7 +13,6 @@ import org.junit.Test;
 
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
-import java.util.HashSet;
 
 import static org.inaetics.dronessimulator.test.concurrent.D3VectorMatcher.closeTo;
 import static org.mockito.Mockito.mock;
@@ -27,8 +26,7 @@ public class GPSTest {
     public void setUp() throws Exception {
         drone = new DroneInit();
         drone.setIdentifier("1");
-        gps = new GPS(mock(Subscriber.class), drone, new HashSet<>(), null, D3Vector.UNIT, D3Vector.UNIT, D3Vector
-                .UNIT, D3PolarCoordinate.UNIT);
+        gps = new GPS(mock(Subscriber.class), drone, null, D3Vector.UNIT, D3Vector.UNIT, D3Vector.UNIT, D3PolarCoordinate.UNIT);
         gps.start();
     }
 

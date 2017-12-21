@@ -31,13 +31,13 @@ public class TacticTesterHelper {
         T tactic = tacticClass.newInstance();
         List<String> componentList = Arrays.asList(components);
         if (componentList.contains("gps") || components.length == 0) {
-            tactic.gps = new GPS(subscriber, droneInit, new HashSet<>(), null, D3Vector.UNIT, D3Vector.UNIT, D3Vector
+            tactic.gps = new GPS(subscriber, droneInit, null, D3Vector.UNIT, D3Vector.UNIT, D3Vector
                     .UNIT,
                     D3PolarCoordinate.UNIT);
             tactic.gps.start();
         }
         if (componentList.contains("engine") || components.length == 0) {
-            tactic.engine = new Engine(publisher, droneInit, tactic.gps, new HashSet<>(), null);
+            tactic.engine = new Engine(publisher, tactic.gps, droneInit, null);
         }
 
         if (componentList.contains("radio") || components.length == 0) {

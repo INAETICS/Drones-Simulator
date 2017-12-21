@@ -6,7 +6,7 @@ import java.time.temporal.ChronoUnit;
 import static org.inaetics.dronessimulator.drone.tactic.example.basic.ProtocolTags.HEARTBEAT_GUN;
 import static org.inaetics.dronessimulator.drone.tactic.example.basic.ProtocolTags.HEARTBEAT_RADAR;
 
-public class BasicTacticHeartbeat implements Runnable{
+public class BasicTacticHeartbeat implements Runnable {
 
     private BasicTactic tactic;
     private BasicTacticCommunication comm;

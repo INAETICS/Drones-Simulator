@@ -8,21 +8,18 @@ import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.junit.*;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
 
-import java.util.HashSet;
-
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class EngineTest {
+    @Rule
+    public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
     private Engine engine;
     private MockPublisher publisher;
     private DroneInit drone;
     private GPS gps;
     private D3Vector current_velocity;
     private D3Vector current_acceleration;
-
-    @Rule
-    public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
 
     @Before
     public void setup() {
@@ -34,7 +31,7 @@ public class EngineTest {
         current_acceleration = new D3Vector(1, 1, 1);
         when(gps.getVelocity()).thenReturn(current_velocity);
         when(gps.getAcceleration()).thenReturn(current_acceleration);
-        engine = new Engine(publisher, drone, gps, new HashSet<>(), null);
+        engine = new Engine(publisher, gps, drone, null);
         environmentVariables.set("MAX_DRONE_ACCELERATION", "10");
         environmentVariables.set("MAX_DRONE_VELOCITY", "20");
     }
@@ -42,29 +39,29 @@ public class EngineTest {
     @Test
     public void limit_acceleration() throws Exception {
         //nul-vectors should be untouched
-        Assert.assertEquals(new D3Vector(0, 0, 0), engine.limit_acceleration(new D3Vector(0, 0, 0)));
+        Assert.assertEquals(new D3Vector(0, 0, 0), Engine.limit_acceleration(new D3Vector(0, 0, 0)));
 
         //Permitted acceleration should be passed
-        Assert.assertEquals(new D3Vector(5, 5, 5), engine.limit_acceleration(new D3Vector(5, 5, 5)));
-        Assert.assertEquals(new D3Vector(-5, -5, -5), engine.limit_acceleration(new D3Vector(-5, -5, -5)));
-        Assert.assertEquals(new D3Vector(-5, 5, -5), engine.limit_acceleration(new D3Vector(-5, 5, -5)));
-        Assert.assertEquals(new D3Vector(-5, 5, 5), engine.limit_acceleration(new D3Vector(-5, 5, 5)));
+        Assert.assertEquals(new D3Vector(5, 5, 5), Engine.limit_acceleration(new D3Vector(5, 5, 5)));
+        Assert.assertEquals(new D3Vector(-5, -5, -5), Engine.limit_acceleration(new D3Vector(-5, -5, -5)));
+        Assert.assertEquals(new D3Vector(-5, 5, -5), Engine.limit_acceleration(new D3Vector(-5, 5, -5)));
+        Assert.assertEquals(new D3Vector(-5, 5, 5), Engine.limit_acceleration(new D3Vector(-5, 5, 5)));
 
         //Excessive acceleration should be limited
-        Assert.assertEquals(new D3Vector(10, 0, 0), engine.limit_acceleration(new D3Vector(1000, 0, 0)));
-        Assert.assertEquals(new D3Vector(-10, 0, 0), engine.limit_acceleration(new D3Vector(-1000, 0, 0)));
+        Assert.assertEquals(new D3Vector(10, 0, 0), Engine.limit_acceleration(new D3Vector(1000, 0, 0)));
+        Assert.assertEquals(new D3Vector(-10, 0, 0), Engine.limit_acceleration(new D3Vector(-1000, 0, 0)));
     }
 
     @Test
     public void maximize_acceleration() throws Exception {
         //nul-vectors should be untouched
-        Assert.assertEquals(new D3Vector(0, 0, 0), engine.maximize_acceleration(new D3Vector(0, 0, 0)));
+        Assert.assertEquals(new D3Vector(0, 0, 0), Engine.maximize_acceleration(new D3Vector(0, 0, 0)));
 
         //Less than max accelaration should be upgraded to the max
-        Assert.assertEquals(new D3Vector(5.77350269189625764509148780501957, 5.77350269189625764509148780501957, 5.77350269189625764509148780501957), engine.maximize_acceleration(new D3Vector(5, 5, 5)));
+        Assert.assertEquals(new D3Vector(5.77350269189625764509148780501957, 5.77350269189625764509148780501957, 5.77350269189625764509148780501957), Engine.maximize_acceleration(new D3Vector(5, 5, 5)));
 
         //More than max acceleration should be kept the same
-        Assert.assertEquals(new D3Vector(15, 15, 15), engine.maximize_acceleration(new D3Vector(15, 15, 15)));
+        Assert.assertEquals(new D3Vector(15, 15, 15), Engine.maximize_acceleration(new D3Vector(15, 15, 15)));
 
     }
 

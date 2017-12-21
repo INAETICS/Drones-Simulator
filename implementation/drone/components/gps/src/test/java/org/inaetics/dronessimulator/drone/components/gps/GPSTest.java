@@ -5,8 +5,8 @@ import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.inaetics.dronessimulator.drone.tactic.TacticTesterHelper;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
+import org.inaetics.dronessimulator.test.TestUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -14,7 +14,7 @@ import org.junit.Test;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
-import static org.inaetics.dronessimulator.test.concurrent.D3VectorMatcher.closeTo;
+import static org.inaetics.dronessimulator.test.matchers.D3VectorMatcher.closeTo;
 import static org.mockito.Mockito.mock;
 
 @SuppressWarnings("ConstantConditions") //Ignore all the issues with the "get" on optionals
@@ -32,7 +32,7 @@ public class GPSTest {
 
     @Test
     public void handleMessageNoChange() throws Exception {
-        TacticTesterHelper.setField(gps, "previousMessage", null);
+        TestUtils.setField(gps, "previousMessage", null);
         StateMessage msg1 = new StateMessage(LocalTime.now().minusSeconds(2));
         msg1.setIdentifier(drone.getIdentifier());
         msg1.setAcceleration(new D3Vector(1, 1, 1));
@@ -59,7 +59,7 @@ public class GPSTest {
 
     @Test
     public void handleMessageIncreasing() throws Exception {
-        TacticTesterHelper.setField(gps, "previousMessage", null);
+        TestUtils.setField(gps, "previousMessage", null);
         StateMessage msg1 = new StateMessage(LocalTime.now().minusSeconds(2));
         msg1.setIdentifier(drone.getIdentifier());
         msg1.setAcceleration(new D3Vector(1, 1, 1));
@@ -101,7 +101,7 @@ public class GPSTest {
 
     @Test
     public void handleMessageDecreasing() throws Exception {
-        TacticTesterHelper.setField(gps, "previousMessage", null);
+        TestUtils.setField(gps, "previousMessage", null);
         StateMessage msg1 = new StateMessage(LocalTime.now().minusSeconds(2));
         msg1.setIdentifier(drone.getIdentifier());
         msg1.setAcceleration(new D3Vector(1, 1, 1));
@@ -129,7 +129,7 @@ public class GPSTest {
 
     @Test
     public void handleMessageNoDelay() throws Exception {
-        TacticTesterHelper.setField(gps, "previousMessage", null);
+        TestUtils.setField(gps, "previousMessage", null);
         StateMessage msg1 = new StateMessage(LocalTime.now().minusSeconds(1));
         msg1.setIdentifier(drone.getIdentifier());
         msg1.setAcceleration(new D3Vector(1, 1, 1));

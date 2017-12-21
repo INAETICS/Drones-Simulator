@@ -15,7 +15,8 @@ import org.inaetics.dronessimulator.drone.tactic.example.utility.messages.Heartb
 import org.inaetics.dronessimulator.drone.tactic.example.utility.messages.InstructionMessage;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
-import org.inaetics.dronessimulator.test.concurrent.MockPublisher;
+import org.inaetics.dronessimulator.test.MockPublisher;
+import org.inaetics.dronessimulator.test.TestUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +27,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.inaetics.dronessimulator.drone.tactic.TacticTesterHelper.setField;
+import static org.inaetics.dronessimulator.test.TestUtils.setField;
 import static org.mockito.Mockito.mock;
 
 @Log4j
@@ -59,7 +60,7 @@ public class TheoreticalTacticTester {
 
     @Test
     public void testGettingALeader() throws IllegalAccessException, NoSuchFieldException, InstantiationException, InterruptedException {
-        Tuple<Publisher, Subscriber> pubSub = TacticTesterHelper.getConnectedMockPubSub();
+        Tuple<Publisher, TacticTesterHelper.MockSubscriber> pubSub = TacticTesterHelper.getConnectedMockPubSub();
         DroneInit drone1 = new DroneInit();
         DroneInit drone2 = new DroneInit();
         TheoreticalTactic tactic = TacticTesterHelper.getTactic(TheoreticalTactic.class, pubSub.getLeft(), pubSub.getRight(),
@@ -74,8 +75,8 @@ public class TheoreticalTacticTester {
             tactic.calculateTactics();
             tactic2.calculateTactics();
         }
-        Object leader1 = TacticTesterHelper.getField(tactic, "idLeader");
-        Object leader2 = TacticTesterHelper.getField(tactic2, "idLeader");
+        Object leader1 = TestUtils.getField(tactic, "idLeader");
+        Object leader2 = TestUtils.getField(tactic2, "idLeader");
         //After a while they should have the same leader
         Assert.assertNotNull(leader1);
         Assert.assertNotNull(leader2);
@@ -87,7 +88,7 @@ public class TheoreticalTacticTester {
         for (int i = 0; i < 20; i++) {
             tactic2.calculateTactics();
         }
-        Object leader3 = TacticTesterHelper.getField(tactic2, "idLeader");
+        Object leader3 = TestUtils.getField(tactic2, "idLeader");
         Assert.assertNotNull(leader3);
         Assert.assertEquals("The only drone is not its own leader anymore", tactic2.getIdentifier(), leader3);
         tactic2.stopTactic();

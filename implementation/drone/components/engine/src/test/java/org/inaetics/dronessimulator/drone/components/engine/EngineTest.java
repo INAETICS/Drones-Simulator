@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.drone.components.engine;
 
-
 import org.inaetics.dronessimulator.common.protocol.MovementMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;

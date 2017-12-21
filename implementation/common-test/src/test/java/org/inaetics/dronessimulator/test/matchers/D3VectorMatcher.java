@@ -1,4 +1,4 @@
-package org.inaetics.dronessimulator.test.concurrent;
+package org.inaetics.dronessimulator.test.matchers;
 
 import org.hamcrest.Description;
 import org.hamcrest.Factory;

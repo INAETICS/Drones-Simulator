@@ -1,4 +1,4 @@
-package org.inaetics.dronessimulator.test.concurrent;
+package org.inaetics.dronessimulator.test;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

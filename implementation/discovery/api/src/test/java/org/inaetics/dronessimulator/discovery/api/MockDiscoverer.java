@@ -21,17 +21,22 @@ public class MockDiscoverer implements Discoverer {
     private final List<NodeEventHandler<ChangedValue>> changedHandlers = new LinkedList<>();
     @Getter
     private final List<NodeEventHandler<RemovedNode>> removedHandlers = new LinkedList<>();
+    @Getter
+    private final List<Instance> registeredInstances = new LinkedList<>();
 
     private final List<NodeEvent> happenedEvents = new LinkedList<>();
 
     @Override
     public void register(Instance instance) throws DuplicateName, IOException {
-        throw new NotImplementedException();
+        if (registeredInstances.parallelStream().filter(ri -> ri.getName().equals(instance.getName())).count() > 0) {
+            throw new DuplicateName(instance.getName() + " already exists.");
+        }
+        registeredInstances.add(instance);
     }
 
     @Override
     public void unregister(Instance instance) throws IOException {
-        throw new NotImplementedException();
+        registeredInstances.remove(instance);
     }
 
     @Override

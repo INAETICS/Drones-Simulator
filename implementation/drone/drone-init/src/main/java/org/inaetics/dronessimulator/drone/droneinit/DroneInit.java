@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.drone.droneinit;
 
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j;
@@ -19,6 +20,7 @@ import java.util.UUID;
  * Generates the id of the drone
  */
 @Log4j
+@AllArgsConstructor //Constructor for testing purposes
 public class DroneInit {
     @Getter
     @Setter
@@ -72,7 +74,7 @@ public class DroneInit {
     }
 
     public String getTeamname() {
-        String teamname = "unkown_team"; //Default fallback
+        String teamname = "unknown_team"; //Default fallback
 
         if (System.getenv("DRONE_TEAM") != null) {
             teamname = System.getenv("DRONE_TEAM");

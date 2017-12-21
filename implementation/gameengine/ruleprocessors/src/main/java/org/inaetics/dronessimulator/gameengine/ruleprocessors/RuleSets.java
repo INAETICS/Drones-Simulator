@@ -14,6 +14,9 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class RuleSets {
+    private RuleSets() {
+        throw new IllegalStateException("Utility class");
+    }
     public static List<Rule> getRulesForGameMode(GameMode gameMode, Publisher publisher, IdentifierMapper idMapper) {
         List<Rule> result = new LinkedList<>();
         //General rules that are applicable in any game mode

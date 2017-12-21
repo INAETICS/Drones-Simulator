@@ -1,7 +1,7 @@
 package org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch;
 
 
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.CollisionStartEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.DamageEvent;
@@ -22,6 +22,7 @@ import java.util.List;
  * Bullet with drone damages the drone and kills the bullet
  * Drones colliding damages both drones
  */
+@Log4j
 public class CollisionRule extends Rule {
     /** How much damage a collision between drones causes */
     private static final int COLLISION_DAMAGE = Drone.DRONE_MAX_HEALTH;
@@ -60,7 +61,6 @@ public class CollisionRule extends Rule {
      * @return The events due to the collision
      */
     private List<GameEngineEvent> handleCollision(GameEntity e1, GameEntity e2) {
-        //TODO refactor and make this more efficient for more possible entities.
         List<GameEngineEvent> results = new ArrayList<>();
 
         EntityType e1Type = e1.getType();
@@ -93,7 +93,7 @@ public class CollisionRule extends Rule {
                 results.add(new DamageEvent(drone, bullet.getDmg()));
             }
         } else {
-            Logger.getLogger(CollisionRule.class).error("Found a collision with unknown rules. Collision between: {} & {} ", e1Type, e2Type);
+            log.error("Found a collision with unknown rules. Collision between: {} & {} ", e1Type, e2Type);
         }
 
         return results;

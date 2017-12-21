@@ -42,6 +42,7 @@ public abstract class Drone extends BaseEntity {
     /**
      * Updates the height text and calls the parent method
      */
+    @Override
     void updateUI() {
         super.updateUI();
         heightText.setText("HP: " + currentHP + "/100 Location: " + position.toString(2));

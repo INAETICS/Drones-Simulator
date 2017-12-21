@@ -270,6 +270,7 @@ public class PhysicsEngine extends ManagedThread implements IPhysicsEngine {
 
     @Override
     public void destroy() {
+        // Override destroy from thread to do nothing. Will be called as callback by Activator upon destroy of the bundle
     }
 
     @Override

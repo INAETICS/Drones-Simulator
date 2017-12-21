@@ -138,7 +138,6 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
     }
 
     @Override
-    @Deprecated
     public void destroy() {
         // Override destroy from thread to do nothing. Will be called as callback by Activator upon destroy of the bundle
     }

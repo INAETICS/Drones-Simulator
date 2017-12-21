@@ -7,7 +7,6 @@ import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.MovementMessage;
-import org.inaetics.dronessimulator.common.protocol.TargetMoveLocationMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
@@ -115,19 +114,10 @@ public class Engine {
      * @param input_acceleration The new acceleration for the drone using this component
      */
     public void changeAcceleration(D3Vector input_acceleration) {
-        log.debug("CHANGED ACCELERATION -> " + input_acceleration);
-
         D3Vector acceleration = input_acceleration;
 
         acceleration = this.limit_acceleration(acceleration);
-
-        D3Vector accelerationBetween = acceleration;
-
         acceleration = this.limit_velocity(acceleration);
-
-//        acceleration = this.stagnate_acceleration(acceleration);
-
-        log.debug("TESTACC | " + input_acceleration.length() + " | " + accelerationBetween.length() + " | " + acceleration.length() + " | " + m_gps.getVelocity().length() + " | " + m_gps.getVelocity().add(acceleration).length());
 
         if (Double.isNaN(acceleration.getX()) || Double.isNaN(acceleration.getY()) || Double.isNaN(acceleration.getZ())) {
             throw new IllegalArgumentException("Acceleration is not a number. Input acceleration: " +
@@ -135,15 +125,15 @@ public class Engine {
         }
 
         Boolean change = true;
-//        if (lastAcceleration != null) {
-//            double diffX = Math.abs(lastAcceleration.getX() - acceleration.getX());
-//            double diffY = Math.abs(lastAcceleration.getY() - acceleration.getY());
-//            double diffZ = Math.abs(lastAcceleration.getZ() - acceleration.getZ());
-//            double diffTot = diffX + diffY + diffZ;
-//            if (diffTot < 3) {
-//                change = false;
-//            }
-//        }
+        if (lastAcceleration != null) {
+            double diffX = Math.abs(lastAcceleration.getX() - acceleration.getX());
+            double diffY = Math.abs(lastAcceleration.getY() - acceleration.getY());
+            double diffZ = Math.abs(lastAcceleration.getZ() - acceleration.getZ());
+            double diffTot = diffX + diffY + diffZ;
+            if (diffTot < 3) {
+                change = false;
+            }
+        }
 
         if (change) {
             lastAcceleration = acceleration;
@@ -180,8 +170,6 @@ public class Engine {
 
         }
 
-        log.debug("CHANGEVELOCITY -> " + output + " | " + output.length() + " | " + m_gps.getAcceleration().length());
-
         MovementMessage msg = new MovementMessage();
         msg.setVelocity(output);
         msg.setIdentifier(m_drone.getIdentifier());
@@ -193,20 +181,6 @@ public class Engine {
         }
 
         return output;
-    }
-
-    @Deprecated
-    public void moveTo(D3Vector location) {
-        TargetMoveLocationMessage msg = new TargetMoveLocationMessage();
-        msg.setTargetLocation(location);
-        log.info("Move to: " + location.toString());
-        msg.setIdentifier(m_drone.getIdentifier());
-
-        try {
-            m_publisher.send(MessageTopic.MOVEMENTS, msg);
-        } catch (IOException e) {
-            log.fatal(e);
-        }
     }
 
     public final void registerCallback(EngineCallback callback) {

@@ -97,7 +97,6 @@ public class GPS implements MessageHandler<StateMessage> {
                 Optional<D3Vector> optionalPreviousPosition = previousMessage.getPosition();
                 Optional<D3Vector> optionalPreviousVelocity = previousMessage.getVelocity();
                 Optional<D3Vector> optionalPreviousAcceleration = previousMessage.getAcceleration();
-                Optional<D3PolarCoordinate> optionalPreviousDirection = previousMessage.getDirection();
 
                 if (deltaMessages <= 0) {
                     //We cannot use two messages that were send at the same time since this will create a NaN. To

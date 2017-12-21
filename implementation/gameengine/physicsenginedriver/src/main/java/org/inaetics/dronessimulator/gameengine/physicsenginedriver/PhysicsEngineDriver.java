@@ -170,8 +170,7 @@ public class PhysicsEngineDriver implements IPhysicsEngineDriver {
 
         if (g.getType().equals(EntityType.DRONE)) {
             size = new Size(10, 10, 10);
-            return new Entity.DroneEntity(g.getEntityId(), size, g.getPosition(), g.getVelocity(), g.getAcceleration
-                    (), g.getDirection(), ((Drone) g).getTargetLocation());
+            return new Entity.DroneEntity(g.getEntityId(), size, g.getPosition(), g.getVelocity(), g.getAcceleration(), g.getDirection(), ((Drone) g).getTargetLocation());
         } else if (g.getType().equals(EntityType.BULLET)) {
             size = new Size(1, 1, 1);
         } else {

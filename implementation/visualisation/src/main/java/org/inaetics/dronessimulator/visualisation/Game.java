@@ -347,7 +347,7 @@ public class Game extends Application {
 
             this.subscriber.addHandler(KillMessage.class, new KillMessageHandler(this.entities));
             this.subscriber.addHandler(StateMessage.class, new StateMessageHandler(uiUpdates, this.entities));
-            this.subscriber.addHandlerIfNotExists(GameFinishedMessage.class, new GameFinishedHandler(primaryStage));
+            this.subscriber.addHandlerIfNotExists(GameFinishedMessage.class, new GameFinishedHandler());
 
             this.subscriber.addTopic(MessageTopic.STATEUPDATES);
         }

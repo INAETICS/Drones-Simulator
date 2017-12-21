@@ -37,7 +37,6 @@ public class NodeGestures {
         nodeDragContext.mouseAnchorY = event.getSceneY();
 
         Node node = (Node) event.getSource();
-        System.out.format("%10f,%10f%n", node.getTranslateX(), node.getTranslateY());
 
         nodeDragContext.translateAnchorX = node.getTranslateX();
         nodeDragContext.translateAnchorY = node.getTranslateY();

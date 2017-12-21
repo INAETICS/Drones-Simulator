@@ -37,10 +37,9 @@ public class StateMessageHandler implements MessageHandler<StateMessage> {
     /**
      * Creates a new bullet and returns it
      *
-     * @param id String - Identifier of the new bullet
      * @return bullet Bullet - The newly created bullet
      */
-    private Bullet createBullet(String id) {
+    private Bullet createBullet() {
         Bullet bullet = new Bullet(uiUpdates);
         bullet.setPosition(new D3Vector(0, 0, 0));
         bullet.setDirection(new D3PolarCoordinate(0, 0, 0));
@@ -68,7 +67,7 @@ public class StateMessageHandler implements MessageHandler<StateMessage> {
      * @param stateMessage - Message containing the state of the bullet
      */
     private void createOrUpdateBullet(StateMessage stateMessage) {
-        BaseEntity currentBullet = entities.computeIfAbsent(stateMessage.getIdentifier(), k -> createBullet(stateMessage.getIdentifier()));
+        BaseEntity currentBullet = entities.computeIfAbsent(stateMessage.getIdentifier(), k -> createBullet());
 
         stateMessage.getPosition().ifPresent(currentBullet::setPosition);
         stateMessage.getDirection().ifPresent(currentBullet::setDirection);

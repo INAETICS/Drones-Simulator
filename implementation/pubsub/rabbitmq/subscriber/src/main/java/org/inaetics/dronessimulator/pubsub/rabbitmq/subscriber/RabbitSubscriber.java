@@ -212,7 +212,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
 
         // Define queue
         Map<String, Object> args = new HashMap<>();
-        args.put("x-message-ttl", Settings.TICK_TIME);
+//        args.put("x-message-ttl", Settings.TICK_TIME);
         this.channel.queueDeclare(this.identifier, false, false, true, args);
         logger.debug("RabbitMQ queue {} declared", this.identifier);
 

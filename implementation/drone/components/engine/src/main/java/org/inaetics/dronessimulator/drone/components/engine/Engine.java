@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.drone.components.engine;
 
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.Settings;
@@ -35,7 +36,8 @@ public class Engine {
     private volatile GPS m_gps;
 
     private Set<EngineCallback> callbacks = new HashSet<>();
-    
+
+    @Getter
     private D3Vector lastAcceleration;
 
     /**
@@ -76,13 +78,16 @@ public class Engine {
      * @param input acceleration as a D3Vector
      * @return optimized acceleration as a D3Vector
      */
-    private D3Vector limit_velocity(D3Vector input) {
+    public D3Vector limit_velocity(D3Vector input) {
         D3Vector output = input;
-        // Check velocity
-        if (m_gps.getVelocity().length() >= Settings.MAX_DRONE_VELOCITY && m_gps.getVelocity().add(input).length() >= m_gps.getVelocity()
-                .length()) {
-            output = new D3Vector();
-        }
+
+        if (m_gps.getVelocity().length() > Settings.MAX_DRONE_VELOCITY && m_gps.getVelocity().add(input).length() > Settings.MAX_DRONE_VELOCITY) {
+
+                double correctionFactor = Settings.MAX_DRONE_VELOCITY / input.length();
+                D3Vector outputCorrection = input.scale(correctionFactor);
+                output = outputCorrection;
+            }
+
         return output;
     }
 
@@ -97,7 +102,7 @@ public class Engine {
         // Change acceleration if velocity is close to the maximum velocity
         if (m_gps.getVelocity().length() >= (Settings.MAX_DRONE_VELOCITY * 0.9)) {
             double maxAcceleration = Settings.MAX_DRONE_VELOCITY - m_gps.getVelocity().length();
-            if (Math.abs(output.length()) > Math.abs(maxAcceleration)) {
+            if (output.length() > Math.abs(maxAcceleration)) {
                 output = output.scale(maxAcceleration / output.length() == 0 ? 1 : output.length());
             }
         }
@@ -110,11 +115,19 @@ public class Engine {
      * @param input_acceleration The new acceleration for the drone using this component
      */
     public void changeAcceleration(D3Vector input_acceleration) {
+        log.debug("CHANGED ACCELERATION -> " + input_acceleration);
+
         D3Vector acceleration = input_acceleration;
 
         acceleration = this.limit_acceleration(acceleration);
+
+        D3Vector accelerationBetween = acceleration;
+
         acceleration = this.limit_velocity(acceleration);
-        acceleration = this.stagnate_acceleration(acceleration);
+
+//        acceleration = this.stagnate_acceleration(acceleration);
+
+        log.debug("TESTACC | " + input_acceleration.length() + " | " + accelerationBetween.length() + " | " + acceleration.length() + " | " + m_gps.getVelocity().length() + " | " + m_gps.getVelocity().add(acceleration).length());
 
         if (Double.isNaN(acceleration.getX()) || Double.isNaN(acceleration.getY()) || Double.isNaN(acceleration.getZ())) {
             throw new IllegalArgumentException("Acceleration is not a number. Input acceleration: " +
@@ -122,24 +135,23 @@ public class Engine {
         }
 
         Boolean change = true;
-        if (lastAcceleration != null) {
-            double diffX = Math.abs(lastAcceleration.getX() - acceleration.getX());
-            double diffY = Math.abs(lastAcceleration.getY() - acceleration.getY());
-            double diffZ = Math.abs(lastAcceleration.getZ() - acceleration.getZ());
-            double diffTot = diffX + diffY + diffZ;
-            if (diffTot < 3) {
-                change = false;
-            }
-        }
+//        if (lastAcceleration != null) {
+//            double diffX = Math.abs(lastAcceleration.getX() - acceleration.getX());
+//            double diffY = Math.abs(lastAcceleration.getY() - acceleration.getY());
+//            double diffZ = Math.abs(lastAcceleration.getZ() - acceleration.getZ());
+//            double diffTot = diffX + diffY + diffZ;
+//            if (diffTot < 3) {
+//                change = false;
+//            }
+//        }
 
         if (change) {
-            log.debug("Message saved! -> " + lastAcceleration + " | " + acceleration);
+            lastAcceleration = acceleration;
             MovementMessage msg = new MovementMessage();
             msg.setAcceleration(acceleration);
             msg.setIdentifier(m_drone.getIdentifier());
 
             try {
-                log.info("Acceleration: " + msg);
                 m_publisher.send(MessageTopic.MOVEMENTS, msg);
             } catch (IOException e) {
                 log.fatal(e);
@@ -148,7 +160,39 @@ public class Engine {
             //Run all callbacks
             callbacks.forEach(callback -> callback.run(msg));
         }
-        lastAcceleration = acceleration;
+    }
+
+    /**
+     * Send the new desired velocity to the game-engine
+     * @param input The new velocity for the drone using this component
+     */
+    public D3Vector changeVelocity(D3Vector input) {
+        D3Vector output = input;
+        //Check if we are not accelerating too much (but only if we have MAX_DRONE_ACCELERATION higher than 0, to disable this)
+        if (Settings.MAX_DRONE_ACCELERATION > 0 && output.sub(m_gps.getVelocity()).length() > Settings.MAX_DRONE_ACCELERATION) {
+            double correctionFactor = Settings.MAX_DRONE_ACCELERATION / output.length();
+            output = output.scale(correctionFactor);
+        }
+        //Check if we are not moving too fast
+        if (output.length() > Settings.MAX_DRONE_VELOCITY) {
+            double correctionFactor = Settings.MAX_DRONE_VELOCITY / output.length();
+            output = output.scale(correctionFactor);
+
+        }
+
+        log.debug("CHANGEVELOCITY -> " + output + " | " + output.length() + " | " + m_gps.getAcceleration().length());
+
+        MovementMessage msg = new MovementMessage();
+        msg.setVelocity(output);
+        msg.setIdentifier(m_drone.getIdentifier());
+
+        try {
+            m_publisher.send(MessageTopic.MOVEMENTS, msg);
+        } catch (IOException e) {
+            log.fatal(e);
+        }
+
+        return output;
     }
 
     @Deprecated
@@ -164,7 +208,6 @@ public class Engine {
             log.fatal(e);
         }
     }
-
 
     public final void registerCallback(EngineCallback callback) {
         callbacks.add(callback);

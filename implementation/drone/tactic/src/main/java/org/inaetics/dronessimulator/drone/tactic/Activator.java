@@ -28,7 +28,6 @@ public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
         Tactic tactic = createNewTactic();
-        new TheoreticalTactic();
 
         Component component = createComponent()
                                .setInterface(Tactic.class.getName(), null)

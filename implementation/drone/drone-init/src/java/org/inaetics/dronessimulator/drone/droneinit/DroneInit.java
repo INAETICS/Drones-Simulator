@@ -20,15 +20,14 @@ import java.util.UUID;
  */
 @Log4j
 public class DroneInit {
-    /**
-     * The identifier of this drone
-     */
-    @Getter @Setter
+    @Getter
+    @Setter
     private String identifier;
 
     /**
-     * Reference to the Discoverer bundle
+     * The client for the discoverer where the
      */
+    @SuppressWarnings("unused")//This is initialized by Apache Felix
     private volatile Discoverer m_discoverer;
 
     /**
@@ -41,9 +40,6 @@ public class DroneInit {
     }
 
     /**
-     * FELIX CALLBACKS
-     */
-    /**
      * On startup register Drone in Discovery.
      */
     public void start() throws IOException {
@@ -52,7 +48,7 @@ public class DroneInit {
     }
 
     /**
-     * On startup unregister Drone in Discovery.
+     * On stop unregister Drone in Discovery.
      */
     public void stop() throws IOException {
         log.info("Stopping the drone now!");
@@ -84,19 +80,15 @@ public class DroneInit {
         return teamname;
     }
 
-
-
-    /**
-     * Unregister the drone service in Discovery
-     */
     private void unregisterDroneService() throws IOException {
         this.m_discoverer.unregister(registered_instance);
     }
 
     /**
-     * Initializes the identifier for this drone
-     * It checks the following environment variables
-     * in order: DRONENAME, COMPUTERNAME, HOSTNAME
+     * Initializes the identifier for this drone. It checks the following environment variables in order:
+     * - DRONENAME
+     * - COMPUTERNAME
+     * - HOSTNAME
      * If none are found, it generates a random UUID
      */
     public void initIdentifier() {

@@ -71,7 +71,7 @@ public class GameEngine {
 
     private volatile ArchitectureEventController m_architectureEventListener;
 
-    private List<String> lobbiedDrones = new ArrayList<>();
+    private final List<String> lobbiedDrones = new ArrayList<>();
 
     /**
      * Concrete message handlers.

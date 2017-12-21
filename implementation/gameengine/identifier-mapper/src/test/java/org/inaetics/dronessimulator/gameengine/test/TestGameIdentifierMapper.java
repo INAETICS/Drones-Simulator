@@ -23,13 +23,9 @@ public class TestGameIdentifierMapper {
         int amount = 30000;
         ConcurrentLinkedQueue<Integer> queue = new ConcurrentLinkedQueue<>();
 
-        concurrentAddAndGenerate.addJob(amount, 10, (i) -> {
-            id_mapper.setMapping(i, Integer.toString(i));
-        });
+        concurrentAddAndGenerate.addJob(amount, 10, (i) -> id_mapper.setMapping(i, Integer.toString(i)));
 
-        concurrentAddAndGenerate.addJob(amount, 10, (i) -> {
-            queue.add(id_mapper.getNewGameEngineId());
-        });
+        concurrentAddAndGenerate.addJob(amount, 10, (i) -> queue.add(id_mapper.getNewGameEngineId()));
 
         concurrentAddAndGenerate.start();
         concurrentAddAndGenerate.waitTillDone();
@@ -44,9 +40,7 @@ public class TestGameIdentifierMapper {
 
         ConcurrentExecute concurrentRemove = new ConcurrentExecute(100);
 
-        concurrentRemove.addJob(amount, 10, (i) -> {
-            id_mapper.removeMapping(i);
-        });
+        concurrentRemove.addJob(amount, 10, (i) -> id_mapper.removeMapping(i));
 
         concurrentRemove.start();
         concurrentRemove.waitTillDone();

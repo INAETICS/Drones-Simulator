@@ -19,13 +19,13 @@ import java.util.Map;
 
 public class MockDiscoverer implements Discoverer {
     @Getter
-    private List<NodeEventHandler<AddedNode>> addedHandlers = new LinkedList<>();
+    private final List<NodeEventHandler<AddedNode>> addedHandlers = new LinkedList<>();
     @Getter
-    private List<NodeEventHandler<ChangedValue>> changedHandlers = new LinkedList<>();
+    private final List<NodeEventHandler<ChangedValue>> changedHandlers = new LinkedList<>();
     @Getter
-    private List<NodeEventHandler<RemovedNode>> removedHandlers = new LinkedList<>();
+    private final List<NodeEventHandler<RemovedNode>> removedHandlers = new LinkedList<>();
 
-    private List<NodeEvent> happenedEvents = new LinkedList<>();
+    private final List<NodeEvent> happenedEvents = new LinkedList<>();
 
     @Override
     public void register(Instance instance) throws DuplicateName, IOException {

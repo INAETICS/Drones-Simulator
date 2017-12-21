@@ -33,7 +33,7 @@ public abstract class TreeNode<K, V, N extends TreeNode<K, V, N, P>, P extends P
      * @param id The id of the node.
      */
     public TreeNode(String id) {
-        this(id, (N) null, (P) null);
+        this(id, null, null);
     }
 
     /**
@@ -155,9 +155,9 @@ public abstract class TreeNode<K, V, N extends TreeNode<K, V, N, P>, P extends P
     }
 
     public synchronized String toString() {
-        String children = this.children.entrySet().stream().map((e) -> "  " + e.getValue().toString().replace("\n", "\n  ")).reduce("", (r, c) -> r + "\n" + c);
+        String childrenString = this.children.entrySet().stream().map((e) -> "  " + e.getValue().toString().replace("\n", "\n  ")).reduce("", (r, c) -> r + "\n" + c);
 
-        return "Node " + this.id + (this.values != null ? " " + this.values : "") + children;
+        return "Node " + this.id + (this.values != null ? " " + this.values : "") + childrenString;
     }
 
     /**

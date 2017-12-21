@@ -74,9 +74,7 @@ public class GameStateManager implements IGameStateManager {
      * Starts the game state manager service.
      */
     public void start() {
-        m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG, (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
-            this.state.clear();
-        });
+        m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG, (SimulationState fromState, SimulationAction action, SimulationState toState) -> this.state.clear());
 
         Logger.getLogger(GameStateManager.class).info("Started GameState Manager!");
     }

@@ -12,7 +12,7 @@ import java.util.List;
 
 public class MockPublisher implements Publisher {
     @Getter
-    private List<Tuple<Topic, Message>> receivedMessages = new LinkedList<>();
+    private final List<Tuple<Topic, Message>> receivedMessages = new LinkedList<>();
 
     @Override
     public void send(Topic topic, Message message) throws IOException {

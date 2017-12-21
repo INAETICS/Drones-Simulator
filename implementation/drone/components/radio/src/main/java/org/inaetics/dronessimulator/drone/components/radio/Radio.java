@@ -30,13 +30,13 @@ public class Radio implements MessageHandler {
     private volatile Publisher m_publisher;
     /** Reference to Drone Init bundle */
     private volatile DroneInit m_drone;
-    /** Queue with received strings */
+    /** Queue with received messages */
     private ConcurrentLinkedQueue<Message> received_queue = new ConcurrentLinkedQueue<>();
 
     private Topic topic;
 
     /**
-     * FELIX CALLBACKS
+     * Start the Radio (called from Apache Felix). This initializes to what messages the subscriber should listen.
      */
     public void start() {
         topic = new TeamTopic(m_drone.getTeamname());
@@ -50,31 +50,25 @@ public class Radio implements MessageHandler {
     }
 
     /**
-     * Sends a text to other drones through the radio
-     * @param text the text to send.
+     * Send a message to all drones that are subscribed to the topic "TeamTopic(teamname)". Note that the radio should also be subscribed to the type of messages that
+     * you send (See: {@link Radio#start()} for the message types that the Radio is subscribed to).
+     *
+     * @param msg the message to send
+     * @return false if there was an error, true otherwise.
      */
-
-    public void sendText(String text){
-
-        TextMessage msg = new TextMessage();
-        msg.setText(text);
-        try{
+    public boolean send(Message msg) {
+        try {
             m_publisher.send(topic, msg);
-        } catch(IOException e){
+            return true;
+        } catch (IOException e) {
             log.fatal(e);
-        }
-    }
-
-    public void send(Message msg) {
-        try{
-            m_publisher.send(topic, msg);
-        } catch(IOException e){
-            log.fatal(e);
+            return false;
         }
     }
 
     /**
      * Retrieves the queue with received messages
+     *
      * @return queue with messages
      */
     public final ConcurrentLinkedQueue<Message> getMessages() {
@@ -82,7 +76,7 @@ public class Radio implements MessageHandler {
     }
 
     /**
-     * -- MESSAGEHANDLER
+     * Receive the messages that the radio is subscribed to and add them to the internal queue.
      */
     public void handleMessage(Message message) {
         received_queue.add(message);

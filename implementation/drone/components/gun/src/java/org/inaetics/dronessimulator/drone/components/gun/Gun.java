@@ -37,17 +37,12 @@ public class Gun {
      * Maximum time added to {@link BASE_SHOT_TIME_BETWEEN}
      */
     private static final int MAX_OFFSET_SHOT_TIME = 1000;
-    /**
-     * Reference to the Publisher bundle
-     */
+    private final Set<GunCallback> callbacks = new HashSet<>();
+    /** The Publisher to use for sending messages */
     private volatile Publisher publisher;
-    /**
-     * Reference to the Drone Init bundle
-     */
+    /** The drone instance that can be used to get information about the current drone */
     private volatile DroneInit drone;
-    /**
-     * Reference to the GPS bundle
-     */
+    /** The GPS that can be used to get the current position, velocity and acceleration */
     private volatile GPS gps;
     /**
      * Last time the gun has fired
@@ -58,32 +53,29 @@ public class Gun {
      */
     private long nextShotAtMs = lastShotAtMs;
 
-    private Set<GunCallback> callbacks = new HashSet<>();
-
-    // -- GETTERS
-
     /**
      * Gives the fire range of the gun.
+     *
      * @return the distance in m
      */
-    public double getMaxDistance(){
+    public double getMaxDistance() {
         return MAX_DISTANCE;
     }
 
     /**
      * Gives the number of MilliSeconds scince the last shot is fired.
-     * @return
      */
-    public long msSinceLastShot(){
+    public long msSinceLastShot() {
         return System.currentTimeMillis() - this.lastShotAtMs;
     }
 
-    // -- FUNCTIONS
     /**
-     * Fires a bullet in de given direction.
+     * Fires a bullet in de given direction. If you know the position where the bullet should end, you can use the following code to call this method:
+     * {@code gun.fireBullet(targetLocation.sub(gps.getPosition()).toPoolCoordinate());}
+     *
      * @param direction in which the bullet must be fired.
      */
-    public void fireBullet(D3PolarCoordinate direction){
+    public void fireBullet(D3PolarCoordinate direction) {
         long currentTimeMs = System.currentTimeMillis();
 
         if (currentTimeMs >= nextShotAtMs) {
@@ -97,20 +89,25 @@ public class Gun {
             msg.setPosition(gps.getPosition());
             msg.setAcceleration(new D3Vector());
 
-            nextShotAtMs = currentTimeMs + BASE_SHOT_TIME_BETWEEN + new Random().nextInt(MAX_OFFSET_SHOT_TIME);
-
-            try{
+            try {
                 publisher.send(MessageTopic.MOVEMENTS, msg);
-            } catch(IOException e){
+                lastShotAtMs = currentTimeMs;
+                nextShotAtMs = lastShotAtMs + BASE_SHOT_TIME_BETWEEN + new Random().nextInt(MAX_OFFSET_SHOT_TIME);
+            } catch (IOException e) {
                 log.fatal(e);
             }
             //Run all the callbacks
             callbacks.forEach(callback -> callback.run(msg));
 
-            log.info("Firing bullet! Next shot possible in " + ((double) (nextShotAtMs - currentTimeMs) / 1000) + " seconds.");
+            log.info("Firing bullet in direction " + direction + "! Next shot possible in " + ((double) (nextShotAtMs - currentTimeMs) / 1000) + " seconds.");
         }
     }
 
+    /**
+     * Submit a callback-function that is called after each bullet is fired. The FireBulletMessage is a parameter for this callback.
+     *
+     * @param callback the function to be called
+     */
     public final void registerCallback(GunCallback callback) {
         callbacks.add(callback);
     }

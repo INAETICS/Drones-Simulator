@@ -4,15 +4,11 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j;
-import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.gameengine.common.Size;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
-
-import static org.inaetics.dronessimulator.common.Settings.MAX_DRONE_ACCELERATION;
-import static org.inaetics.dronessimulator.common.Settings.MAX_DRONE_VELOCITY;
 
 /**
  * An entity represented in the simulated world.
@@ -22,7 +18,7 @@ import static org.inaetics.dronessimulator.common.Settings.MAX_DRONE_VELOCITY;
 @Getter
 @Setter
 @ToString
-public class Entity extends GameEntity implements Cloneable {
+public class Entity extends GameEntity {
     /**
      * Creates an entity.
      *
@@ -86,14 +82,8 @@ public class Entity extends GameEntity implements Cloneable {
         super(entityId, size, position, velocity, acceleration, direction);
     }
 
-    /**
-     * Returns a deep copy of the given entity.
-     *
-     * @param entity The entity to copy.
-     * @return A copy of the entity.
-     */
-    public static Entity deepcopy(Entity entity) {
-        return new Entity(entity.getEntityId(), entity.getSize(), entity.getPosition(), entity.getVelocity(), entity
+    public Entity(Entity entity) {
+        this(entity.getEntityId(), entity.getSize(), entity.getPosition(), entity.getVelocity(), entity
                 .getAcceleration(), entity.getDirection());
     }
 
@@ -214,18 +204,18 @@ public class Entity extends GameEntity implements Cloneable {
     }
 
     @Override
-    public Object clone() throws CloneNotSupportedException {
-        return super.clone();
-    }
-
-    @Override
     public EntityType getType() {
         return null;
     }
 
+    /**
+     * Returns a deep copy of the curent entity.
+     *
+     * @return A copy of the entity.
+     */
     @Override
     public GameEntity deepCopy() {
-        return deepcopy(this);
+        return new Entity(this);
     }
 
 
@@ -241,129 +231,6 @@ public class Entity extends GameEntity implements Cloneable {
             this.targetPosition = targetPosition;
         }
 
-        public D3Vector getAcceleration() {
-            D3Vector nextAcceleration;
-            if (getTargetPosition() != null && !targetPosition.equals(new D3Vector()) && !targetPosition.equals(getPosition())) {
-                nextAcceleration = calculateAccelrationToGetToPosition(getTargetPosition(), getPosition(), getVelocity());
-            } else {
-                nextAcceleration = super.getAcceleration();
-                targetPosition = null;
-            }
-            return nextAcceleration;
-        }
 
-        private D3Vector calculateAccelrationToGetToPosition(D3Vector targetLocation, D3Vector currentLocation, D3Vector
-                currentVelocity) {
-            log.info("Moving to " + targetLocation.toString() + " from " + currentLocation.toString());
-            if (currentLocation.distance_between(targetLocation) < 1) {
-                if (currentVelocity.length() != 0) {
-                    D3Vector move = limit_acceleration(currentVelocity.scale(-1));
-                    log.info("WE ARE CLOSE!" + move.toString());
-                    return move;
-                }
-            } else {
-                D3Vector targetAcceleration;
-                double distance = currentLocation.distance_between(targetLocation);
-                double decelDistance = (currentVelocity.length() * currentVelocity.length()) / (2 * Settings
-                        .MAX_DRONE_ACCELERATION);
-                if (distance > decelDistance) //we are still far, continue accelerating (if possible)
-                {
-                    targetAcceleration = maximize_acceleration(targetLocation.sub(currentLocation));
-                } else    //we are about to reach the target, let's start decelerating.
-                {
-                    targetAcceleration = currentVelocity.normalize().scale(-(currentVelocity.length() * currentVelocity
-                            .length()) / (2 * distance));
-                }
-//            D3Vector move = location.sub(position.add(currentVelocity));
-                log.info("WE ARE NOT CLOSE!" + targetAcceleration.toString());
-                return targetAcceleration;
-            }
-            return new D3Vector();
-        }
-
-        /**
-         * Limit the acceleration
-         *
-         * @param input The acceleration to limit
-         * @return The limited acceleration
-         */
-        public D3Vector limit_acceleration(D3Vector input) {
-            D3Vector output = input;
-            // Prevent that the acceleration exceeds te maximum acceleration
-            if (input.length() > MAX_DRONE_ACCELERATION) {
-                double correctionFactor = MAX_DRONE_ACCELERATION / input.length();
-                output = input.scale(correctionFactor);
-            }
-            return output;
-        }
-
-        /**
-         * Maximizes the acceleration in the same direction
-         *
-         * @param input The vector to scale to the maximal acceleration value
-         * @return The vector in the same direction as input but length == max acceleration value
-         */
-        public D3Vector maximize_acceleration(D3Vector input) {
-            D3Vector output = input;
-            if (input.length() < MAX_DRONE_ACCELERATION && input.length() != 0) {
-                double correctionFactor = MAX_DRONE_ACCELERATION / input.length();
-                output = input.scale(correctionFactor);
-            }
-            return output;
-        }
-
-
-        /**
-         * Limits the velocity when the maximum velocity is archieved.
-         *
-         * @param input acceleration as a D3Vector
-         * @return optimized acceleration as a D3Vector
-         */
-        private D3Vector limit_velocity(D3Vector input) {
-            D3Vector output = input;
-            // Check velocity
-            if (getVelocity().length() >= MAX_DRONE_VELOCITY && getVelocity().add(input).length() >= getVelocity().length()) {
-                output = new D3Vector();
-            }
-            return output;
-        }
-
-        /**
-         * Stagnate the acceleration when the velocity is at 90% of the maximum velocity.
-         *
-         * @param input acceleration as a D3Vector
-         * @return optimized acceleration as a D3Vector
-         */
-        public D3Vector stagnate_acceleration(D3Vector input) {
-            D3Vector output = input;
-            // Change acceleration if velocity is close to the maximum velocity
-            if (getVelocity().length() >= (MAX_DRONE_VELOCITY * 0.9)) {
-                double maxAcceleration = MAX_DRONE_VELOCITY - getVelocity().length();
-                if (Math.abs(output.length()) > Math.abs(maxAcceleration)) {
-                    output = output.scale(maxAcceleration / output.length() == 0 ? 1 : output.length());
-                }
-            }
-            return output;
-        }
-
-        /**
-         * Set the new desired acceleration
-         *
-         * @param input_acceleration The new acceleration for the drone using this component
-         */
-        public void changeAcceleration(D3Vector input_acceleration) {
-            D3Vector acceleration = input_acceleration;
-
-            acceleration = limit_acceleration(acceleration);
-            acceleration = limit_velocity(acceleration);
-            acceleration = stagnate_acceleration(acceleration);
-
-            if (Double.isNaN(acceleration.getX()) || Double.isNaN(acceleration.getY()) || Double.isNaN(acceleration.getZ())) {
-                throw new IllegalArgumentException("Acceleration is not a number. Input acceleration: " +
-                        "" + input_acceleration.toString() + ", Output acceleration: " + acceleration.toString());
-            }
-
-            setAcceleration(acceleration);
-        }
     }
 }

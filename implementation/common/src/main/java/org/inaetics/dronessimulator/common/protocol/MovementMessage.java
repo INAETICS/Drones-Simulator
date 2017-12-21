@@ -26,12 +26,18 @@ public class MovementMessage extends ProtocolMessage {
     /** The acceleration of the object. */
     private D3Vector acceleration = null;
 
+    private D3Vector velocity = null;
+
     public Optional<D3PolarCoordinate> getDirection() {
         return Optional.ofNullable(direction);
     }
 
     public Optional<D3Vector> getAcceleration() {
         return Optional.ofNullable(acceleration);
+    }
+
+    public Optional<D3Vector> getVelocity() {
+        return Optional.ofNullable(velocity);
     }
 
     @Override

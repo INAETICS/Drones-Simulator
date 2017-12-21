@@ -13,7 +13,7 @@ import java.io.IOException;
  */
 class RabbitMessageConsumer extends DefaultConsumer {
     /** A RabbitMQ subscriber instance. */
-    private RabbitSubscriber subscriber;
+    private final RabbitSubscriber subscriber;
 
     /**
      * Instantiates a new RabbitMQ consumer based on the given subscriber.

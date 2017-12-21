@@ -1,12 +1,9 @@
-package org.inaetics.dronessimulator.drone.tactic;
+package org.inaetics.dronessimulator.drone.tactic.example;
 
 import org.inaetics.dronessimulator.common.Settings;
-import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
+import org.inaetics.dronessimulator.drone.tactic.Tactic;
 
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -18,12 +15,9 @@ public class SimpleTactic extends Tactic {
     private static final double MAX_DEVIATION_POSTION = Settings.ARENA_WIDTH;
     private static final double MAX_Z_DEVIATION_POSTION = Settings.ARENA_HEIGHT;
 
-    private List<String> teamMates = new ArrayList<>();
-    private LocalDateTime nextpoll = LocalDateTime.now();
-
     @Override
     protected void initializeTactics() {
-
+        //Nothing to init
     }
 
     /**
@@ -37,7 +31,7 @@ public class SimpleTactic extends Tactic {
 
     @Override
     protected void finalizeTactics() {
-
+        //Nothing to destroy
     }
 
     /**
@@ -98,10 +92,9 @@ public class SimpleTactic extends Tactic {
             y = ThreadLocalRandom.current().nextDouble(-Settings.MAX_DRONE_ACCELERATION, Settings.MAX_DRONE_ACCELERATION);
             z = ThreadLocalRandom.current().nextDouble(-Settings.MAX_DRONE_ACCELERATION, Settings.MAX_DRONE_ACCELERATION);
 
-            if(gps.getPosition().getX() >= MAX_DEVIATION_POSTION){
+            if (gps.getPosition().getX() >= MAX_DEVIATION_POSTION) {
                 x = -Settings.MAX_DRONE_ACCELERATION;
-            }
-            else if(gps.getPosition().getX() <= 0){
+            } else if (gps.getPosition().getX() <= 0) {
                 x = Settings.MAX_DRONE_ACCELERATION;
             }
         }
@@ -110,10 +103,9 @@ public class SimpleTactic extends Tactic {
             x = ThreadLocalRandom.current().nextDouble(-Settings.MAX_DRONE_ACCELERATION, Settings.MAX_DRONE_ACCELERATION);
             z = ThreadLocalRandom.current().nextDouble(-Settings.MAX_DRONE_ACCELERATION, Settings.MAX_DRONE_ACCELERATION);
 
-            if(gps.getPosition().getY() >= MAX_DEVIATION_POSTION){
+            if (gps.getPosition().getY() >= MAX_DEVIATION_POSTION) {
                 y = -Settings.MAX_DRONE_ACCELERATION;
-            }
-            else if(gps.getPosition().getY() <= 0){
+            } else if (gps.getPosition().getY() <= 0) {
                 y = Settings.MAX_DRONE_ACCELERATION;
             }
         }
@@ -122,10 +114,9 @@ public class SimpleTactic extends Tactic {
             x = ThreadLocalRandom.current().nextDouble(-Settings.MAX_DRONE_ACCELERATION, Settings.MAX_DRONE_ACCELERATION);
             y = ThreadLocalRandom.current().nextDouble(-Settings.MAX_DRONE_ACCELERATION, Settings.MAX_DRONE_ACCELERATION);
 
-            if(gps.getPosition().getZ() >= MAX_Z_DEVIATION_POSTION){
+            if (gps.getPosition().getZ() >= MAX_Z_DEVIATION_POSTION) {
                 z = -Settings.MAX_DRONE_ACCELERATION;
-            }
-            else if(gps.getPosition().getZ() <= 0){
+            } else if (gps.getPosition().getZ() <= 0) {
                 z = Settings.MAX_DRONE_ACCELERATION;
             }
         }
@@ -150,12 +141,12 @@ public class SimpleTactic extends Tactic {
      * Checks if a bullet can be fired by the gun.
      */
     private void calculateGun() {
-        Optional<Tuple<String, D3Vector>> target = radar.getNearestTarget();
-        if (target.isPresent()) {
-            if (target.get().getRight().distance_between(gps.getPosition()) <= gun.getMaxDistance()) {
-                gun.fireBullet(target.get().getRight().sub(gps.getPosition()).toPoolCoordinate());
+        Optional<D3Vector> target = radar.getNearestTarget();
+        target.ifPresent(aim -> {
+            if (aim.distance_between(gps.getPosition()) <= gun.getMaxDistance()) {
+                gun.fireBullet(aim.sub(gps.getPosition()).toPoolCoordinate());
             }
-        }
+        });
     }
 
 

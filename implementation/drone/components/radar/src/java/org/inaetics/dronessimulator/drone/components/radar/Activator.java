@@ -28,8 +28,8 @@ public class Activator extends DependencyActivatorBase {
                         .setRequired(true)
                 )
                 .add(createServiceDependency()
-                    .setService(ArchitectureEventController.class)
-                    .setRequired(true)
+                        .setService(ArchitectureEventController.class)
+                        .setRequired(true)
                 )
         );
     }

@@ -22,8 +22,13 @@ public class MovementMessageHandler implements MessageHandler<MovementMessage> {
     @Override
     public void handleMessage(MovementMessage movementMessage) {
         // Change acceleration
-
         movementMessage.getAcceleration().ifPresent(acceleration -> physicsEngineDriver.changeAccelerationEntity(movementMessage.getIdentifier(), acceleration));
+
+        // Change direction
         movementMessage.getDirection().ifPresent(direction -> physicsEngineDriver.changeDirectionEntity(movementMessage.getIdentifier(), direction));
+
+        // Change velocity
+        movementMessage.getVelocity().ifPresent(velocity -> physicsEngineDriver.changeVelocityEntity(movementMessage.getIdentifier(), velocity));
+
     }
 }

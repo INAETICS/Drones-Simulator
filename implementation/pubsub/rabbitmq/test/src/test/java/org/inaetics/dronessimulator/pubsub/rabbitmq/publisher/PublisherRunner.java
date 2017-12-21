@@ -1,30 +1,31 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.publisher;
 
 import com.rabbitmq.client.ConnectionFactory;
+import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
 
+import java.io.IOException;
 import java.util.ArrayList;
-
-import static org.junit.Assert.assertTrue;
 
 /**
  * Runner for the RabbitMQ publisher for use in tests.
  */
+@Log4j
 public class PublisherRunner implements Runnable {
     /** The time to wait between messages. */
     public static final long SLEEP_TIME = 1000;
 
     /** The publisher under test. */
-    private RabbitPublisher publisher;
+    private final RabbitPublisher publisher;
 
     /** The topic to send test messages on. */
-    private Topic topic;
+    private final Topic topic;
 
     /** List of messages to send. */
-    private ArrayList<Message> testMessages;
+    private final ArrayList<Message> testMessages;
 
     /**
      * @param connectionFactory The connection settings to use for tests.
@@ -42,20 +43,20 @@ public class PublisherRunner implements Runnable {
         try {
             this.publisher.connect();
 
-            System.out.printf("Publisher %s connected\n", topic.getName());
+            log.info(String.format("Publisher %s connected", topic.getName()));
 
             for (Message message : this.testMessages) {
-                assertTrue("Publisher is not connected", publisher.isConnected());
+                if (!publisher.isConnected()) log.warn("Publisher is not connected");
                 Thread.sleep(SLEEP_TIME);
                 this.publisher.send(this.topic, message);
-                System.out.printf("Publisher %s sent message %s at %d\n", this.topic.getName(), message.toString(), System.currentTimeMillis());
+                log.debug(String.format("Publisher %s sent message %s at %d", this.topic.getName(), message.toString(), System.currentTimeMillis()));
             }
 
-            System.out.printf("Publisher %s is done, disconnecting\n", topic.getName());
+            log.info(String.format("Publisher %s is done, disconnecting", topic.getName()));
 
             this.publisher.disconnect();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException | InterruptedException e) {
+            log.error(e);
         }
     }
 }

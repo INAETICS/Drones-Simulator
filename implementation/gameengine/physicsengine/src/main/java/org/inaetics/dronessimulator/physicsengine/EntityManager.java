@@ -156,7 +156,7 @@ public class EntityManager {
         List<Entity> result = new ArrayList<>(this.entities.size());
 
         for(Map.Entry<Integer, Entity> e : this.entities.entrySet()) {
-            result.add(Entity.deepcopy(e.getValue()));
+            result.add(new Entity(e.getValue()));
         }
 
         return result;

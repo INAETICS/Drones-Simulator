@@ -61,6 +61,10 @@ import java.util.stream.Collectors;
  */
 @Log4j
 public class Game extends Application {
+    public static final String USERNAME = "username";
+    public static final String PASSWORD = "password";
+    public static final String URI = "uri";
+    public static final String RABBIT_IDENTIFIER = "visualisation";
     /**
      * All the entities in the game
      */
@@ -100,7 +104,7 @@ public class Game extends Application {
     /**
      * check to see if the method onRabbitConnect is executed
      */
-    private AtomicBoolean onRabbitConnectExecuted = new AtomicBoolean(false);
+    private final AtomicBoolean onRabbitConnectExecuted = new AtomicBoolean(false);
     private Stage primaryStage;
     /**
      * counter for the logger to output once every 100 times
@@ -114,7 +118,7 @@ public class Game extends Application {
      * Close event handler
      * When the window closes, rabbitmq and the discoverer disconnect
      */
-    private EventHandler<WindowEvent> onCloseEventHandler = new EventHandler<WindowEvent>() {
+    private final EventHandler<WindowEvent> onCloseEventHandler = new EventHandler<WindowEvent>() {
         boolean isClosed = false;
 
         @Override
@@ -138,7 +142,7 @@ public class Game extends Application {
     };
     private RabbitConnectionInfo rabbitConnectionInfo;
 
-    private Instance visualisationInstance = new Instance(Type.SERVICE, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.SERVICES, "visualisation", new HashMap<>());
+    private final Instance visualisationInstance = new Instance(Type.SERVICE, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.SERVICES, "visualisation", new HashMap<>());
 
     /**
      * Instantiates a new game object
@@ -291,20 +295,20 @@ public class Game extends Application {
         DiscoveryPath path = node.getPath();
 
         if (path.equals(DiscoveryPath.config(Type.RABBITMQ, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.BROKER, "default"))) {
-            if (node.getValue("username") != null) {
-                rabbitConfig.put("username", node.getValue("username"));
+            if (node.getValue(USERNAME) != null) {
+                rabbitConfig.put(USERNAME, node.getValue(USERNAME));
             }
 
-            if (node.getValue("password") != null) {
-                rabbitConfig.put("password", node.getValue("password"));
+            if (node.getValue(PASSWORD) != null) {
+                rabbitConfig.put(PASSWORD, node.getValue(PASSWORD));
             }
 
-            if (node.getValue("uri") != null) {
-                rabbitConfig.put("uri", node.getValue("uri"));
+            if (node.getValue(URI) != null) {
+                rabbitConfig.put(URI, node.getValue(URI));
             }
 
             if (rabbitConfig.size() == 3) {
-                rabbitConnectionInfo = new RabbitConnectionInfo(rabbitConfig.get("username"), rabbitConfig.get("password"), rabbitConfig.get("uri"));
+                rabbitConnectionInfo = new RabbitConnectionInfo(rabbitConfig.get(USERNAME), rabbitConfig.get(PASSWORD), rabbitConfig.get(URI));
                 try {
                     connectRabbit();
                 } catch (IOException e1) {
@@ -333,7 +337,7 @@ public class Game extends Application {
             }
 
             // We can connect to localhost, since the visualization does not run within Docker
-            this.subscriber = new RabbitSubscriber(connectionFactory, "visualisation", new JavaSerializer(), discoverer);
+            this.subscriber = new RabbitSubscriber(connectionFactory, RABBIT_IDENTIFIER, new JavaSerializer(), discoverer);
             this.publisher = new RabbitPublisher(connectionFactory, new JavaSerializer(), discoverer);
 
             this.subscriber.connect();
@@ -343,7 +347,7 @@ public class Game extends Application {
 
             this.subscriber.addHandler(KillMessage.class, new KillMessageHandler(this.entities));
             this.subscriber.addHandler(StateMessage.class, new StateMessageHandler(uiUpdates, this.entities));
-            this.subscriber.addHandlerIfNotExists(GameFinishedMessage.class, new GameFinishedHandler(primaryStage));
+            this.subscriber.addHandlerIfNotExists(GameFinishedMessage.class, new GameFinishedHandler());
 
             this.subscriber.addTopic(MessageTopic.STATEUPDATES);
         }

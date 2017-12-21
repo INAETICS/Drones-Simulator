@@ -16,8 +16,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 @Log4j
 public abstract class AbstractGameFinishedRule extends Rule {
     protected final IdentifierMapper idMapper;
-    private AtomicBoolean gameFinishedEventWasSend = new AtomicBoolean(false);
-    private AtomicBoolean wasGameFinishedInPreviousRun = new AtomicBoolean(false);
+    private final AtomicBoolean gameFinishedEventWasSend = new AtomicBoolean(false);
+    private final AtomicBoolean wasGameFinishedInPreviousRun = new AtomicBoolean(false);
 
     public AbstractGameFinishedRule(IdentifierMapper idMapper) {
         this.idMapper = idMapper;

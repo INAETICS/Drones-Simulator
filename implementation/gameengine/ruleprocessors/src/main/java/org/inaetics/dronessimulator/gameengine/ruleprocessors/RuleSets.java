@@ -14,12 +14,17 @@ import java.util.LinkedList;
 import java.util.List;
 
 public class RuleSets {
+    private RuleSets() {
+        throw new IllegalStateException("Utility class");
+    }
     public static List<Rule> getRulesForGameMode(GameMode gameMode, Publisher publisher, IdentifierMapper idMapper) {
         List<Rule> result = new LinkedList<>();
         //General rules that are applicable in any game mode
         result.add(new KillOutOfBounds());
         result.add(new CollisionRule());
         result.add(new KillEntitiesRule());
+        result.add(new RemoveStrayBullets());
+        result.add(new RemoveStaleStateData());
 
         //Game mode specific rules
         switch (gameMode) {
@@ -38,8 +43,7 @@ public class RuleSets {
             idMapper) {
         List<Rule> result = new LinkedList<>();
         //General rules that are applicable in any game mode
-        result.add(new RemoveStrayBullets());
-        result.add(new RemoveStaleStateData());
+        // None (yet)
 
         //Game mode specific rules
         switch (gameMode) {

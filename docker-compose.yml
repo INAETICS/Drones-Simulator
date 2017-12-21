@@ -47,28 +47,38 @@ services:
       rabbitmq:
         condition: service_healthy
     ports:
-      - "8000:8000"
+      - "8001:8000"
     environment:
+      DRONE_NAME: "drone-thales-1"
       DRONE_TEAM: "teamthales"
-      DRONE_COMPONENTS: "gps,radar,radio"
+      DRONE_COMPONENTS: "gps,gun,radio"
+      DRONE_TACTIC: "org.inaetics.dronessimulator.drone.tactic.example.utility.TheoreticalTactic"
   drone-thales_2:
     build: ./docker_images/drone
     env_file: config.env
     depends_on:
       rabbitmq:
         condition: service_healthy
+    ports:
+      - "8002:8000"
     environment:
+      DRONE_NAME: "drone-thales-2"
+      DRONE_TEAM: "teamthales"
+      DRONE_COMPONENTS: "gps,radio,radar"
+      DRONE_TACTIC: "org.inaetics.dronessimulator.drone.tactic.example.utility.TheoreticalTactic"
+  drone-thales_3:
+    build: ./docker_images/drone
+    env_file: config.env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    ports:
+      - "8003:8000"
+    environment:
+      DRONE_NAME: "drone-thales-3"
       DRONE_TEAM: "teamthales"
       DRONE_COMPONENTS: "gps,radio,gun"
-  drone-thales_3:
-      build: ./docker_images/drone
-      env_file: config.env
-      depends_on:
-        rabbitmq:
-          condition: service_healthy
-      environment:
-        DRONE_TEAM: "teamthales"
-        DRONE_COMPONENTS: "gps,radio,gun"
+      DRONE_TACTIC: "org.inaetics.dronessimulator.drone.tactic.example.utility.TheoreticalTactic"
 
 
   drone-student_1:
@@ -80,3 +90,4 @@ services:
     environment:
       DRONE_TEAM: "teamstudent"
       DRONE_COMPONENTS: "gps,radar,radio,gun"
+      DRONE_TACTIC: "org.inaetics.dronessimulator.drone.tactic.example.SimpleTactic"

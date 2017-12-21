@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
-import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
@@ -20,7 +19,6 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
-import org.inaetics.dronessimulator.discovery.api.instances.DroneInstance;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
@@ -37,7 +35,16 @@ import java.util.stream.Collectors;
 @Log4j
 @NoArgsConstructor //OSGi constructor
 @AllArgsConstructor //Testing constructor
-public class Radar implements MessageHandler {
+public class Radar implements MessageHandler<Message> {
+    /**
+     * The range of this radar
+     */
+    private static final int RADAR_RANGE = 500;
+    /**
+     * Map of all last known entities and their positions (the first string is the id of the entity, the tuple's string is the team name if applicable and the D3Vector is
+     * the location)
+     */
+    private final Map<String, D3Vector> allEntities = new ConcurrentHashMap<>();
     /**
      * Reference to Architecture Event Controller bundle
      */
@@ -51,27 +58,15 @@ public class Radar implements MessageHandler {
      */
     private volatile DroneInit m_drone;
     private volatile Discoverer m_discoverer;
-
     /**
      * Last known position of this drone
      */
     @Getter
     @Setter
     private volatile D3Vector position;
-    /**
-     * Map of all last known entities and their positions (the first string is the id of the entity, the tuple's string is the team name if applicable and the D3Vector is the location)
-     */
-    private final ConcurrentHashMap<String, Tuple<String, D3Vector>> allEntities = new ConcurrentHashMap<>();
-    /**
-     * The range of this radar
-     */
-    private static final int RADAR_RANGE = 500;
 
     /**
-     * FELIX CALLBACKS
-     */
-    /**
-     * Adds handlers for discovery, architectureEventController and subscribes on stateUpdates in subscriber.
+     * Start the Radar (called from Apache Felix). This adds handlers for discovery, architectureEventController and subscribes on stateUpdates in subscriber.
      */
     public void start() {
         List<NodeEventHandler<RemovedNode>> removedNodeHandlers = new ArrayList<>();
@@ -94,30 +89,21 @@ public class Radar implements MessageHandler {
         this.m_subscriber.addHandler(StateMessage.class, this);
         this.m_subscriber.addHandler(KillMessage.class, this);
 
-        m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG,
-                (SimulationState fromState, SimulationAction action, SimulationState toState) -> {
-                    allEntities.clear();
-                }
-        );
+        m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG, (fromState, action, toState) -> allEntities.clear());
     }
-
-    /*
-     * -- GETTERS
-     */
 
     /**
      * Retrieves all last known entities which are in range of this radar
      *
-     * @return The entities in range
+     * @return The locations of the entities in range
      */
-    public List<Tuple<String, D3Vector>> getRadar() {
-        List<Tuple<String, D3Vector>> results;
+    public List<D3Vector> getRadar() {
+        List<D3Vector> results;
 
         if (position != null) {
-            results = allEntities.entrySet()
-                    .stream()
-                    .map(Map.Entry::getValue)
-                    .filter(drone -> position.distance_between(drone.getRight()) <= RADAR_RANGE)
+            results = allEntities.values()
+                    .parallelStream()
+                    .filter(drone -> position.distance_between(drone) <= RADAR_RANGE)
                     .collect(Collectors.toList());
         } else {
             results = Collections.emptyList();
@@ -129,58 +115,47 @@ public class Radar implements MessageHandler {
     /**
      * Retrieves the nearest target in range
      *
-     * @return The nearest entity in range
+     * @return The nearest entity in range. Note that this could be a team member.
      */
-    public Optional<Tuple<String, D3Vector>> getNearestTarget() {
+    public Optional<D3Vector> getNearestTarget() {
         return getRadar()
-                .stream()
-                .filter(drone ->
-                        drone.getLeft() == null && this.m_drone.getTeamname() == null ||
-                                !drone.getLeft().equals(this.m_drone.getTeamname())
-                )
-                .sorted(Comparator.comparingDouble(e -> e.getRight().distance_between(position)))
+                .parallelStream()
+                .sorted(Comparator.comparingDouble(e -> e.distance_between(position)))
                 .findFirst();
     }
 
-    //-- MESSAGEHANDLERS
-
     /**
-     * Handles a recieved message and calls the messagehandlers.
+     * Handles a recieved message and calls the appropriate message handler.
      *
      * @param message The received message.
      */
     public void handleMessage(Message message) {
         if (message instanceof StateMessage) {
-            handleStateMessage((StateMessage) message);
+            handleMessage((StateMessage) message);
         } else if (message instanceof KillMessage) {
-            handleKillMessage((KillMessage) message);
+            handleMessage((KillMessage) message);
         }
     }
 
     /**
-     * Handles a stateMessage
+     * Handles a stateMessage by changing the internal state based on this message.
      *
      * @param stateMessage the received stateMessage
      */
-    private void handleStateMessage(StateMessage stateMessage){
-        if (stateMessage.getIdentifier().equals(this.m_drone.getIdentifier())){
-            if (stateMessage.getPosition().isPresent()) {
-                this.setPosition(stateMessage.getPosition().get());
-            }
-        } else {
-            if (stateMessage.getPosition().isPresent() && stateMessage.getType().equals(EntityType.DRONE)) {
-                Tuple<String, D3Vector> droneModel = new Tuple<>(DroneInstance.getTeamname(m_discoverer, stateMessage.getIdentifier()), stateMessage.getPosition().get());
-                this.allEntities.put(stateMessage.getIdentifier(), droneModel);
-            }
+    private void handleMessage(StateMessage stateMessage) {
+        if (stateMessage.getIdentifier().equals(this.m_drone.getIdentifier())) {
+            stateMessage.getPosition().ifPresent(this::setPosition);
+        } else if (stateMessage.getType().equals(EntityType.DRONE)) {
+            stateMessage.getPosition().ifPresent(pos -> this.allEntities.put(stateMessage.getIdentifier(), pos));
         }
     }
 
     /**
-     * Handles a killMessage
+     * Handles a killMessage by removing the killed entity from the internal state representation.
      *
      * @param killMessage the received killMessage
      */
-    private void handleKillMessage(KillMessage killMessage) {
+    private void handleMessage(KillMessage killMessage) {
         if (killMessage.getEntityType().equals(EntityType.DRONE)) {
             this.allEntities.remove(killMessage.getIdentifier());
         }

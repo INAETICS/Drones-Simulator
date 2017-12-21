@@ -7,7 +7,7 @@ import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 
 public class StateTransitionTest {
-    SimulationState[] validCurrentStates = new SimulationState[]{
+    final SimulationState[] validCurrentStates = new SimulationState[]{
             SimulationState.NOSTATE,
             SimulationState.INIT,
             SimulationState.CONFIG,
@@ -19,7 +19,7 @@ public class StateTransitionTest {
             SimulationState.PAUSED,
             SimulationState.DONE,
     };
-    SimulationAction[] validActions = new SimulationAction[]{
+    final SimulationAction[] validActions = new SimulationAction[]{
             SimulationAction.INIT,
             SimulationAction.CONFIG,
             SimulationAction.STOP,
@@ -31,7 +31,7 @@ public class StateTransitionTest {
             SimulationAction.RESUME,
             SimulationAction.STOP,
     };
-    SimulationState[] validFinalStates = new SimulationState[]{
+    final SimulationState[] validFinalStates = new SimulationState[]{
             SimulationState.INIT,
             SimulationState.CONFIG,
             SimulationState.INIT,
@@ -44,9 +44,9 @@ public class StateTransitionTest {
             SimulationState.INIT,
     };
 
-    int numActions = 10;
+    final int numActions = 10;
 
-    SimulationState[] allStates = new SimulationState[]{
+    final SimulationState[] allStates = new SimulationState[]{
             SimulationState.NOSTATE,
             SimulationState.INIT,
             SimulationState.CONFIG,
@@ -54,7 +54,7 @@ public class StateTransitionTest {
             SimulationState.PAUSED,
             SimulationState.DONE,
     };
-    SimulationAction[] allActions = new SimulationAction[]{
+    final SimulationAction[] allActions = new SimulationAction[]{
             SimulationAction.INIT,
             SimulationAction.CONFIG,
             SimulationAction.START,

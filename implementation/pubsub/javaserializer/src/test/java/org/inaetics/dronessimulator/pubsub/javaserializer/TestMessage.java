@@ -6,7 +6,7 @@ import org.inaetics.dronessimulator.pubsub.api.Message;
  * Message implementation to use for testing the Java serializer.
  */
 public class TestMessage implements Message {
-    private transient String notSerialized;
+    private final transient String notSerialized;
     private String message;
 
     public TestMessage(String message) {

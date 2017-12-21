@@ -37,22 +37,19 @@ public class D3PolarCoordinate implements Serializable {
      * @param length_ The distance to the coordinate.
      */
     public D3PolarCoordinate(double angle1_x_y_, double angle2_x_z_, double length_) {
-        double angle1_x_y = angle1_x_y_;
-        double angle2_x_z = angle2_x_z_;
-        double length = length_;
         // Change angles to keep the length always positive.
-        if(length < 0) {
-            angle1_x_y = angle1_x_y + Math.PI;
-            angle2_x_z = -1 * angle2_x_z;
-            length = -1 * length;
+        if (length_ < 0) {
+            angle1_x_y_ = angle1_x_y_ + Math.PI;
+            angle2_x_z_ = -1 * angle2_x_z_;
+            length_ = -1 * length_;
         }
 
         // Normalize the angles.
-        Tuple<Double, Double> normalizedAngles = normalizeAngles(angle1_x_y, angle2_x_z);
+        Tuple<Double, Double> normalizedAngles = normalizeAngles(angle1_x_y_, angle2_x_z_);
 
         this.angle1_x_y = normalizedAngles.getLeft();
         this.angle2_x_z = normalizedAngles.getRight();
-        this.length = length;
+        this.length = length_;
     }
 
     /**

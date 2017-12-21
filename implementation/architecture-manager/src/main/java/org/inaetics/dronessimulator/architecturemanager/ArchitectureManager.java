@@ -1,6 +1,6 @@
 package org.inaetics.dronessimulator.architecturemanager;
 
-import org.apache.log4j.Logger;
+import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
@@ -22,6 +22,7 @@ import java.util.Map;
  * Currently this only consists of the current lifecycle state of the architecture
  * Uses Discovery and Subscriber to publish current state and receive requested state updates
  */
+@Log4j
 public class ArchitectureManager {
     /**
      * Reference to discovery bundle to publish state information
@@ -31,11 +32,6 @@ public class ArchitectureManager {
      * Reference to subscriber to listen for state update requests
      */
     private volatile Subscriber m_subscriber;
-
-    /**
-     * The logger
-     */
-    private final static Logger logger = Logger.getLogger(ArchitectureManager.class);
 
     /**
      * The instance published in Discovery
@@ -88,15 +84,15 @@ public class ArchitectureManager {
      */
     public void start() {
         while (!m_subscriber.hasConnection()){
-            logger.warn("Architecture Manager does not yet have a connection to the subscriber implementation... Retrying now!");
+            log.warn("Architecture Manager does not yet have a connection to the subscriber implementation... Retrying now!");
             try {
                 m_subscriber.connect();
-                logger.debug("Connection with the subscriber created");
+                log.debug("Connection with the subscriber created");
             } catch (IOException e) {
-                logger.error(e);
+                log.error(e);
             }
         }
-        logger.info("Starting Architecture Manager...");
+        log.info("Starting Architecture Manager...");
         try {
             // Register instance with discovery
             m_discoverer.register(this.instance);
@@ -114,24 +110,29 @@ public class ArchitectureManager {
                     this.previousAction = action;
                     this.currentState = nextState;
 
-                    logger.info("New transition: (" + this.previousState + ", " + this.previousAction + ", " + this.currentState + ")");
+                    log.info("New transition: (" + this.previousState + ", " + this.previousAction + ", " + this.currentState + ")");
 
-                    try {
-                        instance = m_discoverer.updateProperties(instance, getCurrentProperties());
-                    } catch (IOException e) {
-                        logger.fatal(e);
-                    }
+                    instance = safeUpdateProperties(instance, getCurrentProperties());
 
                 } else {
-                    logger.error(String.format("Received an action which did not led to next state! Current state: %s. Action: %s", currentState, action));
+                    log.error(String.format("Received an action which did not led to next state! Current state: %s. Action: %s", currentState, action));
                 }
             });
 
         } catch(IOException | DuplicateName e) {
-            logger.fatal(e);
+            log.fatal(e);
         }
 
-        logger.info("Started Architecture Manager!");
+        log.info("Started Architecture Manager!");
+    }
+
+    private Instance safeUpdateProperties(final Instance instance, final Map<String, String> properties) {
+        try {
+            return m_discoverer.updateProperties(instance, properties);
+        } catch (IOException e) {
+            log.fatal(e);
+        }
+        return instance;
     }
 
     /**
@@ -139,13 +140,13 @@ public class ArchitectureManager {
      * Unregisters the current state in Discovery
      */
     public void stop() {
-        logger.info("Stopping Architecture Manager...");
+        log.info("Stopping Architecture Manager...");
         try {
             m_discoverer.unregister(instance);
         } catch (IOException e) {
-            logger.error(e);
+            log.error(e);
         }
-        logger.info("Stopped Architecture Manager!");
+        log.info("Stopped Architecture Manager!");
     }
 
     /**

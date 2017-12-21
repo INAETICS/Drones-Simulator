@@ -140,21 +140,22 @@ public class CalculateUtilityHelper {
         }
 
         private Collection<D3Vector> getEnemies(Map<String, Triple<LocalDateTime, D3Vector, List<String>>> teammembers, Collection<Tuple<LocalDateTime, D3Vector>> radarImage) {
-            List<D3Vector> enemies = radarImage.parallelStream()
+            List<D3Vector> enemiesList = radarImage.parallelStream()
                     .map(Tuple::getRight) //Only get the positions
                     .filter(ral -> teammembers.entrySet().parallelStream().map(tm -> tm.getValue().getB()) //Get positions of the teammembers
                             .filter(t -> t.distance_between(ral) < Settings.MAX_DRONE_VELOCITY).count() == 0) //If there is a teammember close, it must be from that drone, so we only want the
                     // ones that
                     // do NOT have a teammember close
                     .collect(Collectors.toList());
-            log.debug("Number of expected enemies(" + radarImage.size() + "+" + teammembers.size() + "): " + (radarImage.size() - teammembers.size()) + ". Number of found enemies" + enemies.size());
-            return enemies;
+            log.debug("Number of expected enemies(" + radarImage.size() + "+" + teammembers.size() + "): " + (radarImage.size() - teammembers.size()) + ". Number of found enemies" + enemiesList.size());
+            return enemiesList;
         }
 
         D3Vector getDroneLocation() {
             return teammembers.get(droneId).getB();
         }
 
+        @SuppressWarnings("SameParameterValue")
         boolean droneHasComponent(String component) {
             return teammembers.get(droneId).getC().contains(component);
         }

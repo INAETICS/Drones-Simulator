@@ -156,7 +156,7 @@ public class PhysicsEngine extends ManagedThread implements IPhysicsEngine {
         // If the collision wasn't happening yet
         if(observer != null && (startedE1WithE2 || startedE2WithE1)) {
             //This collision is new and has just started
-            observer.collisionStartHandler(Entity.deepcopy(entity1), Entity.deepcopy(entity2));
+            observer.collisionStartHandler(new Entity(entity1), new Entity(entity2));
         }
     }
 
@@ -169,7 +169,7 @@ public class PhysicsEngine extends ManagedThread implements IPhysicsEngine {
 
         if(observer != null && (e1CollidedWithe2 || e2CollidedWithe1)) {
             //This collision has just ended
-            observer.collisionStopHandler(Entity.deepcopy(entity1), Entity.deepcopy(entity2));
+            observer.collisionStopHandler(new Entity(entity1), new Entity(entity2));
         }
     }
 

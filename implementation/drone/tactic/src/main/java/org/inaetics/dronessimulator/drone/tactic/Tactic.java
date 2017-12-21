@@ -38,6 +38,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public abstract class Tactic extends ManagedThread implements MessageHandler {
     private static final long TACTIC_TIMOUT = 1;//tck
     private final TimeoutTimer workTimoutTimer = new TimeoutTimer(TACTIC_TIMOUT * Settings.TICK_TIME);
+    private final AtomicBoolean initialized = new AtomicBoolean(false);
+    private final TimeoutTimer ticker = new TimeoutTimer(Settings.TICK_TIME);
     // drone components
     @Getter
     protected volatile Radar radar;
@@ -65,13 +67,11 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     private volatile Subscriber m_subscriber;
     private Instance simulationInstance;
     private boolean registered = false;
-    private final AtomicBoolean initialized = new AtomicBoolean(false);
     /**
      * Discoverer bundle
      */
     @SuppressWarnings("unused") //Assigned through OSGi
     private volatile Discoverer m_discoverer;
-    private final TimeoutTimer ticker = new TimeoutTimer(Settings.TICK_TIME);
 
     /**
      * Thread implementation
@@ -152,7 +152,8 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
     }
 
     @Override
-    public final void destroy() {}
+    public final void destroy() {
+    }
 
     private void configSimulation() {
         try {
@@ -282,6 +283,8 @@ public abstract class Tactic extends ManagedThread implements MessageHandler {
                 case "radio":
                     result &= radio != null;
                     break;
+                default:
+                    log.warn(component + " is not a valid component to check for.");
             }
         }
         return result;

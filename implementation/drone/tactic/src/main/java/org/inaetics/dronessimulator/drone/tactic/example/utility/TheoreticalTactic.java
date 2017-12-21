@@ -25,8 +25,6 @@ import static org.inaetics.dronessimulator.drone.tactic.example.utility.Calculat
 @NoArgsConstructor //An OSGi constructor
 public class TheoreticalTactic extends Tactic {
     public static final double TTL_DRONE = 3 * Settings.getTickTime(ChronoUnit.SECONDS); //seconds
-    private DroneType droneType;
-    private String idLeader;
     /**
      * This is a list of the teammembers based on the heartbeat messages
      * <p>
@@ -35,21 +33,23 @@ public class TheoreticalTactic extends Tactic {
      * The right list of the tuple is a list of available components
      */
     private final Map<String, Triple<LocalDateTime, D3Vector, List<String>>> teammembers = new ConcurrentHashMap<>();
+    private final TimeoutTimer lastRequestForLeader = new TimeoutTimer(1000); //1 sec
+    private DroneType droneType;
+    private String idLeader;
     private Queue<Tuple<LocalDateTime, D3Vector>> radarImage = new ConcurrentLinkedQueue<>();
     private ManagedThread handleBroadcastMessagesThread;
     private D3Vector myTargetMoveLocation;
-    private final TimeoutTimer lastRequestForLeader = new TimeoutTimer(1000); //1 sec
 
     private DroneType getType() {
-        DroneType droneType;
+        DroneType type;
         if (hasComponents("radar", "radio")) {
-            droneType = DroneType.RADAR;
+            type = DroneType.RADAR;
         } else if (hasComponents("gun", "radio")) {
-            droneType = DroneType.GUN;
+            type = DroneType.GUN;
         } else {
-            droneType = null;
+            type = null;
         }
-        return droneType;
+        return type;
     }
 
     @Override
@@ -58,14 +58,14 @@ public class TheoreticalTactic extends Tactic {
         handleBroadcastMessagesThread = new LambdaManagedThread(this::manageIncomingCommunication);
         handleBroadcastMessagesThread.startThread();
         if (DroneType.GUN.equals(droneType)) {
-                //Send a message if you fire a bullet
-                gun.registerCallback((fireBulletMessage) -> {
-                    DataMessage shotMessage = new DataMessage(this, MyTacticMessage.MESSAGETYPES.FIRED_BULLET_MESSAGE);
-                    shotMessage.getData().put("direction", String.valueOf(fireBulletMessage.getDirection().orElse(null)));
-                    shotMessage.getData().put("velocity", String.valueOf(fireBulletMessage.getVelocity().orElse(null)));
-                    shotMessage.getData().put("firedMoment", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
-                    radio.send(shotMessage.getMessage());
-                });
+            //Send a message if you fire a bullet
+            gun.registerCallback((fireBulletMessage) -> {
+                DataMessage shotMessage = new DataMessage(this, MyTacticMessage.MESSAGETYPES.FIRED_BULLET_MESSAGE);
+                shotMessage.getData().put("direction", String.valueOf(fireBulletMessage.getDirection().orElse(null)));
+                shotMessage.getData().put("velocity", String.valueOf(fireBulletMessage.getVelocity().orElse(null)));
+                shotMessage.getData().put("firedMoment", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
+                radio.send(shotMessage.getMessage());
+            });
         }
         log.debug("Tactic initialized for drone with type " + droneType);
     }
@@ -101,11 +101,9 @@ public class TheoreticalTactic extends Tactic {
             //Leader is not alive
             findLeader();
             //Check if the new found leader is alive. This is done to avoid side-effects of a function
-            if (lastRequestForLeader.timeIsExceeded()) {
-                //If it could not find a new (alive) leader, just start shooting if possible to any direction.
-                if (DroneType.GUN.equals(droneType)) {
-                    randomShooting();
-                }
+            //If it could not find a new (alive) leader, just start shooting if possible to any direction.
+            if (lastRequestForLeader.timeIsExceeded() && DroneType.GUN.equals(droneType)) {
+                randomShooting();
             }
         } else if (idLeader.equals(getIdentifier())) {
             sendInstructions();

@@ -29,6 +29,10 @@ public class Settings {
         return value != null ? value : defaultValue;
     }
 
+    private Settings() {
+        throw new IllegalStateException("Utility class");
+    }
+
     public static double getTickTime(ChronoUnit temporalUnit) {
         switch (temporalUnit) {
             case NANOS:

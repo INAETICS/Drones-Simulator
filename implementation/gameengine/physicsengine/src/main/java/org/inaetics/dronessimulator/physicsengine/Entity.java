@@ -86,14 +86,8 @@ public class Entity extends GameEntity implements Cloneable {
         super(entityId, size, position, velocity, acceleration, direction);
     }
 
-    /**
-     * Returns a deep copy of the given entity.
-     *
-     * @param entity The entity to copy.
-     * @return A copy of the entity.
-     */
-    public static Entity deepcopy(Entity entity) {
-        return new Entity(entity.getEntityId(), entity.getSize(), entity.getPosition(), entity.getVelocity(), entity
+    public Entity(Entity entity) {
+        this(entity.getEntityId(), entity.getSize(), entity.getPosition(), entity.getVelocity(), entity
                 .getAcceleration(), entity.getDirection());
     }
 
@@ -223,9 +217,14 @@ public class Entity extends GameEntity implements Cloneable {
         return null;
     }
 
+    /**
+     * Returns a deep copy of the curent entity.
+     *
+     * @return A copy of the entity.
+     */
     @Override
     public GameEntity deepCopy() {
-        return deepcopy(this);
+        return new Entity(this);
     }
 
 

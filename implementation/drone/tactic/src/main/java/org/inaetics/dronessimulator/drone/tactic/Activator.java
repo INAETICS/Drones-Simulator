@@ -113,7 +113,8 @@ public class Activator extends DependencyActivatorBase {
                     .setService(Gun.class)
                     .setRequired(true)
             );
-        }if (componentStrings.contains("radio")) {
+        }
+        if (componentStrings.contains("radio")) {
             components.add(dm.createServiceDependency()
                     .setService(Radio.class)
                     .setRequired(true)

@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 
 import com.rabbitmq.client.ConnectionFactory;
+import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
@@ -10,11 +11,10 @@ import org.inaetics.dronessimulator.pubsub.rabbitmq.TestMessage;
 
 import java.util.ArrayList;
 
-import static org.junit.Assert.assertTrue;
-
 /**
  * Runner for the RabbitMQ subscriber for use in tests.
  */
+@Log4j
 public class SubscriberRunner implements Runnable {
     /** The identifier of the subscriber queue. */
     private final String identifier;
@@ -51,16 +51,16 @@ public class SubscriberRunner implements Runnable {
             this.subscriber.connect();
             this.subscriber.addTopic(this.topic);
 
-            System.out.printf("Subscriber %s is connected\n", identifier);
-            assertTrue("Publisher is not connected", subscriber.isConnected());
+            log.info(String.format("Subscriber %s is connected", identifier));
+            if (!subscriber.isConnected()) log.warn("Subscriber is not connected");
 
             Thread.sleep(timeout);
 
-            System.out.printf("Subscriber %s is done, disconnecting\n", identifier);
+            log.info(String.format("Subscriber %s is done, disconnecting", identifier));
 
             this.subscriber.disconnect();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error(e);
         }
     }
 
@@ -74,7 +74,7 @@ public class SubscriberRunner implements Runnable {
     class TestHandler implements MessageHandler {
         @Override
         public synchronized void handleMessage(Message message) {
-            System.out.printf("Subscriber %s received message %s at %d\n", identifier, message.toString(), System.currentTimeMillis());
+            log.debug(String.format("Subscriber %s received message %s at %d\n", identifier, message.toString(), System.currentTimeMillis()));
             testMessages.add(message);
         }
     }

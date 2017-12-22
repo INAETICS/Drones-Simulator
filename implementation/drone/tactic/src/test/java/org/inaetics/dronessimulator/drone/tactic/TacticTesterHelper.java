@@ -26,19 +26,17 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import static org.mockito.Mockito.mock;
 
 public class TacticTesterHelper {
-    public static <T extends Tactic> T getTactic(Class<T> tacticClass, Publisher publisher, Subscriber subscriber, DroneInit droneInit, String... components) throws NoSuchFieldException, IllegalAccessException, InstantiationException {
+    public static <T extends Tactic> T getTactic(Class<T> tacticClass, Publisher publisher, Subscriber subscriber, Discoverer discoverer, DroneInit droneInit, String...
+            components) throws NoSuchFieldException, IllegalAccessException, InstantiationException {
         T tactic = tacticClass.newInstance();
-        return getTactic(tactic, publisher, subscriber, droneInit, components);
+        return getTactic(tactic, publisher, subscriber, discoverer, droneInit, components);
     }
 
     public static <T extends Tactic> T getTactic(T tactic, Publisher publisher, Subscriber
-            subscriber, DroneInit droneInit, String... components) throws NoSuchFieldException, IllegalAccessException,
-            InstantiationException {
+            subscriber, Discoverer discoverer, DroneInit droneInit, String... components) throws NoSuchFieldException, IllegalAccessException {
         List<String> componentList = Arrays.asList(components);
         if (componentList.contains("gps") || components.length == 0) {
-            tactic.gps = new GPS(subscriber, droneInit, null, D3Vector.UNIT, D3Vector.UNIT, D3Vector
-                    .UNIT,
-                    D3PolarCoordinate.UNIT);
+            tactic.gps = new GPS(subscriber, droneInit, null, D3Vector.UNIT, D3Vector.UNIT, D3Vector.UNIT, D3PolarCoordinate.UNIT);
             tactic.gps.start();
         }
         if (componentList.contains("engine") || components.length == 0) {
@@ -57,7 +55,7 @@ public class TacticTesterHelper {
         TestUtils.setField(tactic, "m_drone", droneInit);
         TestUtils.setField(tactic, "m_architectureEventController", new ArchitectureEventControllerService());
         TestUtils.setField(tactic, "m_subscriber", subscriber);
-        TestUtils.setField(tactic, "m_discoverer", mock(Discoverer.class));
+        TestUtils.setField(tactic, "m_discoverer", discoverer);
         return tactic;
     }
 

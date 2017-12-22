@@ -3,9 +3,10 @@ package org.inaetics.dronessimulator.drone.tactic.example.utility;
 import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.Tuple;
-import org.inaetics.dronessimulator.common.protocol.TacticMessage;
+import org.inaetics.dronessimulator.common.model.Triple;
 import org.inaetics.dronessimulator.common.protocol.TeamTopic;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
+import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.drone.components.engine.Engine;
 import org.inaetics.dronessimulator.drone.components.gun.Gun;
 import org.inaetics.dronessimulator.drone.components.radio.Radio;
@@ -22,9 +23,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.inaetics.dronessimulator.test.TestUtils.setField;
@@ -41,7 +42,7 @@ public class TheoreticalTacticTester {
         droneInit = new DroneInit();
         publisher = new MockPublisher();
         Subscriber subscriber = mock(Subscriber.class);
-        tactic = TacticTesterHelper.getTactic(TheoreticalTactic.class, publisher, subscriber, droneInit);
+        tactic = TacticTesterHelper.getTactic(TheoreticalTactic.class, publisher, subscriber, mock(Discoverer.class), droneInit);
         tactic.initializeTactics();
     }
 
@@ -52,8 +53,8 @@ public class TheoreticalTacticTester {
             tactic.getRadio().handleMessage(new HeartbeatMessage(tactic, tactic.getGps()).getMessage());
         }
         Assert.assertTrue(publisher.getReceivedMessages().size() >= 10);
-        Assert.assertThat(publisher.getReceivedMessages(), hasItem(new Tuple<>(new TeamTopic("unknown_team"), new
-                TacticMessage())));
+        Assert.assertThat(publisher.getReceivedMessages(), hasItem(new Tuple<>(new TeamTopic("unknown_team"), new HeartbeatMessage(tactic, tactic.getGps())
+                .getMessage())));
         publisher.getReceivedMessages().forEach(message -> log.debug("Message on topic \"" + message.getLeft().getName
                 () + "\" with content: " + message.getRight().toString()));
     }
@@ -63,12 +64,10 @@ public class TheoreticalTacticTester {
         Tuple<Publisher, TacticTesterHelper.MockSubscriber> pubSub = TacticTesterHelper.getConnectedMockPubSub();
         DroneInit drone1 = new DroneInit();
         DroneInit drone2 = new DroneInit();
-        TheoreticalTactic tactic = TacticTesterHelper.getTactic(TheoreticalTactic.class, pubSub.getLeft(), pubSub.getRight(),
-                drone1);
+        TheoreticalTactic tactic = TacticTesterHelper.getTactic(TheoreticalTactic.class, pubSub.getLeft(), pubSub.getRight(), mock(Discoverer.class), drone1);
         tactic.initializeTactics();
         tactic.startTactic();
-        TheoreticalTactic tactic2 = TacticTesterHelper.getTactic(TheoreticalTactic.class, pubSub.getLeft(), pubSub.getRight(),
-                drone2);
+        TheoreticalTactic tactic2 = TacticTesterHelper.getTactic(TheoreticalTactic.class, pubSub.getLeft(), pubSub.getRight(), mock(Discoverer.class), drone2);
         tactic2.initializeTactics();
         tactic2.startTactic();
         for (int i = 0; i < 20; i++) {
@@ -97,11 +96,12 @@ public class TheoreticalTacticTester {
     @Test
     public void testCalculateUtility() throws NoSuchFieldException, IllegalAccessException {
         //Create the world
-        Map<String, Tuple<D3Vector, List<String>>> teammembers = new ConcurrentHashMap<>();
-        Map<String, Tuple<LocalDateTime, D3Vector>> mapOfTheWorld = new ConcurrentHashMap<>();
-        mapOfTheWorld.put("enemyDrone", new Tuple<>(LocalDateTime.now(), new D3Vector(100, 100, 50)));
+        Map<String, Triple<LocalDateTime, D3Vector, List<String>>> teammembers = new ConcurrentHashMap<>();
+        teammembers.put(tactic.getIdentifier(), new Triple<>(LocalDateTime.now(), D3Vector.UNIT, new LinkedList<>(Arrays.asList("radio", "engine"))));
+        Queue<Tuple<LocalDateTime, D3Vector>> radarImage = new ConcurrentLinkedQueue<>();
+        radarImage.add(new Tuple<>(LocalDateTime.now(), new D3Vector(100, 100, 50)));
         setField(tactic, "teammembers", teammembers);
-        setField(tactic, "mapOfTheWorld", mapOfTheWorld);
+        setField(tactic, "radarImage", radarImage);
         setField(tactic, "engine", new Engine());
         setField(tactic, "radio", new Radio());
 
@@ -109,6 +109,7 @@ public class TheoreticalTacticTester {
 //        CalculateUtilityHelper.CalculateUtilityParams test1Params = new CalculateUtilityHelper.CalculateUtilityParams(teammembers, mapOfTheWorld, INSTRUCTION_MESSAGE.InstructionType.MOVE, "1", new D3Vector(50, 50, 50));
         tactic.getGps().setPosition(D3Vector.UNIT);
         setField(tactic, "gun", new Gun());
+        teammembers.get(tactic.getIdentifier()).getC().add("gun");
         int utility = tactic.calculateUtility(InstructionMessage.InstructionType.MOVE, tactic.getIdentifier(), new D3Vector(50, 50, 50));
         Assert.assertEquals((int) new D3Vector(Settings.ARENA_WIDTH, Settings.ARENA_DEPTH, Settings.ARENA_HEIGHT).length() - (int) new D3Vector(50, 50,
                 0).length(), utility);
@@ -120,9 +121,10 @@ public class TheoreticalTacticTester {
 
         //Move away from a drone if you do not have a gun. The higher the distance, the better
         tactic.getGps().setPosition(D3Vector.UNIT);
-        setField(tactic, "gps", null);
+        setField(tactic, "gun", null);
+        teammembers.get(tactic.getIdentifier()).getC().remove("gun");
         utility = tactic.calculateUtility(InstructionMessage.InstructionType.MOVE, tactic.getIdentifier(), new D3Vector(50, 50, 50));
-        Assert.assertEquals((int) new D3Vector(50, 50, 50).distance_between(mapOfTheWorld.get("enemyDrone").getRight()), utility);
+        Assert.assertEquals((int) new D3Vector(50, 50, 50).distance_between(radarImage.peek().getRight()), utility);
 
         //
     }

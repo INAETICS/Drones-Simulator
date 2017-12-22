@@ -65,7 +65,7 @@ public class CalculateUtilityHelper {
         }
 
         //Now really calculate the utility, no more early returns.
-        final int[] utility = {0}; //A single element array for lambdas as it eeds to be final.
+        final int[] utility = {0}; //A single element array for lambdas as it needs to be final.
         //Drones that are close have a high likelyhood to kill you, so shoot if possible and move in the opposite direction
         forEachEnemy(enemy -> {
             if (params.type.equals(InstructionMessage.InstructionType.SHOOT)) {

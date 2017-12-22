@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.drone.tactic;
 
+import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventHandler;
 import org.inaetics.dronessimulator.architectureevents.LifeCycleStep;
@@ -8,36 +9,49 @@ import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.KillMessage;
+import org.inaetics.dronessimulator.discovery.api.Instance;
+import org.inaetics.dronessimulator.discovery.api.MockDiscoverer;
+import org.inaetics.dronessimulator.discovery.api.instances.TacticInstance;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 import org.inaetics.dronessimulator.test.TestUtils;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.contrib.java.lang.system.ExpectedSystemExit;
 import org.mockito.stubbing.Answer;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.inaetics.dronessimulator.test.TestUtils.getField;
 import static org.mockito.Mockito.*;
 
+@Log4j
 public class TacticTest {
+    @Rule
+    public final ExpectedSystemExit exit = ExpectedSystemExit.none();
     private Publisher publisher;
     private TacticTesterHelper.MockSubscriber subscriber;
     private DroneInit drone;
     private Tactic tacticMock;
     private Tactic tactic;
+    private MockDiscoverer discoverer;
 
     @Before
     public void setUp() throws Exception {
         Tuple<Publisher, TacticTesterHelper.MockSubscriber> publisherSubscriberTuple = TacticTesterHelper.getConnectedMockPubSub();
         publisher = publisherSubscriberTuple.getLeft();
         subscriber = publisherSubscriberTuple.getRight();
+        discoverer = spy(new MockDiscoverer());
         drone = new DroneInit();
         tacticMock = spy(new DoNothingTactic());
-        tactic = TacticTesterHelper.getTactic(tacticMock, publisher, subscriber, drone, "engine", "radio", "radar", "gun");
+        tactic = TacticTesterHelper.getTactic(tacticMock, publisher, subscriber, discoverer, drone, "engine", "radio", "radar", "gps", "gun");
     }
 
     @Test
@@ -54,11 +68,12 @@ public class TacticTest {
         tactic.work();
         verify(tacticMock, times(1)).calculateTactics();
         //Kill al long running command
+        long durationLongCommand = (long) timeout * 5;
         boolean[] isInterrupted = new boolean[1];
         doAnswer((Answer<Void>) invocation -> {
             try {
                 //Make a long running command, like thread.sleep
-                Thread.sleep((long) (timeout * 2));
+                Thread.sleep(durationLongCommand);
             } catch (InterruptedException e) {
                 //Great
                 isInterrupted[0] = true;
@@ -69,41 +84,77 @@ public class TacticTest {
         tactic.work();
         long executeEnd = System.currentTimeMillis();
         Assert.assertTrue(isInterrupted[0]);
-        Assert.assertTrue(executeEnd - executeStart < (timeout * 2));
+        Assert.assertTrue(executeEnd - executeStart < durationLongCommand);
     }
 
     @Test
     public void testStartAndStopTactic() throws Exception {
         ArchitectureEventController architectureEventController = getField(tactic, "m_architectureEventController");
+        Instance instance = new TacticInstance(tactic.getIdentifier());
+        AtomicBoolean started = getField(tactic, "started");
+        AtomicBoolean pauseToken = getField(tactic, "pauseToken");
+        AtomicBoolean quit = getField(tactic, "quit");
+
         //First start it
         tactic.startTactic();
-        Map<LifeCycleStep, List<ArchitectureEventHandler>> handlers = getField(architectureEventController, "handlers");
-        //Let the tactic configure itself
-        List<ArchitectureEventHandler> configHandlers = handlers.get(new LifeCycleStep(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG));
-        configHandlers.forEach(handler -> handler.handle(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG));
-
-        //TODO check the discovery
-        Assert.assertEquals(handlers.size(), 8);
-        Assert.assertThat(handlers.keySet(), hasItem(new LifeCycleStep(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG)));
-        Assert.assertNotNull(getField(tactic, "simulationInstance"));
         Assert.assertTrue(subscriber.getHandlers().get(KillMessage.class).contains(tactic));
+        Assert.assertEquals(getField(tactic, "simulationInstance"), instance);
         Assert.assertTrue(tactic.isAlive());
 
+        //Get all handlers
+        Map<LifeCycleStep, List<ArchitectureEventHandler>> handlers = getField(architectureEventController, "handlers");
+        List<ArchitectureEventHandler> configHandlers = handlers.get(new LifeCycleStep(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG));
+        List<ArchitectureEventHandler> startHandlers = handlers.get(new LifeCycleStep(SimulationState.CONFIG, SimulationAction.START, SimulationState.RUNNING));
+        List<ArchitectureEventHandler> pauzeHandlers = handlers.get(new LifeCycleStep(SimulationState.RUNNING, SimulationAction.PAUSE, SimulationState.PAUSED));
+        List<ArchitectureEventHandler> resumeHandlers = handlers.get(new LifeCycleStep(SimulationState.PAUSED, SimulationAction.RESUME, SimulationState.RUNNING));
+        List<ArchitectureEventHandler> stopHandlers = handlers.get(new LifeCycleStep(SimulationState.RUNNING, SimulationAction.STOP, SimulationState.INIT));
+
+        Assert.assertEquals(8, handlers.size());
+        Assert.assertThat(handlers.keySet(), hasItem(new LifeCycleStep(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG)));
+
+        //Let the tactic configure itself
+        configHandlers.forEach(handler -> handler.handle(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG));
+        Assert.assertThat(discoverer.getRegisteredInstances(), hasItem(instance));
+
+        //Start it
+        startHandlers.forEach(handler -> handler.handle(SimulationState.CONFIG, SimulationAction.START, SimulationState.RUNNING));
+        Assert.assertTrue(started.get());
+        verify(tacticMock, atMost(1)).initializeTactics();
+
+        //Pauze it
+        pauzeHandlers.forEach(handler -> handler.handle(SimulationState.RUNNING, SimulationAction.PAUSE, SimulationState.PAUSED));
+        Assert.assertTrue(pauseToken.get());
+
+        //Resume it
+        resumeHandlers.forEach(handler -> handler.handle(SimulationState.PAUSED, SimulationAction.RESUME, SimulationState.RUNNING));
+        Assert.assertFalse(pauseToken.get());
+
         //Now stop it
+        stopHandlers.forEach(handler -> handler.handle(SimulationState.RUNNING, SimulationAction.STOP, SimulationState.INIT));
         tactic.stopTactic();
-        //TODO validate the actions that are taken by stop tactic
-    }
-
-    @Test
-    public void stopTactic() throws Exception {
-    }
-
-    @Test
-    public void destroy() throws Exception {
+        Assert.assertTrue(quit.get());
+        verify(tacticMock, atMost(1)).finalizeTactics();
+        Assert.assertEquals(0, discoverer.getRegisteredInstances().size());
+        await().atMost(1000, TimeUnit.MILLISECONDS).until(() -> !started.get());
+        Assert.assertFalse(started.get());
     }
 
     @Test
     public void handleMessage() throws Exception {
+        if (!log.isDebugEnabled()) {
+            exit.expectSystemExitWithStatus(10);
+            exit.checkAssertionAfterwards(() -> {
+                verify(tacticMock, atMost(1)).stopThread();
+            });
+        }
+        KillMessage msg = new KillMessage();
+        //Not the correct identifier so nothing should happen
+        msg.setIdentifier("");
+        tactic.handleMessage(msg);
+        verify(tacticMock, atMost(0)).stopThread();
+        msg.setIdentifier(tactic.getIdentifier());
+        tactic.handleMessage(msg);
+        verify(tacticMock, atMost(1)).stopThread();
     }
 
     @Test

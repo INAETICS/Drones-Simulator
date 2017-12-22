@@ -57,6 +57,20 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.stefanbirkner</groupId>
+            <artifactId>system-rules</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.discovery</groupId>
+            <artifactId>discovery-api</artifactId>
+            <type>test-jar</type>
+        </dependency>
     </dependencies>
 
     <build>

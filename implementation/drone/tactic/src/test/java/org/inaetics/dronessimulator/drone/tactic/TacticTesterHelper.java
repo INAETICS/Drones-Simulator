@@ -9,6 +9,7 @@ import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.drone.components.engine.Engine;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
+import org.inaetics.dronessimulator.drone.components.gun.Gun;
 import org.inaetics.dronessimulator.drone.components.radar.Radar;
 import org.inaetics.dronessimulator.drone.components.radio.Radio;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
@@ -52,10 +53,13 @@ public class TacticTesterHelper {
                     D3Vector.UNIT);
             tactic.radar.start();
         }
-        TestUtils.setField(tactic, "m_drone", droneInit);
-        TestUtils.setField(tactic, "m_architectureEventController", new ArchitectureEventControllerService());
-        TestUtils.setField(tactic, "m_subscriber", subscriber);
-        TestUtils.setField(tactic, "m_discoverer", discoverer);
+        if (componentList.contains("gun") || components.length == 0) {
+            tactic.gun = new Gun(publisher, droneInit, tactic.gps, System.currentTimeMillis(), System.currentTimeMillis());
+        }
+        TestUtils.setField(tactic, "drone", droneInit);
+        TestUtils.setField(tactic, "architectureEventController", new ArchitectureEventControllerService());
+        TestUtils.setField(tactic, "subscriber", subscriber);
+        TestUtils.setField(tactic, "discoverer", discoverer);
         return tactic;
     }
 

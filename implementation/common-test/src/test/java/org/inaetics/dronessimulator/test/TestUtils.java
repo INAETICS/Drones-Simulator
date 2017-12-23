@@ -1,5 +1,7 @@
 package org.inaetics.dronessimulator.test;
 
+import org.junit.Assert;
+
 import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
@@ -57,6 +59,22 @@ public class TestUtils {
         return results;
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T extends Throwable> T assertThrows(Class<T> expectedException, Code codeToRun) throws AssertionError {
+        try {
+            codeToRun.run();
+            Assert.fail("Expected " + expectedException.getSimpleName() + " to be thrown, but no exception was thrown");
+        } catch (Exception e) {
+            if (expectedException.isInstance(e)) {
+                return (T) e;
+            } else {
+                Assert.fail("Expected " + expectedException.getSimpleName() + " to be thrown, but got: " + e.getClass().getSimpleName() + ". With message: " + e.getMessage());
+            }
+        }
+        return null;
+    }
+
+
     @FunctionalInterface
     private interface FieldFilter {
         boolean matches(final Field field);
@@ -65,5 +83,10 @@ public class TestUtils {
     @FunctionalInterface
     private interface FieldCallback<R> {
         R doWith(final Field field) throws IllegalArgumentException, IllegalAccessException;
+    }
+
+    @FunctionalInterface
+    public interface Code {
+        void run() throws Exception;
     }
 }

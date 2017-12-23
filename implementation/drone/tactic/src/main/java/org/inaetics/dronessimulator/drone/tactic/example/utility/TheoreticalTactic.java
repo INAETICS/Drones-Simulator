@@ -176,7 +176,7 @@ public class TheoreticalTactic extends Tactic {
                     //Become a leader yourself and prepare
                     setLeader(getIdentifier());
                     if (radio.send(new DataMessage(this, MyTacticMessage.MESSAGETYPES.IS_LEADER_MESSAGE).getMessage()))
-                        log.info("Drone " + getIdentifier() + " is the leader of team " + m_drone.getTeamname());
+                        log.info("Drone " + getIdentifier() + " is the leader of team " + drone.getTeamname());
                 } else if (MyTacticMessage.checkType(newMessage,
         MyTacticMessage.MESSAGETYPES.IS_LEADER_MESSAGE)) {
                     setLeader(newMessage.get("id"));

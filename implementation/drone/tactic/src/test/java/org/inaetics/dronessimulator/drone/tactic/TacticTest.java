@@ -20,8 +20,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.contrib.java.lang.system.ExpectedSystemExit;
-import org.mockito.stubbing.Answer;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -29,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.inaetics.dronessimulator.test.TestUtils.getField;
+import static org.inaetics.dronessimulator.test.TestUtils.*;
 import static org.mockito.Mockito.*;
 
 @Log4j
@@ -67,21 +68,27 @@ public class TacticTest {
         TestUtils.setField(ticker, "lastTime", System.currentTimeMillis() - (long) timeout - 1L);
         tactic.work();
         verify(tacticMock, times(1)).calculateTactics();
-        //Kill al long running command
+    }
+
+    @Test
+    public void testWorkWithSlowTactic() throws Exception {
+        double timeout = getField(getField(tactic, "ticker"), "timeout");
         long durationLongCommand = (long) timeout * 5;
         boolean[] isInterrupted = new boolean[1];
-        doAnswer((Answer<Void>) invocation -> {
-            try {
-                //Make a long running command, like thread.sleep
-                Thread.sleep(durationLongCommand);
-            } catch (InterruptedException e) {
-                //Great
-                isInterrupted[0] = true;
+        Tactic tacticSlow = new DoNothingTactic() {
+            @Override
+            protected void calculateTactics() {
+                try {
+                    //Make a long running command, like thread.sleep
+                    Thread.sleep(durationLongCommand);
+                } catch (InterruptedException e) {
+                    //Great
+                    isInterrupted[0] = true;
+                }
             }
-            return null;
-        }).when(tacticMock).calculateTactics();
+        };
         long executeStart = System.currentTimeMillis();
-        tactic.work();
+        tacticSlow.work();
         long executeEnd = System.currentTimeMillis();
         Assert.assertTrue(isInterrupted[0]);
         Assert.assertTrue(executeEnd - executeStart < durationLongCommand);
@@ -89,7 +96,7 @@ public class TacticTest {
 
     @Test
     public void testStartAndStopTactic() throws Exception {
-        ArchitectureEventController architectureEventController = getField(tactic, "m_architectureEventController");
+        ArchitectureEventController architectureEventController = getField(tactic, "architectureEventController");
         Instance instance = new TacticInstance(tactic.getIdentifier());
         AtomicBoolean started = getField(tactic, "started");
         AtomicBoolean pauseToken = getField(tactic, "pauseToken");
@@ -158,19 +165,29 @@ public class TacticTest {
     }
 
     @Test
-    public void getIdentifier() throws Exception {
-    }
+    public void hasComponentsAndValidateRequiredComponents() throws Exception {
+        Assert.assertTrue(tactic.hasComponents("engine", "radio", "radar", "gps", "gun"));
+        Assert.assertTrue(tactic.hasComponents("engine", "radio", "radar", "gps", "gun", "nonsense"));
+        Assert.assertTrue(tactic.hasComponents("engine"));
+        Assert.assertTrue(tactic.hasComponents("radio"));
+        Assert.assertTrue(tactic.hasComponents("radar"));
+        Assert.assertTrue(tactic.hasComponents("gps"));
+        Assert.assertTrue(tactic.hasComponents("gun"));
+        Assert.assertTrue(tactic.hasComponents("nonsense"));
+        //Remove the gun
+        setField(tactic, "gun", null);
+        Assert.assertFalse(tactic.hasComponents("gun"));
 
-    @Test
-    public void hasComponents() throws Exception {
-    }
-
-    @Test
-    public void validateRequiredComponents() throws Exception {
+        assertThrows(Tactic.MissingComponentsException.class, () -> tactic.validateRequiredComponents("gun"));
+        tactic.validateRequiredComponents("radio"); //This should just execute without any exception
     }
 
     @Test
     public void getAvailableComponents() throws Exception {
+        Assert.assertEquals(new HashSet<>(Arrays.asList("engine", "radio", "radar", "gps", "gun")), tactic.getAvailableComponents());
+        //Remove the gun
+        setField(tactic, "gun", null);
+        Assert.assertEquals(new HashSet<>(Arrays.asList("engine", "radio", "radar", "gps")), tactic.getAvailableComponents());
     }
 
 }

@@ -1,5 +1,7 @@
 package org.inaetics.dronessimulator.drone.components.gun;
 
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.protocol.FireBulletMessage;
@@ -20,6 +22,8 @@ import java.util.UUID;
  * The gun component for drone tactics
  */
 @Log4j
+@NoArgsConstructor //OSGi constructor
+@AllArgsConstructor //Testing constructor
 public class Gun {
     /**
      * The speed of the bullet

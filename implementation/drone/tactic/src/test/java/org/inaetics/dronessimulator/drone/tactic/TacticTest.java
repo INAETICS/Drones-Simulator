@@ -14,6 +14,7 @@ import org.inaetics.dronessimulator.discovery.api.MockDiscoverer;
 import org.inaetics.dronessimulator.discovery.api.instances.TacticInstance;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
+import org.inaetics.dronessimulator.test.MockSubscriber;
 import org.inaetics.dronessimulator.test.TestUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -38,7 +39,7 @@ public class TacticTest {
     @Rule
     public final ExpectedSystemExit exit = ExpectedSystemExit.none();
     private Publisher publisher;
-    private TacticTesterHelper.MockSubscriber subscriber;
+    private MockSubscriber subscriber;
     private DroneInit drone;
     private Tactic tacticMock;
     private Tactic tactic;
@@ -46,7 +47,7 @@ public class TacticTest {
 
     @Before
     public void setUp() throws Exception {
-        Tuple<Publisher, TacticTesterHelper.MockSubscriber> publisherSubscriberTuple = TacticTesterHelper.getConnectedMockPubSub();
+        Tuple<Publisher, MockSubscriber> publisherSubscriberTuple = TacticTesterHelper.getConnectedMockPubSub();
         publisher = publisherSubscriberTuple.getLeft();
         subscriber = publisherSubscriberTuple.getRight();
         discoverer = spy(new MockDiscoverer());

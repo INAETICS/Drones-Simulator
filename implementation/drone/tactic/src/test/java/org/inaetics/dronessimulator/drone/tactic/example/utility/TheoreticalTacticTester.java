@@ -17,6 +17,7 @@ import org.inaetics.dronessimulator.drone.tactic.example.utility.messages.Instru
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.test.MockPublisher;
+import org.inaetics.dronessimulator.test.MockSubscriber;
 import org.inaetics.dronessimulator.test.TestUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -61,7 +62,7 @@ public class TheoreticalTacticTester {
 
     @Test
     public void testGettingALeader() throws IllegalAccessException, NoSuchFieldException, InstantiationException, InterruptedException {
-        Tuple<Publisher, TacticTesterHelper.MockSubscriber> pubSub = TacticTesterHelper.getConnectedMockPubSub();
+        Tuple<Publisher, MockSubscriber> pubSub = TacticTesterHelper.getConnectedMockPubSub();
         DroneInit drone1 = new DroneInit();
         DroneInit drone2 = new DroneInit();
         TheoreticalTactic tactic = TacticTesterHelper.getTactic(TheoreticalTactic.class, pubSub.getLeft(), pubSub.getRight(), mock(Discoverer.class), drone1);

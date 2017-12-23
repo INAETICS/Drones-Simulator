@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public class TestUtils {
     public static void setField(Object target, String fieldname, Object value) throws NoSuchFieldException, IllegalAccessException {
-        doWithFields(target.getClass(),
+        List<Object> changedFields = doWithFields(target.getClass(),
                 field -> {
                     field.setAccessible(true);
                     field.set(target, value);
@@ -17,6 +17,9 @@ public class TestUtils {
                 },
                 field1 -> field1.getName().equals(fieldname)
         );
+        if (changedFields.isEmpty()) {
+            throw new NoSuchFieldException();
+        }
     }
 
     public static <R> R getField(Object target, String fieldname) throws IllegalAccessException, NoSuchFieldException {
@@ -32,6 +35,9 @@ public class TestUtils {
                 },
                 field1 -> field1.getName().equals(fieldname)
         );
+        if (results.isEmpty()) {
+            throw new NoSuchFieldException();
+        }
         Optional<R> result = results.stream().findFirst();
         return result.orElse(null);
     }
@@ -44,8 +50,7 @@ public class TestUtils {
      * @param fc     - the callback to invoke for each field
      * @param ff     - the filter that determines the fields to apply the callback to
      */
-    private static <R> List<R> doWithFields(Class<?> aClass, FieldCallback<R> fc, FieldFilter ff) throws
-            IllegalAccessException {
+    private static <R> List<R> doWithFields(Class<?> aClass, FieldCallback<R> fc, FieldFilter ff) throws IllegalAccessException {
         Class<?> i = aClass;
         List<R> results = new LinkedList<>();
         while (i != null && i != Object.class) {

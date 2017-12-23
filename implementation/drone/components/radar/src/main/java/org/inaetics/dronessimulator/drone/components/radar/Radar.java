@@ -48,16 +48,16 @@ public class Radar implements MessageHandler<Message> {
     /**
      * Reference to Architecture Event Controller bundle
      */
-    private volatile ArchitectureEventController m_architectureEventController;
+    private volatile ArchitectureEventController architectureEventController;
     /**
      * Reference to Subscriber bundle
      */
-    private volatile Subscriber m_subscriber;
+    private volatile Subscriber subscriber;
     /**
      * Reference to Drone Init bundle
      */
-    private volatile DroneInit m_drone;
-    private volatile Discoverer m_discoverer;
+    private volatile DroneInit drone;
+    private volatile Discoverer discoverer;
     /**
      * Last known position of this drone
      */
@@ -80,16 +80,16 @@ public class Radar implements MessageHandler<Message> {
                 this.allEntities.remove(protocolId);
             }
         });
-        this.m_discoverer.addHandlers(true, Collections.emptyList(), Collections.emptyList(), removedNodeHandlers);
+        this.discoverer.addHandlers(true, Collections.emptyList(), Collections.emptyList(), removedNodeHandlers);
         try {
-            this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
+            this.subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
             log.fatal(e);
         }
-        this.m_subscriber.addHandler(StateMessage.class, this);
-        this.m_subscriber.addHandler(KillMessage.class, this);
+        this.subscriber.addHandler(StateMessage.class, this);
+        this.subscriber.addHandler(KillMessage.class, this);
 
-        m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG, (fromState, action, toState) -> allEntities.clear());
+        architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG, (fromState, action, toState) -> allEntities.clear());
     }
 
     /**
@@ -143,7 +143,7 @@ public class Radar implements MessageHandler<Message> {
      * @param stateMessage the received stateMessage
      */
     private void handleMessage(StateMessage stateMessage) {
-        if (stateMessage.getIdentifier().equals(this.m_drone.getIdentifier())) {
+        if (stateMessage.getIdentifier().equals(this.drone.getIdentifier())) {
             stateMessage.getPosition().ifPresent(this::setPosition);
         } else if (stateMessage.getType().equals(EntityType.DRONE)) {
             stateMessage.getPosition().ifPresent(pos -> this.allEntities.put(stateMessage.getIdentifier(), pos));

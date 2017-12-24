@@ -4,6 +4,7 @@ import org.inaetics.dronessimulator.common.protocol.MovementMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
+import org.inaetics.dronessimulator.test.MockPublisher;
 import org.junit.*;
 import org.junit.contrib.java.lang.system.EnvironmentVariables;
 

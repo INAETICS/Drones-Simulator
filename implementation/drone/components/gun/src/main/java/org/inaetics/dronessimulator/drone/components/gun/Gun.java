@@ -28,17 +28,17 @@ public class Gun {
     /**
      * The speed of the bullet
      */
-    private static final double BULLET_SPEED = 150.0;
+    protected static final double BULLET_SPEED = 150.0;
     /**
      * The maximum distance the gun can aim
      */
-    private static final double MAX_DISTANCE = 1024;
+    protected static final double MAX_DISTANCE = 1024;
     /**
      * Lowest time between shots
      */
     private static final long BASE_SHOT_TIME_BETWEEN = 500;
     /**
-     * Maximum time added to {@link BASE_SHOT_TIME_BETWEEN}
+     * Maximum time added to {@link #BASE_SHOT_TIME_BETWEEN}
      */
     private static final int MAX_OFFSET_SHOT_TIME = 1000;
     private final Set<GunCallback> callbacks = new HashSet<>();
@@ -82,7 +82,7 @@ public class Gun {
     public void fireBullet(D3PolarCoordinate direction) {
         long currentTimeMs = System.currentTimeMillis();
 
-        if (currentTimeMs >= nextShotAtMs) {
+        if (currentTimeMs >= nextShotAtMs && direction.getLength() <= MAX_DISTANCE) {
             FireBulletMessage msg = new FireBulletMessage();
             msg.setDamage(20);
             msg.setFiredById(drone.getIdentifier());

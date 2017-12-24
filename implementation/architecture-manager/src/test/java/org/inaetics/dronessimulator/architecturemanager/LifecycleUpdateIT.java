@@ -35,6 +35,7 @@ public class LifecycleUpdateIT {
     @Before
     public void setup() {
         discoverer = new EtcdDiscovererService();
+        discoverer.start();
 
         Serializer serializer = new JavaSerializer();
         RabbitConnectionInfo connectionInfo = RabbitConnectionInfo.createInstance(discoverer);

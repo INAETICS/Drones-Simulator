@@ -20,6 +20,10 @@ jdk: oraclejdk8
 
 before_script:
  - cp config-travis.env config.env
+ - export DISPLAY=:99.0
+ - sh -e /etc/init.d/xvfb start
+ - sleep 3 # give xvfb some time to start
+
 
 script:
  - cd implementation
@@ -27,9 +31,9 @@ script:
  - cd ..
  - ./docker_compile_images.sh no-maven
  - docker-compose up -d
-# - cd implementation
-# - mvn verify -Dskip.surefire.tests
-# - cd ..
+ - cd implementation
+ - mvn verify -Dskip.surefire.tests=true -Dskip.failsafe.tests=false
+ - cd ..
 
 
 after_script:

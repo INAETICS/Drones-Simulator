@@ -61,9 +61,9 @@ import java.util.stream.Collectors;
  */
 @Log4j
 public class Game extends Application {
-    public static final String USERNAME = "username";
-    public static final String PASSWORD = "password";
-    public static final String URI = "uri";
+    public static final String USERNAME_FIELD = "username";
+    public static final String PASSWORD_FIELD = "password";
+    public static final String URI_FIELD = "uri";
     public static final String RABBIT_IDENTIFIER = "visualisation";
     /**
      * All the entities in the game
@@ -295,20 +295,20 @@ public class Game extends Application {
         DiscoveryPath path = node.getPath();
 
         if (path.equals(DiscoveryPath.config(Type.RABBITMQ, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.BROKER, "default"))) {
-            if (node.getValue(USERNAME) != null) {
-                rabbitConfig.put(USERNAME, node.getValue(USERNAME));
+            if (node.getValue(USERNAME_FIELD) != null) {
+                rabbitConfig.put(USERNAME_FIELD, node.getValue(USERNAME_FIELD));
             }
 
-            if (node.getValue(PASSWORD) != null) {
-                rabbitConfig.put(PASSWORD, node.getValue(PASSWORD));
+            if (node.getValue(PASSWORD_FIELD) != null) {
+                rabbitConfig.put(PASSWORD_FIELD, node.getValue(PASSWORD_FIELD));
             }
 
-            if (node.getValue(URI) != null) {
-                rabbitConfig.put(URI, node.getValue(URI));
+            if (node.getValue(URI_FIELD) != null) {
+                rabbitConfig.put(URI_FIELD, node.getValue(URI_FIELD));
             }
 
             if (rabbitConfig.size() == 3) {
-                rabbitConnectionInfo = new RabbitConnectionInfo(rabbitConfig.get(USERNAME), rabbitConfig.get(PASSWORD), rabbitConfig.get(URI));
+                rabbitConnectionInfo = new RabbitConnectionInfo(rabbitConfig.get(USERNAME_FIELD), rabbitConfig.get(PASSWORD_FIELD), rabbitConfig.get(URI_FIELD));
                 try {
                     connectRabbit();
                 } catch (IOException e1) {

@@ -14,6 +14,7 @@ import org.inaetics.dronessimulator.discovery.api.MockDiscoverer;
 import org.inaetics.dronessimulator.discovery.api.instances.TacticInstance;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
+import org.inaetics.dronessimulator.test.MockPublisher;
 import org.inaetics.dronessimulator.test.MockSubscriber;
 import org.inaetics.dronessimulator.test.TestUtils;
 import org.junit.Assert;
@@ -45,7 +46,7 @@ public class TacticTest {
 
     @Before
     public void setUp() throws Exception {
-        Tuple<Publisher, MockSubscriber> publisherSubscriberTuple = TacticTesterHelper.getConnectedMockPubSub();
+        Tuple<MockPublisher, MockSubscriber> publisherSubscriberTuple = getConnectedMockPubSub();
         publisher = publisherSubscriberTuple.getLeft();
         subscriber = publisherSubscriberTuple.getRight();
         discoverer = spy(new MockDiscoverer());

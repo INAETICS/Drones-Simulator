@@ -14,11 +14,11 @@ import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.drone.tactic.TacticTesterHelper;
 import org.inaetics.dronessimulator.drone.tactic.example.utility.messages.HeartbeatMessage;
 import org.inaetics.dronessimulator.drone.tactic.example.utility.messages.InstructionMessage;
-import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.test.MockPublisher;
 import org.inaetics.dronessimulator.test.MockSubscriber;
 import org.inaetics.dronessimulator.test.TestUtils;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
+import static org.inaetics.dronessimulator.test.TestUtils.getConnectedMockPubSub;
 import static org.inaetics.dronessimulator.test.TestUtils.setField;
 import static org.mockito.Mockito.mock;
 
@@ -47,6 +48,11 @@ public class TheoreticalTacticTester {
         tactic.initializeTactics();
     }
 
+    @After
+    public void teardown() {
+        tactic.finalizeTactics();
+    }
+
     @Test
     public void testCalculateTactics() {
         for (int i = 0; i < 10; i++) {
@@ -62,7 +68,7 @@ public class TheoreticalTacticTester {
 
     @Test
     public void testGettingALeader() throws IllegalAccessException, NoSuchFieldException, InstantiationException, InterruptedException {
-        Tuple<Publisher, MockSubscriber> pubSub = TacticTesterHelper.getConnectedMockPubSub();
+        Tuple<MockPublisher, MockSubscriber> pubSub = getConnectedMockPubSub();
         DroneInit drone1 = new DroneInit();
         DroneInit drone2 = new DroneInit();
         TheoreticalTactic tactic = TacticTesterHelper.getTactic(TheoreticalTactic.class, pubSub.getLeft(), pubSub.getRight(), mock(Discoverer.class), drone1);

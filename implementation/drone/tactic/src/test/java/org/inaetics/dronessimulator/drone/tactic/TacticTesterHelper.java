@@ -2,7 +2,6 @@ package org.inaetics.dronessimulator.drone.tactic;
 
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventControllerService;
-import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
@@ -14,12 +13,10 @@ import org.inaetics.dronessimulator.drone.components.radio.Radio;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
-import org.inaetics.dronessimulator.test.MockSubscriber;
 import org.inaetics.dronessimulator.test.TestUtils;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import static org.mockito.Mockito.mock;
 
@@ -42,7 +39,7 @@ public class TacticTesterHelper {
         }
 
         if (componentList.contains("radio") || components.length == 0) {
-            tactic.radio = new Radio(subscriber, publisher, droneInit, new ConcurrentLinkedQueue<>(), null);
+            tactic.radio = new Radio(subscriber, publisher, droneInit, null);
             tactic.radio.start();
         }
         if (componentList.contains("radar") || components.length == 0) {
@@ -58,12 +55,6 @@ public class TacticTesterHelper {
         TestUtils.setField(tactic, "subscriber", subscriber);
         TestUtils.setField(tactic, "discoverer", discoverer);
         return tactic;
-    }
-
-    public static Tuple<Publisher, MockSubscriber> getConnectedMockPubSub() {
-        MockSubscriber subscriber = new MockSubscriber();
-        Publisher publisher = (topic, message) -> subscriber.receive(message);
-        return new Tuple<>(publisher, subscriber);
     }
 
 }

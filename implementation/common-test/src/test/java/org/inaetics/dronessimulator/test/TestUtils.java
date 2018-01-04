@@ -1,7 +1,11 @@
 package org.inaetics.dronessimulator.test;
 
+import org.inaetics.dronessimulator.common.Tuple;
+import org.inaetics.dronessimulator.pubsub.api.Message;
+import org.inaetics.dronessimulator.pubsub.api.Topic;
 import org.junit.Assert;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
@@ -77,6 +81,18 @@ public class TestUtils {
             }
         }
         return null;
+    }
+
+    public static Tuple<MockPublisher, MockSubscriber> getConnectedMockPubSub() {
+        MockSubscriber subscriber = new MockSubscriber();
+        MockPublisher publisher = new MockPublisher() {
+            @Override
+            public void send(Topic topic, Message message) throws IOException {
+                super.send(topic, message);
+                subscriber.receive(message);
+            }
+        };
+        return new Tuple<>(publisher, subscriber);
     }
 
 

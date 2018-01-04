@@ -32,7 +32,7 @@ public class Radio implements MessageHandler {
     /** Reference to Drone Init bundle */
     private volatile DroneInit drone;
     /** Queue with received messages */
-    private ConcurrentLinkedQueue<Message> receivedQueue = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<Message> receivedQueue = new ConcurrentLinkedQueue<>();
 
     private Topic topic;
 

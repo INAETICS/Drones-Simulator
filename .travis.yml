@@ -32,7 +32,7 @@ script:
  - ./docker_compile_images.sh no-maven
  - docker-compose up -d
  - cd implementation
- - mvn verify -Dskip.surefire.tests=true -Dskip.failsafe.tests=false
+ - mvn verify -Dskip.surefire.tests=true -Dskip.failsafe.tests=false -Dfailsafe.rerunFailingTestsCount=2
  - cd ..
 
 

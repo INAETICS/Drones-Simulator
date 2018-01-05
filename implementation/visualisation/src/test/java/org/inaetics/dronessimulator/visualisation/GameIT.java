@@ -59,9 +59,9 @@ public class GameIT extends ApplicationTest {
         } catch (ConditionTimeoutException e) {
             Map<String, Long> dronesPerTeam = game.getEntities().entrySet().parallelStream()
                     .filter(gameEntity -> gameEntity.getValue() instanceof BasicDrone)
-                    .map(gameEntity -> new Tuple<>(gameEntity.getKey(), (BasicDrone) gameEntity))
+                    .map(gameEntity -> new Tuple<>(gameEntity.getKey(), (BasicDrone) gameEntity.getValue()))
                     .filter(drone -> drone.getRight().getCurrentHP() > 0)
-                    .collect(Collectors.groupingBy((s) -> game.getDiscoverer().getNode(new DroneInstance(s.getLeft())).getValues().get("teamname"), Collectors.counting()));
+                    .collect(Collectors.groupingBy((s) -> game.getDiscoverer().getNode(new DroneInstance(s.getLeft())).getValues().get("team"), Collectors.counting()));
             log.error("Game timed out, the following drones are still available: " + dronesPerTeam);
             log.error("entities available: " + game.getEntities());
             throw e;

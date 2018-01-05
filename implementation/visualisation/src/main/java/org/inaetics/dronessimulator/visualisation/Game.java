@@ -16,6 +16,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import lombok.Getter;
 import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventControllerService;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
@@ -84,6 +85,7 @@ public class Game extends Application {
     /**
      * Subscriber for rabbitmq
      */
+    @Getter
     private RabbitSubscriber subscriber;
     /**
      * Publisher for rabbitmq
@@ -347,7 +349,7 @@ public class Game extends Application {
 
             this.subscriber.addHandler(KillMessage.class, new KillMessageHandler(this.entities));
             this.subscriber.addHandler(StateMessage.class, new StateMessageHandler(uiUpdates, this.entities));
-            this.subscriber.addHandlerIfNotExists(GameFinishedMessage.class, new GameFinishedHandler());
+            this.subscriber.addHandler(GameFinishedMessage.class, new GameFinishedHandler());
 
             this.subscriber.addTopic(MessageTopic.STATEUPDATES);
         }

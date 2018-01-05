@@ -6,6 +6,10 @@ import javafx.scene.control.Labeled;
 import javafx.stage.Stage;
 import lombok.extern.log4j.Log4j;
 import org.awaitility.Duration;
+import org.inaetics.dronessimulator.common.protocol.GameFinishedMessage;
+import org.inaetics.dronessimulator.common.protocol.KillMessage;
+import org.inaetics.dronessimulator.common.protocol.StateMessage;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
@@ -25,6 +29,10 @@ public class GameIT extends ApplicationTest {
     public void start(Stage stage) throws Exception {
         Game game = new Game();
         game.start(stage);
+        await().until(() -> game.getSubscriber() != null && !game.getSubscriber().getHandlers().isEmpty());
+        Assert.assertFalse(game.getSubscriber().getHandlers().get(GameFinishedMessage.class).isEmpty());
+        Assert.assertFalse(game.getSubscriber().getHandlers().get(KillMessage.class).isEmpty());
+        Assert.assertFalse(game.getSubscriber().getHandlers().get(StateMessage.class).isEmpty());
     }
 
     @Before

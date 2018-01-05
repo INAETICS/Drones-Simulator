@@ -27,7 +27,8 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     private String identifier;
 
     /** The handlers for each message class this subscriber processes. */
-    private static final Map<Class<? extends Message>, Collection<MessageHandler<Message>>> handlers = new HashMap<>();
+    @Getter
+    private final Map<Class<? extends Message>, Collection<MessageHandler<Message>>> handlers = new HashMap<>();
 
     /** The topics this subscriber is subscribed to. */
     private Map<Topic, String> topics;
@@ -136,7 +137,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     @Override
     public void addHandler(Class<? extends Message> messageClass, MessageHandler handler) {
         // Create new set for this message class if needed
-        Collection<MessageHandler<Message>> classHandlers = RabbitSubscriber.handlers.computeIfAbsent(messageClass, k -> new HashSet<>());
+        Collection<MessageHandler<Message>> classHandlers = handlers.computeIfAbsent(messageClass, k -> new HashSet<>());
         classHandlers.add(handler);
         logger.debug("Handler {} set for message class {}", handler, messageClass);
     }
@@ -144,7 +145,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     @Override
     public void addHandlerIfNotExists(Class<? extends Message> messageClass, MessageHandler handler) {
         // Create new set for this message class if needed
-        Collection<MessageHandler<Message>> classHandlers = RabbitSubscriber.handlers.computeIfAbsent(messageClass, k -> new HashSet<>());
+        Collection<MessageHandler<Message>> classHandlers = handlers.computeIfAbsent(messageClass, k -> new HashSet<>());
         if (classHandlers.stream().filter(h -> h.getClass().equals(handler.getClass())).count() == 0) {
             classHandlers.add(handler);
             logger.debug("Handler {} set for message class {}", handler, messageClass);
@@ -158,7 +159,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
      */
     @Override
     public void removeHandler(Class<? extends Message> messageClass, MessageHandler handler) {
-        Collection<MessageHandler<Message>> classHandlers = RabbitSubscriber.handlers.get(messageClass);
+        Collection<MessageHandler<Message>> classHandlers = handlers.get(messageClass);
 
         // Remove the handler for the class if any handler set is defined
         if (classHandlers != null) {
@@ -183,18 +184,19 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
         }
 
         // apparently not a compressed message, lets continue
-        Collection<MessageHandler<Message>> classHandlers = RabbitSubscriber.handlers.get(message.getClass());
+        Collection<MessageHandler<Message>> classHandlers = handlers.get(message.getClass());
 
         // Pass the message to every defined handler
         if (classHandlers != null) {
             for (MessageHandler<Message> handler : classHandlers) {
+                logger.debug("Let {} handle this message: {}", handler, message);
                 handler.handleMessage(message);
             }
         } else {
-            Collection<String> messageTypes = RabbitSubscriber.handlers.keySet().stream().map(Class::toString).collect(Collectors.toSet());
+            Collection<String> messageTypes = handlers.keySet().stream().map(Class::toString).collect(Collectors.toSet());
             logger.warn("Message {} was received but is unroutable", message.toString());
             if (logger.isDebugEnabled() && messageTypes.size() == 0) {
-                messageTypes.add("no message types found that can be handled. There are " + RabbitSubscriber.handlers.size() + " handlers available in total.");
+                messageTypes.add("no message types found that can be handled. There are " + handlers.size() + " handlers available in total.");
                 logger.debug("Handlers available for messages types: " + String.join(",", messageTypes));
             }
         }

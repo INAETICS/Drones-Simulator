@@ -38,7 +38,7 @@ script:
 
 
 after_script:
- - docker-compose logs
+# - docker-compose logs
  - docker-compose down
 
 cache:

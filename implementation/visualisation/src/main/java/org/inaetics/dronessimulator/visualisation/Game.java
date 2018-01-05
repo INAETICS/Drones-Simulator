@@ -197,14 +197,14 @@ public class Game extends Application {
                 }
 
                 i++;
-                if (i == 100) {
+                if (i == 100 && log.isDebugEnabled()) {
                     long current = System.currentTimeMillis();
                     float durationAverageMs = ((float) (current - lastLog)) / 100f;
                     float fps = 1000f / durationAverageMs;
                     lastLog = current;
 
-                    log.info("Average: " + durationAverageMs);
-                    log.info("FPS: " + fps);
+                    log.debug("Average: " + durationAverageMs);
+                    log.debug("FPS: " + fps);
                     i = 0;
                 }
 

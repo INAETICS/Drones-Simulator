@@ -135,18 +135,21 @@ public class RabbitIT {
         sub3T.join();
 
         awaitUntilOrElse(() -> sub1.getTestMessages().size() >= messages.size(), () -> {
-            System.out.println(sub1.getTestMessages());
-            System.out.println(sub1.getSubscriber().getHandlers());
+            log.error("sub1 does not have enough messages. We expected: " + messages);
+            log.error("Sub1 has the following messages: " + sub1.getTestMessages());
+            log.error("The subscriber in sub1 has the following handlers: " + sub1.getSubscriber().getHandlers());
         });
         this.assertMessages(messages, sub1.getTestMessages());
         awaitUntilOrElse(() -> sub2.getTestMessages().size() >= messages.size(), () -> {
-            System.out.println(sub2.getTestMessages());
-            System.out.println(sub2.getSubscriber().getHandlers());
+            log.error("sub2 does not have enough messages. We expected: " + messages);
+            log.error("Sub2 has the following messages: " + sub2.getTestMessages());
+            log.error("The subscriber in sub2 has the following handlers: " + sub2.getSubscriber().getHandlers());
         });
         this.assertMessages(messages, sub2.getTestMessages());
         awaitUntilOrElse(() -> sub3.getTestMessages().size() >= messages.size(), () -> {
-            System.out.println(sub3.getTestMessages());
-            System.out.println(sub3.getSubscriber().getHandlers());
+            log.error("sub3 does not have enough messages. We expected: " + messages);
+            log.error("Sub3 has the following messages: " + sub3.getTestMessages());
+            log.error("The subscriber in sub3 has the following handlers: " + sub3.getSubscriber().getHandlers());
         });
         this.assertMessages(messages, sub3.getTestMessages());
     }

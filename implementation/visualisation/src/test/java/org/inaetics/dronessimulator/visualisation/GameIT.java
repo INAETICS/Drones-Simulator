@@ -20,7 +20,6 @@ import static org.awaitility.Awaitility.await;
 @Log4j
 public class GameIT extends ApplicationTest {
     public static final Duration TIMEOUT_GAME = new Duration(5, TimeUnit.MINUTES);
-    public static final long TIMEOUT_GAME_L = TIMEOUT_GAME.getValueInMS();
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -34,7 +33,7 @@ public class GameIT extends ApplicationTest {
     }
 
     @Test(timeout = 5 * 60 * 1000)
-    public void start() throws Exception {
+    public void startTest() throws Exception {
         Map<String, Button> buttons = getButtons();
         WaitForAsyncUtils.waitForFxEvents();
         clickOn(buttons.get("Config"));
@@ -48,7 +47,6 @@ public class GameIT extends ApplicationTest {
         clickOn("OK");
         WaitForAsyncUtils.waitForFxEvents();
         clickOn(buttons.get("Stop"));
-
     }
 
     private Map<String, Button> getButtons() {

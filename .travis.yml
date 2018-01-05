@@ -20,6 +20,7 @@ jdk: oraclejdk8
 
 before_script:
  - cp config-travis.env config.env
+ - source config.env
  - export DISPLAY=:99.0
  - sh -e /etc/init.d/xvfb start
  - sleep 3 # give xvfb some time to start
@@ -32,7 +33,7 @@ script:
  - ./docker_compile_images.sh no-maven
  - docker-compose up -d
  - cd implementation
- - mvn verify -Dskip.surefire.tests=true -Dskip.failsafe.tests=false -Dfailsafe.rerunFailingTestsCount=2
+ - mvn verify -Dskip.surefire.tests=true -Dskip.failsafe.tests=false -Dfailsafe.rerunFailingTestsCount=2 -Dorg.ops4j.pax.logging.DefaultServiceLog.level=$DEBUG_LEVEL
  - cd ..
 
 

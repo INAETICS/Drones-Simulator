@@ -40,7 +40,7 @@ public class GameIT extends ApplicationTest {
         await().atMost(30, TimeUnit.SECONDS).until(() -> !getButtons().isEmpty());
     }
 
-    @Test(timeout = 5 * 60 * 1000)
+    @Test
     public void startTest() throws Exception {
         Map<String, Button> buttons = getButtons();
         WaitForAsyncUtils.waitForFxEvents();

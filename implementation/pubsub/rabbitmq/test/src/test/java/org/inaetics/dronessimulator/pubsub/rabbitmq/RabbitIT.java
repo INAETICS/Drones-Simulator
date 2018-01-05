@@ -8,6 +8,7 @@ import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.publisher.PublisherRunner;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.SubscriberRunner;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -17,6 +18,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static org.awaitility.Awaitility.await;
 import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -125,7 +127,8 @@ public class RabbitIT {
         sub1T.start();
         sub2T.start();
         sub3T.start();
-        await().until(() -> sub1.isReady() && sub2.isReady() && sub3.isReady());
+        await().untilAsserted(() -> Assert.assertThat("The subscribers are not ready in time, so the test cannot be properly executed.", sub1.isReady() &&
+                sub2.isReady() && sub3.isReady(), is(true)));
         pubT.start();
 
         // Wait until finished

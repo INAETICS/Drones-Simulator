@@ -201,7 +201,11 @@
                 <artifactId>architecture-event-controller</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.javassist</artifactId>
+                <version>3.12.1.ga_1</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

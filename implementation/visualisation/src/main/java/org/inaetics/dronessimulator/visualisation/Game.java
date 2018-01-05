@@ -16,6 +16,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventControllerService;
@@ -69,6 +70,7 @@ public class Game extends Application {
     /**
      * All the entities in the game
      */
+    @Getter(AccessLevel.PACKAGE)
     private final ConcurrentMap<String, BaseEntity> entities = new ConcurrentHashMap<>();
     /**
      * All the available entities from the discoverer
@@ -94,6 +96,7 @@ public class Game extends Application {
     /**
      * Discoverer for etcd
      */
+    @Getter(AccessLevel.PACKAGE)
     private EtcdDiscovererService discoverer;
     /**
      * The pannable and zommable canvas

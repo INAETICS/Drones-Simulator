@@ -85,6 +85,11 @@ public class Game extends Application {
      */
     private final BlockingQueue<UIUpdate> uiUpdates;
     /**
+     * check to see if the method onRabbitConnect is executed
+     */
+    private final AtomicBoolean onRabbitConnectExecuted = new AtomicBoolean(false);
+    private final Instance visualisationInstance = new Instance(Type.SERVICE, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.SERVICES, "visualisation", new HashMap<>());
+    /**
      * Subscriber for rabbitmq
      */
     @Getter
@@ -98,27 +103,6 @@ public class Game extends Application {
      */
     @Getter(AccessLevel.PACKAGE)
     private EtcdDiscovererService discoverer;
-    /**
-     * The pannable and zommable canvas
-     */
-    private PannableCanvas canvas;
-    /**
-     * Group for all entities
-     */
-    private Group root;
-    /**
-     * check to see if the method onRabbitConnect is executed
-     */
-    private final AtomicBoolean onRabbitConnectExecuted = new AtomicBoolean(false);
-    private Stage primaryStage;
-    /**
-     * counter for the logger to output once every 100 times
-     */
-    private int i = 0;
-    /**
-     * Time is ms of the last log
-     */
-    private long lastLog = -1;
     /**
      * Close event handler
      * When the window closes, rabbitmq and the discoverer disconnect
@@ -145,9 +129,24 @@ public class Game extends Application {
             }
         }
     };
+    /**
+     * The pannable and zommable canvas
+     */
+    private PannableCanvas canvas;
+    /**
+     * Group for all entities
+     */
+    private Group root;
+    private Stage primaryStage;
+    /**
+     * counter for the logger to output once every 100 times
+     */
+    private int i = 0;
+    /**
+     * Time is ms of the last log
+     */
+    private long lastLog = -1;
     private RabbitConnectionInfo rabbitConnectionInfo;
-
-    private final Instance visualisationInstance = new Instance(Type.SERVICE, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.SERVICES, "visualisation", new HashMap<>());
 
     /**
      * Instantiates a new game object
@@ -224,6 +223,11 @@ public class Game extends Application {
                 // update sprites in scene
                 entities.forEach((id, entity) -> entity.updateUI());
 
+                try {
+                    configureMessageHandlers();
+                } catch (IOException e) {
+                    log.fatal(e);
+                }
 
                 long current_step_ended_at_ms = System.currentTimeMillis();
                 long current_step_took_ms = current_step_ended_at_ms - current_step_started_at_ms;
@@ -349,12 +353,24 @@ public class Game extends Application {
             this.publisher.connect();
             log.info("Connected RabbitMQ!");
 
+            configureMessageHandlers();
+        }
+    }
 
-            this.subscriber.addHandler(KillMessage.class, new KillMessageHandler(this.entities));
-            this.subscriber.addHandler(StateMessage.class, new StateMessageHandler(uiUpdates, this.entities));
-            this.subscriber.addHandler(GameFinishedMessage.class, new GameFinishedHandler());
-
-            this.subscriber.addTopic(MessageTopic.STATEUPDATES);
+    private void configureMessageHandlers() throws IOException {
+        if (subscriber != null) {
+            if (subscriber.getHandlers().get(KillMessage.class) == null || subscriber.getHandlers().get(KillMessage.class).isEmpty()) {
+                this.subscriber.addHandler(KillMessage.class, new KillMessageHandler(this.entities));
+            }
+            if (subscriber.getHandlers().get(StateMessage.class) == null || subscriber.getHandlers().get(StateMessage.class).isEmpty()) {
+                this.subscriber.addHandler(StateMessage.class, new StateMessageHandler(uiUpdates, this.entities));
+            }
+            if (subscriber.getHandlers().get(GameFinishedMessage.class) == null || subscriber.getHandlers().get(GameFinishedMessage.class).isEmpty()) {
+                this.subscriber.addHandler(GameFinishedMessage.class, new GameFinishedHandler());
+            }
+            if (!subscriber.hasTopic(MessageTopic.STATEUPDATES)) {
+                this.subscriber.addTopic(MessageTopic.STATEUPDATES);
+            }
         }
     }
 

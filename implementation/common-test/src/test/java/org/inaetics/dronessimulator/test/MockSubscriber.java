@@ -21,6 +21,11 @@ public class MockSubscriber implements Subscriber {
     }
 
     @Override
+    public boolean hasTopic(Topic topic) throws IOException {
+        return topics.contains(topic);
+    }
+
+    @Override
     public void removeTopic(Topic topic) throws IOException {
         topics.remove(topic);
     }

@@ -17,6 +17,13 @@ public interface Subscriber {
     void addTopic(Topic topic) throws IOException;
 
     /**
+     * Checks if the subscriber is subscribed to the given topic.
+     *
+     * @param topic The topic to check.
+     */
+    boolean hasTopic(Topic topic) throws IOException;
+
+    /**
      * Unsubscribes from the given topic.
      * @param topic The topic to unsubscribe from.
      */

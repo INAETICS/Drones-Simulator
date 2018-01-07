@@ -21,15 +21,12 @@ import java.util.stream.Collectors;
  */
 public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     private static final Logger logger = Logger.getLogger(RabbitSubscriber.class);
-
-    /** The identifier of this subscriber. */
-    @Getter
-    private String identifier;
-
     /** The handlers for each message class this subscriber processes. */
     @Getter
     private final Map<Class<? extends Message>, Collection<MessageHandler<Message>>> handlers = new HashMap<>();
-
+    /** The identifier of this subscriber. */
+    @Getter
+    private String identifier;
     /** The topics this subscriber is subscribed to. */
     private Map<Topic, String> topics;
 
@@ -38,9 +35,10 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
 
     /**
      * Instantiates a new RabbitMQ subscriber for the given topic.
+     *
      * @param connectionFactory The RabbitMQ connection factory to use when starting a new connection.
-     * @param identifier The identifier for this subscriber. This is used as queue name.
-     * @param serializer The serializer to use.
+     * @param identifier        The identifier for this subscriber. This is used as queue name.
+     * @param serializer        The serializer to use.
      */
     public RabbitSubscriber(ConnectionFactory connectionFactory, String identifier, Serializer serializer, Discoverer discoverer) {
         super(connectionFactory, serializer, discoverer);
@@ -50,8 +48,9 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     /**
      * Instantiates a new RabbitMQ subscriber for use with OSGi. This constructor assumes that the serializer will be
      * injected later on.
+     *
      * @param connectionFactory The RabbitMQ connection factory to use when starting a new connection.
-     * @param identifier The identifier for this subscriber. This is used as queue name.
+     * @param identifier        The identifier for this subscriber. This is used as queue name.
      */
     @SuppressWarnings("unused") //Suppress unused since it will be used by OSGi
     public RabbitSubscriber(ConnectionFactory connectionFactory, String identifier) {
@@ -62,7 +61,8 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     /**
      * Instantiates a new RabbitMQ subscriber for use with OSGi. This constructor assumes that the serializer will be
      * injected later on and the connection factory will be built from a discoverable config.
-     * @param identifier  The identifier for this subscriber. This is used as queue name.
+     *
+     * @param identifier The identifier for this subscriber. This is used as queue name.
      */
     @SuppressWarnings("unused") //Suppress unused since it will be used by OSGi
     public RabbitSubscriber(String identifier) {
@@ -109,6 +109,10 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
         }
     }
 
+    public boolean hasTopic(Topic topic) throws IOException {
+        return topics.containsKey(topic);
+    }
+
     @Override
     public void removeTopic(Topic topic) throws IOException {
         // Do nothing if we did not subscribe to this topic
@@ -127,12 +131,12 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
 
     /**
      * Adds a message handler for a given message class.
-     *
+     * <p>
      * Multiple handlers for the same message class are supported, in which case the messages are passed to all handlers
      * for the relevant message type.
      *
      * @param messageClass The message class the handler is for.
-     * @param handler The handler to process the messages.
+     * @param handler      The handler to process the messages.
      */
     @Override
     public void addHandler(Class<? extends Message> messageClass, MessageHandler handler) {
@@ -154,8 +158,9 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
 
     /**
      * Removes the given handler for the given message class.
+     *
      * @param messageClass The message class to remove the handler for.
-     * @param handler The handler to remove.
+     * @param handler      The handler to remove.
      */
     @Override
     public void removeHandler(Class<? extends Message> messageClass, MessageHandler handler) {
@@ -171,6 +176,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     /**
      * Processes the received message by passing the message to all registered handlers for the class of the given
      * message.
+     *
      * @param message The received message.
      */
     @Override
@@ -194,7 +200,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
             }
         } else {
             Collection<String> messageTypes = handlers.keySet().stream().map(Class::toString).collect(Collectors.toSet());
-            logger.warn("Message {} was received but is unroutable", message.toString());
+            logger.warn("Message {} was received but is unroutable. The following handlers are available: {}", message.toString(), handlers);
             if (logger.isDebugEnabled() && messageTypes.size() == 0) {
                 messageTypes.add("no message types found that can be handled. There are " + handlers.size() + " handlers available in total.");
                 logger.debug("Handlers available for messages types: " + String.join(",", messageTypes));

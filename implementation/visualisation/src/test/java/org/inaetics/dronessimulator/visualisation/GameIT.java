@@ -11,6 +11,7 @@ import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.protocol.GameFinishedMessage;
 import org.inaetics.dronessimulator.common.protocol.KillMessage;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
+import org.inaetics.dronessimulator.discovery.api.instances.ArchitectureInstance;
 import org.inaetics.dronessimulator.discovery.api.instances.DroneInstance;
 import org.junit.Assert;
 import org.junit.Before;
@@ -18,6 +19,7 @@ import org.junit.Test;
 import org.testfx.framework.junit.ApplicationTest;
 import org.testfx.util.WaitForAsyncUtils;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -42,6 +44,11 @@ public class GameIT extends ApplicationTest {
         Assert.assertFalse(game.getSubscriber().getHandlers().get(GameFinishedMessage.class).isEmpty());
         Assert.assertFalse(game.getSubscriber().getHandlers().get(KillMessage.class).isEmpty());
         Assert.assertFalse(game.getSubscriber().getHandlers().get(StateMessage.class).isEmpty());
+
+        //Check the game state and try to set it to INIT
+        HashMap<String, String> stateMap = new HashMap<>();
+        stateMap.put("current_life_cycle", "NOSTATE.INIT.INIT");
+        game.getDiscoverer().updateProperties(new ArchitectureInstance(), stateMap);
     }
 
     @Test
@@ -55,21 +62,36 @@ public class GameIT extends ApplicationTest {
         WaitForAsyncUtils.waitForFxEvents();
         //Wait for the pop-up alert that the game has finished
         try {
-            await().atMost(TIMEOUT_GAME).until(() -> !lookup((n -> n instanceof Label && ((Label) n).getText() != null && ((Label) n).getText().startsWith("The game is finished"))).queryAll().isEmpty());
+            await().atMost(TIMEOUT_GAME).until(this::gameIsFinished);
         } catch (ConditionTimeoutException e) {
-            Map<String, Long> dronesPerTeam = game.getEntities().entrySet().parallelStream()
-                    .filter(gameEntity -> gameEntity.getValue() instanceof BasicDrone)
-                    .map(gameEntity -> new Tuple<>(gameEntity.getKey(), (BasicDrone) gameEntity.getValue()))
-                    .filter(drone -> drone.getRight().getCurrentHP() > 0)
-                    .collect(Collectors.groupingBy((s) -> game.getDiscoverer().getNode(new DroneInstance(s.getLeft())).getValues().get("team"), Collectors.counting()));
+            Map<String, Long> dronesPerTeam = getDronesPerTeam();
             log.error("Game timed out, the following drones are still available: " + dronesPerTeam);
             log.error("entities available: " + game.getEntities());
             throw e;
         }
-        WaitForAsyncUtils.waitForFxEvents();
-        clickOn("OK");
-        WaitForAsyncUtils.waitForFxEvents();
-        clickOn(buttons.get("Stop"));
+        try {
+            WaitForAsyncUtils.waitForFxEvents();
+            log.info("There are " + lookup("OK").queryAll().size() + " OK buttons, we will click one...");
+            clickOn("OK");
+            log.info("There are " + lookup("OK").queryAll().size() + " OK buttons left.");
+        } finally {
+            //Always click stop, even if the OK message fails
+            WaitForAsyncUtils.waitForFxEvents();
+            clickOn(buttons.get("Stop"));
+        }
+    }
+
+    private Map<String, Long> getDronesPerTeam() {
+        return game.getEntities().entrySet().parallelStream()
+                .filter(gameEntity -> gameEntity.getValue() instanceof BasicDrone)
+                .map(gameEntity -> new Tuple<>(gameEntity.getKey(), (BasicDrone) gameEntity.getValue()))
+                .filter(gameEntity -> gameEntity.getRight().getCurrentHP() > 0 && gameEntity.getRight().getCurrentHP() != -1) //-1 is used to counter the default value
+                .collect(Collectors.groupingBy((s) -> game.getDiscoverer().getNode(new DroneInstance(s.getLeft())).getValues().get("team"), Collectors.counting()));
+    }
+
+    private boolean gameIsFinished() {
+        //The game is finished when there is a popup with the text "The game is finished"
+        return !lookup((n -> n instanceof Label && ((Label) n).getText() != null && ((Label) n).getText().startsWith("The game is finished"))).queryAll().isEmpty();
     }
 
     private Map<String, Button> getButtons() {

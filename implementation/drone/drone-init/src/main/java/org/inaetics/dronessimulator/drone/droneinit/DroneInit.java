@@ -30,12 +30,12 @@ public class DroneInit {
      * The client for the discoverer where the
      */
     @SuppressWarnings("unused")//This is initialized by Apache Felix
-    private volatile Discoverer m_discoverer;
+    private volatile Discoverer discoverer;
 
     /**
      * The instance registered in discovery noting the drone service
      */
-    private Instance registered_instance;
+    private Instance registeredInstance;
 
     public DroneInit() {
         this.initIdentifier();
@@ -65,8 +65,8 @@ public class DroneInit {
         properties.put("team", getTeamname());
         Instance instance = new DroneInstance(this.getIdentifier(), properties);
         try {
-            m_discoverer.register(instance);
-            this.registered_instance = instance;
+            discoverer.register(instance);
+            this.registeredInstance = instance;
         } catch (DuplicateName e) {
             this.setIdentifier(this.getIdentifier() + "-" + UUID.randomUUID().toString());
             this.registerDroneService();
@@ -83,7 +83,7 @@ public class DroneInit {
     }
 
     private void unregisterDroneService() throws IOException {
-        this.m_discoverer.unregister(registered_instance);
+        this.discoverer.unregister(registeredInstance);
     }
 
     /**

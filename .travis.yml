@@ -15,8 +15,22 @@ addons:
       secure: "iW/WAW9mmKKzCmuzpu7+PLY56gn8XZf0SZPLpUwAFlcSe8Xoq7O5X7lN6YZSXWupB350rJHxBg0WNt0SfhS0ppr6OoHzezs2Zdb+AmXzTdrvmMpvpjG++duHJS/GMdPpxaZcHE/idwjCLt3ycHs7Y+n43HOXSJRvIw0IieJpsNh75nQsFgmTGjmGQE4MYfVJcRjWDOAykLX+hGTcEHBQAvDA/xCh4glEEGVRIldbdujR3s5LpprlJGF07Efinzht3BTEkLggkx7U9ERfTrobVbFryNryLeP3Nr5ypnZcOyERSjTj5Y+jLoYVaMeO8dlHEqw5+KkCMSNGTRRUE6rpvxbLYXCI5nG/QeWWWhMbH0Uj/lPpAs8pHu+szvRKHyyLsF/NSPtBHcxQWILGLO5VAOsc3CDxJosyOlJ3OPcWgpmouB0KV7kWWuWmCp672aCBXOUFezfrqdxekkoaRGJH42HuJIM+PImzBq8RI34Ek7Bz9slOOy7L+V2Fl5saJB2CHYJWw5UkCUz6/RA4fi9Tlyaf78CNGdRWCohewVrDlZwZUTI9L1TMropeHl9JS5v7c2z+tvkoIPWQyrOuBKVTqDTmbCWq1AClYXpuKyAZS9e4og0u7rS/MFTiLVfK9++cgkcvYSwFjaUl8wApRMpVTeknFphkdcmUy/ycRekLbRU="
     github_token:
       secure: "Ar0Qoyr39P5mI0TQsTnZsPiw44BnX3nvcQApOSKJ/AJZJYM2deamp1rDUeI5UszVrDEVXTrGZ7JDjJlOXuKPTDz+Cpd743rzWtyAoJj1vtihADp/aQrYJR+V1DE1tc/BDmyzzmmF8NDwmK+pncWxn6ySMdpbvnO2VqvYYmueqeFpoH8SMyhkezYARHyxasEx9YFAH1CRsFmozAkKza8OKys0MDGuV+G7ne/vd7ggCJdjCMnWT6JGtKhKPgQOyRJmvbU6H5Kzf4c2eesfSyxYl91Xb1O6zJV4TGxxQqMZFc1F3Xt6xJUMpE2dhKvTc+ERNkaEGcmOef+7CBON8xyqVdqtueNEaEx/cXgrbqbMUUT6mBfbwNdi1AIAMl56odwtgZ5gB8yWW7He3fFwpY7IEqpishpxIirPjMxBBCnsAbI/QUYYezKcrYkFbbWzmL/KpsIF+Ner+RuWbc5nbk9EuDtfj+IPMcL7b/HXTWSsvky6ti5zMEWQTBgu2OlusS9fIxS4HOwjh8bsjcyNni/gNZy+yhG5L95/Ycfy79N0kalQjX1iRgZ0Y5YlIFwz4DMPkSuy2wsNw+50oTs3oOMynSnVUB+V/b20IzSvCuZISWJVGAavor/MZ5E73/5+YUPHHrT14unLg2Hqqa09VfFXGMDKoHETyXoQnpDr8W4Zk6o="
-
+  coverity_scan:
+      project:
+        name: "marty30/Drones-Simulator"
+        description: "Build submitted via Travis CI"
+      notification_email: m.j.willemsen@student.utwente.nl
+      build_command_prepend: "mvn clean"
+      build_command:   "mvn install -Dskip.surefire.tests=false -Dskip.failsafe.tests=true"
+      branch_pattern: coverity_scan
 jdk: oraclejdk8
+
+env:
+  global:
+   - secure: "GzwHCGX8KVUXwLBX5Br6+dz1MLxbrNGGqVRKjxxTt8JHczcMkeclFTsdYjpiE8T0JGZPuevfEruwp2Vog1nlpGKyJqyXLHkeNbj0olMi0wuhjaYtmWxP4kOKfb0PrJXbsAKIMzxvZ/+PUNw8EFcAX+FwYcOryYlNQVq+8skJKQNquSqPHWljN8r4HBx3P7mdKLBDZq+xz4xYNPrQAhK5dcr5syhrQgYpQ3PrfhYXi47JpyxMF2lN7QBCwDaPvaqmJbDLQzCdbxaMc97hHrbJFzUUnyHCtZTENA4dl+oLImG7S3FZ9MV+tMSsB6DNrHrK+DSN6w4USF67Ll7ddT+vr1MOSnhyMI4KowGU0A5jt/ImWeN8nOxBkKX376FwRiczBZ7w9W732JiWnDEmwJyI7HeIUpUSKWJPIKGyU3tKsV16MWcIjWbgxv3cX3PaGlSTcUqoWBAxWDirdYubhM6wHsx13RlMQG8Gk8FKt2RgvEGMOgrGfOr1OPkRwVYmrBMrBXnTJdMdb1PjGjzbfwZ6/ReuuxOyQUe/lN/E44BQXThfCuymkKBcoCa+0KjuN56NI0dM9nriVtt8C7GtwUvu7RmA7PvmX1R01LsqCz/0KyxaZPG8Ai7RD9REzgQfyyVsF6Po6K4F16d6MmFFG4ZnC5la3bsBf40iizImwW47ghg="
+
+before_install:
+      - echo -n | openssl s_client -connect scan.coverity.com:443 | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' | sudo tee -a /etc/ssl/certs/ca-
 
 before_script:
  - cp config-travis.env config.env

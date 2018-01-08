@@ -22,7 +22,7 @@ addons:
       notification_email: m.j.willemsen@student.utwente.nl
       build_command_prepend: "mvn clean"
       build_command:   "mvn install -Dskip.surefire.tests=false -Dskip.failsafe.tests=true"
-      branch_pattern: coverity_scan
+      branch_pattern: 33-even-more-testing # todo: change to "master" after merge
 jdk: oraclejdk8
 
 env:

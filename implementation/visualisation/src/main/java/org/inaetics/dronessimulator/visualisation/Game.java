@@ -189,7 +189,7 @@ public class Game extends Application {
                             "subscriber != null == " + (subscriber != null) + " subscriber.isConnected()  == " + (subscriber != null && subscriber.isConnected()) + " " +
                             "publisher != null == " + (publisher != null) + " publisher.isConnected() == " + (publisher != null && publisher.isConnected()));
                     try {
-                        connectRabbit();
+                        connectRabbit(false);
                     } catch (IOException e) {
                         log.fatal(e);
                     }
@@ -319,7 +319,7 @@ public class Game extends Application {
             if (rabbitConfig.size() == 3) {
                 rabbitConnectionInfo = new RabbitConnectionInfo(rabbitConfig.get(USERNAME_FIELD), rabbitConfig.get(PASSWORD_FIELD), rabbitConfig.get(URI_FIELD));
                 try {
-                    connectRabbit();
+                    connectRabbit(true);
                 } catch (IOException e1) {
                     log.fatal(e);
                 }
@@ -335,7 +335,7 @@ public class Game extends Application {
      * Connect to rabbitmq using the rabbitconfig, then connect the publisher and subscriber
      * Adds the handlers for listening to incoming game messages
      */
-    private void connectRabbit() throws IOException {
+    private void connectRabbit(boolean forceUpdate) throws IOException {
         if (!isRabbitConnected() && rabbitConnectionInfo != null) {
             log.info("Connecting RabbitMQ...");
             ConnectionFactory connectionFactory = null;
@@ -346,8 +346,18 @@ public class Game extends Application {
             }
 
             // We can connect to localhost, since the visualization does not run within Docker
-            this.subscriber = new RabbitSubscriber(connectionFactory, RABBIT_IDENTIFIER, new JavaSerializer(), discoverer);
-            this.publisher = new RabbitPublisher(connectionFactory, new JavaSerializer(), discoverer);
+            if (forceUpdate) {
+                if (subscriber != null && subscriber.isConnected())
+                    subscriber.disconnect();
+                subscriber = null;
+                if (publisher != null && publisher.isConnected())
+                    publisher.disconnect();
+                publisher = null;
+            }
+            if (subscriber == null)
+                this.subscriber = new RabbitSubscriber(connectionFactory, RABBIT_IDENTIFIER, new JavaSerializer(), discoverer);
+            if (publisher == null)
+                this.publisher = new RabbitPublisher(connectionFactory, new JavaSerializer(), discoverer);
 
             this.subscriber.connect();
             this.publisher.connect();

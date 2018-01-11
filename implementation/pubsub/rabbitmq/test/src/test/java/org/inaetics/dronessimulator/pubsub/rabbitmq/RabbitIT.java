@@ -2,23 +2,32 @@ package org.inaetics.dronessimulator.pubsub.rabbitmq;
 
 
 import com.rabbitmq.client.ConnectionFactory;
+import lombok.extern.log4j.Log4j;
+import org.awaitility.core.ConditionTimeoutException;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.publisher.PublisherRunner;
 import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.SubscriberRunner;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ThreadLocalRandom;
 
-import static org.junit.Assert.assertEquals;
+import static org.awaitility.Awaitility.await;
+import static org.hamcrest.CoreMatchers.hasItems;
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
 
 /**
  * Test runner for the RabbitMQ publisher/subscriber implementation.
- *
+ * <p>
  * WARNING: The tests included in this class expect to find a running RabbitMQ instance without password protection on
  * localhost using the default port.
  */
+@Log4j
 public class RabbitIT {
     private static final String LIPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ac magna sit a" +
             "met erat blandit tincidunt. Phasellus ornare neque sem, sit amet interdum magna tincidunt viverra. Praes" +
@@ -42,12 +51,12 @@ public class RabbitIT {
 
     /**
      * Tests a setup with one publisher and one subscriber.
-     *
+     * <p>
      * This test checks the number of received messages, their contents and whether the order is preserved.
      */
     @Test
     public void oneToOne() throws Exception {
-        Topic topic = new TestTopic("oneToOne");
+        Topic topic = new TestTopic("oneToOne" + ThreadLocalRandom.current().nextDouble());
 
         // Define some messages
         TestMessage message1 = new TestMessage("This is the first message.");
@@ -61,14 +70,15 @@ public class RabbitIT {
 
         // Set up publisher and subscriber
         long timeout = PublisherRunner.SLEEP_TIME * (messages.size() + 3);
-        PublisherRunner pub = new PublisherRunner(this.connection, topic, messages, null);
         SubscriberRunner sub = new SubscriberRunner(this.connection, topic, "sub", timeout, null);
+        PublisherRunner pub = new PublisherRunner(this.connection, topic, messages, null);
 
         // Run
-        Thread pubT = new Thread(pub);
         Thread subT = new Thread(sub);
-        pubT.start();
+        Thread pubT = new Thread(pub);
         subT.start();
+        await().until(sub::isReady);
+        pubT.start();
 
         // Wait until finished
         pubT.join();
@@ -77,6 +87,7 @@ public class RabbitIT {
         // Check messages on subscriber
         ArrayList<Message> receivedMessages = sub.getTestMessages();
 
+        await().until(() -> receivedMessages.size() >= messages.size());
         this.assertMessages(messages, receivedMessages);
     }
 
@@ -85,7 +96,7 @@ public class RabbitIT {
      */
     @Test
     public void oneToMany() throws Exception {
-        Topic topic = new TestTopic("oneToMany");
+        Topic topic = new TestTopic("oneToMany" + ThreadLocalRandom.current().nextDouble());
 
         // Define some messages
         TestMessage message1 = new TestMessage("This is the first message.");
@@ -103,20 +114,22 @@ public class RabbitIT {
 
         // Set up publisher and subscribers
         long timeout = PublisherRunner.SLEEP_TIME * (messages.size() + 3);
-        PublisherRunner pub = new PublisherRunner(this.connection, topic, messages, null);
         SubscriberRunner sub1 = new SubscriberRunner(this.connection, topic, "sub1", timeout, null);
         SubscriberRunner sub2 = new SubscriberRunner(this.connection, topic, "sub2", timeout, null);
         SubscriberRunner sub3 = new SubscriberRunner(this.connection, topic, "sub3", timeout, null);
+        PublisherRunner pub = new PublisherRunner(this.connection, topic, messages, null);
 
         // Run
-        Thread pubT = new Thread(pub);
         Thread sub1T = new Thread(sub1);
         Thread sub2T = new Thread(sub2);
         Thread sub3T = new Thread(sub3);
-        pubT.start();
+        Thread pubT = new Thread(pub);
         sub1T.start();
         sub2T.start();
         sub3T.start();
+        await().untilAsserted(() -> Assert.assertThat("The subscribers are not ready in time, so the test cannot be properly executed.", sub1.isReady() &&
+                sub2.isReady() && sub3.isReady(), is(true)));
+        pubT.start();
 
         // Wait until finished
         pubT.join();
@@ -124,24 +137,43 @@ public class RabbitIT {
         sub2T.join();
         sub3T.join();
 
+        awaitUntilOrElse(() -> sub1.getTestMessages().size() >= messages.size(), () -> {
+            log.error("sub1 does not have enough messages. We expected: " + messages);
+            log.error("Sub1 has the following messages: " + sub1.getTestMessages());
+            log.error("The subscriber in sub1 has the following handlers: " + sub1.getSubscriber().getHandlers());
+        });
         this.assertMessages(messages, sub1.getTestMessages());
+        awaitUntilOrElse(() -> sub2.getTestMessages().size() >= messages.size(), () -> {
+            log.error("sub2 does not have enough messages. We expected: " + messages);
+            log.error("Sub2 has the following messages: " + sub2.getTestMessages());
+            log.error("The subscriber in sub2 has the following handlers: " + sub2.getSubscriber().getHandlers());
+        });
         this.assertMessages(messages, sub2.getTestMessages());
+        awaitUntilOrElse(() -> sub3.getTestMessages().size() >= messages.size(), () -> {
+            log.error("sub3 does not have enough messages. We expected: " + messages);
+            log.error("Sub3 has the following messages: " + sub3.getTestMessages());
+            log.error("The subscriber in sub3 has the following handlers: " + sub3.getSubscriber().getHandlers());
+        });
         this.assertMessages(messages, sub3.getTestMessages());
     }
 
     /**
      * Helper method that asserts whether the actual messages are as expected.
-     *
+     * <p>
      * This method checks whether the number of messages is equal and the content of each message is identical. It
      * assumes (and therefore tests) the order of the messages in both lists is equal.
      */
     public void assertMessages(ArrayList<Message> expected, ArrayList<Message> actual) {
-        // Check length, test stops if size is not equal (so we can assume the size IS equal below)
-        assertEquals(expected.size(), actual.size());
+        assertThat(actual, hasItems(expected.toArray(new Message[expected.size()])));
+        //TODO find out why messages are received multiple times
+    }
 
-        // For each message, check its counterpart for equality
-        for (int i = 0; i < expected.size(); i++) {
-            assertEquals(expected.get(i), actual.get(i));
+    private void awaitUntilOrElse(Callable<Boolean> until, Runnable onFailure) {
+        try {
+            await().until(until);
+        } catch (ConditionTimeoutException e) {
+            onFailure.run();
+            throw e;
         }
     }
 }

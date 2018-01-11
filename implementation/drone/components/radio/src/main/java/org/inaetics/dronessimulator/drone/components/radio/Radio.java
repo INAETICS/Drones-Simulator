@@ -15,6 +15,7 @@ import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
@@ -25,13 +26,13 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 @AllArgsConstructor //Testing constructor
 public class Radio implements MessageHandler {
     /** Reference to Subscriber bundle */
-    private volatile Subscriber m_subscriber;
+    private volatile Subscriber subscriber;
     /** Reference to Publisher bundle */
-    private volatile Publisher m_publisher;
+    private volatile Publisher publisher;
     /** Reference to Drone Init bundle */
-    private volatile DroneInit m_drone;
+    private volatile DroneInit drone;
     /** Queue with received messages */
-    private ConcurrentLinkedQueue<Message> received_queue = new ConcurrentLinkedQueue<>();
+    private final ConcurrentLinkedQueue<Message> receivedQueue = new ConcurrentLinkedQueue<>();
 
     private Topic topic;
 
@@ -39,14 +40,14 @@ public class Radio implements MessageHandler {
      * Start the Radio (called from Apache Felix). This initializes to what messages the subscriber should listen.
      */
     public void start() {
-        topic = new TeamTopic(m_drone.getTeamname());
+        topic = new TeamTopic(drone.getTeamname());
         try {
-            this.m_subscriber.addTopic(topic);
+            this.subscriber.addTopic(topic);
         } catch (IOException e) {
             log.fatal(e);
         }
-        this.m_subscriber.addHandler(TextMessage.class, this);
-        this.m_subscriber.addHandler(TacticMessage.class, this);
+        this.subscriber.addHandler(TextMessage.class, this);
+        this.subscriber.addHandler(TacticMessage.class, this);
     }
 
     /**
@@ -58,7 +59,7 @@ public class Radio implements MessageHandler {
      */
     public boolean send(Message msg) {
         try {
-            m_publisher.send(topic, msg);
+            publisher.send(topic, msg);
             return true;
         } catch (IOException e) {
             log.fatal(e);
@@ -71,15 +72,15 @@ public class Radio implements MessageHandler {
      *
      * @return queue with messages
      */
-    public final ConcurrentLinkedQueue<Message> getMessages() {
-        return received_queue;
+    public final Queue<Message> getMessages() {
+        return receivedQueue;
     }
 
     /**
      * Receive the messages that the radio is subscribed to and add them to the internal queue.
      */
     public void handleMessage(Message message) {
-        received_queue.add(message);
+        receivedQueue.add(message);
     }
 
     /**

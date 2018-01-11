@@ -47,6 +47,10 @@ public abstract class AbstractGameFinishedRule extends Rule {
                     //This is a very unlikely case because there will probably be an order in which the drones are killed.
                     gameFinishedEventWasSend.set(true);
                     return Collections.singletonList(new GameFinishedEvent(null));
+                } else {
+                    log.debug("Game not finished: " + "\n" +
+                            "gameFinishedEventWasSend:" + gameFinishedEventWasSend.get() + "\n" +
+                            "wasGameFinishedInPreviousRun:" + wasGameFinishedInPreviousRun.get());
                 }
             }
         }

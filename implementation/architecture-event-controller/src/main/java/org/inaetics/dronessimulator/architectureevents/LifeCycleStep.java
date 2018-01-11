@@ -14,7 +14,7 @@ import org.inaetics.dronessimulator.common.architecture.SimulationState;
 @EqualsAndHashCode
 @AllArgsConstructor
 @ToString
-class LifeCycleStep {
+public class LifeCycleStep {
     /**
      * The from state
      */

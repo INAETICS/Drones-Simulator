@@ -51,22 +51,22 @@ public abstract class Tactic extends ManagedThread implements MessageHandler<Kil
     @Getter
     protected volatile Radio radio;
     /** The drone instance that can be used to get information about the current drone */
-    protected volatile DroneInit m_drone;
+    protected volatile DroneInit drone;
     /**
      * Architecture Event controller bundle that is used to listen to state updates.
      */
     @SuppressWarnings("unused") //Assigned through OSGi
-    private volatile ArchitectureEventController m_architectureEventController;
+    private volatile ArchitectureEventController architectureEventController;
     /** The Subscriber to use for receiving messages */
     @SuppressWarnings("unused") //Assigned through OSGi
-    private volatile Subscriber m_subscriber;
+    private volatile Subscriber subscriber;
     private Instance simulationInstance;
     private boolean registered = false;
     /**
      * Discoverer bundle
      */
     @SuppressWarnings("unused") //Assigned through OSGi
-    private volatile Discoverer m_discoverer;
+    private volatile Discoverer discoverer;
 
     /**
      * Thread implementation
@@ -94,17 +94,17 @@ public abstract class Tactic extends ManagedThread implements MessageHandler<Kil
      */
     public final void startTactic() {
         //@formatter:off
-        m_architectureEventController.addHandler(SimulationState.INIT,    SimulationAction.CONFIG,   SimulationState.CONFIG,  (f,a,t) -> this.configSimulation());
-        m_architectureEventController.addHandler(SimulationState.CONFIG,  SimulationAction.START,    SimulationState.RUNNING, (f,a,t) -> this.startSimulation());
-        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.PAUSE,    SimulationState.PAUSED,  (f,a,t) -> this.pauseSimulation());
-        m_architectureEventController.addHandler(SimulationState.PAUSED,  SimulationAction.RESUME,   SimulationState.RUNNING, (f,a,t) -> this.resumeSimulation());
-        m_architectureEventController.addHandler(SimulationState.CONFIG,  SimulationAction.STOP,     SimulationState.INIT,    (f,a,t) -> this.stopSimulation());
-        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.STOP,     SimulationState.INIT,    (f,a,t) -> this.stopSimulation());
-        m_architectureEventController.addHandler(SimulationState.PAUSED,  SimulationAction.STOP,     SimulationState.INIT,    (f,a,t) -> this.stopSimulation());
-        m_architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.GAMEOVER, SimulationState.DONE,    (f,a,t) -> this.stopSimulation());
+        architectureEventController.addHandler(SimulationState.INIT,    SimulationAction.CONFIG,   SimulationState.CONFIG,  (f,a,t) -> this.configSimulation());
+        architectureEventController.addHandler(SimulationState.CONFIG,  SimulationAction.START,    SimulationState.RUNNING, (f,a,t) -> this.startSimulation());
+        architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.PAUSE,    SimulationState.PAUSED,  (f,a,t) -> this.pauseSimulation());
+        architectureEventController.addHandler(SimulationState.PAUSED,  SimulationAction.RESUME,   SimulationState.RUNNING, (f,a,t) -> this.resumeSimulation());
+        architectureEventController.addHandler(SimulationState.CONFIG,  SimulationAction.STOP,     SimulationState.INIT,    (f,a,t) -> this.stopSimulation());
+        architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.STOP,     SimulationState.INIT,    (f,a,t) -> this.stopSimulation());
+        architectureEventController.addHandler(SimulationState.PAUSED,  SimulationAction.STOP,     SimulationState.INIT,    (f,a,t) -> this.stopSimulation());
+        architectureEventController.addHandler(SimulationState.RUNNING, SimulationAction.GAMEOVER, SimulationState.DONE,    (f,a,t) -> this.stopSimulation());
         //@formatter:on
 
-        simulationInstance = new TacticInstance(m_drone.getIdentifier());
+        simulationInstance = new TacticInstance(drone.getIdentifier());
 
         registerSubscriber();
 
@@ -121,21 +121,22 @@ public abstract class Tactic extends ManagedThread implements MessageHandler<Kil
 
     private void registerSubscriber() {
         try {
-            this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
+            this.subscriber.addTopic(MessageTopic.STATEUPDATES);
         } catch (IOException e) {
             log.fatal(e);
         }
-        this.m_subscriber.addHandler(KillMessage.class, this);
+        this.subscriber.addHandler(KillMessage.class, this);
     }
 
     @Override
+    @Deprecated
     public final void destroy() {
         //Do nothing on shutdown
     }
 
     private void configSimulation() {
         try {
-            m_discoverer.register(simulationInstance);
+            discoverer.register(simulationInstance);
             log.info("Registered tactic " + toString());
             registered = true;
         } catch (IOException | DuplicateName e) {
@@ -146,7 +147,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler<Kil
     private void unconfigSimulation() {
         if (registered) {
             try {
-                m_discoverer.unregister(simulationInstance);
+                discoverer.unregister(simulationInstance);
                 log.info("Unregistered tactic " + toString());
                 registered = false;
             } catch (IOException e) {
@@ -208,7 +209,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler<Kil
      * @param killMessage the received killMessage
      */
     public void handleMessage(KillMessage killMessage) {
-        if (killMessage.getIdentifier().equals(m_drone.getIdentifier())) {
+        if (killMessage.getIdentifier().equals(drone.getIdentifier())) {
             log.info("Found kill message! Quitting for now... Last known movements: \n" +
                     "\tposition: " + gps.getPosition().toString() + "\n" +
                     "\tvelocity: " + gps.getVelocity().toString() + "\n" +
@@ -222,7 +223,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler<Kil
     }
 
     public final String getIdentifier() {
-        return m_drone.getIdentifier();
+        return drone.getIdentifier();
     }
 
     //-- Helper methods for the implemented tactics

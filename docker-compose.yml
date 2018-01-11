@@ -31,6 +31,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    links:
+      - etcd
   game-engine:
     build: ./docker_images/game_engine
     env_file: config.env
@@ -38,6 +40,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    links:
+      - etcd
 
 
   drone-thales_1:
@@ -48,6 +52,8 @@ services:
         condition: service_healthy
     ports:
       - "8001:8000"
+    links:
+      - etcd
     environment:
       DRONE_NAME: "drone-thales-1"
       DRONE_TEAM: "teamthales"
@@ -61,6 +67,8 @@ services:
         condition: service_healthy
     ports:
       - "8002:8000"
+    links:
+      - etcd
     environment:
       DRONE_NAME: "drone-thales-2"
       DRONE_TEAM: "teamthales"
@@ -74,6 +82,8 @@ services:
         condition: service_healthy
     ports:
       - "8003:8000"
+    links:
+      - etcd
     environment:
       DRONE_NAME: "drone-thales-3"
       DRONE_TEAM: "teamthales"
@@ -87,6 +97,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    links:
+      - etcd
     environment:
       DRONE_TEAM: "teamstudent"
       DRONE_COMPONENTS: "gps,radar,radio,gun"

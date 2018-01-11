@@ -200,7 +200,7 @@ public class RabbitSubscriber extends RabbitConnection implements Subscriber {
             }
         } else {
             Collection<String> messageTypes = handlers.keySet().stream().map(Class::toString).collect(Collectors.toSet());
-            logger.warn("Message {} was received but is unroutable. The following handlers are available: {}", message.toString(), handlers);
+            logger.warn("Message {} was received but is unroutable. The following handlers are available: "+handlers, message.toString());
             if (logger.isDebugEnabled() && messageTypes.size() == 0) {
                 messageTypes.add("no message types found that can be handled. There are " + handlers.size() + " handlers available in total.");
                 logger.debug("Handlers available for messages types: " + String.join(",", messageTypes));

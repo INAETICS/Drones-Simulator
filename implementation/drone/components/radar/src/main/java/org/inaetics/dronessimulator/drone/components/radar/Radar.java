@@ -103,7 +103,7 @@ public class Radar implements MessageHandler<Message> {
         if (position != null) {
             results = allEntities.values()
                     .parallelStream()
-                    .filter(drone -> position.distance_between(drone) <= RADAR_RANGE)
+                    .filter(otherDrone -> position.distance_between(otherDrone) <= RADAR_RANGE)
                     .collect(Collectors.toList());
         } else {
             results = Collections.emptyList();

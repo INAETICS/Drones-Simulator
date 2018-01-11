@@ -278,6 +278,9 @@
                     <!-- skips failsafe tests without skipping surefire tests.
                  Property value seems to magically default to false -->
                     <skipTests>${skip.failsafe.tests}</skipTests>
+                    <excludes>
+                        <exclude>**/GameIT.java</exclude> <!-- The game test does not really work on Travis, so for now we exclude this and only run it locally -->
+                    </excludes>
                 </configuration>
                 <executions>
                     <execution>

@@ -20,7 +20,7 @@ addons:
         name: "marty30/Drones-Simulator"
         description: "Build submitted via Travis CI"
       notification_email: m.j.willemsen@student.utwente.nl
-      build_command_prepend: "mvn clean"
+      build_command_prepend: "cd implementation"
       build_command:   "mvn install -Dskip.surefire.tests=false -Dskip.failsafe.tests=true sonar:sonar"
       branch_pattern: "master"
 jdk: oraclejdk8

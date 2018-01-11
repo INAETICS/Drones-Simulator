@@ -21,8 +21,8 @@ addons:
         description: "Build submitted via Travis CI"
       notification_email: m.j.willemsen@student.utwente.nl
       build_command_prepend: "mvn clean"
-      build_command:   "mvn install -Dskip.surefire.tests=false -Dskip.failsafe.tests=true"
-      branch_pattern: 33-even-more-testing # todo: change to "master" after merge
+      build_command:   "mvn install -Dskip.surefire.tests=false -Dskip.failsafe.tests=true sonar:sonar"
+      branch_pattern: "master"
 jdk: oraclejdk8
 
 env:

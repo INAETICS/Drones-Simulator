@@ -1,7 +1,6 @@
 package org.inaetics.dronessimulator.drone.tactic.example.basic;
 
 import lombok.extern.log4j.Log4j;
-import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.TimeoutTimer;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.tactic.Tactic;
@@ -17,50 +16,25 @@ import java.util.concurrent.ThreadLocalRandom;
 public class BasicTactic extends Tactic {
     private static final int DRONE_TIMEOUT = 2; // seconds
     private final TimeoutTimer tacticTimer = new TimeoutTimer(1000); //ms
+
     D3Vector moveTarget = null;
     D3Vector lastMoveTarget = null;
     D3Vector attackTarget = null;
+
     Map<String, LocalDateTime> radarDrones = new HashMap<>();
     Map<String, LocalDateTime> gunDrones = new HashMap<>();
+
     boolean isRadar = false;
+
     String bossDrone = "";
+
     List<String> myGunDrones = new ArrayList<>();
+    boolean myGunDronesChanged;
+
     BasicTacticCommunication comm;
     BasicTacticHeartbeat heartbeat;
     Thread commThread;
     Thread heartbeatThread;
-    private D3Vector lastPosition;
-    private D3Vector lastAttackTarget;
-
-    public static D3Vector calculateMovement(D3Vector position, D3Vector target, D3Vector velocity) {
-
-        double distance = position.distance_between(target);
-
-        // stationary, on target
-//        if (distance < 1) {
-//            System.out.println("TEST22 | on target | " + position + " | " + target + " | " + distance + " | " + velocity.length() + " | " + new D3Vector().length());
-//            return new D3Vector();
-//        }
-
-        // not on target, accelerating
-        if (distance > ((velocity.length() * velocity.length()) / (2 * Settings.MAX_DRONE_ACCELERATION))) {
-            D3Vector newAcceleration = target.sub(position);
-            System.out.println("TEST22 | accelerating | " + position + " | " + target + " | " + distance + " | " + velocity.length() + " | " + newAcceleration.length());
-            return newAcceleration;
-        }
-
-        // not stationary, not on target, decelerating
-        else if (distance > 1) {
-
-            double acceleration = -(velocity.length() * velocity.length()) / (2 * distance);
-            D3Vector newAcceleration = velocity.normalize().scale(acceleration);
-
-            System.out.println("TEST22 | decelerating | " + position + " | " + target + " | " + distance + " | " + velocity.length() + " | " + newAcceleration.length());
-            return newAcceleration;
-        }
-        log.debug("field size = " + new D3Vector(Settings.ARENA_WIDTH, Settings.ARENA_DEPTH, Settings.ARENA_HEIGHT));
-        return new D3Vector();
-    }
 
     @Override
     protected void initializeTactics() {
@@ -70,38 +44,48 @@ public class BasicTactic extends Tactic {
             isRadar = true;
         }
 
-//        // set up thread for communication
-//        comm = new BasicTacticCommunication(this, radio);
-//        commThread = new Thread(comm);
-//        commThread.start();
-//
-//        heartbeat = new BasicTacticHeartbeat(this, comm);
-//        heartbeatThread = new Thread(heartbeat);
-//        heartbeatThread.start();
-//
-//        if (!isRadar) {
-//            comm.sendMessage(null, ProtocolTags.CONNECT_REQUEST, null);
-//        }
+        // set up thread for communication
+        comm = new BasicTacticCommunication(this, radio);
+        commThread = new Thread(comm);
+        commThread.start();
+
+        heartbeat = new BasicTacticHeartbeat(this, comm);
+        heartbeatThread = new Thread(heartbeat);
+        heartbeatThread.start();
+
+        if (!isRadar) {
+            comm.sendMessage(null, ProtocolTags.CONNECT_REQUEST, null);
+        }
     }
 
     @Override
     protected void calculateTactics() {
 
-//        if (tacticTimer.timeIsExceeded()) {
-//            tacticTimer.reset();
-//            updateTactics();
-//        }
-        if (moveTarget == null) {
-            moveTarget = new D3Vector(ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300));
-            log.debug("Initialized move target to: " + moveTarget);
+        if (tacticTimer.timeIsExceeded()) {
+            tacticTimer.reset();
+            updateTactics();
         }
 
-        engine.changeAcceleration(calculateMovement(gps.getPosition(), moveTarget, gps.getVelocity()));
+        if (isRadar) {
+            if (moveTarget == null) {
+                moveTarget = new D3Vector(ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300));
+                log.debug("Initialized move target to: " + moveTarget);
+            }
 
-//        if (isRadar && (lastMoveTarget == null || !lastMoveTarget.equals(moveTarget))) {
-//            organizeMovement();
-//            lastMoveTarget = moveTarget;
-//        }
+            if (lastMoveTarget == null || !lastMoveTarget.equals(moveTarget) || myGunDronesChanged) {
+                organizeMovement();
+                myGunDronesChanged = false;
+                lastMoveTarget = moveTarget;
+            }
+        }
+
+        calculateMovements();
+    }
+
+    protected void calculateMovements() {
+        if (moveTarget != null) {
+            engine.changeVelocity(moveTarget.sub(gps.getPosition()));
+        }
     }
 
     @Override
@@ -155,6 +139,11 @@ public class BasicTactic extends Tactic {
             comm.sendMessage(id, ProtocolTags.MOVE, gunPosition);
             log.debug("gundrone " + id + " target location set to " + gunPosition);
         }
+    }
+
+    public void addGunDrone(String id) {
+        myGunDrones.add(id);
+        myGunDronesChanged = true;
     }
 
 }

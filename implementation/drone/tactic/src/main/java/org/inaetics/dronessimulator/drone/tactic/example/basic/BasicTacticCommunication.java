@@ -68,7 +68,7 @@ public class BasicTacticCommunication implements Runnable {
             case CONNECT_CONFIRM:
                 if (tactic.isRadar) {
                     if (!tactic.myGunDrones.contains(id)) {
-                        tactic.myGunDrones.add(id);
+                        tactic.addGunDrone(id);
                         log.info("gun drone " + id + " added");
                     }
                 } else if (tactic.bossDrone.equals("")) {

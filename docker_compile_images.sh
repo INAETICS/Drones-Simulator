@@ -6,7 +6,7 @@ DEPENDENT_BUNDLES="$STATIC/dependent-bundles"
 
 set -e
 
-if [ $# -gt 0 ]; then
+if [[ $1 == "no-maven" ]]; then
     echo "Skipping maven because the script received commandline parameters"
 else
     (cd $ROOT && mvn clean install -Dmaven.test.skip=true)

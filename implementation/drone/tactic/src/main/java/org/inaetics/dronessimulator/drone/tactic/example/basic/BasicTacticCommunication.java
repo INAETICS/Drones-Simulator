@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.drone.tactic.example.basic;
 
 import lombok.extern.log4j.Log4j;
+import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.protocol.TacticMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.components.radio.Radio;
@@ -47,10 +48,10 @@ public class BasicTacticCommunication implements Runnable {
         }
         switch (ProtocolTags.valueOf(msg.get("tag"))) {
             case HEARTBEAT_GUN:
-                tactic.gunDrones.put(id, LocalDateTime.now());
+                tactic.gunDrones.put(id, new Tuple<>(LocalDateTime.now(), D3Vector.fromString(msg.get("target"))));
                 break;
             case HEARTBEAT_RADAR:
-                tactic.radarDrones.put(id, LocalDateTime.now());
+                tactic.radarDrones.put(id, new Tuple<>(LocalDateTime.now(), D3Vector.fromString(msg.get("target"))));
                 break;
             case MOVE:
                 tactic.moveTarget = D3Vector.fromString(msg.get("target"));

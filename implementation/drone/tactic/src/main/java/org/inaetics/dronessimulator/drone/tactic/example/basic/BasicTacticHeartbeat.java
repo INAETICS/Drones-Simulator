@@ -28,7 +28,7 @@ public class BasicTacticHeartbeat implements Runnable{
             // send a heartbeat every second
             if (LocalDateTime.now().isAfter(lastHeartBeat.plusSeconds(1))) {
                 lastHeartBeat = LocalDateTime.now();
-                comm.sendMessage(null, (tactic.isRadar ? HEARTBEAT_RADAR : HEARTBEAT_GUN), null);
+                comm.sendMessage(null, (tactic.isRadar ? HEARTBEAT_RADAR : HEARTBEAT_GUN), tactic.getGps().getPosition());
                 log.debug("sending heartbeat");
             }
 

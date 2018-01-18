@@ -1,15 +1,14 @@
 package org.inaetics.dronessimulator.drone.tactic.example.basic;
 
 import lombok.extern.log4j.Log4j;
+import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.TimeoutTimer;
+import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.tactic.Tactic;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Log4j
 public class BasicTactic extends Tactic {
@@ -20,8 +19,8 @@ public class BasicTactic extends Tactic {
     D3Vector lastMoveTarget = null;
     D3Vector attackTarget = null;
 
-    Map<String, LocalDateTime> radarDrones = new HashMap<>();
-    Map<String, LocalDateTime> gunDrones = new HashMap<>();
+    Map<String, Tuple<LocalDateTime, D3Vector>> radarDrones = new HashMap<>();
+    Map<String, Tuple<LocalDateTime, D3Vector>> gunDrones = new HashMap<>();
 
     boolean isRadar = false;
 
@@ -107,8 +106,8 @@ public class BasicTactic extends Tactic {
 
     private void updateTactics() {
         // update active drone lists
-        radarDrones.entrySet().removeIf(entry -> entry.getValue().plusSeconds(DRONE_TIMEOUT).isBefore(LocalDateTime.now()));
-        gunDrones.entrySet().removeIf(entry -> entry.getValue().plusSeconds(DRONE_TIMEOUT).isBefore(LocalDateTime.now()));
+        radarDrones.entrySet().removeIf(entry -> entry.getValue().getLeft().plusSeconds(DRONE_TIMEOUT).isBefore(LocalDateTime.now()));
+        gunDrones.entrySet().removeIf(entry -> entry.getValue().getLeft().plusSeconds(DRONE_TIMEOUT).isBefore(LocalDateTime.now()));
 
         // clear boss if he is no longer active
         if (!bossDrone.equals("") && !radarDrones.containsKey(bossDrone)) {
@@ -123,7 +122,7 @@ public class BasicTactic extends Tactic {
     }
 
     private void organizeShooting() {
-        radar.getNearestTarget().ifPresent(x -> attackTarget = x);
+        getEnemy().ifPresent(x -> attackTarget = x);
         for (String id : myGunDrones) {
             comm.sendMessage(id, ProtocolTags.SHOOT, attackTarget);
         }
@@ -161,6 +160,15 @@ public class BasicTactic extends Tactic {
     public void addGunDrone(String id) {
         myGunDrones.add(id);
         myGunDronesChanged = true;
+    }
+
+    private Optional<D3Vector> getEnemy() {
+        Map<String, Tuple<LocalDateTime, D3Vector>> teammembers = new HashMap<>();
+        teammembers.putAll(radarDrones);
+        teammembers.putAll(gunDrones);
+        return radar.getRadar().parallelStream()
+                .filter(ral -> //Get positions of the teammembers
+                        teammembers.entrySet().parallelStream().map(tm -> tm.getValue().getRight()).noneMatch(t -> t.distance_between(ral) < Settings.MAX_DRONE_VELOCITY)).min(Comparator.comparingDouble(e -> e.distance_between(gps.getPosition())));
     }
 
 }

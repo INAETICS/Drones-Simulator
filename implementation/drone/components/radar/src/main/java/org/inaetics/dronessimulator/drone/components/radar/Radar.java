@@ -109,7 +109,7 @@ public class Radar implements MessageHandler<Message> {
             results = Collections.emptyList();
         }
 
-        return results;
+        return new ArrayList<>(results);
     }
 
     /**

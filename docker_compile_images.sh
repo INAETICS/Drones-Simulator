@@ -12,6 +12,16 @@ else
     (cd $ROOT && mvn clean install -Dmaven.test.skip=true)
 fi
 
+if [[ "$1" == *"yml" ||  "$1" == *"yaml" ]]
+then
+    COMPOSEFILE=${1:-docker-compose.yml}
+else
+    COMPOSEFILE=${2:-docker-compose.yml}
+fi
+
+echo "We will be using the following docker-compose file: ${COMPOSEFILE}"
+
+
 DOCKER_IMAGES="docker_images"
 BASE_IMAGE="$DOCKER_IMAGES/base_image"
 GAME_ENGINE_IMAGE="$DOCKER_IMAGES/game_engine"
@@ -135,4 +145,4 @@ cp "$ROOT/pubsub/api/target/pubsub-api-0.1.jar" $ARCHITECTURE_MANAGER_BUNDLES
 cp "$ROOT/common/target/common-0.1.jar" $ARCHITECTURE_MANAGER_BUNDLES
 cp "$ROOT/architecture-manager/target/architecture-manager-0.1.jar" $ARCHITECTURE_MANAGER_BUNDLES
 
-sh docker_refresh_images.sh
+sh docker_refresh_images.sh $COMPOSEFILE

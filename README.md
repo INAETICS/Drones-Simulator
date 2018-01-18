@@ -12,6 +12,20 @@ First copy `config-default.env` to `config.env` and configure it for your system
 visualization will not have to be recompiled, just restarted. Note that the project should work by default if you copy the default config as it uses the docker ip 
 instead of a public ip. Localhost will never work since the config will copied into the docker containers.
 
+# Build
+The build process consists of two steps:
+- Maven
+- Docker
+
+This is both captured in the following script: `./docker_compile_images.sh`. This first builds maven and then creates the docker images.
+
+If you want to only build maven you can run `mvn clean install -Dmaven.test.skip=true` 
+If you only want to build docker, you can use `./docker_compile_images.sh no-maven`.
+If you even only want the server-component images or drone images only, you can use the same script with the modified compose file as a parameter: `
+./docker_compile_images.sh docker-compose-server.yml` or `./docker_compile_images.sh docker-compose-drones.yml`.
+
+Sometimes during development you might want to quickly recompile an image with the same contents. This is useful when you only change the config.env file.
+
 # Test
 The application contains two types of tests: unit tests and integration tests. The unit tests can be run by executing the following command from the `implementation/` 
 directory:
@@ -31,11 +45,11 @@ for integration tests.
 
 To create new tests please consider the following naming convention: unit test classes should end with `Test`, and integration test classes should end with `IT`.
 
-# To run on a host
+# Run
 As a requirement, make sure you have installed and started docker.
 Now run from git root:
 ```
-docker_compile_images.sh
+./docker_compile_images.sh
 ```
 
 The docker images will be added to your local docker. Start the docker containers for each host respectively.
@@ -74,4 +88,5 @@ This project is setup to use three services:
 - Coverity for security analysis of the code
 - SonarCloud for analysis of the report created by the command `mvn sonar:sonar`
 
-The current build status is: <INSERT BADGE HERE>
+The current build status is: [![Build Status](https://travis-ci.org/marty30/Drones-Simulator.svg?branch=master)](https://travis-ci.org/marty30/Drones-Simulator)
+

@@ -69,7 +69,6 @@ public class BasicTactic extends Tactic {
             if (moveTarget == null) {
 //                moveTarget = new D3Vector(ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300));
                 radar.getNearestTarget().ifPresent(x -> moveTarget = getDistanceTarget(x, 80));
-                log.debug("Initialized move target to: " + moveTarget);
             }
 
             if (lastMoveTarget == null || !lastMoveTarget.equals(moveTarget) || myGunDronesChanged) {
@@ -79,10 +78,11 @@ public class BasicTactic extends Tactic {
             }
 
             organizeShooting();
+        } else {
+            shoot();
         }
 
         calculateMovements();
-        shoot();
     }
 
     private D3Vector getDistanceTarget(D3Vector target, int distance){
@@ -132,7 +132,7 @@ public class BasicTactic extends Tactic {
 
     private void shoot() {
         if (attackTarget != null) {
-            gun.fireBullet(gps.getPosition().sub(attackTarget).toPoolCoordinate());
+            gun.fireBullet(attackTarget.sub(gps.getPosition()).toPoolCoordinate());
             attackTarget = null;
         }
     }
@@ -145,7 +145,6 @@ public class BasicTactic extends Tactic {
         }
 
         int number = myGunDrones.size();
-        log.debug("number is " + number);
         double spawnRadius = 40;
         double spawnAngle = (2 * Math.PI) / number;
 
@@ -156,7 +155,6 @@ public class BasicTactic extends Tactic {
                     , moveFocus.getZ());
             numberSpawned++;
             comm.sendMessage(id, ProtocolTags.MOVE, gunPosition);
-            log.debug("gundrone " + id + " target location set to " + gunPosition);
         }
     }
 

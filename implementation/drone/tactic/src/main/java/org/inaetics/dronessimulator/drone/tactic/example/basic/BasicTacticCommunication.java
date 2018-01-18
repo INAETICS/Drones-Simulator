@@ -54,11 +54,9 @@ public class BasicTacticCommunication implements Runnable {
                 break;
             case MOVE:
                 tactic.moveTarget = D3Vector.fromString(msg.get("target"));
-                log.info("Moving to " + tactic.moveTarget.toString());
                 break;
             case SHOOT:
                 tactic.attackTarget = D3Vector.fromString(msg.get("target"));
-                log.info("Attacking " + tactic.attackTarget);
                 break;
             case CONNECT_REQUEST:
                 if (tactic.isRadar && (tactic.myGunDrones.size() < 2 || tactic.radarDrones.size() < 2)) {

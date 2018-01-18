@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Log4j
 public class BasicTactic extends Tactic {
@@ -68,7 +67,8 @@ public class BasicTactic extends Tactic {
 
         if (isRadar) {
             if (moveTarget == null) {
-                moveTarget = new D3Vector(ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300));
+//                moveTarget = new D3Vector(ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300), ThreadLocalRandom.current().nextInt(100, 300));
+                radar.getNearestTarget().ifPresent(x -> moveTarget = getDistanceTarget(x, 80));
                 log.debug("Initialized move target to: " + moveTarget);
             }
 
@@ -77,9 +77,21 @@ public class BasicTactic extends Tactic {
                 myGunDronesChanged = false;
                 lastMoveTarget = moveTarget;
             }
+
+            organizeShooting();
         }
 
         calculateMovements();
+        shoot();
+    }
+
+    private D3Vector getDistanceTarget(D3Vector target, int distance){
+        D3Vector curDistance = target.sub(gps.getPosition());
+        D3Vector direction = curDistance.normalize();
+        D3Vector distanceVector = direction.scale(distance);
+        D3Vector newTarget = target.sub(distanceVector);
+
+        return newTarget;
     }
 
     protected void calculateMovements() {
@@ -90,7 +102,7 @@ public class BasicTactic extends Tactic {
 
     @Override
     protected void finalizeTactics() {
-//        comm.stop();
+        comm.stop();
     }
 
     private void updateTactics() {
@@ -110,12 +122,19 @@ public class BasicTactic extends Tactic {
 
     }
 
-    private void organize() {
-//        radar.getNearestTarget().ifPresent(x -> moveTarget = x.getRight());
-//        for (String id : gunDrones.keySet()) {
-//            comm.sendMessage(id, ProtocolTags.SHOOT, attackTarget);
-//        }
+    private void organizeShooting() {
+        radar.getNearestTarget().ifPresent(x -> attackTarget = x);
+        for (String id : myGunDrones) {
+            comm.sendMessage(id, ProtocolTags.SHOOT, attackTarget);
+        }
 
+    }
+
+    private void shoot() {
+        if (attackTarget != null) {
+            gun.fireBullet(gps.getPosition().sub(attackTarget).toPoolCoordinate());
+            attackTarget = null;
+        }
     }
 
     private void organizeMovement() {

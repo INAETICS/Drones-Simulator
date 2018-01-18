@@ -295,6 +295,11 @@ public class TheoreticalTactic extends Tactic {
                     );
                 }
             });
+
+            //Random location as well
+            D3Vector randomLocation = getRandomLocation();
+            utilityMapMove.put(new Tuple<>(InstructionMessage.InstructionType.MOVE, randomLocation), calculateUtility(InstructionMessage.InstructionType.MOVE,
+                    teammember.getKey(), randomLocation));
             Optional<Entry<Tuple<InstructionMessage.InstructionType, D3Vector>, Integer>> highestUtilityShoot =
                     utilityMapShoot.entrySet().parallelStream().max(Comparator.comparingInt(Entry::getValue));
             if (highestUtilityShoot.isPresent() && highestUtilityShoot.get().getValue() > 0) {

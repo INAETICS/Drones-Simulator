@@ -34,6 +34,8 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    links:
+      - etcd
 
   game-engine:
     build: ./docker_images/game_engine
@@ -42,3 +44,5 @@ services:
     depends_on:
       rabbitmq:
         condition: service_healthy
+    links:
+      - etcd

@@ -66,8 +66,10 @@ public class CalculateUtilityHelper {
 
         //Now really calculate the utility, no more early returns.
         final int[] utility = {0}; //A single element array for lambdas as it needs to be final.
+        final boolean[] thereAreEnemies = {false};
         //Drones that are close have a high likelyhood to kill you, so shoot if possible and move in the opposite direction
         forEachEnemy(enemy -> {
+            thereAreEnemies[0] = true;
             if (params.type.equals(InstructionMessage.InstructionType.SHOOT)) {
                 //Shooting at the closest enemy gives the highest utility
                 if (params.target.equals(enemy)) //If the target to shoot is at the same position as the enemy
@@ -91,6 +93,8 @@ public class CalculateUtilityHelper {
                     //we do not want to crash into a teammate
                     if (distanceToTeammate < MINIMAL_TEAM_DISTANCE) {
                         utility[0] = -1;
+                    } else if (!thereAreEnemies[0]) {
+                        utility[0] += params.target.distance_between(params.getDroneLocation()) * MOVING_WEIGHT;
                     } else {
                         //Move with teammates over moving alone
                         utility[0] += (MAX_ARENA_DISTANCE - (int) distanceToTeammate) * MOVING_WEIGHT;

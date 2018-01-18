@@ -1,4 +1,4 @@
 #!/bin/bash
 
-docker-compose rm -f -v
-docker-compose create --build
+docker-compose -f ${1:-docker-compose.yml} rm -f -v
+docker-compose -f ${1:-docker-compose.yml} create --build

@@ -168,7 +168,7 @@ public class GameEngine {
                 int gameengineId = m_id_mapper.getNewGameEngineId();
                 D3Vector position = new D3Vector(Math.cos(spawnAngle * numberSpawned) * spawnRadius + center.getX()
                         , Math.sin(spawnAngle * numberSpawned) * spawnRadius + center.getY()
-                        , 50);
+                        , Settings.ARENA_HEIGHT / 2);
                 numberSpawned++;
                 String team = DroneInstance.getTeamname(m_discoverer, protocolId);
                 this.m_physicsEngineDriver.addNewEntity(new Drone(gameengineId, team, Drone.DRONE_MAX_HEALTH,

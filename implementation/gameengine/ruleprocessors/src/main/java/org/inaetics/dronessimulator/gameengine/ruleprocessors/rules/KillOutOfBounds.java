@@ -43,9 +43,9 @@ public class KillOutOfBounds extends Rule {
                 HealthGameEntity healthGameEntity = (HealthGameEntity) gameEntity;
 
                 if(healthGameEntity.getPosition().getY() < 0 ||
-                        healthGameEntity.getPosition().getY() > Settings.ARENA_HEIGHT ||
+                        healthGameEntity.getPosition().getY() > Settings.ARENA_DEPTH ||
                         healthGameEntity.getPosition().getZ() < 0 ||
-                        healthGameEntity.getPosition().getZ() > Settings.ARENA_DEPTH ||
+                        healthGameEntity.getPosition().getZ() > Settings.ARENA_HEIGHT ||
                         healthGameEntity.getPosition().getX() < 0 ||
                         healthGameEntity.getPosition().getX() > Settings.ARENA_WIDTH) {
                     DestroyHealthEntityEvent destroyEvent = new DestroyHealthEntityEvent(healthGameEntity);

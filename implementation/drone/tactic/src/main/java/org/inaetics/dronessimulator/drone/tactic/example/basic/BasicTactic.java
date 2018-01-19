@@ -144,10 +144,10 @@ public class BasicTactic extends Tactic {
     }
 
     private void shoot() {
-//        if (attackTarget != null) {
-//            gun.fireBullet(attackTarget.sub(gps.getPosition()).toPoolCoordinate());
-//            attackTarget = null;
-//        }
+        if (attackTarget != null) {
+            gun.fireBullet(attackTarget.sub(gps.getPosition()).toPoolCoordinate());
+            attackTarget = null;
+        }
     }
 
     private void organizeMovement() {
@@ -180,10 +180,9 @@ public class BasicTactic extends Tactic {
         Map<String, Tuple<LocalDateTime, D3Vector>> teammembers = new HashMap<>();
         teammembers.putAll(radarDrones);
         teammembers.putAll(gunDrones);
-        return Optional.empty();
-//        return radar.getRadar().parallelStream()
-//                .filter(ral -> //Get positions of the teammembers
-//                        teammembers.entrySet().parallelStream().map(tm -> tm.getValue().getRight()).noneMatch(t -> t.distance_between(ral) < Settings.MAX_DRONE_VELOCITY)).min(Comparator.comparingDouble(e -> e.distance_between(gps.getPosition())));
+        return radar.getRadar().parallelStream()
+                .filter(ral -> //Get positions of the teammembers
+                        teammembers.entrySet().parallelStream().map(tm -> tm.getValue().getRight()).noneMatch(t -> t.distance_between(ral) < Settings.MAX_DRONE_VELOCITY)).min(Comparator.comparingDouble(e -> e.distance_between(gps.getPosition())));
     }
 
 }

@@ -22,7 +22,7 @@ This is both captured in the following script: `./docker_compile_images.sh`. Thi
 If you want to only build maven you can run `mvn clean install -Dmaven.test.skip=true` 
 If you only want to build docker, you can use `./docker_compile_images.sh no-maven`.
 If you even only want the server-component images or drone images only, you can use the same script with the modified compose file as a parameter: `
-./docker_compile_images.sh docker-compose-server.yml` or `./docker_compile_images.sh docker-compose-drones.yml`.
+./docker_compile_images.sh no-maven docker-compose-server.yml` or `./docker_compile_images.sh no-maven docker-compose-drones.yml`.
 
 Sometimes during development you might want to quickly recompile an image with the same contents. This is useful when you only change the config.env file.
 

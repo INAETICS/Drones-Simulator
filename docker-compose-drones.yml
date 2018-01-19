@@ -3,11 +3,6 @@ services:
   drone-thales-gun1:
     build: ./docker_images/drone
     env_file: config.env
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-    ports:
-      - "8001:8000"
     environment:
       DRONE_NAME: "drone-thales-gun1"
       DRONE_TEAM: "teamthales"
@@ -17,11 +12,6 @@ services:
 #  drone-thales-gun2:
 #    build: ./docker_images/drone
 #    env_file: config.env
-#    depends_on:
-#      rabbitmq:
-#        condition: service_healthy
-#    ports:
-#      - "8002:8000"
 #    environment:
 #      DRONE_NAME: "drone-thales-gun2"
 #      DRONE_TEAM: "teamthales"
@@ -31,11 +21,6 @@ services:
   drone-thales-radar:
     build: ./docker_images/drone
     env_file: config.env
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-    ports:
-      - "8003:8000"
     environment:
       DRONE_NAME: "drone-thales-radar"
       DRONE_TEAM: "teamthales"
@@ -45,11 +30,8 @@ services:
   drone-student-gun1:
     build: ./docker_images/drone
     env_file: config.env
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
     environment:
-      DRONENAME: "drone-student-gun1"
+      DRONE_NAME: "drone-student-gun1"
       DRONE_TEAM: "teammarty"
       DRONE_COMPONENTS: "gps,gun,radio"
       DRONE_TACTIC: "org.inaetics.dronessimulator.drone.tactic.example.basic.BasicTactic"
@@ -57,10 +39,6 @@ services:
 #  drone-student-gun2:
 #    build: ./docker_images/drone
 #    env_file: config.env
-#    depends_on:
-#      rabbitmq:
-#        condition: service_healthy
-#    environment:
 #      DRONENAME: "drone-student-gun2"
 #      DRONE_TEAM: "teammarty"
 #      DRONE_COMPONENTS: "gps,radio,gun"
@@ -69,11 +47,8 @@ services:
   drone-student_radar:
     build: ./docker_images/drone
     env_file: config.env
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
     environment:
-      DRONENAME: "drone-student-radar"
+      DRONE_NAME: "drone-student-radar"
       DRONE_TEAM: "teammarty"
       DRONE_COMPONENTS: "gps,radio,radar"
       DRONE_TACTIC: "org.inaetics.dronessimulator.drone.tactic.example.basic.BasicTactic"

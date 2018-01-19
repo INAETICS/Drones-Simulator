@@ -406,7 +406,7 @@ public class Game extends Application {
             if (path.startsWith(DiscoveryPath.group(Type.DRONE, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.DRONE)) && path.isConfigPath()) {
                 String protocolId = node.getId();
                 availableEntities.put(protocolId, node);
-                createDroneIfNotExists(protocolId);
+                createDroneIfNotExists(protocolId, node.getValue("team"));
                 log.info("Added drone " + protocolId + " to visualisation");
             }
         });
@@ -482,7 +482,7 @@ public class Game extends Application {
                     }
                     this.entities.clear();
                     //Create all drones that are currently available
-                    getAvailableDrones().forEach(entry -> createDrone(entry.getKey()));
+                    getAvailableDrones().forEach(entry -> createDrone(entry.getKey(), entry.getValue().getValue("team")));
                 }
         );
     }
@@ -500,11 +500,11 @@ public class Game extends Application {
         return availableDrones;
     }
 
-    private void createDroneIfNotExists(String protocolId) {
+    private void createDroneIfNotExists(String protocolId, String teamname) {
         BaseEntity baseEntity = entities.get(protocolId);
 
         if (baseEntity == null) {
-            createDrone(protocolId);
+            createDrone(protocolId, teamname);
         }
     }
 
@@ -513,8 +513,10 @@ public class Game extends Application {
      *
      * @param id String - Identifier of the new drone
      */
-    private void createDrone(String id) {
+    private void createDrone(String id, String teamname) {
         BasicDrone drone = new BasicDrone(uiUpdates);
+        drone.setId(id);
+        drone.setTeam(teamname);
         drone.setPosition(new D3Vector(-9999, -9999, -9999));
         drone.setDirection(new D3PolarCoordinate(-9999, -9999, -9999));
         entities.putIfAbsent(id, drone);

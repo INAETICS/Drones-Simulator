@@ -2,10 +2,10 @@ package org.inaetics.dronessimulator.visualisation;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import lombok.extern.log4j.Log4j;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.visualisation.uiupdates.AddBaseEntity;
@@ -50,6 +50,10 @@ public abstract class BaseEntity {
      */
     @Getter @Setter
     private double spriteY;
+
+    @Getter
+    @Setter
+    private String id;
 
     /**
      * Instantiates a new base entity

@@ -3,6 +3,7 @@ package org.inaetics.dronessimulator.visualisation;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
+import lombok.Setter;
 import org.inaetics.dronessimulator.visualisation.uiupdates.AddDrone;
 import org.inaetics.dronessimulator.visualisation.uiupdates.Explosion;
 import org.inaetics.dronessimulator.visualisation.uiupdates.RemoveDrone;
@@ -21,6 +22,8 @@ public abstract class Drone extends BaseEntity {
     private int currentHP;
     /** Text attribute containing the height */
     private final Text heightText;
+    @Setter
+    private String team;
 
     /**
      * Creates a drone based on a sprite
@@ -45,7 +48,7 @@ public abstract class Drone extends BaseEntity {
     @Override
     void updateUI() {
         super.updateUI();
-        heightText.setText("HP: " + currentHP + "/100 Location: " + position.toString(2));
+        heightText.setText("HP: " + currentHP + "/100" + " Team: " + team + " ID: " + getId() + "\n Location: " + position.toString(2));
         heightText.relocate(getSpriteX() + Settings.DRONE_WIDTH / 2.0 * (1 - getScale()), getSpriteY() + Settings.DRONE_HEIGHT / 2.0 * (1 - getScale()) - 20);
     }
 

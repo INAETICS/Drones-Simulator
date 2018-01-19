@@ -4,7 +4,7 @@ services:
     build: ./docker_images/drone
     env_file: config.env
     environment:
-      DRONE_NAME: "drone-thales-gun1"
+      DRONENAME: "drone-thales-gun1"
       DRONE_TEAM: "teamthales"
       DRONE_COMPONENTS: "gps,gun,radio"
       DRONE_TACTIC: "org.inaetics.dronessimulator.drone.tactic.example.utility.TheoreticalTactic"
@@ -13,7 +13,7 @@ services:
 #    build: ./docker_images/drone
 #    env_file: config.env
 #    environment:
-#      DRONE_NAME: "drone-thales-gun2"
+#      DRONENAME: "drone-thales-gun2"
 #      DRONE_TEAM: "teamthales"
 #      DRONE_COMPONENTS: "gps,radio,gun"
 #      DRONE_TACTIC: "org.inaetics.dronessimulator.drone.tactic.example.utility.TheoreticalTactic"
@@ -22,7 +22,7 @@ services:
     build: ./docker_images/drone
     env_file: config.env
     environment:
-      DRONE_NAME: "drone-thales-radar"
+      DRONENAME: "drone-thales-radar"
       DRONE_TEAM: "teamthales"
       DRONE_COMPONENTS: "gps,radio,radar"
       DRONE_TACTIC: "org.inaetics.dronessimulator.drone.tactic.example.utility.TheoreticalTactic"
@@ -31,8 +31,8 @@ services:
     build: ./docker_images/drone
     env_file: config.env
     environment:
-      DRONE_NAME: "drone-student-gun1"
-      DRONE_TEAM: "teammarty"
+      DRONENAME: "drone-student-gun1"
+      DRONE_TEAM: "teamstudent"
       DRONE_COMPONENTS: "gps,gun,radio"
       DRONE_TACTIC: "org.inaetics.dronessimulator.drone.tactic.example.basic.BasicTactic"
 
@@ -48,7 +48,7 @@ services:
     build: ./docker_images/drone
     env_file: config.env
     environment:
-      DRONE_NAME: "drone-student-radar"
-      DRONE_TEAM: "teammarty"
+      DRONENAME: "drone-student-radar"
+      DRONE_TEAM: "teamstudent"
       DRONE_COMPONENTS: "gps,radio,radar"
       DRONE_TACTIC: "org.inaetics.dronessimulator.drone.tactic.example.basic.BasicTactic"

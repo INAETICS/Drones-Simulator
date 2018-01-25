@@ -1,6 +1,7 @@
 package org.inaetics.dronessimulator.drone.tactic.example.basic;
 
 import lombok.extern.log4j.Log4j;
+import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.protocol.TacticMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.components.radio.Radio;
@@ -47,18 +48,16 @@ public class BasicTacticCommunication implements Runnable {
         }
         switch (ProtocolTags.valueOf(msg.get("tag"))) {
             case HEARTBEAT_GUN:
-                tactic.gunDrones.put(id, LocalDateTime.now());
+                tactic.gunDrones.put(id, new Tuple<>(LocalDateTime.now(), D3Vector.fromString(msg.get("target"))));
                 break;
             case HEARTBEAT_RADAR:
-                tactic.radarDrones.put(id, LocalDateTime.now());
+                tactic.radarDrones.put(id, new Tuple<>(LocalDateTime.now(), D3Vector.fromString(msg.get("target"))));
                 break;
             case MOVE:
                 tactic.moveTarget = D3Vector.fromString(msg.get("target"));
-                log.info("Moving to " + tactic.moveTarget.toString());
                 break;
             case SHOOT:
                 tactic.attackTarget = D3Vector.fromString(msg.get("target"));
-                log.info("Attacking " + tactic.attackTarget);
                 break;
             case CONNECT_REQUEST:
                 if (tactic.isRadar && (tactic.myGunDrones.size() < 2 || tactic.radarDrones.size() < 2)) {
@@ -68,7 +67,7 @@ public class BasicTacticCommunication implements Runnable {
             case CONNECT_CONFIRM:
                 if (tactic.isRadar) {
                     if (!tactic.myGunDrones.contains(id)) {
-                        tactic.myGunDrones.add(id);
+                        tactic.addGunDrone(id);
                         log.info("gun drone " + id + " added");
                     }
                 } else if (tactic.bossDrone.equals("")) {

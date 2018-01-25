@@ -39,7 +39,7 @@ public class Radar implements MessageHandler<Message> {
     /**
      * The range of this radar
      */
-    private static final int RADAR_RANGE = 500;
+    public static final int RADAR_RANGE = 500;
     /**
      * Map of all last known entities and their positions (the first string is the id of the entity, the tuple's string is the team name if applicable and the D3Vector is
      * the location)

@@ -93,6 +93,13 @@ public class BasicTactic extends Tactic {
         calculateMovements();
     }
 
+    /**
+     * Creates a new position based on the move target and the distance the drone should stay away from it.
+     * This position is in the exact direction the drone currently is from the target.
+     * @param target D3Vector move target
+     * @param distance int distance that should be kept from the move target
+     * @return D3Vector a position, distance from the target
+     */
     private D3Vector getDistanceTarget(D3Vector target, int distance) {
         D3Vector curDistance = target.sub(gps.getPosition());
         D3Vector direction = curDistance.normalize();

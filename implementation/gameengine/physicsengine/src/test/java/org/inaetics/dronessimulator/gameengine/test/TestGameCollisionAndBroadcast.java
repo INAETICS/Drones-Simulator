@@ -1,10 +1,10 @@
 package org.inaetics.dronessimulator.gameengine.test;
 
 import org.inaetics.dronessimulator.common.vector.D3Vector;
+import org.inaetics.dronessimulator.gameengine.common.Size;
 import org.inaetics.dronessimulator.physicsengine.Entity;
 import org.inaetics.dronessimulator.physicsengine.PhysicsEngine;
 import org.inaetics.dronessimulator.physicsengine.PhysicsEngineEventObserver;
-import org.inaetics.dronessimulator.physicsengine.Size;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,7 +25,6 @@ public class TestGameCollisionAndBroadcast {
         physicsEngine = new PhysicsEngine();
 
         physicsEngine.setObserver(observer);
-        physicsEngine.setTimeBetweenBroadcastms(100);
     }
 
     @Test
@@ -59,12 +58,12 @@ public class TestGameCollisionAndBroadcast {
         public void collisionStartHandler(Entity e1, Entity e2) {
             // Only expect it once
             Assert.assertEquals(false, hasStarted);
-            if(e1.getId() == 1) {
-                Assert.assertEquals(2, e2.getId());
+            if (e1.getEntityId() == 1) {
+                Assert.assertEquals(2, e2.getEntityId());
                 hasStarted = true;
             } else {
-                Assert.assertEquals(2, e1.getId());
-                Assert.assertEquals(1, e2.getId());
+                Assert.assertEquals(2, e1.getEntityId());
+                Assert.assertEquals(1, e2.getEntityId());
                 hasStarted = true;
             }
         }
@@ -74,12 +73,12 @@ public class TestGameCollisionAndBroadcast {
             // Only expect it once
             Assert.assertEquals(false, hasEnded);
 
-            if(e1.getId() == 1) {
-                Assert.assertEquals(2, e2.getId());
+            if (e1.getEntityId() == 1) {
+                Assert.assertEquals(2, e2.getEntityId());
                 hasEnded = true;
             } else {
-                Assert.assertEquals(2, e1.getId());
-                Assert.assertEquals(1, e2.getId());
+                Assert.assertEquals(2, e1.getEntityId());
+                Assert.assertEquals(1, e2.getEntityId());
                 hasEnded = true;
             }
 

@@ -27,7 +27,7 @@ public class Bullet extends GameEntity<Bullet> {
      * @param direction The direction of the bullet.
      */
     public Bullet(int id, int dmg, GameEntity firedBy, D3Vector position, D3Vector velocity, D3Vector acceleration, D3PolarCoordinate direction) {
-        super(id, position, velocity, acceleration, direction);
+        super(id, null, position, velocity, acceleration, direction);
 
         this.firedBy = firedBy;
         this.dmg = dmg;

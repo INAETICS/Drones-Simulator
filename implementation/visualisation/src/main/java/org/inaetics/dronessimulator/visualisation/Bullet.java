@@ -10,7 +10,7 @@ import java.util.concurrent.BlockingQueue;
 public class Bullet extends BaseEntity {
 
     /** Image of the bullet */
-    private static final String image = "/bullet.png";
+    private static final String IMAGE = "/bullet.png";
 
     /**
      * Creates a new bullet
@@ -18,7 +18,7 @@ public class Bullet extends BaseEntity {
      * @param uiUpdates - uiupdates
      */
     public Bullet(BlockingQueue<UIUpdate> uiUpdates) {
-        super(uiUpdates, image);
+        super(uiUpdates, IMAGE);
         this.imageView.setFitHeight(Settings.BULLET_HEIGHT);
         this.imageView.setId("bullet");
     }

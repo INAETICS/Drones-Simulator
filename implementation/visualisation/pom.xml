@@ -17,35 +17,27 @@
         <dependency>
             <groupId>org.inaetics.dronessimulator</groupId>
             <artifactId>common</artifactId>
-            <version>0.1</version>
         </dependency>
-
         <dependency>
             <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
             <artifactId>rabbitmq-subscriber</artifactId>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
             <artifactId>rabbitmq-publisher</artifactId>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.pubsub</groupId>
             <artifactId>java-serializer</artifactId>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.discovery</groupId>
             <artifactId>etcd</artifactId>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator</groupId>
             <artifactId>architecture-event-controller</artifactId>
-            <version>0.1</version>
         </dependency>
-
         <dependency>
             <groupId>org.osgi</groupId>
             <artifactId>org.osgi.core</artifactId>
@@ -64,7 +56,43 @@
             <artifactId>log4j-core</artifactId>
             <version>2.8</version>
         </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-all</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator</groupId>
+            <artifactId>common-test</artifactId>
+            <type>test-jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.awaitility</groupId>
+            <artifactId>awaitility</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.testfx</groupId>
+            <artifactId>testfx-core</artifactId>
+            <version>${testfx.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testfx</groupId>
+            <artifactId>testfx-junit</artifactId>
+            <version>${testfx.version}</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+    <properties>
+        <testfx.version>4.0.10-alpha</testfx.version>
+    </properties>
 
     <build>
         <plugins>

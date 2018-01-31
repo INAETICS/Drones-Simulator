@@ -4,7 +4,6 @@ import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
-import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.visualisation.BaseEntity;
 import org.inaetics.dronessimulator.visualisation.Bullet;
@@ -17,7 +16,7 @@ import java.util.concurrent.ConcurrentMap;
 /**
  * The state message handler class. Implements what to do when a new state is send of the entities (drone, bullet)
  */
-public class StateMessageHandler implements MessageHandler {
+public class StateMessageHandler implements MessageHandler<StateMessage> {
     /** Logger */
     private static final Logger logger = Logger.getLogger(StateMessageHandler.class);
     /** UI updates */
@@ -38,10 +37,9 @@ public class StateMessageHandler implements MessageHandler {
     /**
      * Creates a new bullet and returns it
      *
-     * @param id String - Identifier of the new bullet
      * @return bullet Bullet - The newly created bullet
      */
-    private Bullet createBullet(String id) {
+    private Bullet createBullet() {
         Bullet bullet = new Bullet(uiUpdates);
         bullet.setPosition(new D3Vector(0, 0, 0));
         bullet.setDirection(new D3PolarCoordinate(0, 0, 0));
@@ -69,7 +67,7 @@ public class StateMessageHandler implements MessageHandler {
      * @param stateMessage - Message containing the state of the bullet
      */
     private void createOrUpdateBullet(StateMessage stateMessage) {
-        BaseEntity currentBullet = entities.computeIfAbsent(stateMessage.getIdentifier(), k -> createBullet(stateMessage.getIdentifier()));
+        BaseEntity currentBullet = entities.computeIfAbsent(stateMessage.getIdentifier(), k -> createBullet());
 
         stateMessage.getPosition().ifPresent(currentBullet::setPosition);
         stateMessage.getDirection().ifPresent(currentBullet::setDirection);
@@ -77,12 +75,10 @@ public class StateMessageHandler implements MessageHandler {
 
     /**
      * Updates a drone or creates and/or updates a bullet based on the message
-     * @param message The received message.
+     * @param stateMessage The received message.
      */
     @Override
-    public void handleMessage(Message message) {
-        StateMessage stateMessage = (StateMessage) message;
-
+    public void handleMessage(StateMessage stateMessage) {
         switch (stateMessage.getType()) {
             case DRONE:
                 updateDrone(stateMessage);
@@ -91,7 +87,7 @@ public class StateMessageHandler implements MessageHandler {
                 createOrUpdateBullet(stateMessage);
                 break;
             default:
-                logger.error("Received state message with unknown entity type! " + message);
+                logger.error("Received state message with unknown entity type! " + stateMessage);
         }
     }
 }

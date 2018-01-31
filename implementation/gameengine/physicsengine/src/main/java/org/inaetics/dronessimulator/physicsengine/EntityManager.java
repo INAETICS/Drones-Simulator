@@ -113,10 +113,10 @@ public class EntityManager {
     private void processInsertNew() {
         while(!creationList.isEmpty()) {
             Entity entity = creationList.poll();
-            updateMap.putIfAbsent(entity.getId(), new ConcurrentLinkedQueue<>());
-            entities.put(entity.getId(), entity);
+            updateMap.putIfAbsent(entity.getEntityId(), new ConcurrentLinkedQueue<>());
+            entities.put(entity.getEntityId(), entity);
 
-            this.currentCollisions.put(entity.getId(), new HashSet<>());
+            this.currentCollisions.put(entity.getEntityId(), new HashSet<>());
         }
     }
 
@@ -127,7 +127,7 @@ public class EntityManager {
         // TODO: Remove memory leak for updates that belong to non-existing entities
         for(Map.Entry<Integer, Entity> e : entities.entrySet()) {
             Entity entity = e.getValue();
-            ConcurrentLinkedQueue<EntityUpdate> updates = updateMap.get(entity.getId());
+            ConcurrentLinkedQueue<EntityUpdate> updates = updateMap.get(entity.getEntityId());
 
             while(!updates.isEmpty()) {
                 updates.poll().update(entity);
@@ -156,7 +156,7 @@ public class EntityManager {
         List<Entity> result = new ArrayList<>(this.entities.size());
 
         for(Map.Entry<Integer, Entity> e : this.entities.entrySet()) {
-            result.add(Entity.deepcopy(e.getValue()));
+            result.add(new Entity(e.getValue()));
         }
 
         return result;

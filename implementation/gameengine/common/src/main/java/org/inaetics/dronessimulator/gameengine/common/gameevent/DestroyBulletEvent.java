@@ -18,7 +18,7 @@ import java.util.Optional;
 @AllArgsConstructor
 @Getter
 @ToString
-public class DestroyBulletEvent extends GameEngineEvent {
+public class DestroyBulletEvent extends DestroyEvent {
     /** The id of the bullet. */
     private final int id;
 

@@ -1,0 +1,54 @@
+version: '2.1'
+services:
+  drone-thales-gun1:
+    build: ./docker_images/drone
+    env_file: config.env
+    environment:
+      DRONENAME: "drone-thales-gun1"
+      DRONE_TEAM: "teamthales"
+      DRONE_COMPONENTS: "gps,gun,radio"
+      DRONE_TACTIC: "org.inaetics.dronessimulator.drone.tactic.example.utility.TheoreticalTactic"
+
+#  drone-thales-gun2:
+#    build: ./docker_images/drone
+#    env_file: config.env
+#    environment:
+#      DRONENAME: "drone-thales-gun2"
+#      DRONE_TEAM: "teamthales"
+#      DRONE_COMPONENTS: "gps,radio,gun"
+#      DRONE_TACTIC: "org.inaetics.dronessimulator.drone.tactic.example.utility.TheoreticalTactic"
+
+  drone-thales-radar:
+    build: ./docker_images/drone
+    env_file: config.env
+    environment:
+      DRONENAME: "drone-thales-radar"
+      DRONE_TEAM: "teamthales"
+      DRONE_COMPONENTS: "gps,radio,radar"
+      DRONE_TACTIC: "org.inaetics.dronessimulator.drone.tactic.example.utility.TheoreticalTactic"
+
+  drone-student-gun1:
+    build: ./docker_images/drone
+    env_file: config.env
+    environment:
+      DRONENAME: "drone-student-gun1"
+      DRONE_TEAM: "teamstudent"
+      DRONE_COMPONENTS: "gps,gun,radio"
+      DRONE_TACTIC: "org.inaetics.dronessimulator.drone.tactic.example.basic.BasicTactic"
+
+#  drone-student-gun2:
+#    build: ./docker_images/drone
+#    env_file: config.env
+#      DRONENAME: "drone-student-gun2"
+#      DRONE_TEAM: "teammarty"
+#      DRONE_COMPONENTS: "gps,radio,gun"
+#      DRONE_TACTIC: "org.inaetics.dronessimulator.drone.tactic.example.basic.BasicTactic"
+
+  drone-student_radar:
+    build: ./docker_images/drone
+    env_file: config.env
+    environment:
+      DRONENAME: "drone-student-radar"
+      DRONE_TEAM: "teamstudent"
+      DRONE_COMPONENTS: "gps,radio,radar"
+      DRONE_TACTIC: "org.inaetics.dronessimulator.drone.tactic.example.basic.BasicTactic"

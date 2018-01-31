@@ -2,14 +2,14 @@ package org.inaetics.dronessimulator.pubsub.rabbitmq.common;
 
 import com.rabbitmq.client.*;
 import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
+import org.osgi.service.cm.ConfigurationException;
+import org.osgi.service.cm.ManagedService;
 
 import java.io.IOException;
 import java.net.ConnectException;
-import java.net.URISyntaxException;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Collection;
 import java.util.Dictionary;
 import java.util.HashSet;
@@ -17,45 +17,66 @@ import java.util.concurrent.TimeoutException;
 
 /**
  * A wrapper for RabbitMQ connections.
- *
+ * <p>
  * This abstract class contains functionality which is shared between the RabbitMQ publisher and subscriber classes
  * related to the connection to the broker.
  */
-public abstract class RabbitConnection {
-    /** The maximum number of connection attempts. */
+public abstract class RabbitConnection implements ManagedService {
+    /**
+     * The maximum number of connection attempts.
+     */
     private static final int MAX_CONNECTION_ATTEMPTS = 100;
 
-    /** The timeout between connection attempts in milliseconds. */
+    /**
+     * The timeout between connection attempts in milliseconds.
+     */
     private static final long CONNECTION_ATTEMPT_TIMEOUT = 2000;
 
-    /** The connection factory used for setting up a connection. */
+    /**
+     * The connection factory used for setting up a connection.
+     */
     private ConnectionFactory connectionFactory;
 
-    /** The RabbitMQ connection used by this subscriber. */
+    /**
+     * The RabbitMQ connection used by this subscriber.
+     */
     private Connection connection;
 
-    /** The connection channel to use, created from the connection. */
+    /**
+     * The connection channel to use, created from the connection.
+     */
     protected Channel channel;
 
-    /** The serializer used in this connection. */
+    /**
+     * The serializer used in this connection.
+     */
     protected volatile Serializer serializer;
 
-    /** Collection of topics for which an exchange has been declared. */
-    private Collection<Topic> declaredTopics;
+    private volatile Discoverer m_discovery;
+
+    private RabbitConnectionInfo connectionInfo;
+
+    /**
+     * Collection of topics for which an exchange has been declared.
+     */
+    private final Collection<Topic> declaredTopics;
 
     /**
      * Sets up the connection for use.
+     *
      * @param connectionFactory The RabbitMQ connection factory to use when starting a new connection.
-     * @param serializer The serializer to use.
+     * @param serializer        The serializer to use.
      */
-    protected RabbitConnection(ConnectionFactory connectionFactory, Serializer serializer) {
+    protected RabbitConnection(ConnectionFactory connectionFactory, Serializer serializer, Discoverer discoverer) {
         this(connectionFactory);
         assert serializer != null;
         this.serializer = serializer;
+        this.m_discovery = discoverer;
     }
 
     /**
      * Sets up the connection for use within OSGi. This constructor assumes that the serializer is injected later on.
+     *
      * @param connectionFactory The RabbitMQ connection factory to use when starting a new connection.
      */
     protected RabbitConnection(ConnectionFactory connectionFactory) {
@@ -74,31 +95,36 @@ public abstract class RabbitConnection {
 
     /**
      * Updates the connection config based on a discovered configuration.
+     *
      * @param config The configuration.
      */
-    public void setConfig(Dictionary<String, String> config) {
-        this.connectionFactory = new ConnectionFactory();
+    @Override
+    public void updated(Dictionary<String, ?> config) throws ConfigurationException {
+        getLogger().debug("Received config: " + String.valueOf(config));
 
         if (config != null) {
-            String username = config.get("username");
-            this.connectionFactory.setUsername(username);
-
-            String password = config.get("password");
-            this.connectionFactory.setPassword(password);
-            try {
-                String uri = config.get("uri");
-                this.connectionFactory.setUri(uri);
-                this.getLogger().debug("Received configuration, RabbitMQ URI is {}", uri);
-            } catch (URISyntaxException | NoSuchAlgorithmException | KeyManagementException e) {
-                this.getLogger().error("Invalid URI found in configuration", e);
+            String username = (String) config.get("username");
+            if ("".equals(username)) {
+                throw new ConfigurationException("username", "cannot be null or empty");
             }
+            String password = (String) config.get("password");
+            if ("".equals(password)) {
+                throw new ConfigurationException("password", "cannot be null or empty");
+            }
+            String uri = (String) config.get("uri");
+            if ("".equals(uri)) {
+                throw new ConfigurationException("uri", "cannot be null or empty");
+            }
+            this.connectionInfo = new RabbitConnectionInfo(username, password, uri);
         } else {
             this.getLogger().debug("Unset RabbitMQ configuration");
+            this.connectionInfo = null;
         }
     }
 
     /**
      * Make a connection to the RabbitMQ broker and sets up the exchange used by this connection.
+     *
      * @throws IOException Error while setting up the connection.
      */
     public void connect() throws IOException {
@@ -109,7 +135,19 @@ public abstract class RabbitConnection {
             while (connection == null) {
                 attempt++;
 
+                if (connectionFactory == null){
+                    if (connectionInfo == null || !connectionInfo.isValid()) {
+                        connectionInfo = RabbitConnectionInfo.createInstance(m_discovery);
+                    }
+                    try {
+                        connectionFactory = connectionInfo.createConnectionFactory();
+                    } catch (RabbitConnectionInfo.ConnectionInfoExpiredException e) {
+                        connectionInfo = RabbitConnectionInfo.createInstance(m_discovery);
+                    }
+                }
+
                 try {
+                    getLogger().debug(String.format("Try to connect to RabbitMQ using {%s}, {%s} on attempt {%s}", connectionFactory.getUsername(), connectionFactory.getPassword(), String.valueOf(attempt)));
                     connection = connectionFactory.newConnection();
 
                     getLogger().info("Connected to RabbitMQ");
@@ -161,7 +199,7 @@ public abstract class RabbitConnection {
 
     /**
      * Reconnects to the RabbitMQ broker.
-     *
+     * <p>
      * Calls disconnect and connect in this order.
      */
     public void reconnect() throws IOException {
@@ -173,6 +211,7 @@ public abstract class RabbitConnection {
 
     /**
      * Returns whether the connection with the RabbitMQ broker is usable.
+     *
      * @return The connection status.
      */
     public boolean isConnected() {
@@ -181,6 +220,7 @@ public abstract class RabbitConnection {
 
     /**
      * Declares the topic as RabbitMQ exchange using the default settings.
+     *
      * @param topic The topic to declare.
      */
     protected void declareTopic(Topic topic) throws IOException {
@@ -190,7 +230,7 @@ public abstract class RabbitConnection {
         }
 
         if (!declaredTopics.contains(topic)) {
-            channel.exchangeDeclare(topic.getName(), BuiltinExchangeType.FANOUT, false);
+            channel.exchangeDeclare(topic.getName(), BuiltinExchangeType.TOPIC, false);
             declaredTopics.add(topic);
             getLogger().debug("RabbitMQ exchange {} declared", topic.getName());
         }
@@ -198,6 +238,7 @@ public abstract class RabbitConnection {
 
     /**
      * Returns the AMQP channel used by this connection. May be null if not connected.
+     *
      * @return The used AMQP channel.
      */
     public Channel getChannel() {
@@ -206,6 +247,7 @@ public abstract class RabbitConnection {
 
     /**
      * Returns the serializer used by this connection. May be null if unset.
+     *
      * @return The used serializer.
      */
     public Serializer getSerializer() {

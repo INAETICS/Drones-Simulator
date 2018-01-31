@@ -12,7 +12,7 @@ import javafx.scene.paint.Color;
  */
 public class PannableCanvas extends Pane {
     /** Scale of the canvas */
-    private DoubleProperty myScale = new SimpleDoubleProperty(1.0);
+    private final DoubleProperty myScale = new SimpleDoubleProperty(1.0);
 
     /**
      * Instantiates a new pannable and zoomable canvas

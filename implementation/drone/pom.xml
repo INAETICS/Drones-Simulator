@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
         <groupId>org.inaetics</groupId>
@@ -18,40 +18,10 @@
         <module>drone-init</module>
         <module>tactic</module>
     </modules>
-
     <dependencies>
         <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.dependencymanager</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.inaetics.dronessimulator</groupId>
-            <artifactId>common</artifactId>
-            <version>0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.inaetics.dronessimulator.pubsub</groupId>
-            <artifactId>pubsub-api</artifactId>
-            <version>0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.inaetics.dronessimulator.discovery</groupId>
-            <artifactId>discovery-api</artifactId>
-            <version>0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.inaetics.dronessimulator</groupId>
-            <artifactId>architecture-event-controller</artifactId>
-            <version>0.1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.ops4j.pax.logging</groupId>
-            <artifactId>pax-logging-api</artifactId>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
         </dependency>
     </dependencies>
 

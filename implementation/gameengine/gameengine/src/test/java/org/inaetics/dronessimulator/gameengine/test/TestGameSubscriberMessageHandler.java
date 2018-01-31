@@ -3,6 +3,7 @@ package org.inaetics.dronessimulator.gameengine.test;
 import org.inaetics.dronessimulator.common.protocol.*;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
+import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.gameengine.common.state.Bullet;
 import org.inaetics.dronessimulator.gameengine.common.state.Drone;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.GameStateManager;
@@ -15,11 +16,14 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import static org.mockito.Mockito.mock;
+
 public class TestGameSubscriberMessageHandler {
 
     private MockPhysicsEngineDriver mockDriver;
     private IdentifierMapperService id_mapper;
     private GameStateManager stateManager;
+    private Discoverer mockDiscoverer;
 
     private DamageMessageHandler damageMessageHandler;
     private FireBulletMessageHandler fireBulletMessageHandler;
@@ -33,14 +37,16 @@ public class TestGameSubscriberMessageHandler {
         this.id_mapper = new IdentifierMapperService();
         this.stateManager = new GameStateManager();
         this.mockDriver = new MockPhysicsEngineDriver(this.id_mapper);
+        this.mockDiscoverer = mock(Discoverer.class);
         this.damageMessageHandler = new DamageMessageHandler(this.mockDriver, this.id_mapper, this.stateManager);
         this.fireBulletMessageHandler = new FireBulletMessageHandler(this.mockDriver, this.id_mapper, this.stateManager);
-        this.killMessageHandler = new KillMessageHandler(this.mockDriver, this.id_mapper, this.stateManager);
+        this.killMessageHandler = new KillMessageHandler(this.mockDriver, this.id_mapper, this.stateManager, this.mockDiscoverer);
         this.movementMessageHandler = new MovementMessageHandler(this.mockDriver, this.id_mapper, this.stateManager);
 
         int gameengineId = this.id_mapper.getNewGameEngineId();
         String protocolId = "1";
-        this.drone = new Drone(gameengineId, new D3Vector(), new D3Vector(), new D3Vector(), new D3PolarCoordinate());
+        this.drone = new Drone(gameengineId, null, new D3Vector(), new D3Vector(), new D3Vector(), new
+                D3PolarCoordinate(), new D3Vector());
 
         this.id_mapper.setMapping(gameengineId, protocolId);
         this.stateManager.addEntityState(drone);

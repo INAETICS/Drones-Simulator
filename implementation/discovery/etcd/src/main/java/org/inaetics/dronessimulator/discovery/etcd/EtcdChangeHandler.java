@@ -21,7 +21,7 @@ public class EtcdChangeHandler extends Thread {
     private final EtcdDiscoverer discoverer;
 
     /** The root node of the tree. */
-    private final DiscoveryNode cachedRoot;
+    private final DiscoveryNode cachedRoot; //TODO implement TTL here as well
 
     /** The last seen etcd change index. */
     private Long nextModifiedIndex;

@@ -2,13 +2,16 @@ package org.inaetics.dronessimulator.common.vector;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Three-dimensional vector implementation.
  */
 public class D3Vector implements Serializable {
     /** The unity vector. */
-    public transient final static D3Vector UNIT = new D3Vector(1,1,1);
+    public static final transient D3Vector UNIT = new D3Vector(1, 1, 1);
+    public static final transient D3Vector ZERO = new D3Vector(0, 0, 0);
 
     /** X coordinate of this vector. */
     private final double x;
@@ -209,6 +212,21 @@ public class D3Vector implements Serializable {
      */
     public String toString() {
         return "(x:" + x + ", y:" + y + ", z:" + z + ")";
+    }
+
+    public String toString(int length) {
+        String formatString = "(x:%." + length + "f, y:%." + length + "f, z:%." + length + "f)";
+        return String.format(formatString, x, y, z);
+    }
+
+    public static D3Vector fromString(String str) {
+        Pattern pattern = Pattern.compile("\\(x:(-?[0-9.]*), y:(-?[0-9.]*), z:(-?[0-9.]*)\\)");
+        Matcher matcher = pattern.matcher(str);
+        if (matcher.matches()) {
+            return new D3Vector(Double.parseDouble(matcher.group(1)), Double.parseDouble(matcher.group(2)), Double.parseDouble(matcher.group(3)));
+        }
+
+        return null;
     }
 
     /**

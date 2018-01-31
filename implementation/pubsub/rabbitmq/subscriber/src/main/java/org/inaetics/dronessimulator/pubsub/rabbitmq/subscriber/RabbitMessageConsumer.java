@@ -13,7 +13,7 @@ import java.io.IOException;
  */
 class RabbitMessageConsumer extends DefaultConsumer {
     /** A RabbitMQ subscriber instance. */
-    private RabbitSubscriber subscriber;
+    private final RabbitSubscriber subscriber;
 
     /**
      * Instantiates a new RabbitMQ consumer based on the given subscriber.
@@ -32,11 +32,9 @@ class RabbitMessageConsumer extends DefaultConsumer {
         if (serializer != null) {
             try {
                 Message message = serializer.deserialize(body);
-                this.getChannel().basicAck(envelope.getDeliveryTag(), false);
                 subscriber.receive(message);
             } catch (ClassNotFoundException e) {
                 // Reject the message since we cannot do anything useful with it
-                this.getChannel().basicNack(envelope.getDeliveryTag(), false, false);
                 subscriber.getLogger().warn("Received message of unknown type, message dropped", e);
             }
         }

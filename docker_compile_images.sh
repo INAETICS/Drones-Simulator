@@ -5,8 +5,22 @@ STATIC="static"
 DEPENDENT_BUNDLES="$STATIC/dependent-bundles"
 
 set -e
-(cd $ROOT && mvn clean)
-(cd $ROOT && mvn package -Dmaven.test.skip=true)
+
+if [[ $1 == "no-maven" ]]; then
+    echo "Skipping maven because the script received commandline parameters"
+else
+    (cd $ROOT && mvn clean install -Dmaven.test.skip=true)
+fi
+
+if [[ "$1" == *"yml" ||  "$1" == *"yaml" ]]
+then
+    COMPOSEFILE=${1:-docker-compose.yml}
+else
+    COMPOSEFILE=${2:-docker-compose.yml}
+fi
+
+echo "We will be using the following docker-compose file: ${COMPOSEFILE}"
+
 
 DOCKER_IMAGES="docker_images"
 BASE_IMAGE="$DOCKER_IMAGES/base_image"
@@ -42,6 +56,7 @@ cp "$STATIC/felix-config.properties" "$BASE_IMAGE/files/config.properties"
 
 # Copy the common dependencies to base image
 cp "$DEPENDENT_BUNDLES/"*".jar" "$BASE_IMAGE_DEPENDENCIES"
+cp -r "$STATIC/jvmtop" "$BASE_IMAGE/files/jvmtop"
 
 # Copy base image docker file
 cp "$STATIC/base_image_Dockerfile" "$BASE_IMAGE/Dockerfile"
@@ -108,6 +123,7 @@ cp "$ROOT/drone/components/engine/target/components-engine-0.1.jar" $DRONE_BUNDL
 cp "$ROOT/drone/components/gps/target/components-gps-0.1.jar" $DRONE_BUNDLES
 cp "$ROOT/drone/components/gun/target/components-gun-0.1.jar" $DRONE_BUNDLES
 cp "$ROOT/drone/components/radar/target/components-radar-0.1.jar" $DRONE_BUNDLES
+cp "$ROOT/drone/components/radio/target/components-radio-0.1.jar" $DRONE_BUNDLES
 cp "$ROOT/drone/drone-init/target/drone-init-0.1.jar" $DRONE_BUNDLES
 cp "$ROOT/drone/tactic/target/tactic-0.1.jar" $DRONE_BUNDLES
 cp "$ROOT/architecture-event-controller/target/architecture-event-controller-0.1.jar" $DRONE_BUNDLES
@@ -129,5 +145,4 @@ cp "$ROOT/pubsub/api/target/pubsub-api-0.1.jar" $ARCHITECTURE_MANAGER_BUNDLES
 cp "$ROOT/common/target/common-0.1.jar" $ARCHITECTURE_MANAGER_BUNDLES
 cp "$ROOT/architecture-manager/target/architecture-manager-0.1.jar" $ARCHITECTURE_MANAGER_BUNDLES
 
-docker-compose rm -f -v
-docker-compose create --build
+sh docker_refresh_images.sh $COMPOSEFILE

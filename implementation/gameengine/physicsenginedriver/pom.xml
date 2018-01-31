@@ -34,22 +34,22 @@
         <dependency>
             <groupId>org.inaetics.dronessimulator.gameengine</groupId>
             <artifactId>gameengine-physicsengine</artifactId>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.gameengine</groupId>
             <artifactId>gameengine-common</artifactId>
-            <version>0.1</version>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.gameengine</groupId>
             <artifactId>gameengine-gamestate-manager</artifactId>
-            <version>0.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator</groupId>
+            <artifactId>common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.pubsub</groupId>
             <artifactId>pubsub-api</artifactId>
-            <version>0.1</version>
         </dependency>
     </dependencies>
 </project>

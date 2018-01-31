@@ -1,8 +1,15 @@
 package org.inaetics.dronessimulator.common.protocol;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * Message specifying a bullet is fired
  */
+@Getter
+@Setter
+@EqualsAndHashCode(callSuper = true)
 public class FireBulletMessage extends CreateEntityMessage {
     /**
      * The damage of the bullet
@@ -13,22 +20,7 @@ public class FireBulletMessage extends CreateEntityMessage {
      */
     private String firedById;
 
-    public int getDamage() {
-        return damage;
-    }
-
-    public void setDamage(int damage) {
-        this.damage = damage;
-    }
-
-    public String getFiredById() {
-        return firedById;
-    }
-
-    public void setFiredById(String firedById) {
-        this.firedById = firedById;
-    }
-
+    @Override
     public String toString() {
         return String.format("(FireBulletMessage %s fired by %s, %s)", this.getIdentifier(), this.getFiredById(), this.getDamage());
     }

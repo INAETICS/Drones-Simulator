@@ -1,7 +1,10 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.publisher;
 
+import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.ConnectionFactory;
+import lombok.Getter;
 import org.apache.log4j.Logger;
+import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
 import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
@@ -14,16 +17,16 @@ import java.io.IOException;
  * A RabbitMQ implementation of a publisher.
  */
 public class RabbitPublisher extends RabbitConnection implements Publisher {
-    /** The logger */
-    private static final Logger logger = Logger.getLogger(RabbitPublisher.class);
+    @Getter
+    private final Logger logger = Logger.getLogger(RabbitPublisher.class);
 
     /**
      * Instantiates a new RabbitMQ publisher.
      * @param connectionFactory The RabbitMQ connection factory to use when starting a new connection.
      * @param serializer The serializer to use.
      */
-    public RabbitPublisher(ConnectionFactory connectionFactory, Serializer serializer) {
-        super(connectionFactory, serializer);
+    public RabbitPublisher(ConnectionFactory connectionFactory, Serializer serializer, Discoverer discoverer) {
+        super(connectionFactory, serializer, discoverer);
     }
 
     /**
@@ -59,22 +62,14 @@ public class RabbitPublisher extends RabbitConnection implements Publisher {
             this.declareTopic(topic);
 
             // Drop null messages and when a serializer is absent
-            Serializer serializer = this.serializer;
-
             if (message != null && serializer != null) {
-                logger.debug("Preparing to send message {} to topic {}", message.toString(), topic.getName());
                 byte[] serializedMessage = serializer.serialize(message);
-                this.channel.basicPublish(topic.getName(), "", null, serializedMessage);
+                this.channel.basicPublish(topic.getName(), "", new AMQP.BasicProperties.Builder().deliveryMode(1).build(), serializedMessage);
                 logger.debug("Sent message {} to topic {}", message.toString(), topic.getName());
             }
         } catch (IOException e) {
             // Just drop the message if there is no good connection
             logger.error("Error while sending message: {}", e);
         }
-    }
-
-    @Override
-    protected Logger getLogger() {
-        return logger;
     }
 }

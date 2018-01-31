@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
@@ -27,65 +27,228 @@
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
         <sonar.jacoco.reportPath>${project.basedir}/target/coverage-reports/jacoco.exec</sonar.jacoco.reportPath>
         <sonar.language>java</sonar.language>
+
+        <!-- Version declarations -->
+        <java.version>1.8</java.version>
+        <junit.version>4.12</junit.version>
+        <osgi.version>6.0.0</osgi.version>
+        <apache.felix.version>4.4.0</apache.felix.version>
+        <apache.felix.configadmin.version>1.8.14</apache.felix.configadmin.version>
+        <pax.logging.version>1.10.0</pax.logging.version>
+        <jacoco.version>0.7.9</jacoco.version>
+        <surefire.maven.version>2.19.1</surefire.maven.version>
+        <failsafe.maven.version>2.20.1</failsafe.maven.version>
+        <sonar.version>3.2</sonar.version>
+        <lombok.version>1.16.10</lombok.version>
+        <lombok.plugin.version>${lombok.version}.0</lombok.plugin.version>
+        <kotlin.version>1.1.4-3</kotlin.version>
+        <mockito.version>2.11.0</mockito.version>
+        <hamcrest.version>1.3</hamcrest.version>
+        <system-rules.version>1.16.0</system-rules.version>
+        <awaitility.version>3.0.0</awaitility.version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
+            <!--Testing dependencies-->
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.12</version>
+                <version>${junit.version}</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.hamcrest</groupId>
+                <artifactId>hamcrest-all</artifactId>
+                <version>${hamcrest.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.awaitility</groupId>
+                <artifactId>awaitility</artifactId>
+                <version>${awaitility.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator</groupId>
+                <artifactId>common-test</artifactId>
+                <scope>test</scope>
+                <type>test-jar</type>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.discovery</groupId>
+                <artifactId>discovery-api</artifactId>
+                <type>test-jar</type>
+                <scope>test</scope>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.pubsub</groupId>
+                <artifactId>pubsub-api</artifactId>
+                <type>test-jar</type>
+                <scope>test</scope>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.github.stefanbirkner</groupId>
+                <artifactId>system-rules</artifactId>
+                <version>${system-rules.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!--OSGi dependencies-->
+            <dependency>
                 <groupId>org.osgi</groupId>
                 <artifactId>org.osgi.core</artifactId>
-                <version>6.0.0</version>
+                <version>${osgi.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.dependencymanager</artifactId>
-                <version>4.4.0</version>
+                <version>${apache.felix.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>org.apache.felix.configadmin</artifactId>
-                <version>1.8.14</version>
+                <version>${apache.felix.configadmin.version}</version>
             </dependency>
+
+            <!--Logging dependencies-->
             <dependency>
                 <groupId>org.ops4j.pax.logging</groupId>
                 <artifactId>pax-logging-api</artifactId>
-                <version>1.10.0</version>
+                <version>${pax.logging.version}</version>
+            </dependency>
+            <!--Module dependencies - drones-->
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.drone</groupId>
+                <artifactId>drone-init</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.drone.components</groupId>
+                <artifactId>components-engine</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.drone.components</groupId>
+                <artifactId>components-gps</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.drone.components</groupId>
+                <artifactId>components-gun</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.drone.components</groupId>
+                <artifactId>components-radar</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.drone.components</groupId>
+                <artifactId>components-radio</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!--Module dependencies - common-->
+            <dependency>
+                <groupId>org.inaetics.dronessimulator</groupId>
+                <artifactId>common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!--Module dependencies - pubsub-->
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.pubsub</groupId>
+                <artifactId>pubsub-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
+                <artifactId>rabbitmq-subscriber</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
+                <artifactId>rabbitmq-publisher</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.pubsub</groupId>
+                <artifactId>java-serializer</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!--Module dependencies - discovery-->
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.discovery</groupId>
+                <artifactId>discovery-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.inaetics.dronessimulator.discovery</groupId>
+                <artifactId>etcd</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <!--Module dependencies - architecture-->
+            <dependency>
+                <groupId>org.inaetics.dronessimulator</groupId>
+                <artifactId>architecture-event-controller</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.servicemix.bundles</groupId>
+                <artifactId>org.apache.servicemix.bundles.javassist</artifactId>
+                <version>3.12.1.ga_1</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <!--Give all modules access to lombok.-->
+    <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>${lombok.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
-                <version>0.7.9</version>
+                <version>${jacoco.version}</version>
                 <configuration>
                     <destFile>${sonar.jacoco.reportPath}</destFile>
                     <append>true</append>
+                    <excludes>
+                        <exclude>**/Activator.*</exclude>
+                        <exclude>**/common-test/**</exclude>
+                    </excludes>
                 </configuration>
                 <executions>
-                <execution>
-                    <id>pre-unit-test</id>
-                    <goals>
-                        <goal>prepare-agent</goal>
-                    </goals>
-                    <configuration>
-                        <!-- Sets the path to the file which contains the execution data. -->
-                        <destFile>${project.build.directory}/coverage-reports/jacoco.exec</destFile>
-                        <!--
-                        Sets the name of the property containing the settings
-                        for JaCoCo runtime agent.
-                        -->
-                        <propertyName>surefireArgLine</propertyName>
-                    </configuration>
-                </execution>
+                    <execution>
+                        <id>pre-unit-test</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                        <configuration>
+                            <!-- Sets the path to the file which contains the execution data. -->
+                            <destFile>${project.build.directory}/coverage-reports/jacoco.exec</destFile>
+                            <!--
+                            Sets the name of the property containing the settings
+                            for JaCoCo runtime agent.
+                            -->
+                            <propertyName>surefireArgLine</propertyName>
+                        </configuration>
+                    </execution>
                     <execution>
                         <id>jacoco-report</id>
                         <phase>test</phase>
@@ -95,14 +258,40 @@
                     </execution>
                 </executions>
             </plugin>
-              <plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.19.1</version>
+                <version>${surefire.maven.version}</version>
                 <configuration>
                     <!-- Sets the VM argument line used when unit tests are run. -->
                     <argLine>${surefireArgLine}</argLine>
+                    <!-- skips surefire tests without skipping failsafe tests.
+                 Property value seems to magically default to false -->
+                    <skipTests>${skip.surefire.tests}</skipTests>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${failsafe.maven.version}</version>
+                <configuration>
+                    <!-- skips failsafe tests without skipping surefire tests.
+                 Property value seems to magically default to false -->
+                    <skipTests>${skip.failsafe.tests}</skipTests>
+                    <excludes>
+                        <exclude>**/GameIT.java</exclude> <!-- The game test does not really work on Travis, so for now we exclude this and only run it locally -->
+                    </excludes>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>run-integration-tests</id>
+                        <phase>integration-test</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
         <pluginManagement>
@@ -110,7 +299,7 @@
                 <plugin>
                     <groupId>org.sonarsource.scanner.maven</groupId>
                     <artifactId>sonar-maven-plugin</artifactId>
-                    <version>3.2</version>
+                    <version>${sonar.version}</version>
                 </plugin>
 
                 <plugin>
@@ -134,7 +323,7 @@
                 <plugin>
                     <groupId>org.projectlombok</groupId>
                     <artifactId>lombok-maven-plugin</artifactId>
-                    <version>1.16.10.0</version>
+                    <version>${lombok.plugin.version}</version>
                     <configuration>
                         <encoding>UTF-8</encoding>
                     </configuration>
@@ -154,8 +343,8 @@
                     <version>3.6.1</version>
                     <configuration>
                         <compilerVersion>1.8</compilerVersion>
-                        <source>1.8</source>
-                        <target>1.8</target>
+                        <source>${java.version}</source>
+                        <target>${java.version}</target>
                     </configuration>
                 </plugin>
 

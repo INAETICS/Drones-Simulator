@@ -1,0 +1,48 @@
+version: '2.1'
+services:
+
+  etcd:
+    build: ./docker_images/etcd
+    ports:
+      - "2379:2379"
+      - "2380:2380"
+      - "4001:4001"
+    healthcheck:
+      test: curl localhost:4001/v2/keys
+      interval: 5s
+      timeout: 5s
+      retries: 300
+
+  rabbitmq:
+    build: ./docker_images/rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    env_file: config.env
+    healthcheck:
+      test: /opt/healthcheck.sh
+      interval: 5s
+      timeout: 5s
+      retries: 300
+    depends_on:
+      etcd:
+        condition: service_healthy
+
+  architecture-manager:
+    build: ./docker_images/architecture_manager
+    env_file: config.env
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    links:
+      - etcd
+
+  game-engine:
+    build: ./docker_images/game_engine
+    env_file: config.env
+    tty: true
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    links:
+      - etcd

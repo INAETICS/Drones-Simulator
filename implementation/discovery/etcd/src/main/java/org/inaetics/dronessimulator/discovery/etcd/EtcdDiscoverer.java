@@ -8,8 +8,7 @@ import mousio.etcd4j.responses.*;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryStoredNode;
 import org.inaetics.dronessimulator.discovery.api.tree.Tuple;
 
 import java.io.IOException;
@@ -25,20 +24,14 @@ import java.util.concurrent.TimeoutException;
 public class EtcdDiscoverer {
     private static final Logger logger = Logger.getLogger(EtcdDiscoverer.class);
 
-    /** Prefix for all etcd paths. */
-    private static final String PATH_PREFIX = "/";
-
-    /** Prefix/location for instance references. */
-    private static final String INSTANCE_DIR = "instances";
-
     /** Location where discoverable configs can be found. */
     private static final String DISCOVERABLE_CONFIG_DIR = "configs";
 
     /** The instances registered through this discoverer. */
-    private Set<Instance> myInstances;
+    private final Set<Instance> myInstances;
 
     /** The etcd client instance. */
-    private EtcdClient client;
+    private final EtcdClient client;
 
     /**
      * Instantiates a new etcd discoverer and connects to etcd using the given URI.
@@ -61,7 +54,7 @@ public class EtcdDiscoverer {
         }
 
         // Create discoverable config directory
-        this.client.putDir(buildPath(DISCOVERABLE_CONFIG_DIR));
+        this.client.putDir(Instance.buildPath(DISCOVERABLE_CONFIG_DIR));
     }
 
     /**
@@ -82,7 +75,7 @@ public class EtcdDiscoverer {
      * @throws IOException An error occured in the connection with etcd.
      */
     public void register(Instance instance) throws DuplicateName, IOException {
-        String path = buildInstancePath(instance);
+        String path = Instance.buildInstancePath(instance);
         logger.debug("Registering instance {} at path {}", instance, path);
 
         try {
@@ -112,14 +105,14 @@ public class EtcdDiscoverer {
      * @throws IOException An error occurred in the connection with etcd.
      */
     public void registerProperties(Instance instance) throws IOException {
-        String path = buildInstancePath(instance);
+        String path = Instance.buildInstancePath(instance);
 
         EtcdResponsePromise promise;
 
         for (Map.Entry<String, String> entry : instance.getProperties().entrySet()) {
             try {
                 logger.debug("Setting property for instance {}: {}", instance, String.format("%s = %s", entry.getKey(), entry.getValue()));
-                promise = this.client.put(buildPath(path, entry.getKey()), entry.getValue()).send();
+                promise = this.client.put(Instance.buildPath(path, entry.getKey()), entry.getValue()).send();
                 promise.get();
             } catch (EtcdException | TimeoutException | EtcdAuthenticationException e) {
                 throw new IOException(e);
@@ -133,7 +126,7 @@ public class EtcdDiscoverer {
      * @throws IOException An error occurred in the connection with etcd.
      */
     public void unregister(Instance instance) throws IOException {
-        String path = buildInstancePath(instance);
+        String path = Instance.buildInstancePath(instance);
 
         logger.debug("Unregistering instance {} from {}", instance, path);
 
@@ -186,7 +179,7 @@ public class EtcdDiscoverer {
     Tuple<EtcdKeysResponse.EtcdNode, Long> getFromRoot(Long modifiedIndex, boolean wait) {
         Tuple<EtcdKeysResponse.EtcdNode, Long> returnValue = null;
 
-        String path = buildPath();
+        String path = Instance.buildPath();
 
         try {
             EtcdKeyGetRequest request = this.client.getDir(path).recursive();
@@ -220,51 +213,24 @@ public class EtcdDiscoverer {
         return returnValue;
     }
 
-    /**
-     * Builds an etcd path from a number of strings.
-     * @param segments The segments of the path.
-     * @return The constructed path.
-     */
-    static String buildPath(String... segments) {
-        return PATH_PREFIX + String.join("/", segments);
-    }
-
-    /**
-     * Builds an etcd path for the given instance.
-     * @param instance The instance to build the path for.
-     * @return The path for the instance.
-     */
-    static String buildInstancePath(Instance instance) {
-        return buildInstancePath(instance.getType(), instance.getGroup(), instance.getName());
-    }
-
-    /**
-     * Builds an etcd path for the given parameters.
-     * @param type The type of the instance.
-     * @param group The group of the instance.
-     * @param name The name of the instance.
-     * @return The path for the instance.
-     */
-    static String buildInstancePath(Type type, Group group, String name) {
-        return buildInstancePath(type.getStr(), group.getStr(), name);
-    }
-
-    /**
-     * Builds an etcd path for the given parameters.
-     * @param type The type of the instance.
-     * @param group The group of the instance.
-     * @param name The name of the instance.
-     * @return The path for the instance.
-     */
-    static String buildInstancePath(String type, String group, String name) {
-        return buildPath(INSTANCE_DIR, type, group, name);
-    }
-
     public Instance updateProperties(Instance instance, Map<String, String> properties) throws IOException {
         Instance newInstance = new Instance(instance.getType(), instance.getGroup(), instance.getName(), properties);
 
         registerProperties(newInstance);
 
         return newInstance;
+    }
+
+    public DiscoveryStoredNode getNode(Instance instance) {
+        String path = Instance.buildInstancePath(instance);
+        EtcdKeysResponse.EtcdNode etcdEntry = null;
+        try {
+            etcdEntry = this.client.get(path).send().get().getNode();
+        } catch (IOException | EtcdException | EtcdAuthenticationException | TimeoutException e) {
+            // Just return null
+            logger.error("No data could be retrieved from etcd, returning null", e);
+            return null;
+        }
+        return new DiscoveryStoredEtcdNode(etcdEntry);
     }
 }

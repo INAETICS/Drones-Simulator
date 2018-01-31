@@ -15,12 +15,6 @@ public interface IPhysicsEngine {
     void setObserver(PhysicsEngineEventObserver engineObserver);
 
     /**
-     * Sets the time between broadcasts. By default, state broadcasting is off.
-     * @param i The time between broadcasts in milliseconds.
-     */
-    void setTimeBetweenBroadcastms(long i);
-
-    /**
      * Adds the new entity to the physics engine.
      * @threadsafe
      * @param entity The entity to add.

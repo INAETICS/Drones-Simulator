@@ -50,7 +50,7 @@ public class KillEntitiesRule extends Rule {
             if(gameEntity instanceof HealthGameEntity) {
                 HealthGameEntity healthGameEntity = (HealthGameEntity) gameEntity;
 
-                if(healthGameEntity.getHP() <= 0) {
+                if(healthGameEntity.getHp() <= 0) {
                     DestroyHealthEntityEvent destroyEvent = new DestroyHealthEntityEvent(healthGameEntity);
 
                     results.add(destroyEvent);

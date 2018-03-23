@@ -20,20 +20,20 @@ import java.util.List;
 
 public interface Engine {
 
-    String getName();
+    public String getName();
 
-    double getMaxSpeed();
+    public double getMaxSpeed();
 
-    void setDesiredSpeed(double desiredSpeed);
-    double getDesiredSpeed();
-    double getCurrentSpeed();
+    public void setDesiredSpeed(double desiredSpeed);
+    public double getDesiredSpeed();
+    public double getCurrentSpeed();
 
-    void setDestination(D3Vector destination);
-    void setDestinations(List<D3Vector> destinations);
-    void clearDestinations();
+    public void setDestination(D3Vector destination);
+    public void setDestinations(List<D3Vector> destinations);
+    public void clearDestinations();
 
     /**
      * Returns a copy of the destinations
      */
-    List<D3Vector> getDestinations();
+    public List<D3Vector> getDestinations();
 }

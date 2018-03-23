@@ -17,7 +17,7 @@ package org.inaetics.drone.simulator.api.radar;
 import java.util.UUID;
 
 public interface Radar {
-    UUID getSensorId();
+    public UUID getSensorId();
     public String getName();
-    double getRotationFrequency();
+    public double getRotationFrequency();
 }

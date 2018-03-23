@@ -11,16 +11,24 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  *******************************************************************************/
-package org.inaetics.drone.simulator.api.gps;
 
-public interface Gps {
+package org.inaetics.drone.simulator.api.gun;
+
+import org.inaetics.drone.simulator.common.D3Vector;
+
+public interface Gun {
+
+    public String getName();
+
+    public double getMaxDistance();
+    public double getMuzzleVelocity();
+    public double getTimeBetweenShots();
+    public double getShotsLeft();
+
+    public void aimAndFireAt(D3Vector pos);
 
     /**
-     * Time between updates in seconds (simulated)
+     * Returns the estimate time needed to aim at provided location
      */
-    public double getTimeBetweenUpdates();
-
-
-    public PlatformInfo getLatestPlatformInfo();
-
+    public double getTimeToAimAt(D3Vector pos);
 }

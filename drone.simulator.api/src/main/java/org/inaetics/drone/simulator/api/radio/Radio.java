@@ -12,9 +12,14 @@
  *    limitations under the License.
  *******************************************************************************/
 
-package org.inaetics.drone.simulator.api.drone;
+package org.inaetics.drone.simulator.api.radio;
 
-public interface Drone {
+public interface Radio {
 
-    public void step(double time);
+    double getMaxCommunicationRange();
+
+    /**
+     * Sends message to al friendly drones in range
+     */
+    public void send(Object msg);
 }

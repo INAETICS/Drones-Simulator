@@ -12,38 +12,53 @@
  *    limitations under the License.
  *******************************************************************************/
 
-package org.inaetics.drone.simulator.api.radar;
+package org.inaetics.drone.simulator.components.gun;
 
+import org.inaetics.drone.simulator.api.gun.Gun;
 import org.inaetics.drone.simulator.common.D3Vector;
 
-import java.util.UUID;
+public class GunImpl implements Gun {
 
-public class Detection {
-    private final UUID detectionId; //will be the same over time for the same detected object
-    private double timeValidity;
-    private final D3Vector position;
-    private final D3Vector velocity;
-
-    public Detection(UUID detectionId, double timeValidity, D3Vector position, D3Vector velocity) {
-        this.detectionId = detectionId;
-        this.timeValidity = timeValidity;
-        this.position = position;
-        this.velocity = velocity;
+    @Override
+    public String getName() {
+        return "simple-gun";
     }
 
-    public UUID getDetectionId() {
-        return detectionId;
+    @Override
+    public double getMaxDistance() {
+        return 0; //TODO
     }
 
-    public double getTimeValidity() {
-        return timeValidity;
+    @Override
+    public double getMuzzleVelocity() {
+        return 0; //TODO
     }
 
-    public D3Vector getPosition() {
-        return position;
+    @Override
+    public double getTimeBetweenShots() {
+        return 0; //TODO
     }
 
-    public D3Vector getVelocity() {
-        return velocity;
+    @Override
+    public double getShotsLeft() {
+        return 0; //TODO
+    }
+
+    @Override
+    public void aimAndFireAt(D3Vector pos) {
+        //TODO
+    }
+
+    @Override
+    public double getTimeToAimAt(D3Vector pos) {
+        return 0; //TODO
+    }
+
+    public void start() {
+        //TODO start gun
+    }
+
+    public void stop() {
+        //TODO stop gun
     }
 }

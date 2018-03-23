@@ -11,16 +11,6 @@
  *    See the License for the specific language governing permissions and
  *    limitations under the License.
  *******************************************************************************/
-package org.inaetics.drone.simulator.api.gps;
 
-public interface Gps {
-
-    /**
-     * Time between updates in seconds (simulated)
-     */
-    public double getTimeBetweenUpdates();
-
-
-    public PlatformInfo getLatestPlatformInfo();
-
-}
+@org.osgi.annotation.versioning.Version("1.0.0")
+package org.inaetics.drone.simulator.spi.events;

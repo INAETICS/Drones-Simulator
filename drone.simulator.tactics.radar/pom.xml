@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.inaetics.drone.simulator</groupId>
+        <artifactId>org.inaetics.drone.simulator.parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>org.inaetics.drone.simulator.tactics.radar</artifactId>
+    <name>Drone Simulator Radar Tactic Implementation</name>
+    <description>
+        Example of a simple radar drone tactic. Can be used as starting point to
+        implement more complex tactics.
+        Note that this implementation only depends on the drone api
+    </description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.inaetics.drone.simulator</groupId>
+            <artifactId>org.inaetics.drone.simulator.api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bnd-maven-plugin</artifactId>
+                <version>${bnd-maven-plugin.version}</version>
+                <configuration>
+                    <bnd combine.self="override"><![CDATA[
+#Always export packages with a @Version annotation
+-exportcontents: ${packages;ANNOTATED;org.osgi.annotation.versioning.Version}
+Bundle-Activator: org.inaetics.drone.simulator.tactics.radar.Activator
+]]>
+                    </bnd>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

@@ -18,9 +18,31 @@ import org.inaetics.drone.simulator.common.D3Vector;
 
 public class PlatformInfo {
 
-    double timeValidity;
-    D3Vector position;
-    D3Vector velocity;
-    D3Vector acceleration;
+    private final double timeValidity;
+    private final D3Vector position;
+    private final D3Vector velocity;
+    private final D3Vector acceleration;
 
+    public PlatformInfo(double timeValidity, D3Vector position, D3Vector velocity, D3Vector acceleration) {
+        this.timeValidity = timeValidity;
+        this.position = position;
+        this.velocity = velocity;
+        this.acceleration = acceleration;
+    }
+
+    public double getTimeValidity() {
+        return timeValidity;
+    }
+
+    public D3Vector getPosition() {
+        return position;
+    }
+
+    public D3Vector getVelocity() {
+        return velocity;
+    }
+
+    public D3Vector getAcceleration() {
+        return acceleration;
+    }
 }

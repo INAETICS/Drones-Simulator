@@ -13,4 +13,4 @@
  *******************************************************************************/
 
 @org.osgi.annotation.versioning.Version("1.0.0")
-package org.inaetics.drone.simulator.api;
+package org.inaetics.drone.simulator.common;

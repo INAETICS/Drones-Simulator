@@ -23,9 +23,14 @@ public interface MissionInfo {
      * This can be used in simulation to slow down or speed up.
      * 1.0 means 'normal' time
      */
-    public double getTimeAccelation();
+    public double getTimeAcceleration();
 
-    Cuboid getMissionArea();
+    //TODO should this be here or in gps/platform-service?
+    public double getCurrentTime();
 
-    MissionGoal getMissionGoal();
+    public Cuboid getMissionArea();
+
+    public MissionGoal getMissionGoal();
+
+    //TODO mission target assets?
 }

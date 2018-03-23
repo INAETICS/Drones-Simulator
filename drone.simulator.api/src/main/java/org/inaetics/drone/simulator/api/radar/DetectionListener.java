@@ -19,5 +19,5 @@ import java.util.UUID;
 
 public interface DetectionListener {
 
-    public void processDetections(UUID sensorSource, List<Detection> detections, double updateTime);
+    public void processDetections(UUID sensorSource, List<Detection> detections);
 }

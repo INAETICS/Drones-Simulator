@@ -12,16 +12,20 @@
  *    limitations under the License.
  *******************************************************************************/
 
-package org.inaetics.drone.simulator.radio;
+package org.inaetics.drone.simulator.api.drone;
 
-import org.inaetics.drone.simulator.common.D3Vector;
+/**
+ * Mandatory service properties:
+ *  - DRONE_TEAM_NAME
+ */
+public interface DroneTactic {
 
-public interface Radio {
-
-    double getMaxCommunicationRange();
+    public static final String DRONE_TEAM_NAME = "team";
 
     /**
-     * Sends message to al friendly drones in range
+     * Provided time is the time in seconds since the start of the 'mission'
+     * Note that the simulation can be (de)accelerated, resulting in a time diff compared to the actual time (System.getTime())
+     * The drone step will be called with a frequency of TBD (10?)
      */
-    void send(Object msg);
+    public void step(double time);
 }

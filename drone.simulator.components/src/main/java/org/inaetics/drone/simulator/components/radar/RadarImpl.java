@@ -16,7 +16,8 @@ package org.inaetics.drone.simulator.components.radar;
 
 import org.inaetics.drone.simulator.api.radar.DetectionListener;
 import org.inaetics.drone.simulator.api.radar.Radar;
-import org.inaetics.drone.simulator.spi.events.DronesUpdate;
+import org.inaetics.drone.simulator.spi.events.StateEvent;
+import org.osgi.service.log.LogService;
 
 import java.util.List;
 import java.util.UUID;
@@ -25,6 +26,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class RadarImpl implements Radar {
 //TODO enable line when the IANETICS pubsub dep is added
 //public class RadarImpl implements Radar, Subscriber {
+
+    private volatile LogService log;
+
     private final UUID sensorUUid = UUID.randomUUID();
     private final List<DetectionListener> listeners = new CopyOnWriteArrayList<>();
 
@@ -52,22 +56,24 @@ public class RadarImpl implements Radar {
     }
 
     public void start() {
-        //start radar thread
+        log.log(LogService.LOG_INFO, "Starting Radar Component");
+        //TODO start radar impl
     }
 
     public void stop() {
-        //stop radar thread
+        log.log(LogService.LOG_INFO, "Stopping Radar Component");
+        //TODO stop radar
     }
 
     /** TODO enable method when the INATICS PubSub dep is added
     @Override
     public void receive(Object o, MultipartCallbacks multipartCallbacks) {
-        if (o instanceof DronesUpdate) {
-            processDroneUpdate((DronesUpdate)o);
+        if (o instanceof StateEvent) {
+            processDroneUpdate((StateEvent)o);
         }
     }*/
 
-    protected void processDroneUpdate(DronesUpdate drone) {
+    protected void processDroneUpdate(StateEvent drone) {
         //TODO update detected cache based on drone state and
         //update listener based on the update speed and current area
         //under consideration

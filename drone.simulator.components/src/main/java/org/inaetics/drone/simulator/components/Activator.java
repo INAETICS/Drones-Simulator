@@ -35,6 +35,7 @@ import org.inaetics.drone.simulator.api.radar.Radar;
 import org.inaetics.drone.simulator.components.gun.GunImpl;
 import org.inaetics.drone.simulator.components.radar.RadarImpl;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.log.LogService;
 
 import java.util.Properties;
 
@@ -46,20 +47,26 @@ import java.util.Properties;
 public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext ctx, org.apache.felix.dm.DependencyManager dm) throws Exception {
+        //TODO add configuration dependencies to control availability of drone components
+
         //Creating Gun component
         Component gunCmp = dm.createComponent()
                 .setImplementation(GunImpl.class)
-                .setInterface(Gun.class.getName(), null);
+                .setInterface(Gun.class.getName(), null)
+                .add(dm.createServiceDependency()
+                    .setService(LogService.class));
 
         //Creating Radar component
         Properties radarProps = new Properties();
         String[] radarInterfaces = new String[]{Radar.class.getName()};
         //TODO enable lines (and update imports) if the INAETICS pubsub maven dep is added
         //String[] radarInterfaces = new String[]{Radar.class.getName(), Subscriber.class.getName()};
-        //radarProps.setProperty(PUBSUB_TOPIC, Constants.DRONES_UPDATE_TOPIC_NAME);
+        //radarProps.setProperty(PUBSUB_TOPIC, Constants.STATE_UPDATE_TOPIC_NAME);
         Component radarCmp = dm.createComponent()
                 .setImplementation(RadarImpl.class)
                 .setInterface(radarInterfaces, radarProps)
+                .add(dm.createServiceDependency()
+                    .setService(LogService.class))
                 .add(dm.createServiceDependency()
                     .setService(DetectionListener.class)
                     .setCallbacks("addListener", "removeListener"));

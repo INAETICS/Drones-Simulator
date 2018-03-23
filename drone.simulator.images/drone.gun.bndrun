@@ -5,7 +5,7 @@
 -resolve.effective: active;skip:="osgi.service"
 
 -runrequires: \
-        osgi.identity;filter:='(osgi.identity=org.apache.commons.logging)',\
+        osgi.identity;filter:='(osgi.identity=org.apache.felix.log)',\
         osgi.identity;filter:='(osgi.identity=org.apache.felix.dependencymanager)',\
         osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.command)',\
         osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.runtime)',\

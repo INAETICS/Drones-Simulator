@@ -21,6 +21,8 @@ package org.inaetics.drone.simulator.api.drone;
 public interface DroneTactic {
 
     public static final String DRONE_TEAM_NAME = "team";
+    
+    public void reset();
 
     /**
      * Provided time is the time in seconds since the start of the 'mission'

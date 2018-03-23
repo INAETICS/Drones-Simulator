@@ -80,6 +80,7 @@
         </dependency>
 
         <!-- Logging -->
+        <!--
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -95,6 +96,7 @@
             <artifactId>commons-logging</artifactId>
             <version>1.2</version>
         </dependency>
+        -->
 
 
         <!-- misc -->

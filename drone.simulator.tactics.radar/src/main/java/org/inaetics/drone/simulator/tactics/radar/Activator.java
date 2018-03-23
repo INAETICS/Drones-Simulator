@@ -24,6 +24,7 @@ import org.inaetics.drone.simulator.api.radar.Radar;
 import org.inaetics.drone.simulator.api.radio.Radio;
 import org.inaetics.drone.simulator.api.radio.RadioMessageListener;
 import org.osgi.framework.BundleContext;
+import org.osgi.service.log.LogService;
 
 import java.util.Properties;
 
@@ -57,7 +58,9 @@ public class Activator extends DependencyActivatorBase {
                         .setService(Radio.class))
                 .add(dm.createServiceDependency()
                         .setRequired(true)
-                        .setService(Radar.class));
+                        .setService(Radar.class))
+                .add(dm.createServiceDependency()
+                        .setService(LogService.class));
 
         dm.add(cmp);
     }

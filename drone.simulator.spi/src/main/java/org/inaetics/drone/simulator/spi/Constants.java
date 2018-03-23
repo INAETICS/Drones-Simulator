@@ -15,5 +15,7 @@
 package org.inaetics.drone.simulator.spi;
 
 public class Constants {
-    public static final String DRONES_UPDATE_TOPIC_NAME = "drones-update";
+    public static final String STATE_UPDATE_TOPIC_NAME = "state-update";
+    public static final String GAME_UPDATE_TOPIC_NAME = "game-update";
+    //TODO kill-event, etc
 }

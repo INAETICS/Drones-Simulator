@@ -16,8 +16,11 @@ package org.inaetics.drone.simulator.components.gun;
 
 import org.inaetics.drone.simulator.api.gun.Gun;
 import org.inaetics.drone.simulator.common.D3Vector;
+import org.osgi.service.log.LogService;
 
 public class GunImpl implements Gun {
+
+    private volatile LogService log;
 
     @Override
     public String getName() {
@@ -55,10 +58,12 @@ public class GunImpl implements Gun {
     }
 
     public void start() {
+        log.log(LogService.LOG_INFO, "Starting Gun Component");
         //TODO start gun
     }
 
     public void stop() {
+        log.log(LogService.LOG_INFO, "Stopping Gun Component");
         //TODO stop gun
     }
 }

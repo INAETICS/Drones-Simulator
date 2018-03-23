@@ -8,11 +8,14 @@ import org.inaetics.drone.simulator.api.radar.DetectionListener;
 import org.inaetics.drone.simulator.api.radar.Radar;
 import org.inaetics.drone.simulator.api.radio.Radio;
 import org.inaetics.drone.simulator.api.radio.RadioMessageListener;
+import org.osgi.service.log.LogService;
 
 import java.util.List;
 import java.util.UUID;
 
 public class RadarTacticImpl implements DroneTactic, DetectionListener, RadioMessageListener {
+
+    private volatile LogService log;
 
     private volatile Radar radar; //note the felix dm way injecting private fieldsprivate volatile Radar radar; //note the felix dm way injecting private fields
     private volatile Engine engine;
@@ -20,6 +23,11 @@ public class RadarTacticImpl implements DroneTactic, DetectionListener, RadioMes
     private volatile Radio radio;
 
     public RadarTacticImpl() {
+    }
+
+    @Override
+    public void reset() {
+        //TODO
     }
 
     @Override

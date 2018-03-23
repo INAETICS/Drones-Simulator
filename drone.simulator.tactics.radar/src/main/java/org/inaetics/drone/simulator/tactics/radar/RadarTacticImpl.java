@@ -28,12 +28,12 @@ public class RadarTacticImpl implements DroneTactic, DetectionListener, RadioMes
     }
 
     @Override
-    public void processDetections(UUID sensorSource, List<Detection> detections, double updateTime) {
+    public void handleRadioMessage(Object msg, double msgTimeValidity) {
         //TODO
     }
 
     @Override
-    public void handleRadioMessage(Object msg, double msgTimeValidity) {
-        //TODO
+    public void processDetections(UUID sensorSource, List<Detection> detections) {
+
     }
 }

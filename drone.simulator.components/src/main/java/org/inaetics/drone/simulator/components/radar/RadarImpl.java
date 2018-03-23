@@ -17,13 +17,14 @@ package org.inaetics.drone.simulator.components.radar;
 import org.inaetics.drone.simulator.api.radar.DetectionListener;
 import org.inaetics.drone.simulator.api.radar.Radar;
 import org.inaetics.drone.simulator.spi.events.DronesUpdate;
-import org.inaetics.pubsub.api.pubsub.Subscriber;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class RadarImpl implements Radar, Subscriber {
+public class RadarImpl implements Radar {
+//TODO enable line when the IANETICS pubsub dep is added
+//public class RadarImpl implements Radar, Subscriber {
     private final UUID sensorUUid = UUID.randomUUID();
     private final List<DetectionListener> listeners = new CopyOnWriteArrayList<>();
 
@@ -58,12 +59,13 @@ public class RadarImpl implements Radar, Subscriber {
         //stop radar thread
     }
 
+    /** TODO enable method when the INATICS PubSub dep is added
     @Override
     public void receive(Object o, MultipartCallbacks multipartCallbacks) {
         if (o instanceof DronesUpdate) {
             processDroneUpdate((DronesUpdate)o);
         }
-    }
+    }*/
 
     protected void processDroneUpdate(DronesUpdate drone) {
         //TODO update detected cache based on drone state and

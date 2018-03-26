@@ -16,11 +16,35 @@ package org.inaetics.drone.simulator.components.gun;
 
 import org.inaetics.drone.simulator.api.gun.Gun;
 import org.inaetics.drone.simulator.common.D3Vector;
+import org.inaetics.drone.simulator.spi.Constants;
+import org.inaetics.drone.simulator.spi.costs.ComponentCost;
 import org.osgi.service.log.LogService;
 
-public class GunImpl implements Gun {
+import java.util.UUID;
 
+public class GunImpl implements Gun, ComponentCost {
+
+    @Override
+    public String getComponentName() {
+        return "Gun";
+    }
+
+    @Override
+    public double getCost() {
+        return Constants.DRONE_COMPONENTS_GUN_COST;
+    }
+
+    public enum MountLocation {
+        TOP,
+        BOTTOM
+    }
+
+    private final MountLocation gunMountLocation;
     private volatile LogService log;
+
+    public GunImpl(MountLocation loc) {
+        this.gunMountLocation = loc;
+    }
 
     @Override
     public String getName() {
@@ -45,6 +69,11 @@ public class GunImpl implements Gun {
     @Override
     public double getShotsLeft() {
         return 0; //TODO
+    }
+
+    @Override
+    public boolean canAimAt(D3Vector pos) {
+        return false;
     }
 
     @Override

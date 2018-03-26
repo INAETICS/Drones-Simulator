@@ -16,6 +16,8 @@ package org.inaetics.drone.simulator.components.radar;
 
 import org.inaetics.drone.simulator.api.radar.DetectionListener;
 import org.inaetics.drone.simulator.api.radar.Radar;
+import org.inaetics.drone.simulator.spi.Constants;
+import org.inaetics.drone.simulator.spi.costs.ComponentCost;
 import org.inaetics.drone.simulator.spi.events.StateEvent;
 import org.osgi.service.log.LogService;
 
@@ -23,7 +25,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class RadarImpl implements Radar {
+public class RadarImpl implements Radar, ComponentCost {
 //TODO enable line when the IANETICS pubsub dep is added
 //public class RadarImpl implements Radar, Subscriber {
 
@@ -79,4 +81,13 @@ public class RadarImpl implements Radar {
         //under consideration
     }
 
+    @Override
+    public String getComponentName() {
+        return "Radar";
+    }
+
+    @Override
+    public double getCost() {
+        return Constants.DRONE_COMPONENTS_RADAR_COST;
+    }
 }

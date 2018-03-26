@@ -16,3 +16,9 @@
         osgi.identity;filter:='(osgi.identity=org.inaetics.drone.simulator.components)',\
         osgi.identity;filter:='(osgi.identity=org.inaetics.drone.simulator.tactics.radar)'
 -resolve: auto
+
+-runproperties: \
+    drone.components.gun.top.enabled=false,\
+    drone.components.gun.bottom.enabled=false,\
+    drone.components.radar.enabled=true
+

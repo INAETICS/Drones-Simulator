@@ -12,25 +12,13 @@
  *    limitations under the License.
  *******************************************************************************/
 
-package org.inaetics.drone.simulator.api.gun;
+package org.inaetics.drone.simulator.api;
 
-import org.inaetics.drone.simulator.common.D3Vector;
+public class Constants {
 
-public interface Gun {
+    public static final String DRONE_TEAM_NAME = "drone.team.name";
 
-    public String getName();
-
-    public double getMaxDistance();
-    public double getMuzzleVelocity();
-    public double getTimeBetweenShots();
-    public double getShotsLeft();
-
-    public boolean canAimAt(D3Vector pos);
-
-    public void aimAndFireAt(D3Vector pos);
-
-    /**
-     * Returns the estimate time needed to aim at provided location
-     */
-    public double getTimeToAimAt(D3Vector pos);
+    public static final String DRONE_COMPOMENTS_GUN_TOP_ENABLED = "drone.components.gun.top.enabled";
+    public static final String DRONE_COMPONENTS_GUN_BOTTOM_ENABLED = "drone.components.gun.bottom.enabled";
+    public static final String DRONE_COMPONENTS_RADAR_ENABLED = "drone.components.radar.enabled";
 }

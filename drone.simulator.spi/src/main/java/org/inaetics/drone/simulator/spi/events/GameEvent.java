@@ -8,8 +8,8 @@ public class GameEvent {
         RESET
     }
 
-    private double timeValidity;
-    private GameEventType type;
+    private double timeValidity = 0.0;
+    private GameEventType type = GameEventType.RESET;
 
     public GameEvent() {}
     public GameEvent(double timeValidity, GameEventType type) {

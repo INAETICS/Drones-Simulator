@@ -2,19 +2,31 @@ package org.inaetics.drone.simulator.spi.events;
 
 import org.inaetics.drone.simulator.common.D3Vector;
 
+import java.util.UUID;
+
 public class DroneState {
-    private String teamName = "";
-    private double timeValidity = 0.0;
-    private D3Vector position = D3Vector.ZERO;
-    private D3Vector velocity = D3Vector.ZERO;
+    private double timeValidity;
+    private UUID droneId;
+    private String teamName;
+    private D3Vector position;
+    private D3Vector velocity;
     //TODO add more
 
     public DroneState() {}
-    public DroneState(String teamName, double timeValidity, D3Vector position, D3Vector velocity) {
+    public DroneState(UUID droneId, String teamName, double timeValidity, D3Vector position, D3Vector velocity) {
+        this.droneId = droneId;
         this.teamName = teamName;
         this.timeValidity = timeValidity;
         this.position = position;
         this.velocity = velocity;
+    }
+
+    public UUID getDroneId() {
+        return droneId;
+    }
+
+    public void setDroneId(UUID droneId) {
+        this.droneId = droneId;
     }
 
     public String getTeamName() {

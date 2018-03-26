@@ -15,9 +15,12 @@ import java.util.UUID;
 
 public class RadarTacticImpl implements DroneTactic, DetectionListener, RadioMessageListener {
 
-    private volatile LogService log;
+    private final UUID droneId = UUID.randomUUID();
 
-    private volatile Radar radar; //note the felix dm way injecting private fieldsprivate volatile Radar radar; //note the felix dm way injecting private fields
+    //services
+    //note the felix dm way injecting private fieldsprivate volatile Radar radar; //note the felix dm way injecting private fields
+    private volatile LogService log;
+    private volatile Radar radar;
     private volatile Engine engine;
     private volatile Gps gps;
     private volatile Radio radio;
@@ -26,7 +29,22 @@ public class RadarTacticImpl implements DroneTactic, DetectionListener, RadioMes
     }
 
     @Override
+    public UUID getDroneId() {
+        return this.droneId;
+    }
+
+    @Override
     public void reset() {
+        //TODO
+    }
+
+    @Override
+    public void pause() {
+        //TODO
+    }
+
+    @Override
+    public void cont() {
         //TODO
     }
 

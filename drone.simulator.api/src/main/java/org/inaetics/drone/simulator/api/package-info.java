@@ -12,25 +12,5 @@
  *    limitations under the License.
  *******************************************************************************/
 
-package org.inaetics.drone.simulator.api.gun;
-
-import org.inaetics.drone.simulator.common.D3Vector;
-
-public interface Gun {
-
-    public String getName();
-
-    public double getMaxDistance();
-    public double getMuzzleVelocity();
-    public double getTimeBetweenShots();
-    public double getShotsLeft();
-
-    public boolean canAimAt(D3Vector pos);
-
-    public void aimAndFireAt(D3Vector pos);
-
-    /**
-     * Returns the estimate time needed to aim at provided location
-     */
-    public double getTimeToAimAt(D3Vector pos);
-}
+@org.osgi.annotation.versioning.Version("1.0.0")
+package org.inaetics.drone.simulator.api;

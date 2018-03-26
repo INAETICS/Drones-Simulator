@@ -14,15 +14,14 @@
 
 package org.inaetics.drone.simulator.api.drone;
 
-/**
- * Mandatory service properties:
- *  - DRONE_TEAM_NAME
- */
-public interface DroneTactic {
+import java.util.UUID;
 
-    public static final String DRONE_TEAM_NAME = "team";
+public interface DroneTactic {
+    public UUID getDroneId();
     
     public void reset();
+    public void pause();
+    public void cont(); //continue
 
     /**
      * Provided time is the time in seconds since the start of the 'mission'

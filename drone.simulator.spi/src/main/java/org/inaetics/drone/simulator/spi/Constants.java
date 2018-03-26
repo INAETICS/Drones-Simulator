@@ -15,7 +15,14 @@
 package org.inaetics.drone.simulator.spi;
 
 public class Constants {
+    //from engine to drones: DroneState, GameState. ?KillEvent?
     public static final String STATE_UPDATE_TOPIC_NAME = "state-update";
-    public static final String GAME_UPDATE_TOPIC_NAME = "game-update";
-    //TODO kill-event, etc
+
+    //from drones to engine: BulletEvent, DroneAnnouncement, ?EngineEvent?, etc
+    public static final String DRONE_UPDATE_TOPIC_NAME = "drone-update";
+
+    //COSTS
+    public static final double DRONE_COMPONENTS_GUN_COST = 40.0;
+    public static final double DRONE_COMPONENTS_RADAR_COST = 100.0;
+    //TODO etc
 }

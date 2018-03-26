@@ -29,15 +29,25 @@ package org.inaetics.drone.simulator.components;
 
 import org.apache.felix.dm.Component;
 import org.apache.felix.dm.DependencyActivatorBase;
+import org.apache.felix.dm.DependencyManager;
+import org.inaetics.drone.simulator.api.Constants;
+import org.inaetics.drone.simulator.api.drone.DroneTactic;
 import org.inaetics.drone.simulator.api.gun.Gun;
 import org.inaetics.drone.simulator.api.radar.DetectionListener;
 import org.inaetics.drone.simulator.api.radar.Radar;
+import org.inaetics.drone.simulator.components.drone.DroneManager;
 import org.inaetics.drone.simulator.components.gun.GunImpl;
 import org.inaetics.drone.simulator.components.radar.RadarImpl;
+import org.inaetics.drone.simulator.spi.costs.ComponentCost;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
 
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.util.Properties;
+
+import static org.apache.felix.service.command.CommandProcessor.COMMAND_FUNCTION;
+import static org.apache.felix.service.command.CommandProcessor.COMMAND_SCOPE;
 
 /**
  * Note this class is based on the Felix Dependency manager
@@ -45,20 +55,59 @@ import java.util.Properties;
  * see http://felix.apache.org/documentation/subprojects/apache-felix-dependency-manager.html
  */
 public class Activator extends DependencyActivatorBase {
+
     @Override
     public void init(BundleContext ctx, org.apache.felix.dm.DependencyManager dm) throws Exception {
-        //TODO add configuration dependencies to control availability of drone components
+        String teamName = ctx.getProperty(Constants.DRONE_TEAM_NAME);
+        if (teamName == null) {
+            teamName = "team";
+        }
 
-        //Creating Gun component
-        Component gunCmp = dm.createComponent()
-                .setImplementation(GunImpl.class)
-                .setInterface(Gun.class.getName(), null)
+        //Creating DroneManager. responsible to announce drones to the game engine
+        DroneManager mgmt = new DroneManager(teamName);
+        Properties droneMgmtProps = new Properties();
+        droneMgmtProps.setProperty("osgi.command.scope", "drone"); //NOTE not using constants in CommandProcessor to prevent class dependency on that interface
+        droneMgmtProps.setProperty("osgi.command.function","cost");
+        Component droneMgmtCmp = dm.createComponent()
+                .setImplementation(mgmt) //lazy initialization
+                .setInterface(DroneManager.class.getName(), droneMgmtProps) //NOTE setting impl as interface to enable providing command properties
+                .add(dm.createServiceDependency()
+                    .setService(LogService.class))
+                .add(dm.createServiceDependency()
+                    .setService(DroneTactic.class)
+                    .setRequired(true))
+                .add(dm.createServiceDependency()
+                    .setService(ComponentCost.class)
+                    .setCallbacks("addComponentCost", "removeComponentCost"));
+        //TODO add service dep to MissionInfo
+        dm.add(droneMgmtCmp); //drone manager always added
+
+
+        //Creating Gun components (top and bottom mounted)
+        String[] gunServices = new String[] {Gun.class.getName(), ComponentCost.class.getName()};
+
+        GunImpl topGun = new GunImpl(GunImpl.MountLocation.TOP);
+        Properties topGunProps = new Properties();
+        topGunProps.setProperty("mount.location", GunImpl.MountLocation.TOP.toString());
+        Component topGunCmp = dm.createComponent()
+                .setImplementation(topGun)
+                .setInterface(gunServices, topGunProps)
                 .add(dm.createServiceDependency()
                     .setService(LogService.class));
 
+        Properties bottomGunProps = new Properties();
+        bottomGunProps.setProperty("mount.location", GunImpl.MountLocation.BOTTOM.toString());
+        GunImpl bottomGun = new GunImpl(GunImpl.MountLocation.BOTTOM);
+        Component bottomGunCmp = dm.createComponent()
+                .setImplementation(bottomGun)
+                .setInterface(gunServices, bottomGunProps)
+                .add(dm.createServiceDependency()
+                        .setService(LogService.class));
+
+
         //Creating Radar component
         Properties radarProps = new Properties();
-        String[] radarInterfaces = new String[]{Radar.class.getName()};
+        String[] radarInterfaces = new String[]{Radar.class.getName(), ComponentCost.class.getName()};
         //TODO enable lines (and update imports) if the INAETICS pubsub maven dep is added
         //String[] radarInterfaces = new String[]{Radar.class.getName(), Subscriber.class.getName()};
         //radarProps.setProperty(PUBSUB_TOPIC, Constants.STATE_UPDATE_TOPIC_NAME);
@@ -71,7 +120,15 @@ public class Activator extends DependencyActivatorBase {
                     .setService(DetectionListener.class)
                     .setCallbacks("addListener", "removeListener"));
 
-        dm.add(gunCmp);
-        dm.add(radarCmp);
+        addComponentIfEnabled(dm, topGunCmp, Constants.DRONE_COMPOMENTS_GUN_TOP_ENABLED);
+        addComponentIfEnabled(dm, bottomGunCmp, Constants.DRONE_COMPONENTS_GUN_BOTTOM_ENABLED);
+        addComponentIfEnabled(dm, radarCmp, Constants.DRONE_COMPONENTS_RADAR_ENABLED);
+    }
+
+    private void addComponentIfEnabled(DependencyManager dm, Component cmp, String enableKey) {
+        BundleContext ctx = dm.getBundleContext();
+        if ("true".equalsIgnoreCase(ctx.getProperty(enableKey))) {
+            dm.add(cmp);
+        }
     }
 }

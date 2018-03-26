@@ -16,3 +16,7 @@
         osgi.identity;filter:='(osgi.identity=org.inaetics.drone.simulator.components)'
         #TODO add gun bundle id
 -resolve: auto
+
+-runproperties: \
+    drone.components.gun.top.enabled=true,\
+    drone.components.gun.bottom.enabled=true

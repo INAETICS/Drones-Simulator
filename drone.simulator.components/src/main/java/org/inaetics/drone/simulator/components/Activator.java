@@ -40,8 +40,10 @@ import org.inaetics.drone.simulator.components.gun.GunImpl;
 import org.inaetics.drone.simulator.components.radar.RadarImpl;
 import org.inaetics.drone.simulator.spi.costs.ComponentCost;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.ServiceReference;
 import org.osgi.service.log.LogService;
 
+import java.util.Collection;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Properties;
@@ -59,6 +61,7 @@ public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext ctx, org.apache.felix.dm.DependencyManager dm) throws Exception {
         String teamName = ctx.getProperty(Constants.DRONE_TEAM_NAME);
+        System.out.println("init() with "+teamName);
         if (teamName == null) {
             teamName = "team";
         }

@@ -26,7 +26,9 @@ public class DroneManager {
         public void run() {
             while(!Thread.interrupted()) {
                 try {
+                    update();
                     Thread.sleep(TimeUnit.SECONDS.toMillis(1));
+
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt(); // reset the interrupt state
                 }
@@ -42,6 +44,7 @@ public class DroneManager {
     private final List<ComponentCost> componentCosts = new CopyOnWriteArrayList<>();
 
     public DroneManager(String teamName) {
+        System.out.println("DroneManager constr "+teamName);
         this.teamName = teamName;
     }
 
@@ -67,6 +70,8 @@ public class DroneManager {
     }
 
     private void update() {
+        System.out.println("Update droneManager");
+
         double now =  TimeUnit.MILLISECONDS.toSeconds(System.currentTimeMillis()); //TODO use info.getCurrentTime
         UUID id = drone.getDroneId();
 
@@ -79,7 +84,7 @@ public class DroneManager {
         }
 
         DroneAnnouncement ann = new DroneAnnouncement(now, id, this.teamName, cost, components);
-        //TODO send component using pubsub
+        //TODO send announcement component using pubsub
     }
 
     public String cost() {

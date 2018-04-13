@@ -26,6 +26,7 @@ public class RadarTacticImpl implements DroneTactic, DetectionListener, RadioMes
     private volatile Radio radio;
 
     public RadarTacticImpl() {
+        System.out.println("Constructor radarTacticImpl()");
     }
 
     @Override
@@ -36,30 +37,36 @@ public class RadarTacticImpl implements DroneTactic, DetectionListener, RadioMes
     @Override
     public void reset() {
         //TODO
+        System.out.println("reset");
     }
 
     @Override
     public void pause() {
         //TODO
+        System.out.println("pause");
     }
 
     @Override
     public void cont() {
         //TODO
+        System.out.println("cont");
     }
 
     @Override
     public void step(double time) {
         //TODO implement tactic, e.g. fly circle and send detection around
+         System.out.println("step");
     }
 
     @Override
     public void handleRadioMessage(Object msg, double msgTimeValidity) {
         //TODO
+        System.out.println("handleRadioMessage");
     }
 
     @Override
     public void processDetections(UUID sensorSource, List<Detection> detections) {
 
+        System.out.println("processDetections");
     }
 }

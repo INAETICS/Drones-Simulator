@@ -14,13 +14,16 @@
 
 package org.inaetics.drone.simulator.components.radar;
 
+import org.inaetics.drone.simulator.api.radar.Detection;
 import org.inaetics.drone.simulator.api.radar.DetectionListener;
 import org.inaetics.drone.simulator.api.radar.Radar;
 import org.inaetics.drone.simulator.spi.Constants;
 import org.inaetics.drone.simulator.spi.costs.ComponentCost;
+import org.inaetics.drone.simulator.spi.events.DroneState;
 import org.inaetics.drone.simulator.spi.events.StateEvent;
 import org.osgi.service.log.LogService;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -75,10 +78,24 @@ public class RadarImpl implements Radar, ComponentCost {
         }
     }*/
 
-    protected void processDroneUpdate(StateEvent drone) {
+    protected void processDroneUpdate(StateEvent stateEvent) {
         //TODO update detected cache based on drone state and
         //update listener based on the update speed and current area
         //under consideration
+        List<DroneState> droneStates = stateEvent.getStates();
+        ArrayList<Detection> detections = new ArrayList<Detection>(droneStates.size());
+        for (int i = 0; i < droneStates.size(); i++) {
+            DroneState droneState = droneStates.get(i);
+            int timeValidity = 100000; //TODO
+            Detection detection = new Detection(UUID.randomUUID(),
+                    timeValidity,
+                    droneState.getPosition(),
+                    droneState.getVelocity());
+        }
+
+        for (DetectionListener listener : listeners){
+            listener.processDetections(sensorUUid, detections);
+        }
     }
 
     @Override

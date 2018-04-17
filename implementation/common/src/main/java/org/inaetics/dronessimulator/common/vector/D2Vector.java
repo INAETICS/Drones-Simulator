@@ -1,15 +1,15 @@
 package org.inaetics.dronessimulator.common.vector;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
+import java.util.Objects;
 
 /**
  * Two-dimensional vector implementation.
  */
-@RequiredArgsConstructor
-@EqualsAndHashCode
 public class D2Vector {
+    public D2Vector(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
     /**
      * The unity vector.
      */
@@ -18,14 +18,20 @@ public class D2Vector {
     /**
      * X coordinate of this vector.
      */
-    @Getter
     private final double x;
+
+    public double getX() {
+        return x;
+    }
 
     /**
      * Y coordinate of this vector.
      */
-    @Getter
     private final double y;
+
+    public double getY() {
+        return y;
+    }
 
     /**
      * Instantiates a new vector from the origin.
@@ -73,4 +79,18 @@ public class D2Vector {
         return new D2Vector(this.getX() * scalar, this.getY() * scalar);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof D2Vector)) return false;
+        D2Vector d2Vector = (D2Vector) o;
+        return Double.compare(d2Vector.x, x) == 0 &&
+                Double.compare(d2Vector.y, y) == 0;
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(x, y);
+    }
 }

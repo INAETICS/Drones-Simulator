@@ -2,10 +2,6 @@ package org.inaetics.dronessimulator.visualisation;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.visualisation.uiupdates.AddBaseEntity;
@@ -18,13 +14,18 @@ import java.util.concurrent.BlockingQueue;
  * Base class for each entity inside the visualisation
  * This class can be extended by e.g.: drones, bullets, gamified objects
  */
-@Log4j
+
 public abstract class BaseEntity {
     /**
      * List of ui updates it can add changes to the ui to
      */
-    @Getter(AccessLevel.PROTECTED)
+
     private final BlockingQueue<UIUpdate> uiUpdates;
+
+    protected BlockingQueue<UIUpdate> getUiUpdates() {
+        return uiUpdates;
+    }
+
     /**
      * Image of the base entity
      */
@@ -33,27 +34,58 @@ public abstract class BaseEntity {
     /**
      * Position of the base entity
      */
-    @Setter
     D3Vector position;
+    public void setPosition(D3Vector position) {
+        this.position = position;
+    }
+
     /**
      * Direction as a set of polar coordinates of the base entity
      */
-    @Setter
     private D3PolarCoordinate direction;
+
+    public void setDirection(D3PolarCoordinate direction) {
+        this.direction = direction;
+    }
 
     /*** X coordinate of the sprite, position of the upper left corner of the entity's sprite
      */
-    @Getter
-    @Setter
     private double spriteX;
+
+    public double getSpriteX() {
+        return spriteX;
+    }
+
+    public void setSpriteX(double spriteX) {
+        this.spriteX = spriteX;
+    }
+
     /*** Y coordinate of the sprite, position of the upper left corner of the entity's sprite
      */
-    @Getter @Setter
     private double spriteY;
 
-    @Getter
-    @Setter
+    public double getSpriteY() {
+        return spriteY;
+    }
+
+    public void setSpriteY(double spriteY) {
+        this.spriteY = spriteY;
+    }
+
     private String id;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    /**
+     * Create the logger
+     */
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(BaseEntity.class);
 
     /**
      * Instantiates a new base entity
@@ -120,4 +152,5 @@ public abstract class BaseEntity {
     private double getRotation() {
         return this.direction.getAngle1Degrees();
     }
+
 }

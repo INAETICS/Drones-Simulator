@@ -1,7 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.messagehandlers;
 
-import lombok.AllArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.protocol.KillMessage;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
@@ -14,9 +12,19 @@ import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import java.io.IOException;
 import java.util.HashMap;
 
-@AllArgsConstructor
-@Log4j
 public class KillMessageHandler implements MessageHandler<KillMessage> {
+    public KillMessageHandler(IPhysicsEngineDriver physicsEngineDriver, IdentifierMapper id_mapper, IGameStateManager stateManager, Discoverer discoverer) {
+        this.physicsEngineDriver = physicsEngineDriver;
+        this.id_mapper = id_mapper;
+        this.stateManager = stateManager;
+        this.discoverer = discoverer;
+    }
+
+    /**
+     * Create the logger
+     */
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(KillMessageHandler.class);
+
     /** The physics engine to update entities in. */
     private final IPhysicsEngineDriver physicsEngineDriver;
 

@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.test;
 
-import lombok.Getter;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
@@ -10,10 +9,17 @@ import java.io.IOException;
 import java.util.*;
 
 public class MockSubscriber implements Subscriber {
-    @Getter
     private final Map<Class<? extends Message>, Collection<MessageHandler<Message>>> handlers = new HashMap<>();
-    @Getter
+
+    public Map<Class<? extends Message>, Collection<MessageHandler<Message>>> getHandlers() {
+        return handlers;
+    }
+
     private final List<Topic> topics = new LinkedList<>();
+
+    public List<Topic> getTopics() {
+        return topics;
+    }
 
     @Override
     public void addTopic(Topic topic) throws IOException {

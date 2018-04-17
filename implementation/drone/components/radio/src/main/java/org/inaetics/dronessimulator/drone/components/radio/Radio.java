@@ -1,8 +1,5 @@
 package org.inaetics.dronessimulator.drone.components.radio;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.protocol.TacticMessage;
 import org.inaetics.dronessimulator.common.protocol.TeamTopic;
 import org.inaetics.dronessimulator.common.protocol.TextMessage;
@@ -21,9 +18,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 /**
  * Radio component wich makes drone to drone communication possible.
  */
-@Log4j
-@NoArgsConstructor //OSGi constructor
-@AllArgsConstructor //Testing constructor
 public class Radio implements MessageHandler {
     /** Reference to Subscriber bundle */
     private volatile Subscriber subscriber;
@@ -34,7 +28,23 @@ public class Radio implements MessageHandler {
     /** Queue with received messages */
     private final ConcurrentLinkedQueue<Message> receivedQueue = new ConcurrentLinkedQueue<>();
 
+    //OSGi constructor
+    public Radio() {
+    }
+    //Testing constructor
+    public Radio(Subscriber subscriber, Publisher publisher, DroneInit drone, Topic topic) {
+        this.subscriber = subscriber;
+        this.publisher = publisher;
+        this.drone = drone;
+        this.topic = topic;
+    }
+
     private Topic topic;
+
+    /**
+     * Create the logger
+     */
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Radio.class);
 
     /**
      * Start the Radio (called from Apache Felix). This initializes to what messages the subscriber should listen.

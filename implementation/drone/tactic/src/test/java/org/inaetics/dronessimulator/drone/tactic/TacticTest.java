@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.drone.tactic;
 
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventHandler;
 import org.inaetics.dronessimulator.architectureevents.LifeCycleStep;
@@ -33,7 +32,6 @@ import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.inaetics.dronessimulator.test.TestUtils.*;
 import static org.mockito.Mockito.*;
 
-@Log4j
 public class TacticTest {
     @Rule
     public final ExpectedSystemExit exit = ExpectedSystemExit.none();
@@ -43,6 +41,8 @@ public class TacticTest {
     private Tactic tacticMock;
     private Tactic tactic;
     private MockDiscoverer discoverer;
+
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(TacticTest.class);
 
     @Before
     public void setUp() throws Exception {

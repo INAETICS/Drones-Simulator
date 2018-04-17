@@ -2,7 +2,6 @@ package org.inaetics.dronessimulator.pubsub.rabbitmq.publisher;
 
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.ConnectionFactory;
-import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.pubsub.api.Message;
@@ -17,7 +16,6 @@ import java.io.IOException;
  * A RabbitMQ implementation of a publisher.
  */
 public class RabbitPublisher extends RabbitConnection implements Publisher {
-    @Getter
     private final Logger logger = Logger.getLogger(RabbitPublisher.class);
 
     /**
@@ -46,6 +44,11 @@ public class RabbitPublisher extends RabbitConnection implements Publisher {
         super();
     }
 
+    @Override
+    public Logger getLogger() {
+        return logger;
+    }
+
     /**
      * Sends the given message to subscribers on the topic of this publisher.
      * @param topic The topic to publish the message to.
@@ -71,5 +74,6 @@ public class RabbitPublisher extends RabbitConnection implements Publisher {
             // Just drop the message if there is no good connection
             logger.error("Error while sending message: {}", e);
         }
+
     }
 }

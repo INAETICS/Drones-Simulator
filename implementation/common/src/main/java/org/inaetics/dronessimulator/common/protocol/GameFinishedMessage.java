@@ -1,18 +1,24 @@
 package org.inaetics.dronessimulator.common.protocol;
 
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-
 import java.util.Collections;
 import java.util.List;
 
-@RequiredArgsConstructor
 public class GameFinishedMessage extends ProtocolMessage {
-    @Getter
+
+    public GameFinishedMessage(String winner) {
+        this.winner = winner;
+    }
+
     private final String winner;
+
+    public String getWinner() {
+        return winner;
+    }
 
     @Override
     public List<MessageTopic> getTopics() {
         return Collections.singletonList(MessageTopic.STATEUPDATES);
     }
+
+
 }

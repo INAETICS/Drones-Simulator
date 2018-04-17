@@ -4,13 +4,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.visualisation.SpriteAnimation;
 
 /**
  * Explosion extends UIUpdate and is a class representation used when adding a new explosion
  */
-@Log4j
 public class Explosion extends UIUpdate {
     /**
      * Scale of the explosion, regulates the size
@@ -29,6 +27,11 @@ public class Explosion extends UIUpdate {
         this.scale = scale;
         this.imageView = imageView;
     }
+
+    /**
+     * Create the logger
+     */
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Explosion.class);
 
     /**
      * Add an explosion to a pane

@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.test;
 
-import lombok.Getter;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
@@ -11,7 +10,6 @@ import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngin
 import java.util.Optional;
 import java.util.concurrent.LinkedBlockingQueue;
 
-@Getter
 public class MockPhysicsEngineDriver implements IPhysicsEngineDriver{
     private final IdentifierMapper id_mapper;
     private GameEntity added = null;
@@ -28,6 +26,50 @@ public class MockPhysicsEngineDriver implements IPhysicsEngineDriver{
 
     public MockPhysicsEngineDriver(IdentifierMapper id_mapper) {
         this.id_mapper = id_mapper;
+    }
+
+    public IdentifierMapper getId_mapper() {
+        return id_mapper;
+    }
+
+    public GameEntity getAdded() {
+        return added;
+    }
+
+    public int getRemoved() {
+        return removed;
+    }
+
+    public int getDamaged() {
+        return damaged;
+    }
+
+    public int getDamage() {
+        return damage;
+    }
+
+    public int getMoved() {
+        return moved;
+    }
+
+    public D3Vector getNewPosition() {
+        return newPosition;
+    }
+
+    public D3Vector getNewVelocity() {
+        return newVelocity;
+    }
+
+    public D3Vector getNewAcceleration() {
+        return newAcceleration;
+    }
+
+    public D3Vector getNewTarget() {
+        return newTarget;
+    }
+
+    public D3PolarCoordinate getNewDirection() {
+        return newDirection;
     }
 
     @Override

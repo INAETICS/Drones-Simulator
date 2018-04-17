@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.gamestatemanager;
 
-import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
@@ -16,7 +15,6 @@ import java.util.stream.Collectors;
 /**
  * Keeps the state of each game entity.
  */
-@Getter
 public class GameStateManager implements IGameStateManager {
     @SuppressWarnings("unused") //Is set through OSGi
     private volatile ArchitectureEventController m_architectureEventController;
@@ -29,6 +27,14 @@ public class GameStateManager implements IGameStateManager {
      */
     public GameStateManager() {
         this.state = new ConcurrentHashMap<>();
+    }
+
+    public ArchitectureEventController getM_architectureEventController() {
+        return m_architectureEventController;
+    }
+
+    public ConcurrentHashMap<Integer, GameEntity> getState() {
+        return state;
     }
 
     @Override

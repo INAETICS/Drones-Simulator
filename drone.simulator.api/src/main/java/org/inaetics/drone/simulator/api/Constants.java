@@ -21,4 +21,5 @@ public class Constants {
     public static final String DRONE_COMPOMENTS_GUN_TOP_ENABLED = "drone.components.gun.top.enabled";
     public static final String DRONE_COMPONENTS_GUN_BOTTOM_ENABLED = "drone.components.gun.bottom.enabled";
     public static final String DRONE_COMPONENTS_RADAR_ENABLED = "drone.components.radar.enabled";
+    public static final String DRONE_COMPONENTS_GPS_ENABLED = "drone.components.gps.enabled";
 }

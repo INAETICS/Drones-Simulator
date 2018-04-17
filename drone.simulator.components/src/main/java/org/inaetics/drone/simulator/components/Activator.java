@@ -32,10 +32,14 @@ import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.inaetics.drone.simulator.api.Constants;
 import org.inaetics.drone.simulator.api.drone.DroneTactic;
+import org.inaetics.drone.simulator.api.engine.Engine;
+import org.inaetics.drone.simulator.api.gps.Gps;
 import org.inaetics.drone.simulator.api.gun.Gun;
 import org.inaetics.drone.simulator.api.radar.DetectionListener;
 import org.inaetics.drone.simulator.api.radar.Radar;
 import org.inaetics.drone.simulator.components.drone.DroneManager;
+import org.inaetics.drone.simulator.components.engine.EngineImpl;
+import org.inaetics.drone.simulator.components.gps.GpsImpl;
 import org.inaetics.drone.simulator.components.gun.GunImpl;
 import org.inaetics.drone.simulator.components.radar.RadarImpl;
 import org.inaetics.drone.simulator.spi.costs.ComponentCost;
@@ -95,6 +99,8 @@ public class Activator extends DependencyActivatorBase {
         Component topGunCmp = dm.createComponent()
                 .setImplementation(topGun)
                 .setInterface(gunServices, topGunProps)
+                 .add(dm.createServiceDependency()
+                    .setService(Gps.class))
                 .add(dm.createServiceDependency()
                     .setService(LogService.class));
 
@@ -104,6 +110,8 @@ public class Activator extends DependencyActivatorBase {
         Component bottomGunCmp = dm.createComponent()
                 .setImplementation(bottomGun)
                 .setInterface(gunServices, bottomGunProps)
+                .add(dm.createServiceDependency()
+                        .setService(Gps.class))
                 .add(dm.createServiceDependency()
                         .setService(LogService.class));
 
@@ -123,9 +131,22 @@ public class Activator extends DependencyActivatorBase {
                     .setService(DetectionListener.class)
                     .setCallbacks("addListener", "removeListener"));
 
+        //Creating Gps component
+        Properties gpsProps = new Properties();
+        String[] gpsInterfaces = new String[]{Gps.class.getName(), ComponentCost.class.getName()};
+        //TODO enable lines (and update imports) if the INAETICS pubsub maven dep is added
+        //String[] radarInterfaces = new String[]{Radar.class.getName(), Subscriber.class.getName()};
+        //radarProps.setProperty(PUBSUB_TOPIC, Constants.STATE_UPDATE_TOPIC_NAME);
+        Component gpsCmp = dm.createComponent()
+                .setImplementation(GpsImpl.class)
+                .setInterface(gpsInterfaces, gpsProps)
+                .add(dm.createServiceDependency()
+                    .setService(LogService.class));
+
         addComponentIfEnabled(dm, topGunCmp, Constants.DRONE_COMPOMENTS_GUN_TOP_ENABLED);
         addComponentIfEnabled(dm, bottomGunCmp, Constants.DRONE_COMPONENTS_GUN_BOTTOM_ENABLED);
         addComponentIfEnabled(dm, radarCmp, Constants.DRONE_COMPONENTS_RADAR_ENABLED);
+        addComponentIfEnabled(dm, gpsCmp, Constants.DRONE_COMPONENTS_GPS_ENABLED);
     }
 
     private void addComponentIfEnabled(DependencyManager dm, Component cmp, String enableKey) {

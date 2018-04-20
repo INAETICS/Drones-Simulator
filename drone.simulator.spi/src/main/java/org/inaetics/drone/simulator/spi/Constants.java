@@ -25,5 +25,6 @@ public class Constants {
     public static final double DRONE_COMPONENTS_GUN_COST = 40.0;
     public static final double DRONE_COMPONENTS_RADAR_COST = 100.0;
     public static final double DRONE_COMPONENTS_ENGINE_COST = 50;
+    public static final double DRONE_COMPONENTS_GPS_COST = 80;
     //TODO etc
 }

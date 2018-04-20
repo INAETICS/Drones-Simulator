@@ -16,24 +16,20 @@ package org.inaetics.drone.simulator.components.gps;
 
 import org.inaetics.drone.simulator.api.gps.Gps;
 import org.inaetics.drone.simulator.api.gps.PlatformInfo;
-import org.inaetics.drone.simulator.common.D3Vector;
+import org.inaetics.drone.simulator.spi.Constants;
 import org.inaetics.drone.simulator.spi.costs.ComponentCost;
-import org.inaetics.drone.simulator.spi.events.StateEvent;
 import org.inaetics.pubsub.api.pubsub.Subscriber;
 import org.osgi.service.log.LogService;
 
 import java.util.UUID;
 
 public class GpsImpl implements Gps, ComponentCost, Subscriber {
-//TODO enable line when the IANETICS pubsub dep is added
-//public class GpsImpl implements Gps, Subscriber {
 
     private volatile LogService log;
 
     private final UUID sensorUUid = UUID.randomUUID();
 
-    //TODO: leave uninitialized if receive(...) hasn't been called yet
-    private PlatformInfo latestPlatformInfo = new PlatformInfo(100000, new D3Vector(0,0,0),  new D3Vector(0,0,0),  new D3Vector(0,0,0));
+    private PlatformInfo latestPlatformInfo = null;
 
     public void start() {
         log.log(LogService.LOG_INFO, "Starting Gps Component");
@@ -45,11 +41,12 @@ public class GpsImpl implements Gps, ComponentCost, Subscriber {
         //TODO stop gps
     }
 
-//    * TODO enable method when the INATICS PubSub dep is added
     @Override
     public void receive(Object o, MultipartCallbacks multipartCallbacks) {
-//        update platforminfo
-//        update timeBetweenUpdates
+        if(o instanceof PlatformInfo){
+            latestPlatformInfo = (PlatformInfo) o;
+            //TODO: perhaps update timeBetweenUpdates?
+        }
     }
 
     @Override
@@ -59,8 +56,7 @@ public class GpsImpl implements Gps, ComponentCost, Subscriber {
 
     @Override
     public double getCost() {
-        //TODO:
-        return 1; //Constants.DRONE_COMPONENTS_GPS_COST;
+        return Constants.DRONE_COMPONENTS_GPS_COST;
     }
 
     @Override
@@ -71,7 +67,6 @@ public class GpsImpl implements Gps, ComponentCost, Subscriber {
 
     @Override
     public PlatformInfo getLatestPlatformInfo() {
-        //TODO: return info based on received message
         return latestPlatformInfo;
     }
 }

@@ -21,6 +21,7 @@ import org.inaetics.drone.simulator.spi.Constants;
 import org.inaetics.drone.simulator.spi.costs.ComponentCost;
 import org.inaetics.drone.simulator.spi.events.DroneState;
 import org.inaetics.drone.simulator.spi.events.StateEvent;
+import org.inaetics.pubsub.api.pubsub.Subscriber;
 import org.osgi.service.log.LogService;
 
 import java.util.ArrayList;
@@ -28,9 +29,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-public class RadarImpl implements Radar, ComponentCost {
-//TODO enable line when the IANETICS pubsub dep is added
-//public class RadarImpl implements Radar, Subscriber {
+public class RadarImpl implements Radar, ComponentCost, Subscriber {
 
     private volatile LogService log;
 
@@ -70,14 +69,13 @@ public class RadarImpl implements Radar, ComponentCost {
         //TODO stop radar
     }
 
-    /** TODO enable method when the INATICS PubSub dep is added
-     * Note: should filtering be done here? i.e. only process if event is in range of radar
     @Override
     public void receive(Object o, MultipartCallbacks multipartCallbacks) {
         if (o instanceof StateEvent) {
+            //TODO: should events be filtered on range?
             processDroneUpdate((StateEvent)o);
         }
-    }*/
+    }
 
     protected void processDroneUpdate(StateEvent stateEvent) {
         //TODO update detected cache based on drone state and

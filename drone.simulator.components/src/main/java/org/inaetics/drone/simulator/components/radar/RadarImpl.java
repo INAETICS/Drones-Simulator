@@ -71,6 +71,7 @@ public class RadarImpl implements Radar, ComponentCost {
     }
 
     /** TODO enable method when the INATICS PubSub dep is added
+     * Note: should filtering be done here? i.e. only process if event is in range of radar
     @Override
     public void receive(Object o, MultipartCallbacks multipartCallbacks) {
         if (o instanceof StateEvent) {

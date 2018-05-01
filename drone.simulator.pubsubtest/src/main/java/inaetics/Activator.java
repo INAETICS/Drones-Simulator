@@ -17,13 +17,14 @@ public class Activator extends DependencyActivatorBase {
         String[] objectClass = new String[] {Object.class.getName()};
         Dictionary<String, Object> properties = new Hashtable<>();
 
+        System.out.println("Activator.init()");
         dm.add(
                 dm.createComponent()
                         .setInterface(objectClass, properties)
                         .setImplementation(Demo.class)
-//                        .add(createServiceDependency()
-//                                .setService(Publisher.class/*, "(" + Publisher.PUBSUB_TOPIC +"=" + TOPIC + ")"*/)
-//                                .setRequired(true))
+                        .add(createServiceDependency()
+                                .setService(Publisher.class ,"(" + Publisher.PUBSUB_TOPIC +"=" + TOPIC + ")")
+                                .setRequired(true))
         );
     }
 }

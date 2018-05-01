@@ -12,7 +12,10 @@
         osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.shell)',\
         osgi.identity;filter:='(osgi.identity=org.apache.felix.dependencymanager.shell)',\
         osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.api)',\
-        osgi.identity;filter:='(osgi.identity=org.inaetics.drone.simulator.pubsubtest)'
+        osgi.identity;filter:='(osgi.identity=org.inaetics.drone.simulator.pubsubtest)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.psa.zeromq)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.topologymanager)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.serialization.json)'
 -resolve: auto
 
 -runproperties: \

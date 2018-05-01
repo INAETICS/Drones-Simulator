@@ -31,15 +31,16 @@ public class Demo {
 
         subscriber = new DemoSubscriber();
 
-        if (publishThread != null) {
+        if (publishThread != null) { //TODO: Not needed
             publishThread.interrupt();
             tracker.close();
         }
         try {
-            Filter filter = bundleContext.createFilter("(&(objectClass=" + Publisher.class.getName() + "))");
+            String filterString = "(&(objectClass=" + Publisher.class.getName() + "))";
+            Filter filter = bundleContext.createFilter(filterString);
             tracker = new ServiceTracker(bundleContext, filter, null);
             tracker.open();
-            System.out.println("Opened tracker");
+            System.out.println("Opened tracker for: "+filterString);
             publisher = (Publisher) tracker.waitForService(0);
             System.out.println("Found publisher, starting publisher thread.");
             publishThread = new PublishThread();
@@ -72,7 +73,9 @@ public class Demo {
             int i = 0;
             while(!this.isInterrupted()) {
                 if (publisher != null) {
-                   publisher.send("Msg " + i++);
+                    String msg = "Msg " + i++;
+                    System.out.println("Sending message: " + msg);
+                   publisher.send(msg);
                 } else {
                     System.out.println("Trying to send on an unitialized publisher!");
                 }

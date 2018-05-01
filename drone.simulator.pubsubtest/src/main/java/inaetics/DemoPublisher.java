@@ -10,9 +10,9 @@ import org.inaetics.pubsub.api.pubsub.Publisher;
 import org.inaetics.pubsub.api.pubsub.Subscriber;
 import org.osgi.framework.*;
 
-public class Demo {
+public class DemoPublisher {
     private volatile Publisher publisher;
-    private BundleContext bundleContext = FrameworkUtil.getBundle(Demo.class).getBundleContext();
+    private BundleContext bundleContext = FrameworkUtil.getBundle(DemoPublisher.class).getBundleContext();
     private volatile ServiceTracker tracker;
     private volatile PublishThread publishThread;
     private Subscriber subscriber;
@@ -36,7 +36,9 @@ public class Demo {
             tracker.close();
         }
         try {
-            String filterString = "(&(objectClass=" + Publisher.class.getName() + "))";
+            String filterString = "(&(objectClass=" + Publisher.class.getName() + ")"
+                                + "(" + Publisher.PUBSUB_TOPIC + "=" + topic + "))";
+                    ;
             Filter filter = bundleContext.createFilter(filterString);
             tracker = new ServiceTracker(bundleContext, filter, null);
             tracker.open();
@@ -80,7 +82,7 @@ public class Demo {
                     System.out.println("Trying to send on an unitialized publisher!");
                 }
                 try {
-                    Thread.sleep(2000);
+                    Thread.sleep(8000);
                 } catch (InterruptedException e) {
                     return;
                 }

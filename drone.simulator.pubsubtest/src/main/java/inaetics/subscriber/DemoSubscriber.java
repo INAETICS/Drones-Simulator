@@ -22,19 +22,19 @@ public class DemoSubscriber implements Subscriber {
     }
 
     public void init(){
-//        log.debug("init");
+//        System.out.println("DemoSubscriber::init");
     }
 
     public void destroy(){
-//        log.debug("destroy");
+        System.out.println("DemoSubscriber::destroy");
     }
 
     public void connect(){
-//        log.debug("connect");
+        System.out.println("DemoSubscriber::connect");
     }
 
     public void disconnect(){
-//        log.debug("disconnect");
+        System.out.println("DemoSubscriber::disconnect");
     }
 
     public String getContent() {

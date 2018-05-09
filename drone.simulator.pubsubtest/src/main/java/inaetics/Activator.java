@@ -2,10 +2,11 @@ package inaetics;
 
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
-import org.inaetics.pubsub.api.pubsub.Publisher;
 import org.inaetics.pubsub.api.pubsub.Subscriber;
+import org.inaetics.pubsub.api.pubsub.Publisher;
 import org.osgi.framework.BundleContext;
 import org.osgi.service.log.LogService;
+import org.osgi.framework.ServiceRegistration;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
@@ -22,8 +23,17 @@ public class Activator extends DependencyActivatorBase {
 
     private final static String TOPIC = "test";
 
-    @Override
-    public void init(BundleContext bundleContext, DependencyManager dm) throws Exception {
+    private BundleContext bundleContext;
+    private DependencyManager dm;
+
+    class InternalTest implements Subscriber {
+        @Override
+        public void receive(Object o, MultipartCallbacks multipartCallbacks) {
+            System.out.println("Received object %s" + o.getClass().getName());
+        }
+    }
+
+    public void doLater() {
         String[] objectClass = new String[] {Object.class.getName()};
         Dictionary<String, Object> properties = new Hashtable<>();
 
@@ -33,9 +43,9 @@ public class Activator extends DependencyActivatorBase {
         subscriberProperties.setProperty(Subscriber.PUBSUB_TOPIC, TOPIC);
         System.out.println("subscriber props: " + subscriberProperties.toString());
         dm.add(createComponent()
-                        .setImplementation(DemoSubscriber.class)
-                        .setInterface(new String[]{Subscriber.class.getName()}, subscriberProperties)
-                        .setCallbacks("init", "connect", "disconnect", "destroy")
+                .setImplementation(DemoSubscriber.class)
+                .setInterface(new String[]{Subscriber.class.getName()}, subscriberProperties)
+                .setCallbacks("init", "connect", "disconnect", "destroy")
         );
 
         dm.add(
@@ -47,48 +57,30 @@ public class Activator extends DependencyActivatorBase {
                                 .setRequired(true))
         );
 
-        // CONFIGURE PUB SUB
-        // TODO: Figure out how to configure zeroMQ
-        ServiceReference configurationAdminReference =
-                bundleContext.getServiceReference(ConfigurationAdmin.class.getName());
+        InternalTest test = new InternalTest();
+        Dictionary<String, String> p = new Hashtable<>();
+        p.put(Subscriber.PUBSUB_TOPIC, TOPIC);
+        ServiceRegistration registration = bundleContext.registerService(Subscriber.class.getName(), test, p);
 
-        if (configurationAdminReference != null) {
-            System.out.println("Configuring etcd and zmq...");
 
-            ConfigurationAdmin confAdmin =
-                    (ConfigurationAdmin) bundleContext.getService(configurationAdminReference);
 
-            try {
-                Configuration config = confAdmin
-                        .getConfiguration("org.inaetics.pubsub.impl.discovery.etcd.EtcdDiscoveryManager", null);
-                Dictionary props = config.getProperties();
+    }
 
-                if (props == null) {
-                    props = new Hashtable();
+    @Override
+    public void init(BundleContext bundleContext, DependencyManager dm) throws Exception {
+        this.bundleContext = bundleContext;
+        this.dm = dm;
+        Thread th = new Thread(new Runnable() {
+            public void run() {
+                try {
+                    Thread.sleep(5000);
+                    System.out.println("done waiting");
+                    doLater();;
+                } catch (Exception e) {
+                    e.printStackTrace();;
                 }
-
-                props.put("url", "http://localhost:2379/v2/keys");
-                System.out.println("props: "+props.toString());
-
-                config.update(props);
-
-                config = confAdmin
-                        .getConfiguration("org.inaetics.pubsub.impl.pubsubadmin.zeromq.ZmqPubSubAdmin", null);
-                props = config.getProperties();
-
-                if (props == null) {
-                    props = new Hashtable();
-                }
-                System.out.println("props: "+props.toString());
-
-                props.put("sub:zookeeper.connect", "localhost:2181");
-                props.put("pub:bootstrap.servers", "localhost:9092");
-                config.update(props);
-            } catch (Throwable e) {
-                e.printStackTrace();
             }
-        }
-
-
+        });
+        th.start();
     }
 }

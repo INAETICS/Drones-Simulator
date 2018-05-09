@@ -1,4 +1,4 @@
--runfw: org.apache.felix.framework'
+-runfw: org.apache.felix.framework
 -runee: JavaSE-1.8
 -runsystemcapabilities: ${native_capability}
 
@@ -12,14 +12,15 @@
         osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.shell)',\
         osgi.identity;filter:='(osgi.identity=org.apache.felix.dependencymanager.shell)',\
         osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.api)',\
-        osgi.identity;filter:='(osgi.identity=org.inaetics.drone.simulator.pubsubtest)',\
         osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.psa.zeromq)',\
         osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.topologymanager)',\
-        osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.serialization.json)'
+        osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.discovery.etcd)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.serialization.json)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.drone.simulator.pubsubtest)'
 -resolve: auto
 
--runproperties: \
-    drone.components.gun.top.enabled=false,\
-    drone.components.gun.bottom.enabled=false,\
-    drone.components.radar.enabled=false
-
+-runbundles: \
+        org.apache.felix.log,\
+        org.inaetics.pubsub.serialization.json,\
+        org.inaetics.pubsub.psa.zeromq,\
+        org.inaetics.pubsub.topologymanager,\

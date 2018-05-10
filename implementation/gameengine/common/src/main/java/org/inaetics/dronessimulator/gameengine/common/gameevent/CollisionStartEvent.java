@@ -1,8 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.common.gameevent;
 
-
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.inaetics.dronessimulator.common.protocol.CollisionMessage;
 import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
@@ -15,9 +12,12 @@ import java.util.Optional;
 /**
  * A unified physics engine message which contains the start of a collision between two game entities.
  */
-@AllArgsConstructor
-@Getter
 public class CollisionStartEvent extends GameEngineEvent {
+    public CollisionStartEvent(GameEntity e1, GameEntity e2) {
+        this.e1 = e1;
+        this.e2 = e2;
+    }
+
     /** First entity in the collision. */
     private final GameEntity e1;
 
@@ -42,5 +42,13 @@ public class CollisionStartEvent extends GameEngineEvent {
             return Collections.emptyList();
         }
 
+    }
+
+    public GameEntity getE1() {
+        return e1;
+    }
+
+    public GameEntity getE2() {
+        return e2;
     }
 }

@@ -1,7 +1,5 @@
 package org.inaetics.dronessimulator.drone.tactic.example.utility.messages;
 
-import lombok.AccessLevel;
-import lombok.Getter;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.tactic.example.utility.TheoreticalTactic;
 
@@ -9,8 +7,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class HeartbeatMessage extends MyTacticMessage {
-    @Getter(AccessLevel.PROTECTED)
     private final Map<String, String> data = new HashMap<>();
+
+    @Override
+    protected Map<String, String> getData() {
+        return data;
+    }
 
     public HeartbeatMessage(TheoreticalTactic tactic, GPS gps) {
         super(tactic);

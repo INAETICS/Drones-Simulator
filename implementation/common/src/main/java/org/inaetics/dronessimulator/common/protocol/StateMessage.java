@@ -1,22 +1,24 @@
 package org.inaetics.dronessimulator.common.protocol;
 
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 
 import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * Message used by the game state to communicate state changes to other nodes.
  */
-@RequiredArgsConstructor //For testing purposes.
-@Data
+
 public class StateMessage extends ProtocolMessage {
     private final LocalTime timestamp;
+
+    public StateMessage(LocalTime timestamp) { //For testing purposes.
+        this.timestamp = timestamp;
+    }
     /** Identifier of object that this state message is about. */
     private String identifier = null;
 
@@ -37,6 +39,8 @@ public class StateMessage extends ProtocolMessage {
     public StateMessage() {
         timestamp = LocalTime.now();
     }
+
+
 
     public Optional<D3Vector> getPosition() {
         return Optional.ofNullable(position);
@@ -68,4 +72,64 @@ public class StateMessage extends ProtocolMessage {
         return String.format("(StateMessage %s %s, %s, %s, %s, %s)", this.identifier, this.position, this.direction, this.velocity, this.acceleration, this.hp);
     }
 
+    public LocalTime getTimestamp() {
+        return timestamp;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+    public EntityType getType() {
+        return type;
+    }
+
+    public void setType(EntityType type) {
+        this.type = type;
+    }
+
+    public void setPosition(D3Vector position) {
+        this.position = position;
+    }
+
+    public void setDirection(D3PolarCoordinate direction) {
+        this.direction = direction;
+    }
+
+    public void setVelocity(D3Vector velocity) {
+        this.velocity = velocity;
+    }
+
+    public void setAcceleration(D3Vector acceleration) {
+        this.acceleration = acceleration;
+    }
+
+    public void setHp(Integer hp) {
+        this.hp = hp;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof StateMessage)) return false;
+        StateMessage that = (StateMessage) o;
+        return Objects.equals(timestamp, that.timestamp) &&
+                Objects.equals(identifier, that.identifier) &&
+                type == that.type &&
+                Objects.equals(position, that.position) &&
+                Objects.equals(direction, that.direction) &&
+                Objects.equals(velocity, that.velocity) &&
+                Objects.equals(acceleration, that.acceleration) &&
+                Objects.equals(hp, that.hp);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(timestamp, identifier, type, position, direction, velocity, acceleration, hp);
+    }
 }

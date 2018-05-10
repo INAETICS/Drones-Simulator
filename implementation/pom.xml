@@ -209,16 +209,6 @@
         </dependencies>
     </dependencyManagement>
 
-    <!--Give all modules access to lombok.-->
-    <dependencies>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
-
     <build>
         <plugins>
             <plugin>

@@ -1,10 +1,5 @@
 package org.inaetics.dronessimulator.drone.components.radar;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
@@ -32,10 +27,19 @@ import java.util.stream.Collectors;
 /**
  * The Radar drone component
  */
-@Log4j
-@NoArgsConstructor //OSGi constructor
-@AllArgsConstructor //Testing constructor
 public class Radar implements MessageHandler<Message> {
+    //OSGi constructor
+    public Radar() {
+    }
+    //Testing constructor
+    public Radar(ArchitectureEventController architectureEventController, Subscriber subscriber, DroneInit drone, Discoverer discoverer, D3Vector position) {
+        this.architectureEventController = architectureEventController;
+        this.subscriber = subscriber;
+        this.drone = drone;
+        this.discoverer = discoverer;
+        this.position = position;
+    }
+
     /**
      * The range of this radar
      */
@@ -61,9 +65,20 @@ public class Radar implements MessageHandler<Message> {
     /**
      * Last known position of this drone
      */
-    @Getter
-    @Setter
     private volatile D3Vector position;
+
+    public D3Vector getPosition() {
+        return position;
+    }
+
+    public void setPosition(D3Vector position) {
+        this.position = position;
+    }
+
+    /**
+     * Create the logger
+     */
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Radar.class);
 
     /**
      * Start the Radar (called from Apache Felix). This adds handlers for discovery, architectureEventController and subscribes on stateUpdates in subscriber.

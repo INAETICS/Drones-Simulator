@@ -1,8 +1,6 @@
 package org.inaetics.dronessimulator.drone.tactic;
 
 
-import lombok.Getter;
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.common.ManagedThread;
 import org.inaetics.dronessimulator.common.Settings;
@@ -33,23 +31,48 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * The abstract tactic each drone tactic should extend
  */
-@Log4j
 public abstract class Tactic extends ManagedThread implements MessageHandler<KillMessage> {
     private static final long TACTIC_TIMOUT = 1;//tck
     private final TimeoutTimer workTimoutTimer = new TimeoutTimer(TACTIC_TIMOUT * Settings.TICK_TIME);
     private final AtomicBoolean initialized = new AtomicBoolean(false);
     private final TimeoutTimer ticker = new TimeoutTimer(Settings.TICK_TIME);
+
+    /**
+     * Create the logger
+     */
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Tactic.class);
+
     // drone components
-    @Getter
     protected volatile Radar radar;
-    @Getter
+
+    public Radar getRadar() {
+        return radar;
+    }
+
     protected volatile GPS gps;
-    @Getter
+
+    public GPS getGps() {
+        return gps;
+    }
+
     protected volatile Engine engine;
-    @Getter
+
+    public Engine getEngine() {
+        return engine;
+    }
+
     protected volatile Gun gun;
-    @Getter
+
+    public Gun getGun() {
+        return gun;
+    }
+
     protected volatile Radio radio;
+
+    public Radio getRadio() {
+        return radio;
+    }
+
     /** The drone instance that can be used to get information about the current drone */
     protected volatile DroneInit drone;
     /**

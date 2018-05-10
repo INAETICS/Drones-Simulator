@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.gameengine;
 
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
@@ -37,7 +36,6 @@ import java.util.List;
  * Set up are: physics engine, incoming command messages, queue between physics engine and rule processors,
  * discovery handler and architecture state event listening.
  */
-@Log4j
 public class GameEngine {
     /**
      * Physics engine used in the game engine.
@@ -86,6 +84,10 @@ public class GameEngine {
     /*** The game engine instance to register.
     */private GameEngineInstance discoveryInstance;
 
+    /**
+     * Create the logger
+     */
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GameEngine.class);
     /**
      * Starts the wrapper. Sets up all handlers, queues and engines. Connects everything if needed.
      */

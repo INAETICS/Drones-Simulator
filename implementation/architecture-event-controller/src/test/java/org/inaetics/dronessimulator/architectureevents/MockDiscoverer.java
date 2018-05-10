@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.architectureevents;
 
-import lombok.Getter;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
@@ -13,17 +12,29 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.R
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
+import java.util.Dictionary;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 public class MockDiscoverer implements Discoverer {
-    @Getter
+
     private final List<NodeEventHandler<AddedNode>> addedHandlers = new LinkedList<>();
-    @Getter
+
+    public List<NodeEventHandler<AddedNode>> getAddedHandlers() {
+        return addedHandlers;
+    }
     private final List<NodeEventHandler<ChangedValue>> changedHandlers = new LinkedList<>();
-    @Getter
+
+    public List<NodeEventHandler<ChangedValue>> getChangedHandlers() {
+        return changedHandlers;
+    }
+
     private final List<NodeEventHandler<RemovedNode>> removedHandlers = new LinkedList<>();
+
+    public List<NodeEventHandler<RemovedNode>> getRemovedHandlers() {
+        return removedHandlers;
+    }
 
     private final List<NodeEvent> happenedEvents = new LinkedList<>();
 
@@ -69,4 +80,5 @@ public class MockDiscoverer implements Discoverer {
     public void addHappenedEvent(NodeEvent event) {
         happenedEvents.add(event);
     }
+
 }

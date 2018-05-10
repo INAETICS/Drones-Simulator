@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.drone.tactic.example.basic;
 
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.TimeoutTimer;
 import org.inaetics.dronessimulator.common.Tuple;
@@ -12,10 +11,11 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
-@Log4j
 public class BasicTactic extends Tactic {
     private static final int DRONE_TIMEOUT = 2; // seconds
     private final TimeoutTimer tacticTimer = new TimeoutTimer(1000); //ms
+
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(BasicTactic.class);
 
     D3Vector moveTarget = null;
     D3Vector lastMoveTarget = null;

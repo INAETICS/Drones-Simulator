@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.drone.tactic.example.utility;
 
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.model.Triple;
@@ -33,11 +32,12 @@ import static org.inaetics.dronessimulator.test.TestUtils.getConnectedMockPubSub
 import static org.inaetics.dronessimulator.test.TestUtils.setField;
 import static org.mockito.Mockito.mock;
 
-@Log4j
 public class TheoreticalTacticTester {
     private DroneInit droneInit;
     private TheoreticalTactic tactic;
     private MockPublisher publisher;
+
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(TheoreticalTacticTester.class);
 
     @Before
     public void setup() throws IllegalAccessException, NoSuchFieldException, InstantiationException {

@@ -1,13 +1,14 @@
 package org.inaetics.dronessimulator.common;
 
-import lombok.RequiredArgsConstructor;
-
 import java.time.LocalDateTime;
 
-@RequiredArgsConstructor
 public class TimeoutTimer {
     private final double timeout; //ms
     private long lastTime;
+
+    public TimeoutTimer(double timeout) {
+        this.timeout = timeout;
+    }
 
 
     /**

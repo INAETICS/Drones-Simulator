@@ -1,7 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.ruleprocessors;
 
-
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.TimeoutTimer;
@@ -21,11 +19,14 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Rule processors service. The rule processors listen on events and act on them based on predefined rules.
  */
-@Log4j
 public class RuleProcessors extends Thread implements IRuleProcessors {
     public static final TimeoutTimer INTERVAL_RULES_TIMEOUT = new TimeoutTimer(Settings.TICK_TIME * 10); //Run interval rules once every 10 iterations.
     private ArchitectureEventController m_architectureEventController;
 
+    /**
+     * Create the logger
+     */
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(RuleProcessors.class);
     /**
      * The physics engine driver to get events from.
      */

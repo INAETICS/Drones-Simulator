@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.architecturemanager;
 
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
@@ -22,7 +21,7 @@ import java.util.Map;
  * Currently this only consists of the current lifecycle state of the architecture
  * Uses Discovery and Subscriber to publish current state and receive requested state updates
  */
-@Log4j
+
 public class ArchitectureManager {
     /**
      * Reference to discovery bundle to publish state information
@@ -75,6 +74,11 @@ public class ArchitectureManager {
         m_discoverer = discoverer;
         m_subscriber = subscriber;
     }
+
+    /**
+     *Create the logger
+     */
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ArchitectureManager.class);
 
     /**
      * Start the Architecture Manager service

@@ -7,7 +7,7 @@ import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
-import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
+import org.inaetics.pubsub.api.pubsub.Subscriber;
 
 import java.io.IOException;
 import java.time.LocalTime;
@@ -19,7 +19,7 @@ import java.util.Set;
 /**
  * The GPS drone component
  */
-public class GPS implements MessageHandler<StateMessage> {
+public class GPS implements Subscriber {
     private final Set<GPSCallback> callbacks = new HashSet<>();
     /** The Subscriber to use for receiving messages */
     private volatile Subscriber subscriber;
@@ -100,20 +100,22 @@ public class GPS implements MessageHandler<StateMessage> {
      */
     public void start() {
         try {
-            this.subscriber.addTopic(MessageTopic.STATEUPDATES);
-        } catch (IOException e) {
-            log.fatal(e);
+            Thread.sleep(5000); // To ensure PubSubAdmin can give us a subscriber.
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        this.subscriber.addHandler(StateMessage.class, this);
+        // Subcriber initialization is now done by the Activator.
     }
 
-    public void handleMessage(StateMessage message) {
-        if (message != null && message.getIdentifier().equals(this.drone.getIdentifier())) {
+    @Override
+    public void receive(Object o, MultipartCallbacks multipartCallbacks) {
+        if (o instanceof StateMessage && ((StateMessage) o).getIdentifier().equals(this.drone.getIdentifier())) {
+            StateMessage message = (StateMessage) o;
             //Prepare some variables
             double deltaNow = ChronoUnit.MILLIS.between(message.getTimestamp(), LocalTime.now());
             Optional<D3Vector> optionalPosition = message.getPosition();
             Optional<D3Vector> optionalVelocity = message.getVelocity();
-            Optional<D3Vector> optionalAccelration = message.getAcceleration();
+            Optional<D3Vector> optionalAcceleration = message.getAcceleration();
             Optional<D3PolarCoordinate> optionalDirection = message.getDirection();
 
             //Check if the message is recent
@@ -126,7 +128,7 @@ public class GPS implements MessageHandler<StateMessage> {
                 interpolateMessages(deltaNow, deltaMessages, message);
             } else {
                 optionalPosition.ifPresent(this::setPosition);
-                optionalAccelration.ifPresent(this::setAcceleration);
+                optionalAcceleration.ifPresent(this::setAcceleration);
                 optionalVelocity.ifPresent(this::setVelocity);
                 optionalDirection.ifPresent(this::setDirection);
             }

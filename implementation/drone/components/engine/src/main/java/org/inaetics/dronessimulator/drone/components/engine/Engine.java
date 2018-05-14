@@ -1,14 +1,12 @@
 package org.inaetics.dronessimulator.drone.components.engine;
 
 import org.inaetics.dronessimulator.common.Settings;
-import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.MovementMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
+import org.inaetics.pubsub.api.pubsub.Publisher;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -150,13 +148,9 @@ public final class Engine {
             msg.setAcceleration(acceleration);
             msg.setIdentifier(m_drone.getIdentifier());
 
-            try {
-                m_publisher.send(MessageTopic.MOVEMENTS, msg);
-                //Run all callbacks
-                callbacks.forEach(callback -> callback.run(msg));
-            } catch (IOException e) {
-                log.fatal(e);
-            }
+            m_publisher.send(msg);
+            //Run all callbacks
+            callbacks.forEach(callback -> callback.run(msg));
         }
     }
 
@@ -183,13 +177,9 @@ public final class Engine {
         msg.setVelocity(output);
         msg.setIdentifier(m_drone.getIdentifier());
 
-        try {
-            m_publisher.send(MessageTopic.MOVEMENTS, msg);
-            //Run all callbacks
-            callbacks.forEach(callback -> callback.run(msg));
-        } catch (IOException e) {
-            log.fatal(e);
-        }
+        m_publisher.send(msg);
+        //Run all callbacks
+        callbacks.forEach(callback -> callback.run(msg));
 
         return output;
     }

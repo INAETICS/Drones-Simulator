@@ -25,6 +25,11 @@ public enum MessageTopic implements Topic {
 
     private final String name;
 
+    MessageTopic() {
+        // Required for serialization
+        name = "";
+    }
+
     MessageTopic(String name) {
         this.name = name;
     }

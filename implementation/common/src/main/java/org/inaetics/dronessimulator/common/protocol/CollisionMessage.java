@@ -1,7 +1,9 @@
 package org.inaetics.dronessimulator.common.protocol;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * A message describing a collision between 2 entities
@@ -32,7 +34,10 @@ public class CollisionMessage extends ProtocolMessage {
 
     @Override
     public List<MessageTopic> getTopics() {
-        return Collections.singletonList(MessageTopic.STATEUPDATES);
+        List<MessageTopic> res = new ArrayList<>();
+        res.add(MessageTopic.STATEUPDATES);
+        return res;
+//        return Collections.singletonList(MessageTopic.STATEUPDATES);
     }
 
     public EntityType getE1Type() {
@@ -65,5 +70,22 @@ public class CollisionMessage extends ProtocolMessage {
 
     public void setE2Identifier(String e2Identifier) {
         this.e2Identifier = e2Identifier;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CollisionMessage that = (CollisionMessage) o;
+        return e1Type == that.e1Type &&
+                Objects.equals(e1Identifier, that.e1Identifier) &&
+                e2Type == that.e2Type &&
+                Objects.equals(e2Identifier, that.e2Identifier);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(e1Type, e1Identifier, e2Type, e2Identifier);
     }
 }

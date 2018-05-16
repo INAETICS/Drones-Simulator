@@ -87,7 +87,7 @@
                     <bnd combine.self="override"><![CDATA[
 #Always export packages with a @Version annotation
 -exportcontents: ${packages;ANNOTATED;org.osgi.annotation.versioning.Version}
-Bundle-Activator: inaetics.Activator
+Bundle-Activator: org.inaetics.dronessimulator.drone.components.radar.Activator
 ]]>
                     </bnd>
                 </configuration>

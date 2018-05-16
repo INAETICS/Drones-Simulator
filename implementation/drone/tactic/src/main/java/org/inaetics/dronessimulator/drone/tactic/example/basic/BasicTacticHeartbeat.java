@@ -1,17 +1,17 @@
 package org.inaetics.dronessimulator.drone.tactic.example.basic;
 
-import lombok.extern.log4j.Log4j;
 
 import java.time.LocalDateTime;
 
 import static org.inaetics.dronessimulator.drone.tactic.example.basic.ProtocolTags.HEARTBEAT_GUN;
 import static org.inaetics.dronessimulator.drone.tactic.example.basic.ProtocolTags.HEARTBEAT_RADAR;
 
-@Log4j
 public class BasicTacticHeartbeat implements Runnable{
 
     private BasicTactic tactic;
     private BasicTacticCommunication comm;
+
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(BasicTacticHeartbeat.class);
 
     private boolean go = true;
 

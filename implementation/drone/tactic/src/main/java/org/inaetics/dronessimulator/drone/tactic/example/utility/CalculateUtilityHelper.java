@@ -1,7 +1,5 @@
 package org.inaetics.dronessimulator.drone.tactic.example.utility;
 
-import lombok.RequiredArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.common.model.Triple;
@@ -13,8 +11,6 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
-@Log4j
-@RequiredArgsConstructor
 public class CalculateUtilityHelper {
     static final int MOVE_GENERATION_DELTA = 1;
     private static final double MAX_ARENA_DISTANCE = new D3Vector(Settings.ARENA_WIDTH, Settings.ARENA_DEPTH, Settings.ARENA_HEIGHT).length();
@@ -22,6 +18,12 @@ public class CalculateUtilityHelper {
     private static final double MOVING_WEIGHT = 1;
     private static final double MINIMAL_TEAM_DISTANCE = 15d;
     private final CalculateUtilityParams params;
+
+    public CalculateUtilityHelper(CalculateUtilityParams params) {
+        this.params = params;
+    }
+
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CalculateUtilityHelper.class);
 
     private static boolean insideRange(D3Vector startRange, D3Vector endRange, D3Vector testedLocation) {
         return

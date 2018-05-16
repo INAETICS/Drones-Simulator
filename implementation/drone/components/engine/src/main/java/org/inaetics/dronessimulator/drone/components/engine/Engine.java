@@ -1,37 +1,48 @@
 package org.inaetics.dronessimulator.drone.components.engine;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.Settings;
-import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.MovementMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
+import org.inaetics.pubsub.api.pubsub.Publisher;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 
 /**
  * The engine component in a drone
  */
-@Log4j
-@NoArgsConstructor //This is the constructor for OSGi
-@AllArgsConstructor //This is a constructor for test purposes.
 public final class Engine {
+    //This is the constructor for OSGi
+    public Engine() {
+    }
+    //This is a constructor for test purposes.
+    public Engine(Publisher m_publisher, GPS m_gps, DroneInit m_drone, D3Vector lastAcceleration) {
+        this.m_publisher = m_publisher;
+        this.m_gps = m_gps;
+        this.m_drone = m_drone;
+        this.lastAcceleration = lastAcceleration;
+    }
+
     private final Set<EngineCallback> callbacks = new HashSet<>();
     /** The Publisher to use for sending messages */
     private volatile Publisher m_publisher;
     private volatile GPS m_gps;
     /** The drone instance that can be used to get information about the current drone */
     private volatile DroneInit m_drone;
+
     /** The last known acceleration, this might be NULL. */
-    @Getter
     private D3Vector lastAcceleration;
+
+    public D3Vector getLastAcceleration() {
+        return lastAcceleration;
+    }
+
+    /**
+     * Create the loggrt
+     */
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Engine.class);
 
     /**
      * Limit the acceleration
@@ -137,13 +148,9 @@ public final class Engine {
             msg.setAcceleration(acceleration);
             msg.setIdentifier(m_drone.getIdentifier());
 
-            try {
-                m_publisher.send(MessageTopic.MOVEMENTS, msg);
-                //Run all callbacks
-                callbacks.forEach(callback -> callback.run(msg));
-            } catch (IOException e) {
-                log.fatal(e);
-            }
+            m_publisher.send(msg);
+            //Run all callbacks
+            callbacks.forEach(callback -> callback.run(msg));
         }
     }
 
@@ -170,13 +177,9 @@ public final class Engine {
         msg.setVelocity(output);
         msg.setIdentifier(m_drone.getIdentifier());
 
-        try {
-            m_publisher.send(MessageTopic.MOVEMENTS, msg);
-            //Run all callbacks
-            callbacks.forEach(callback -> callback.run(msg));
-        } catch (IOException e) {
-            log.fatal(e);
-        }
+        m_publisher.send(msg);
+        //Run all callbacks
+        callbacks.forEach(callback -> callback.run(msg));
 
         return output;
     }

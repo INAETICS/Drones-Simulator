@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.messagehandlers;
 
-import lombok.AllArgsConstructor;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.protocol.FireBulletMessage;
@@ -16,8 +15,13 @@ import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 
 import java.util.Optional;
 
-@AllArgsConstructor
 public class FireBulletMessageHandler implements MessageHandler {
+    public FireBulletMessageHandler(IPhysicsEngineDriver physicsEngineDriver, IdentifierMapper id_mapper, IGameStateManager stateManager) {
+        this.physicsEngineDriver = physicsEngineDriver;
+        this.id_mapper = id_mapper;
+        this.stateManager = stateManager;
+    }
+
     /** The physics engine to update entities in. */
     private final IPhysicsEngineDriver physicsEngineDriver;
 

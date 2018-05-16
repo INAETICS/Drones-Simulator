@@ -16,9 +16,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import lombok.AccessLevel;
-import lombok.Getter;
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventControllerService;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
@@ -61,17 +58,27 @@ import java.util.stream.Collectors;
  * Instances of the game class create a new javafx application. This class provides a connection with etcd, rabbitmq and
  * contain all the game elements.
  */
-@Log4j
 public class Game extends Application {
     public static final String USERNAME_FIELD = "username";
     public static final String PASSWORD_FIELD = "password";
     public static final String URI_FIELD = "uri";
     public static final String RABBIT_IDENTIFIER = "visualisation";
+
+    /**
+     * Create the logger
+     */
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Game.class);
+
     /**
      * All the entities in the game
      */
-    @Getter(AccessLevel.PACKAGE)
+    //@Getter(AccessLevel.PACKAGE)
     private final ConcurrentMap<String, BaseEntity> entities = new ConcurrentHashMap<>();
+
+    ConcurrentMap<String, BaseEntity> getEntities() {
+        return entities;
+    }
+
     /**
      * All the available entities from the discoverer
      */
@@ -89,20 +96,31 @@ public class Game extends Application {
      */
     private final AtomicBoolean onRabbitConnectExecuted = new AtomicBoolean(false);
     private final Instance visualisationInstance = new Instance(Type.SERVICE, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.SERVICES, "visualisation", new HashMap<>());
+
     /**
      * Subscriber for rabbitmq
      */
-    @Getter
     private RabbitSubscriber subscriber;
+
+    public RabbitSubscriber getSubscriber() {
+        return subscriber;
+    }
+
     /**
      * Publisher for rabbitmq
      */
     private RabbitPublisher publisher;
+
     /**
      * Discoverer for etcd
      */
-    @Getter(AccessLevel.PACKAGE)
+    //@Getter(AccessLevel.PACKAGE)
     private EtcdDiscovererService discoverer;
+
+    EtcdDiscovererService getDiscoverer() {
+        return discoverer;
+    }
+
     /**
      * Close event handler
      * When the window closes, rabbitmq and the discoverer disconnect

@@ -1,8 +1,5 @@
 package org.inaetics.dronessimulator.test;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
@@ -13,13 +10,22 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-@AllArgsConstructor
-@NoArgsConstructor
 public class MockPublisher implements Publisher {
+    public MockPublisher(Subscriber subscriber, List<Tuple<Topic, Message>> receivedMessages) {
+        this.subscriber = subscriber;
+        this.receivedMessages = receivedMessages;
+    }
+
+    public MockPublisher() {
+    }
+
     private Subscriber subscriber;
 
-    @Getter
     private List<Tuple<Topic, Message>> receivedMessages = new LinkedList<>();
+
+    public List<Tuple<Topic, Message>> getReceivedMessages() {
+        return receivedMessages;
+    }
 
     @Override
     public void send(Topic topic, Message message) throws IOException {

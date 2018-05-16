@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.pubsub.javaserializer;
 
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.serializer.Serializer;
 
@@ -9,7 +8,6 @@ import java.io.*;
 /**
  * Serializer implementation using the default Java serialization.
  */
-@Log4j
 public class JavaSerializer implements Serializer {
     /**
      * Serializes the given message using the Java object serialization.
@@ -24,6 +22,11 @@ public class JavaSerializer implements Serializer {
             return byteStream.toByteArray();
         }
     }
+    /**
+     * Create the logger
+     */
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(JavaSerializer.class);
+
 
     /**
      * Deserializes the given byte stream into a message using the Java object deserialization.

@@ -1,7 +1,6 @@
 package org.inaetics.dronessimulator.architecturemanager;
 
 import com.rabbitmq.client.ConnectionFactory;
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventControllerService;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventHandler;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
@@ -27,12 +26,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.Assert.assertTrue;
 
-@Log4j
 public class LifecycleUpdateIT {
 
     private EtcdDiscovererService discoverer;
     private RabbitPublisher publisher;
     private RabbitSubscriber subscriber;
+
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(LifecycleUpdateIT.class);
 
     @Before
     public void setup() {

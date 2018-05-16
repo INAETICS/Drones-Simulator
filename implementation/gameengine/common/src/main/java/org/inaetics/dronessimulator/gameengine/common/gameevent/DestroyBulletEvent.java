@@ -1,8 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.common.gameevent;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.ToString;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.protocol.KillMessage;
 import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
@@ -15,10 +12,11 @@ import java.util.Optional;
 /**
  * A game engine message which signals the end of a bullet's life time.
  */
-@AllArgsConstructor
-@Getter
-@ToString
 public class DestroyBulletEvent extends DestroyEvent {
+    public DestroyBulletEvent(int id) {
+        this.id = id;
+    }
+
     /** The id of the bullet. */
     private final int id;
 
@@ -36,5 +34,16 @@ public class DestroyBulletEvent extends DestroyEvent {
         } else {
             return Collections.emptyList();
         }
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    @Override
+    public String toString() {
+        return "DestroyBulletEvent{" +
+                "id=" + id +
+                '}';
     }
 }

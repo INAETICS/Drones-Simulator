@@ -1,9 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.common.gameevent;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.ToString;
 import org.inaetics.dronessimulator.common.protocol.DamageMessage;
 import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
@@ -11,16 +7,21 @@ import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
  * A game engine message which contains damage inflicted on a game entity.
  */
-@AllArgsConstructor
-@ToString(callSuper=true)
-@EqualsAndHashCode(callSuper=true)
-@Getter
+//@ToString(callSuper=true)
+//@EqualsAndHashCode(callSuper=true)
+
 public class DamageEvent extends GameEngineEvent {
+    public DamageEvent(GameEntity entity, int dmg) {
+        this.entity = entity;
+        this.dmg = dmg;
+    }
+
     /** The game entity that is damaged. */
     private final GameEntity entity;
 
@@ -42,5 +43,36 @@ public class DamageEvent extends GameEngineEvent {
         } else {
             return Collections.emptyList();
         }
+    }
+
+    public GameEntity getEntity() {
+        return entity;
+    }
+
+    public int getDmg() {
+        return dmg;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DamageEvent)) return false;
+        DamageEvent that = (DamageEvent) o;
+        return dmg == that.dmg &&
+                Objects.equals(entity, that.entity);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(entity, dmg);
+    }
+
+    @Override
+    public String toString() {
+        return "DamageEvent{" +
+                "entity=" + entity +
+                ", dmg=" + dmg +
+                '}';
     }
 }

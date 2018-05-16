@@ -1,7 +1,6 @@
 package org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch;
 
 
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.CollisionStartEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.DamageEvent;
@@ -22,11 +21,11 @@ import java.util.List;
  * Bullet with drone damages the drone and kills the bullet
  * Drones colliding damages both drones
  */
-@Log4j
 public class CollisionRule extends Rule {
     /** How much damage a collision between drones causes */
     private static final int COLLISION_DAMAGE = Drone.DRONE_MAX_HEALTH;
 
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(CollisionRule.class);
     @Override
     public void configRule() {
         // Nothing to config

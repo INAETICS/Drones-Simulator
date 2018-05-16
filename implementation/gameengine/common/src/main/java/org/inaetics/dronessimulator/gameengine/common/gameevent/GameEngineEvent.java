@@ -1,7 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.common.gameevent;
 
-
-import lombok.EqualsAndHashCode;
 import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 
@@ -11,7 +9,7 @@ import java.util.List;
  * Unified messages from physics engine in our own type. Whichever type of messages the engine uses (if any),
  * we can always map to PhysicsEngineMessage. Used to generalize the rule processors.
  */
-@EqualsAndHashCode
+//@EqualsAndHashCode
 public abstract class GameEngineEvent {
 
     /**
@@ -19,4 +17,14 @@ public abstract class GameEngineEvent {
      * @return Which messages to broadcast to all listeners
      */
     public abstract List<ProtocolMessage> getProtocolMessage(IdentifierMapper id_mapper);
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }

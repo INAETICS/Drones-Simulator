@@ -1,17 +1,15 @@
 package org.inaetics.dronessimulator.discovery.api;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Group;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Interface which describes a part of a system.
  */
-@EqualsAndHashCode
 public class Instance {
     /**
      * Prefix for all etcd paths.
@@ -21,29 +19,42 @@ public class Instance {
      * Prefix/location for instance references.
      */
     private static final String INSTANCE_DIR = "instances";
+
     /**
      * The type of this instance.
      */
-    @Getter
     private final Type type;
+
+    public Type getType() {
+        return type;
+    }
 
     /**
      * The group of this instance.
      */
-    @Getter
     private final Group group;
+
+    public Group getGroup() {
+        return group;
+    }
 
     /**
      * The name of this instance.
      */
-    @Getter
     private final String name;
+
+    public String getName() {
+        return name;
+    }
 
     /**
      * The properties this instance has.
      */
-    @Getter
     private final Map<String, String> properties;
+
+    public Map<String, String> getProperties() {
+        return properties;
+    }
 
     /**
      * Instantiates a new instance with the given type, group, name and properties. This constructor can be used to
@@ -127,5 +138,22 @@ public class Instance {
      */
     protected void setInitialProperties(Map<String, String> properties) {
         // Left blank intentionally.
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Instance)) return false;
+        Instance instance = (Instance) o;
+        return Objects.equals(type, instance.type) &&
+                Objects.equals(group, instance.group) &&
+                Objects.equals(name, instance.name) &&
+                Objects.equals(properties, instance.properties);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(type, group, name, properties);
     }
 }

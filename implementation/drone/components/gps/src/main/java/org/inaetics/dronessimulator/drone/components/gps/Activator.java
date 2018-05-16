@@ -7,22 +7,22 @@ import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.pubsub.api.pubsub.Subscriber;
 import org.osgi.framework.BundleContext;
 
+import java.util.Properties;
+
 /**
  * Created by mart on 17-5-17.
  */
 public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
-        String subscriberProps = String.format("(%s=%s)", Subscriber.PUBSUB_TOPIC, MessageTopic.STATEUPDATES);
+        Properties properties = new Properties();
+        properties.setProperty(Subscriber.PUBSUB_TOPIC, MessageTopic.STATEUPDATES.getName());
+        String[] interfaces = new String[]{Subscriber.class.getName(), GPS.class.getName()};
         dependencyManager.add(createComponent()
-                .setInterface(GPS.class.getName(), null)
+                .setInterface(interfaces, properties)
                 .setImplementation(GPS.class)
                 .add(createServiceDependency()
                         .setService(DroneInit.class)
-                        .setRequired(true)
-                )
-                .add(createServiceDependency()
-                        .setService(Subscriber.class, subscriberProps)
                         .setRequired(true)
                 ).setCallbacks("init", "start", "stop", "destroy")
         );

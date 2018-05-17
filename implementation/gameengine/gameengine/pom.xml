@@ -10,18 +10,25 @@
     <modelVersion>4.0.0</modelVersion>
 
     <packaging>bundle</packaging>
-
     <groupId>org.inaetics.dronessimulator.gameengine</groupId>
-    <artifactId>gameengine-gameengine</artifactId>
+    <artifactId>gameengine</artifactId>
 
     <dependencies>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.gameengine</groupId>
+            <artifactId>gameengine-physicsenginedriver</artifactId>
+        </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.gameengine</groupId>
             <artifactId>gameengine-common</artifactId>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.gameengine</groupId>
-            <artifactId>gameengine-physicsenginedriver</artifactId>
+            <artifactId>gameengine-identifier-mapper</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.gameengine</groupId>
@@ -40,10 +47,6 @@
             <artifactId>org.apache.felix.configadmin</artifactId>
         </dependency>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
         </dependency>
@@ -51,17 +54,41 @@
 
     <build>
         <plugins>
+
             <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bnd-maven-plugin</artifactId>
+                <version>${bnd-maven-plugin.version}</version>
                 <configuration>
-                    <instructions>
-                        <Export-Package>org.inaetics.dronessimulator.gameengine</Export-Package>
-                        <Bundle-Activator>org.inaetics.dronessimulator.gameengine.Activator</Bundle-Activator>
-                    </instructions>
+                    <bnd combine.self="override"><![CDATA[
+#Always export packages with a @Version annotation
+-exportcontents: ${packages;ANNOTATED;org.osgi.annotation.versioning.Version}
+Bundle-Activator: Activator
+]]>
+                    </bnd>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bnd-export-maven-plugin</artifactId>
+                <version>${bnd-maven-plugin.version}</version>
+                <configuration>
+                    <failOnChanges>false</failOnChanges>
+                    <resolve>true</resolve>
+                    <bndruns>
+                        <bndrun>gameengine.bndrun</bndrun>
+                    </bndruns>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>export</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
         </plugins>
     </build>
 </project>

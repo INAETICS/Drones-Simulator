@@ -7,7 +7,7 @@ import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
+import org.inaetics.pubsub.api.pubsub.Publisher;
 
 import java.io.IOException;
 import java.util.HashSet;
@@ -22,6 +22,7 @@ public class Gun {
     //OSGi constructor
     public Gun() {
     }
+
     //Testing constructor
     public Gun(Publisher publisher, DroneInit drone, GPS gps, long lastShotAtMs, long nextShotAtMs) {
         this.publisher = publisher;
@@ -48,11 +49,17 @@ public class Gun {
      */
     private static final int MAX_OFFSET_SHOT_TIME = 1000;
     private final Set<GunCallback> callbacks = new HashSet<>();
-    /** The Publisher to use for sending messages */
+    /**
+     * The Publisher to use for sending messages
+     */
     private volatile Publisher publisher;
-    /** The drone instance that can be used to get information about the current drone */
+    /**
+     * The drone instance that can be used to get information about the current drone
+     */
     private volatile DroneInit drone;
-    /** The GPS that can be used to get the current position, velocity and acceleration */
+    /**
+     * The GPS that can be used to get the current position, velocity and acceleration
+     */
     private volatile GPS gps;
     /**
      * Last time the gun has fired
@@ -104,13 +111,9 @@ public class Gun {
             msg.setPosition(gps.getPosition());
             msg.setAcceleration(new D3Vector());
 
-            try {
-                publisher.send(MessageTopic.MOVEMENTS, msg);
-                lastShotAtMs = currentTimeMs;
-                nextShotAtMs = lastShotAtMs + BASE_SHOT_TIME_BETWEEN + new Random().nextInt(MAX_OFFSET_SHOT_TIME);
-            } catch (IOException e) {
-                log.fatal(e);
-            }
+            publisher.send(msg);
+            lastShotAtMs = currentTimeMs;
+            nextShotAtMs = lastShotAtMs + BASE_SHOT_TIME_BETWEEN + new Random().nextInt(MAX_OFFSET_SHOT_TIME);
             //Run all the callbacks
             callbacks.forEach(callback -> callback.run(msg));
 

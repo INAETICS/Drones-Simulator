@@ -1,45 +1,46 @@
 package org.inaetics.dronessimulator.drone.components.radio;
 
-import org.inaetics.dronessimulator.common.protocol.TacticMessage;
-import org.inaetics.dronessimulator.common.protocol.TeamTopic;
-import org.inaetics.dronessimulator.common.protocol.TextMessage;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.inaetics.dronessimulator.pubsub.api.Message;
-import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
-import org.inaetics.dronessimulator.pubsub.api.Topic;
-import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
-import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
+import org.inaetics.pubsub.api.pubsub.Publisher;
+import org.inaetics.pubsub.api.pubsub.Subscriber;
 
-import java.io.IOException;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
- * Radio component wich makes drone to drone communication possible.
+ * Radio component which makes drone to drone communication possible. Messages that are sent are wrapped in a
+ * RadioMessage object, which functions as a kind of manual 'topic' so only messages from the right team are received.
  */
-public class Radio implements MessageHandler {
-    /** Reference to Subscriber bundle */
-    private volatile Subscriber subscriber;
-    /** Reference to Publisher bundle */
+public class Radio implements Subscriber {
+    /**
+     * Reference to Publisher bundle
+     */
     private volatile Publisher publisher;
-    /** Reference to Drone Init bundle */
+    /**
+     * Reference to Drone Init bundle
+     */
     private volatile DroneInit drone;
-    /** Queue with received messages */
-    private final ConcurrentLinkedQueue<Message> receivedQueue = new ConcurrentLinkedQueue<>();
+    /**
+     * Queue with received messages
+     */
+    private final ConcurrentLinkedQueue<Object> receivedQueue = new ConcurrentLinkedQueue<>();
+
+    /**
+     * Store teamname so only the message from this drone's team are sent/received
+     */
+    private String teamName;
 
     //OSGi constructor
     public Radio() {
     }
+
     //Testing constructor
-    public Radio(Subscriber subscriber, Publisher publisher, DroneInit drone, Topic topic) {
-        this.subscriber = subscriber;
+    public Radio(Publisher publisher, DroneInit drone, String teamName) {
         this.publisher = publisher;
         this.drone = drone;
-        this.topic = topic;
+        this.teamName = teamName;
     }
-
-    private Topic topic;
 
     /**
      * Create the logger
@@ -50,31 +51,20 @@ public class Radio implements MessageHandler {
      * Start the Radio (called from Apache Felix). This initializes to what messages the subscriber should listen.
      */
     public void start() {
-        topic = new TeamTopic(drone.getTeamname());
-        try {
-            this.subscriber.addTopic(topic);
-        } catch (IOException e) {
-            log.fatal(e);
-        }
-        this.subscriber.addHandler(TextMessage.class, this);
-        this.subscriber.addHandler(TacticMessage.class, this);
+        teamName = drone.getTeamname();
     }
 
     /**
-     * Send a message to all drones that are subscribed to the topic "TeamTopic(teamname)". Note that the radio should also be subscribed to the type of messages that
-     * you send (See: {@link Radio#start()} for the message types that the Radio is subscribed to).
+     * Send a message to all drones that are subscribed to the topic "TeamTopic(teamname)". Note that the radio should
+     * also be subscribed to the type of messages that you send (See: {@link Radio#start()} for the message types that
+     * the Radio is subscribed to).
      *
      * @param msg the message to send
      * @return false if there was an error, true otherwise.
      */
-    public boolean send(Message msg) {
-        try {
-            publisher.send(topic, msg);
-            return true;
-        } catch (IOException e) {
-            log.fatal(e);
-            return false;
-        }
+    public boolean send(Object msg) {
+        publisher.send(new RadioMessage(teamName, msg));
+        return true;
     }
 
     /**
@@ -82,15 +72,21 @@ public class Radio implements MessageHandler {
      *
      * @return queue with messages
      */
-    public final Queue<Message> getMessages() {
+    public final Queue<Object> getMessages() {
         return receivedQueue;
     }
 
     /**
      * Receive the messages that the radio is subscribed to and add them to the internal queue.
      */
-    public void handleMessage(Message message) {
-        receivedQueue.add(message);
+    @Override
+    public void receive(Object o, MultipartCallbacks multipartCallbacks) {
+        if (o instanceof RadioMessage) {
+            RadioMessage rm = (RadioMessage) o;
+            if (rm.getTeamName().equals(teamName)) {
+                receivedQueue.add(rm.getMessage());
+            }
+        }
     }
 
     /**
@@ -99,10 +95,10 @@ public class Radio implements MessageHandler {
      * @param messageClass the class of the message that should be returned
      * @return The found message, or null if there was no message found.
      */
-    public final <M extends Message> M getMessage(Class<M> messageClass) {
-        Optional<Message> messageOptional = getMessages().stream().filter(messageClass::isInstance).findFirst();
+    public final <M> M getMessage(Class<M> messageClass) {
+        Optional<Object> messageOptional = getMessages().stream().filter(messageClass::isInstance).findFirst();
         if (messageOptional.isPresent()) {
-            Message message = messageOptional.get();
+            Object message = messageOptional.get();
             getMessages().remove(message);
             return messageClass.cast(message);
         }

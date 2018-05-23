@@ -14,7 +14,8 @@
         osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.api)',\
         osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.psa.zeromq)',\
         osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.topologymanager)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.dronessimulator.discovery.api)',\
         osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.discovery.etcd)',\
         osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.serialization.json)',\
-        osgi.identity;filter:='(osgi.identity=org.inaetics.dronessimulator.gameengine)'
+        osgi.identity;filter:='(osgi.identity=org.inaetics.dronessimulator.gameengine.ruleprocessors)'
 -resolve: auto

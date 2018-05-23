@@ -1,4 +1,4 @@
-package org.inaetics.dronessimulator.gameengine.messagehandlers;
+package org.inaetics.dronessimulator.gameengine.core.messagehandlers;
 
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
@@ -6,8 +6,11 @@ import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngin
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 
-public class StateMessageHandler implements MessageHandler {
-    public StateMessageHandler(IPhysicsEngineDriver physicsEngineDriver, IdentifierMapper id_mapper, IGameStateManager stateManager) {
+/**
+ * Message handler for collision messages.
+ */
+public class CollisionMessageHandler implements MessageHandler {
+    public CollisionMessageHandler(IPhysicsEngineDriver physicsEngineDriver, IdentifierMapper id_mapper, IGameStateManager stateManager) {
         this.physicsEngineDriver = physicsEngineDriver;
         this.id_mapper = id_mapper;
         this.stateManager = stateManager;
@@ -24,6 +27,6 @@ public class StateMessageHandler implements MessageHandler {
 
     @Override
     public void handleMessage(Message message) {
-        // Do Nothing
+        // Do nothing
     }
 }

@@ -1,17 +1,13 @@
-package org.inaetics.dronessimulator.gameengine.messagehandlers;
+package org.inaetics.dronessimulator.gameengine.core.messagehandlers;
 
-import org.inaetics.dronessimulator.common.protocol.DamageMessage;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 
-/**
- * Message handler for damage messages.
- */
-public class DamageMessageHandler implements MessageHandler {
-    public DamageMessageHandler(IPhysicsEngineDriver physicsEngineDriver, IdentifierMapper id_mapper, IGameStateManager stateManager) {
+public class StateMessageHandler implements MessageHandler {
+    public StateMessageHandler(IPhysicsEngineDriver physicsEngineDriver, IdentifierMapper id_mapper, IGameStateManager stateManager) {
         this.physicsEngineDriver = physicsEngineDriver;
         this.id_mapper = id_mapper;
         this.stateManager = stateManager;
@@ -28,8 +24,6 @@ public class DamageMessageHandler implements MessageHandler {
 
     @Override
     public void handleMessage(Message message) {
-        DamageMessage damageMessage = (DamageMessage) message;
-
-        physicsEngineDriver.damageEntity(damageMessage.getEntityId(), damageMessage.getDamage());
+        // Do Nothing
     }
 }

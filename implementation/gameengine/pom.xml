@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.inaetics.dronessimulator</groupId>
-    <artifactId>gameengine</artifactId>
+    <artifactId>gameengine-parent</artifactId>
     <packaging>pom</packaging>
 
     <modules>
@@ -18,7 +18,7 @@
         <module>physicsengine</module>
         <module>physicsenginedriver</module>
         <module>ruleprocessors</module>
-        <module>gameengine</module>
+        <module>core</module>
         <module>gamestate-manager</module>
         <module>identifier-mapper</module>
     </modules>
@@ -56,10 +56,11 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <!-- End INAETICS PubSub dependencies-->
+
     </dependencies>
 
     <build>
-        <plugins>
+      <!--  <plugins>
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
@@ -67,6 +68,49 @@
                 <version>3.3.0</version>
             </plugin>
         </plugins>
+
+-->
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+            </plugin>
+
+            <!--<plugin>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>${maven-jar-plugin.version}</version>
+                <configuration>
+                    <archive>
+                        <manifestFile>${manifest-file}</manifestFile>
+                    </archive>
+                </configuration>
+            </plugin>-->
+            <plugin>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bnd-maven-plugin</artifactId>
+                <version>${bnd-maven-plugin.version}</version>
+                <configuration>
+                    <manifestPath>${manifest-file}</manifestPath>
+                    <bnd><![CDATA[
+#Always export packages with a @Version annotation
+-exportcontents: ${packages;ANNOTATED;org.osgi.annotation.versioning.Version}
+]]>
+                    </bnd>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>bnd-process</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
+        </plugins>
+
+
     </build>
 
     <dependencyManagement>

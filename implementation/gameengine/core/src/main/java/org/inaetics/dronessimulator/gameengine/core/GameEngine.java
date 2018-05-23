@@ -1,35 +1,18 @@
-package org.inaetics.dronessimulator.gameengine;
+package org.inaetics.dronessimulator.gameengine.core;
 
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
-import org.inaetics.dronessimulator.common.Settings;
-import org.inaetics.dronessimulator.common.architecture.SimulationAction;
-import org.inaetics.dronessimulator.common.architecture.SimulationState;
-import org.inaetics.dronessimulator.common.protocol.*;
-import org.inaetics.dronessimulator.common.vector.D2Vector;
-import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
-import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
-import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
-import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
-import org.inaetics.dronessimulator.discovery.api.instances.DroneInstance;
 import org.inaetics.dronessimulator.discovery.api.instances.GameEngineInstance;
-import org.inaetics.dronessimulator.gameengine.common.state.Drone;
-import org.inaetics.dronessimulator.gameengine.messagehandlers.*;
+import org.inaetics.dronessimulator.gameengine.core.messagehandlers.*;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
-import org.inaetics.dronessimulator.gameengine.messagehandlers.*;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.IRuleProcessors;
-import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
+import org.inaetics.pubsub.api.pubsub.Subscriber;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -37,7 +20,7 @@ import java.util.List;
  * Set up are: physics engine, incoming command messages, queue between physics engine and rule processors,
  * discovery handler and architecture state event listening.
  */
-public class GameEngine {
+public class GameEngine implements Subscriber {
     /**
      * Physics engine used in the game engine.
      */
@@ -89,11 +72,12 @@ public class GameEngine {
      * Create the logger
      */
     private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GameEngine.class);
+
     /**
      * Starts the wrapper. Sets up all handlers, queues and engines. Connects everything if needed.
      */
     public void start() throws DuplicateName, IOException {
-        log.info("Starting Game Engine...");
+        log.info("======\n\n======== Starting Game Engine...");
         this.collisionMessageHandler = new CollisionMessageHandler(this.m_physicsEngineDriver, this.m_id_mapper, this.m_stateManager);
         this.damageMessageHandler = new DamageMessageHandler(this.m_physicsEngineDriver, this.m_id_mapper, this.m_stateManager);
         this.fireBulletMessageHandler = new FireBulletMessageHandler(this.m_physicsEngineDriver, this.m_id_mapper, this.m_stateManager);
@@ -101,7 +85,7 @@ public class GameEngine {
         this.movementMessageHandler = new MovementMessageHandler(this.m_physicsEngineDriver, this.m_id_mapper, this.m_stateManager);
         this.stateMessageHandler = new StateMessageHandler(this.m_physicsEngineDriver, this.m_id_mapper, this.m_stateManager);
 
-        // Setup subscriber
+       /* // Setup subscriber
         try {
             this.m_subscriber.addTopic(MessageTopic.MOVEMENTS);
         } catch (IOException e) {
@@ -178,7 +162,7 @@ public class GameEngine {
                         position, new D3Vector(), new D3Vector(), new D3PolarCoordinate(), position), protocolId);
                 log.info("Added new drone " + protocolId + " as " + gameengineId);
             }
-        });
+        });*/
 
         log.info("Started Game Engine!");
     }
@@ -193,5 +177,10 @@ public class GameEngine {
             log.fatal(e);
         }
         log.info("Stopped Game Engine!");
+    }
+
+    @Override
+    public void receive(Object o, MultipartCallbacks multipartCallbacks) {
+
     }
 }

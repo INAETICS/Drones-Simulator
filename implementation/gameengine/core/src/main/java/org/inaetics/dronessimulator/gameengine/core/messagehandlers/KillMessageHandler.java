@@ -1,4 +1,4 @@
-package org.inaetics.dronessimulator.gameengine.messagehandlers;
+package org.inaetics.dronessimulator.gameengine.core.messagehandlers;
 
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.protocol.KillMessage;

@@ -1,4 +1,4 @@
-package org.inaetics.dronessimulator.gameengine;
+package org.inaetics.dronessimulator.gameengine.core;
 
 
 import org.apache.felix.dm.DependencyActivatorBase;
@@ -12,16 +12,21 @@ import org.inaetics.dronessimulator.gameengine.ruleprocessors.IRuleProcessors;
 import org.inaetics.pubsub.api.pubsub.Subscriber;
 import org.osgi.framework.BundleContext;
 
+import java.util.Properties;
+
 public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
+
+        System.out.println("\n\n---------------- Gameengine Activator::init() ----- \n\n");
+
+        final String TOPIC = "test";
+        Properties subscriberProperties = new Properties();
+        subscriberProperties.setProperty(Subscriber.PUBSUB_TOPIC, TOPIC);
+
         dependencyManager.add(createComponent()
-            .setInterface(Subscriber.class.getName(), null)
+            .setInterface(new String[]{Subscriber.class.getName()}, subscriberProperties)
             .setImplementation(GameEngine.class)
-            .add(createServiceDependency()
-                .setService(Subscriber.class)
-                .setRequired(true)
-            )
             .add(createServiceDependency()
                 .setService(IGameStateManager.class)
                 .setRequired(true)

@@ -1,9 +1,24 @@
 package org.inaetics.dronessimulator.gameengine.core;
 
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
+import org.inaetics.dronessimulator.common.Settings;
+import org.inaetics.dronessimulator.common.architecture.SimulationAction;
+import org.inaetics.dronessimulator.common.architecture.SimulationState;
+import org.inaetics.dronessimulator.common.protocol.*;
+import org.inaetics.dronessimulator.common.vector.D2Vector;
+import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
+import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
+import org.inaetics.dronessimulator.discovery.api.DiscoveryPath;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.DiscoveryNode;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.NodeEventHandler;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.AddedNode;
+import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
+import org.inaetics.dronessimulator.discovery.api.instances.DroneInstance;
 import org.inaetics.dronessimulator.discovery.api.instances.GameEngineInstance;
+import org.inaetics.dronessimulator.gameengine.common.state.Drone;
 import org.inaetics.dronessimulator.gameengine.core.messagehandlers.*;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
@@ -13,6 +28,7 @@ import org.inaetics.pubsub.api.pubsub.Subscriber;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -35,11 +51,6 @@ public class GameEngine implements Subscriber {
      * Rule processors to handle any outgoing messages. The last rule processor SendMessages sends all messages off.
      */
     private volatile IRuleProcessors m_ruleProcessors;
-
-    /**
-     * The subscriber to use.
-     */
-    private volatile Subscriber m_subscriber;
 
     /**
      * The identifier mapper to use.
@@ -85,26 +96,8 @@ public class GameEngine implements Subscriber {
         this.movementMessageHandler = new MovementMessageHandler(this.m_physicsEngineDriver, this.m_id_mapper, this.m_stateManager);
         this.stateMessageHandler = new StateMessageHandler(this.m_physicsEngineDriver, this.m_id_mapper, this.m_stateManager);
 
-       /* // Setup subscriber
-        try {
-            this.m_subscriber.addTopic(MessageTopic.MOVEMENTS);
-        } catch (IOException e) {
-            log.fatal("Could not subscribe to topic " + MessageTopic.MOVEMENTS + ".", e);
-        }
-        try {
-            this.m_subscriber.addTopic(MessageTopic.STATEUPDATES);
-        } catch (IOException e) {
-            log.fatal("Could not subscribe to topic " + MessageTopic.STATEUPDATES + ".", e);
-        }
 
-        this.m_subscriber.addHandler(CollisionMessage.class, this.collisionMessageHandler);
-        this.m_subscriber.addHandler(DamageMessage.class, this.damageMessageHandler);
-        this.m_subscriber.addHandler(FireBulletMessage.class, this.fireBulletMessageHandler);
-        this.m_subscriber.addHandler(KillMessage.class, this.killMessageHandler);
-        this.m_subscriber.addHandler(MovementMessage.class, this.movementMessageHandler);
-        this.m_subscriber.addHandler(TargetMoveLocationMessage.class, (message) -> m_physicsEngineDriver.changeTargetLocationEntity((
-                (TargetMoveLocationMessage) message).getIdentifier(), ((TargetMoveLocationMessage) message).getTargetLocation().orElse(null)));
-        this.m_subscriber.addHandler(StateMessage.class, this.stateMessageHandler);
+
 
         // Setup discoverer
         discoveryInstance = new GameEngineInstance();
@@ -162,7 +155,7 @@ public class GameEngine implements Subscriber {
                         position, new D3Vector(), new D3Vector(), new D3PolarCoordinate(), position), protocolId);
                 log.info("Added new drone " + protocolId + " as " + gameengineId);
             }
-        });*/
+        });
 
         log.info("Started Game Engine!");
     }
@@ -180,7 +173,32 @@ public class GameEngine implements Subscriber {
     }
 
     @Override
-    public void receive(Object o, MultipartCallbacks multipartCallbacks) {
+    public void receive(Object obj, MultipartCallbacks multipartCallbacks) {
+        System.out.println("GameEngine Received an object *******");
+        if(obj instanceof CollisionMessage){
+            collisionMessageHandler.handleMessage( (CollisionMessage) obj);
+        }
+        else if(obj instanceof DamageMessage){
+            damageMessageHandler.handleMessage( (DamageMessage) obj);
+        }
+        else if(obj instanceof FireBulletMessage){
+            fireBulletMessageHandler.handleMessage( (FireBulletMessage) obj);
+        }
+        else if(obj instanceof KillMessage){
+            killMessageHandler.handleMessage( (KillMessage) obj);
+        }
+        else if(obj instanceof MovementMessage){
+            movementMessageHandler.handleMessage( (MovementMessage) obj);
+        }
+        else if(obj instanceof TargetMoveLocationMessage){
+            m_physicsEngineDriver.changeTargetLocationEntity((
+                    (TargetMoveLocationMessage) obj).getIdentifier(), ((TargetMoveLocationMessage) obj).getTargetLocation().orElse(null));
+        }
+        else if(obj instanceof StateMessage){
+            stateMessageHandler.handleMessage( (StateMessage) obj);
+        }else{
+            System.out.println("GameEngine.receive() got unknown message type");
+        }
 
     }
 }

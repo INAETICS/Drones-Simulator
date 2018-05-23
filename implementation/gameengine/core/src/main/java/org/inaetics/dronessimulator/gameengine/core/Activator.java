@@ -24,6 +24,7 @@ public class Activator extends DependencyActivatorBase {
         Properties subscriberProperties = new Properties();
         subscriberProperties.setProperty(Subscriber.PUBSUB_TOPIC, TOPIC);
 
+        /*NOTE: Originally, GameEngine subscribed to MessageTopic.MOVEMENTS and MessageTopic.STATEUPDATES */
         dependencyManager.add(createComponent()
             .setInterface(new String[]{Subscriber.class.getName()}, subscriberProperties)
             .setImplementation(GameEngine.class)

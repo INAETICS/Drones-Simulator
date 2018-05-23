@@ -15,12 +15,12 @@
 
     <modules>
         <module>common</module>
+        <module>identifier-mapper</module>
         <module>physicsengine</module>
         <module>physicsenginedriver</module>
         <module>ruleprocessors</module>
-        <module>core</module>
         <module>gamestate-manager</module>
-        <module>identifier-mapper</module>
+        <module>core</module>
     </modules>
 
     <dependencies>

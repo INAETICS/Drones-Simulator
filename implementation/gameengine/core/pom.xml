@@ -27,16 +27,16 @@
             <artifactId>gameengine-identifier-mapper</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.inaetics.dronessimulator.gameengine</groupId>
+            <artifactId>gameengine-gamestate-manager</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.ops4j.pax.logging</groupId>
             <artifactId>pax-logging-api</artifactId>
         </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.gameengine</groupId>
             <artifactId>gameengine-ruleprocessors</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.inaetics.dronessimulator.gameengine</groupId>
-            <artifactId>gameengine-gamestate-manager</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.felix</groupId>
@@ -67,7 +67,8 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package>org.inaetics.dronessimulator.gameengine</Export-Package>
+                        <!--NOTE: I don't know why, but enabling Export-Package causes some external services to be missing during runtime.-->
+                        <!--<Export-Package>org.inaetics.dronessimulator.gameengine.*</Export-Package>-->
                         <Bundle-Activator>org.inaetics.dronessimulator.gameengine.core.Activator</Bundle-Activator>
                     </instructions>
                 </configuration>

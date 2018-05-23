@@ -18,6 +18,8 @@ public class Activator extends DependencyActivatorBase {
         String[] interfaces = new String[]{Radar.class.getName(), Subscriber.class.getName()};
         Properties properties = new Properties();
         properties.setProperty(Subscriber.PUBSUB_TOPIC, MessageTopic.STATEUPDATES.getName());
+        Thread.sleep(5000);
+        System.out.println("[Radar] 5s expired");
         dependencyManager.add(createComponent()
                 .setInterface(interfaces, properties)
                 .setImplementation(Radar.class)

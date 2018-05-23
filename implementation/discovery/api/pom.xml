@@ -35,6 +35,16 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+
+                <!--Note: This probably doesn't have to be exported, because it's the API. Adding it to get rid of the "bundle-not-exported" warnings-->
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>org.inaetics.dronessimulator.discovery.api</Export-Package>
+                    </instructions>
+                </configuration>
+                <!--     -->
+
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

@@ -1,4 +1,4 @@
-package org.inaetics.dronessimulator.gameengine.common.gameevent;sendProtocolMessage
+package org.inaetics.dronessimulator.gameengine.common.gameevent;
 
 import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;

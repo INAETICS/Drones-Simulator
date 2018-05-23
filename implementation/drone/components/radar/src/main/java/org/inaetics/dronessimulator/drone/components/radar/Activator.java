@@ -18,23 +18,29 @@ public class Activator extends DependencyActivatorBase {
         String[] interfaces = new String[]{Radar.class.getName(), Subscriber.class.getName()};
         Properties properties = new Properties();
         properties.setProperty(Subscriber.PUBSUB_TOPIC, MessageTopic.STATEUPDATES.getName());
-        Thread.sleep(5000);
-        System.out.println("[Radar] 5s expired");
-        dependencyManager.add(createComponent()
-                .setInterface(interfaces, properties)
-                .setImplementation(Radar.class)
-                .add(createServiceDependency()
-                        .setService(DroneInit.class)
-                        .setRequired(true)
-                )
-                .add(createServiceDependency()
-                        .setService(Discoverer.class)
-                        .setRequired(true)
-                )
-                .add(createServiceDependency()
-                        .setService(ArchitectureEventController.class)
-                        .setRequired(true)
-                )
-        );
+        new Thread(() -> {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("STARTED " + this.getClass().getName());
+            dependencyManager.add(createComponent()
+                    .setInterface(interfaces, properties)
+                    .setImplementation(Radar.class)
+                    .add(createServiceDependency()
+                            .setService(DroneInit.class)
+                            .setRequired(false)
+                    )
+                    .add(createServiceDependency()
+                            .setService(Discoverer.class)
+                            .setRequired(false)
+                    )
+                    .add(createServiceDependency()
+                            .setService(ArchitectureEventController.class)
+                            .setRequired(false)
+                    )
+            );
+        }).start();
     }
 }

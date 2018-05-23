@@ -19,6 +19,7 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.R
 import org.inaetics.dronessimulator.discovery.api.instances.DroneInstance;
 import org.inaetics.dronessimulator.discovery.api.instances.GameEngineInstance;
 import org.inaetics.dronessimulator.gameengine.common.state.Drone;
+import org.inaetics.dronessimulator.gameengine.messagehandlers.*;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.messagehandlers.*;
@@ -47,7 +48,7 @@ public class GameEngine {
      */
     private volatile IGameStateManager m_stateManager;
 
-    /**
+    /**r
      * Rule processors to handle any outgoing messages. The last rule processor SendMessages sends all messages off.
      */
     private volatile IRuleProcessors m_ruleProcessors;

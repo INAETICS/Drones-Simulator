@@ -4,16 +4,14 @@ import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 
 import java.time.LocalTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Message used by the game state to communicate state changes to other nodes.
  */
 
 public class StateMessage extends ProtocolMessage {
+
     private final LocalTime timestamp;
 
     public StateMessage(LocalTime timestamp) { //For testing purposes.
@@ -64,7 +62,10 @@ public class StateMessage extends ProtocolMessage {
 
     @Override
     public List<MessageTopic> getTopics() {
-        return Collections.singletonList(MessageTopic.STATEUPDATES);
+        List<MessageTopic> res = new ArrayList<>();
+        res.add(MessageTopic.STATEUPDATES);
+        return res;
+        //return Collections.singletonList(MessageTopic.STATEUPDATES);
     }
 
     @Override

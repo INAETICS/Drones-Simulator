@@ -3,6 +3,7 @@ package org.inaetics.dronessimulator.common.protocol;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -53,7 +54,10 @@ public class CompressedProtocolMessage extends ProtocolMessage {
 
     @Override
     public List<MessageTopic> getTopics() {
-        return Collections.singletonList(MessageTopic.STATEUPDATES);
+        List<MessageTopic> res = new ArrayList<>();
+        res.add(MessageTopic.STATEUPDATES);
+        return res;
+        //return Collections.singletonList(MessageTopic.STATEUPDATES);
     }
 
     @Override
@@ -61,5 +65,19 @@ public class CompressedProtocolMessage extends ProtocolMessage {
         return "(CompressedProtocolMessage{" +
                 String.join(",", msgs.stream().map(Object::toString).collect(Collectors.toList())) +
                 "}";
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof CompressedProtocolMessage)) return false;
+        CompressedProtocolMessage that = (CompressedProtocolMessage) o;
+        return Objects.equals(msgs, that.msgs);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(msgs);
     }
 }

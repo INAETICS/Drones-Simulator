@@ -4,9 +4,13 @@ import org.inaetics.dronessimulator.common.vector.D3Vector;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public class TargetMoveLocationMessage extends ProtocolMessage {
+    public TargetMoveLocationMessage() {
+    }
+
     /** Indentifier of object */
     private String identifier = null;
 
@@ -40,5 +44,20 @@ public class TargetMoveLocationMessage extends ProtocolMessage {
                 "identifier='" + identifier + '\'' +
                 ", targetLocation=" + targetLocation +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof TargetMoveLocationMessage)) return false;
+        TargetMoveLocationMessage that = (TargetMoveLocationMessage) o;
+        return Objects.equals(identifier, that.identifier) &&
+                Objects.equals(targetLocation, that.targetLocation);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(identifier, targetLocation);
     }
 }

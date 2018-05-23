@@ -3,14 +3,15 @@ package org.inaetics.dronessimulator.common.protocol;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Message used to tell the game state about movements.
  */
 public class MovementMessage extends ProtocolMessage {
+    public MovementMessage() {
+    }
+
     /** Indentifier of object */
     private String identifier = null;
 
@@ -66,6 +67,26 @@ public class MovementMessage extends ProtocolMessage {
 
     @Override
     public List<MessageTopic> getTopics() {
-        return Collections.singletonList(MessageTopic.MOVEMENTS);
+        List<MessageTopic> res = new ArrayList<>();
+        res.add(MessageTopic.STATEUPDATES);
+        return res;
+        //return Collections.singletonList(MessageTopic.MOVEMENTS);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MovementMessage)) return false;
+        MovementMessage that = (MovementMessage) o;
+        return Objects.equals(identifier, that.identifier) &&
+                Objects.equals(direction, that.direction) &&
+                Objects.equals(acceleration, that.acceleration) &&
+                Objects.equals(velocity, that.velocity);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(identifier, direction, acceleration, velocity);
     }
 }

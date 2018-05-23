@@ -5,7 +5,6 @@ import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.protocol.KillMessage;
-import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
@@ -16,10 +15,8 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.Type;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.pubsub.api.Message;
-import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
-import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
+import org.inaetics.pubsub.api.pubsub.Subscriber;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -27,14 +24,13 @@ import java.util.stream.Collectors;
 /**
  * The Radar drone component
  */
-public class Radar implements MessageHandler<Message> {
+public class Radar implements Subscriber {
     //OSGi constructor
     public Radar() {
     }
     //Testing constructor
-    public Radar(ArchitectureEventController architectureEventController, Subscriber subscriber, DroneInit drone, Discoverer discoverer, D3Vector position) {
+    public Radar(ArchitectureEventController architectureEventController, DroneInit drone, Discoverer discoverer, D3Vector position) {
         this.architectureEventController = architectureEventController;
-        this.subscriber = subscriber;
         this.drone = drone;
         this.discoverer = discoverer;
         this.position = position;
@@ -54,13 +50,12 @@ public class Radar implements MessageHandler<Message> {
      */
     private volatile ArchitectureEventController architectureEventController;
     /**
-     * Reference to Subscriber bundle
-     */
-    private volatile Subscriber subscriber;
-    /**
      * Reference to Drone Init bundle
      */
     private volatile DroneInit drone;
+    /**
+     * Reference to Discoverer bundle
+     */
     private volatile Discoverer discoverer;
     /**
      * Last known position of this drone
@@ -96,13 +91,6 @@ public class Radar implements MessageHandler<Message> {
             }
         });
         this.discoverer.addHandlers(true, Collections.emptyList(), Collections.emptyList(), removedNodeHandlers);
-        try {
-            this.subscriber.addTopic(MessageTopic.STATEUPDATES);
-        } catch (IOException e) {
-            log.fatal(e);
-        }
-        this.subscriber.addHandler(StateMessage.class, this);
-        this.subscriber.addHandler(KillMessage.class, this);
 
         architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG, (fromState, action, toState) -> allEntities.clear());
     }
@@ -134,9 +122,7 @@ public class Radar implements MessageHandler<Message> {
      */
     public Optional<D3Vector> getNearestTarget() {
         return getRadar()
-                .parallelStream()
-                .sorted(Comparator.comparingDouble(e -> e.distance_between(position)))
-                .findFirst();
+                .parallelStream().min(Comparator.comparingDouble(e -> e.distance_between(position)));
     }
 
     /**
@@ -153,26 +139,26 @@ public class Radar implements MessageHandler<Message> {
     }
 
     /**
-     * Handles a stateMessage by changing the internal state based on this message.
+     * Handles a StateMessage by changing the internal state based on this message.
+     * or a KillMessage by removing the killed entity from the internal state representation.
+     * If the incoming message is not a StateMessage or a KillMessage, does nothing.
      *
-     * @param stateMessage the received stateMessage
+     * @param msg the received message
      */
-    private void handleMessage(StateMessage stateMessage) {
-        if (stateMessage.getIdentifier().equals(this.drone.getIdentifier())) {
-            stateMessage.getPosition().ifPresent(this::setPosition);
-        } else if (stateMessage.getType().equals(EntityType.DRONE)) {
-            stateMessage.getPosition().ifPresent(pos -> this.allEntities.put(stateMessage.getIdentifier(), pos));
-        }
-    }
-
-    /**
-     * Handles a killMessage by removing the killed entity from the internal state representation.
-     *
-     * @param killMessage the received killMessage
-     */
-    private void handleMessage(KillMessage killMessage) {
-        if (killMessage.getEntityType().equals(EntityType.DRONE)) {
-            this.allEntities.remove(killMessage.getIdentifier());
+    @Override
+    public void receive(Object msg, MultipartCallbacks multipartCallbacks) {
+        if (msg instanceof StateMessage) {
+            StateMessage stateMessage = (StateMessage) msg;
+            if (stateMessage.getIdentifier().equals(this.drone.getIdentifier())) {
+                stateMessage.getPosition().ifPresent(this::setPosition);
+            } else if (stateMessage.getType().equals(EntityType.DRONE)) {
+                stateMessage.getPosition().ifPresent(pos -> this.allEntities.put(stateMessage.getIdentifier(), pos));
+            }
+        } else if (msg instanceof KillMessage) {
+            KillMessage killMessage = (KillMessage) msg;
+            if (killMessage.getEntityType().equals(EntityType.DRONE)) {
+                this.allEntities.remove(killMessage.getIdentifier());
+            }
         }
     }
 

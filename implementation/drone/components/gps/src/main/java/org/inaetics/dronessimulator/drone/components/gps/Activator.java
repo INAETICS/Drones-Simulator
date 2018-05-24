@@ -18,13 +18,22 @@ public class Activator extends DependencyActivatorBase {
         Properties properties = new Properties();
         properties.setProperty(Subscriber.PUBSUB_TOPIC, MessageTopic.STATEUPDATES.getName());
         String[] interfaces = new String[]{Subscriber.class.getName(), GPS.class.getName()};
-        dependencyManager.add(createComponent()
-                .setInterface(interfaces, properties)
-                .setImplementation(GPS.class)
-                .add(createServiceDependency()
-                        .setService(DroneInit.class)
-                        .setRequired(true)
-                ).setCallbacks("init", "start", "stop", "destroy")
-        );
+        new Thread(() -> {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("STARTED " + this.getClass().getName());
+            dependencyManager.add(createComponent()
+                    .setInterface(interfaces, properties)
+                    .setImplementation(GPS.class)
+                    .add(createServiceDependency()
+                            .setService(DroneInit.class)
+                            .setRequired(true)
+                    ).setCallbacks("init", "start", "stop", "destroy")
+            );
+
+        }).start();
     }
 }

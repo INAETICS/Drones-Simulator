@@ -16,22 +16,29 @@ import java.util.Properties;
 public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
-        String[] objectClass = new String[] {Object.class.getName()};
-
         Properties subscriberProperties = new Properties();
         subscriberProperties.setProperty(Subscriber.PUBSUB_TOPIC, MessageTopic.RADIO.getName());
 
-        dependencyManager.add(createComponent()
-                .setInterface(Subscriber.class.getName(), subscriberProperties)
-                .setImplementation(Radio.class)
-                .add(createServiceDependency()
-                        .setService(DroneInit.class)
-                        .setRequired(true)
-                )
-                .add(createServiceDependency()
-                        .setService(Publisher.class)
-                        .setRequired(true)
-                ).setCallbacks("init", "start", "stop", "destroy")
-        );
+        System.out.println("STARTED " + this.getClass().getName());
+        new Thread(() ->
+        {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            dependencyManager.add(createComponent()
+                    .setInterface(Subscriber.class.getName(), subscriberProperties)
+                    .setImplementation(Radio.class)
+                    .add(createServiceDependency()
+                            .setService(DroneInit.class)
+                            .setRequired(true)
+                    )
+                    .add(createServiceDependency()
+                            .setService(Publisher.class)
+                            .setRequired(true)
+                    ).setCallbacks("init", "start", "stop", "destroy")
+            );
+        }).start();
     }
 }

@@ -43,6 +43,20 @@
             <artifactId>junit</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.discovery</groupId>
+            <artifactId>discovery-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.discovery</groupId>
+            <artifactId>etcd</artifactId>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.fasterxml.jackson.core/jackson-core -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.9.5</version>
+        </dependency>
         <!-- Start PubSub dependencies-->
         <dependency>
             <groupId>org.inaetics.pubsub</groupId>
@@ -70,6 +84,10 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
         <dependency>
+            <groupId>org.inaetics.dronessimulator.discovery</groupId>
+            <artifactId>discovery-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.inaetics.pubsub</groupId>
             <artifactId>org.inaetics.pubsub.discovery.etcd</artifactId>
             <version>1.0.0-SNAPSHOT</version>
@@ -77,10 +95,8 @@
         <!-- End PubSub dependencies-->
     </dependencies>
 
-
     <build>
         <plugins>
-
             <plugin>
                 <groupId>biz.aQute.bnd</groupId>
                 <artifactId>bnd-maven-plugin</artifactId>
@@ -115,26 +131,17 @@ Bundle-Activator: org.inaetics.dronessimulator.drone.components.gps.Activator
                 </executions>
             </plugin>
 
-            <!--<plugin>-->
-                <!--<groupId>org.codehaus.mojo</groupId>-->
-                <!--<artifactId>build-helper-maven-plugin</artifactId>-->
-            <!--</plugin>-->
-            <!--<plugin>-->
-                <!--<groupId>org.apache.maven.plugins</groupId>-->
-                <!--<artifactId>maven-compiler-plugin</artifactId>-->
-            <!--</plugin>-->
-            <!--<plugin>-->
-                <!--<groupId>org.apache.felix</groupId>-->
-                <!--<artifactId>maven-bundle-plugin</artifactId>-->
-                <!--<extensions>true</extensions>-->
-                <!--<configuration>-->
-                    <!--<instructions>-->
-                        <!--<Export-Package>org.inaetics.dronessimulator.drone.components.gps.*</Export-Package>-->
-                        <!--<Bundle-Activator>org.inaetics.dronessimulator.drone.components.gps.Activator</Bundle-Activator>-->
-                        <!--<Embed-Transitive>true</Embed-Transitive>-->
-                    <!--</instructions>-->
-                <!--</configuration>-->
-            <!--</plugin>-->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Export-Package>org.inaetics.dronessimulator.drone.components.gps.*</Export-Package>
+                        <Bundle-Activator>org.inaetics.dronessimulator.drone.components.gps.Activator</Bundle-Activator>
+                    </instructions>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>

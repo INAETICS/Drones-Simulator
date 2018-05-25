@@ -31,8 +31,8 @@ public class BasicTacticCommunication implements Runnable {
         while (go) {
 
             // get next message from queue and check if it is TacticMessage
-            Message msg0 = radio.getMessages().poll();
-            if (msg0 != null || msg0 instanceof TacticMessage) {
+            Object msg0 = radio.getMessages().poll();
+            if (msg0 instanceof TacticMessage) {
                 // cast it
                 TacticMessage msg = (TacticMessage) msg0;
 

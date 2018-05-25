@@ -11,7 +11,6 @@ import org.osgi.framework.BundleContext;
 
 import java.util.Properties;
 
-
 public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
@@ -24,23 +23,23 @@ public class Activator extends DependencyActivatorBase {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            System.out.println("STARTED " + this.getClass().getName());
             dependencyManager.add(createComponent()
                     .setInterface(interfaces, properties)
                     .setImplementation(Radar.class)
                     .add(createServiceDependency()
                             .setService(DroneInit.class)
-                            .setRequired(false)
+                            .setRequired(true)
                     )
                     .add(createServiceDependency()
                             .setService(Discoverer.class)
-                            .setRequired(false)
+                            .setRequired(true)
                     )
                     .add(createServiceDependency()
                             .setService(ArchitectureEventController.class)
-                            .setRequired(false)
-                    )
+                            .setRequired(true)
+                    ).setCallbacks("init", "start", "stop", "destroy")
             );
+            System.out.println("STARTED " + this.getClass().getName());
         }).start();
     }
 }

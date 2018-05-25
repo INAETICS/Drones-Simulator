@@ -15,16 +15,15 @@ import java.util.Properties;
 public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
+        String[] interfaces = new String[]{Subscriber.class.getName(), GPS.class.getName()};
         Properties properties = new Properties();
         properties.setProperty(Subscriber.PUBSUB_TOPIC, MessageTopic.STATEUPDATES.getName());
-        String[] interfaces = new String[]{Subscriber.class.getName(), GPS.class.getName()};
         new Thread(() -> {
             try {
                 Thread.sleep(5000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            System.out.println("STARTED " + this.getClass().getName());
             dependencyManager.add(createComponent()
                     .setInterface(interfaces, properties)
                     .setImplementation(GPS.class)
@@ -33,7 +32,7 @@ public class Activator extends DependencyActivatorBase {
                             .setRequired(true)
                     ).setCallbacks("init", "start", "stop", "destroy")
             );
-
+            System.out.println("STARTED " + this.getClass().getName());
         }).start();
     }
 }

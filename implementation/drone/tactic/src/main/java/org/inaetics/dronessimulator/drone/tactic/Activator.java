@@ -6,6 +6,7 @@ import org.apache.felix.dm.DependencyManager;
 import org.apache.felix.dm.ServiceDependency;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
+import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.drone.components.engine.Engine;
 import org.inaetics.dronessimulator.drone.components.gps.GPS;
@@ -14,12 +15,13 @@ import org.inaetics.dronessimulator.drone.components.radar.Radar;
 import org.inaetics.dronessimulator.drone.components.radio.Radio;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.drone.tactic.example.SimpleTactic;
-import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
+import org.inaetics.pubsub.api.pubsub.Subscriber;
 import org.osgi.framework.BundleContext;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Properties;
 import java.util.stream.Collectors;
 
 public class Activator extends DependencyActivatorBase {
@@ -27,12 +29,18 @@ public class Activator extends DependencyActivatorBase {
 
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
+        String[] interfaces = new String[]{Tactic.class.getName(), Subscriber.class.getName()};
+        Properties properties = new Properties();
+        properties.setProperty(Subscriber.PUBSUB_TOPIC, MessageTopic.STATEUPDATES.getName());
+
         Tactic tactic = createNewTactic();
 
         Component component = createComponent()
-                .setInterface(Tactic.class.getName(), null)
+                .setInterface(interfaces, properties)
                 .setImplementation(tactic)
                 .setCallbacks("init", "startTactic", "stopTactic", "destroy");
+
+        Thread.sleep(5000);
 
         for (ServiceDependency dep : getDroneComponents(dependencyManager)) {
             component.add(dep);
@@ -41,12 +49,6 @@ public class Activator extends DependencyActivatorBase {
         component.add(
                 createServiceDependency()
                         .setService(ArchitectureEventController.class)
-                        .setRequired(true)
-        );
-
-        component.add(
-                createServiceDependency()
-                        .setService(Subscriber.class)
                         .setRequired(true)
         );
 

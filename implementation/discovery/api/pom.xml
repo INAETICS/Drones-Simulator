@@ -32,32 +32,47 @@
 
     <build>
         <plugins>
+
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-
-                <!--Note: This probably doesn't have to be exported, because it's the API. Adding it to get rid of the "bundle-not-exported" warnings-->
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Export-Package>org.inaetics.dronessimulator.discovery.api</Export-Package>
+                        <Export-Package>org.inaetics.dronessimulator.discovery.api.*</Export-Package>
                     </instructions>
                 </configuration>
-                <!--     -->
+            </plugin>
 
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>2.2</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
+
+        <!--<plugins>-->
+            <!--<plugin>-->
+                <!--<groupId>org.apache.felix</groupId>-->
+                <!--<artifactId>maven-bundle-plugin</artifactId>-->
+
+                <!--&lt;!&ndash;Note: This probably doesn't have to be exported, because it's the API. Adding it to get rid of the "bundle-not-exported" warnings&ndash;&gt;-->
+                <!--<extensions>true</extensions>-->
+                <!--<configuration>-->
+                    <!--<instructions>-->
+                        <!--<Export-Package>org.inaetics.dronessimulator.discovery.api</Export-Package>-->
+                    <!--</instructions>-->
+                <!--</configuration>-->
+                <!--&lt;!&ndash;     &ndash;&gt;-->
+
+            <!--</plugin>-->
+            <!--<plugin>-->
+                <!--<groupId>org.apache.maven.plugins</groupId>-->
+                <!--<artifactId>maven-jar-plugin</artifactId>-->
+                <!--<version>2.2</version>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<goals>-->
+                            <!--<goal>test-jar</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+        <!--</plugins>-->
     </build>
 </project>

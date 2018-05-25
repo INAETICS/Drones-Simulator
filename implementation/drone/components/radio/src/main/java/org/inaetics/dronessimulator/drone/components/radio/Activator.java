@@ -18,8 +18,6 @@ public class Activator extends DependencyActivatorBase {
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
         Properties subscriberProperties = new Properties();
         subscriberProperties.setProperty(Subscriber.PUBSUB_TOPIC, MessageTopic.RADIO.getName());
-
-        System.out.println("STARTED " + this.getClass().getName());
         new Thread(() ->
         {
             try {
@@ -39,6 +37,7 @@ public class Activator extends DependencyActivatorBase {
                             .setRequired(true)
                     ).setCallbacks("init", "start", "stop", "destroy")
             );
+            System.out.println("STARTED " + this.getClass().getName());
         }).start();
     }
 }

@@ -18,7 +18,7 @@ public class Activator extends DependencyActivatorBase {
 
         String[] interfaces = new String[]{Subscriber.class.getName()};
         Properties properties = new Properties();
-        properties.setProperty(Subscriber.PUBSUB_TOPIC, MessageTopic.ARCHITECTURE.getName());
+        properties.setProperty(Subscriber.PUBSUB_TOPIC, MessageTopic.ALL.getName());
         manager.add(createComponent()
                 .setImplementation(ArchitectureManager.class)
                 .setInterface(interfaces, properties)

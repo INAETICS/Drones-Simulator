@@ -16,7 +16,7 @@ public class Activator extends DependencyActivatorBase {
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
         String[] interfaces = new String[]{Radar.class.getName(), Subscriber.class.getName()};
         Properties properties = new Properties();
-        properties.setProperty(Subscriber.PUBSUB_TOPIC, MessageTopic.STATEUPDATES.getName());
+        properties.setProperty(Subscriber.PUBSUB_TOPIC, MessageTopic.ALL.getName());
         new Thread(() -> {
             try {
                 Thread.sleep(5000);

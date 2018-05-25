@@ -3,6 +3,7 @@ package org.inaetics.dronessimulator.gameengine.ruleprocessors;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
+import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 import org.inaetics.pubsub.api.pubsub.Publisher;
@@ -12,7 +13,7 @@ public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
         System.out.println("--------------------\n\nruleprocessors::init");
-        final String TOPIC = "test";
+        final String TOPIC = MessageTopic.ALL.getName();
         dependencyManager.add(
                 createComponent()
                         .setInterface(IRuleProcessors.class.getName(), null)

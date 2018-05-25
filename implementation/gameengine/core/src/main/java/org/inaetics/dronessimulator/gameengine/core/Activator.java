@@ -4,6 +4,7 @@ package org.inaetics.dronessimulator.gameengine.core;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
+import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
@@ -20,7 +21,7 @@ public class Activator extends DependencyActivatorBase {
 
         System.out.println("\n\n---------------- Gameengine Activator::init() ----- \n\n");
 
-        final String TOPIC = "test";
+        final String TOPIC = MessageTopic.ALL.getName();
         Properties subscriberProperties = new Properties();
         subscriberProperties.setProperty(Subscriber.PUBSUB_TOPIC, TOPIC);
 

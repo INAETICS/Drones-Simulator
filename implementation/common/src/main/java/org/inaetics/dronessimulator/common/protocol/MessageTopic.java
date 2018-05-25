@@ -7,6 +7,10 @@ import org.inaetics.dronessimulator.pubsub.api.Topic;
  */
 public enum MessageTopic implements Topic {
     /**
+     * All messages
+     */
+    ALL("All"),
+    /**
      * All messages related to drone to drone communication
      */
     RADIO("Radio"),

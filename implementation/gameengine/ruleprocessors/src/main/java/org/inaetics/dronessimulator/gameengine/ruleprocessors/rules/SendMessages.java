@@ -1,12 +1,10 @@
 package org.inaetics.dronessimulator.gameengine.ruleprocessors.rules;
 
-import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
-import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
+import org.inaetics.pubsub.api.pubsub.Publisher;
 
-import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -35,13 +33,7 @@ public class SendMessages extends Rule {
      * @param msg The message to send
      */
     private void sendProtocolMessage(ProtocolMessage msg) {
-        for(MessageTopic topic : msg.getTopics()) {
-            try {
-                publisher.send(topic, msg);
-            } catch(IOException e) {
-                log.fatal("Could not broadcast a message from SendMessages ruleset.", e);
-            }
-        }
+        publisher.send(msg);
     }
 
     @Override

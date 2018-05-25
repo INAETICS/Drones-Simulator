@@ -8,7 +8,7 @@ import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch.C
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch.DeathmatchGameFinished;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.deathmatch.KillEntitiesRule;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.teamplay.TeamplayGameFinished;
-import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
+import org.inaetics.pubsub.api.pubsub.Publisher;
 
 import java.util.LinkedList;
 import java.util.List;

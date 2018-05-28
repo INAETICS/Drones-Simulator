@@ -15,16 +15,24 @@ import java.util.Properties;
 public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
-        Properties properties = new Properties();
-        properties.setProperty(Subscriber.PUBSUB_TOPIC, MessageTopic.STATEUPDATES.getName());
         String[] interfaces = new String[]{Subscriber.class.getName(), GPS.class.getName()};
-        dependencyManager.add(createComponent()
-                .setInterface(interfaces, properties)
-                .setImplementation(GPS.class)
-                .add(createServiceDependency()
-                        .setService(DroneInit.class)
-                        .setRequired(true)
-                ).setCallbacks("init", "start", "stop", "destroy")
-        );
+        Properties properties = new Properties();
+        properties.setProperty(Subscriber.PUBSUB_TOPIC, MessageTopic.ALL.getName());
+        new Thread(() -> {
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            dependencyManager.add(createComponent()
+                    .setInterface(interfaces, properties)
+                    .setImplementation(GPS.class)
+                    .add(createServiceDependency()
+                            .setService(DroneInit.class)
+                            .setRequired(true)
+                    ).setCallbacks("init", "start", "stop", "destroy")
+            );
+            System.out.println("STARTED " + this.getClass().getName());
+        }).start();
     }
 }

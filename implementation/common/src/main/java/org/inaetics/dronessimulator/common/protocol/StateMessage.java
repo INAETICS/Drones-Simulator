@@ -1,19 +1,22 @@
 package org.inaetics.dronessimulator.common.protocol;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.inaetics.dronessimulator.common.protocol.serializer.LocaltimeDeserializer;
+import org.inaetics.dronessimulator.common.protocol.serializer.LocaltimeSerializer;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 
 import java.time.LocalTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Message used by the game state to communicate state changes to other nodes.
  */
 
 public class StateMessage extends ProtocolMessage {
+    @JsonSerialize(using = LocaltimeSerializer.class)
+    @JsonDeserialize(using = LocaltimeDeserializer.class)
     private final LocalTime timestamp;
 
     public StateMessage(LocalTime timestamp) { //For testing purposes.
@@ -42,29 +45,32 @@ public class StateMessage extends ProtocolMessage {
 
 
 
-    public Optional<D3Vector> getPosition() {
-        return Optional.ofNullable(position);
+    public D3Vector getPosition() {
+        return position;
     }
 
-    public Optional<D3PolarCoordinate> getDirection() {
-        return Optional.ofNullable(direction);
+    public D3PolarCoordinate getDirection() {
+        return direction;
     }
 
-    public Optional<D3Vector> getVelocity() {
-        return Optional.ofNullable(velocity);
+    public D3Vector getVelocity() {
+        return velocity;
     }
 
-    public Optional<D3Vector> getAcceleration() {
-        return Optional.ofNullable(acceleration);
+    public D3Vector getAcceleration() {
+        return acceleration;
     }
 
-    public Optional<Integer> getHp() {
-        return Optional.ofNullable(hp);
+    public Integer getHp() {
+        return hp;
     }
 
     @Override
     public List<MessageTopic> getTopics() {
-        return Collections.singletonList(MessageTopic.STATEUPDATES);
+        List<MessageTopic> res = new ArrayList<>();
+        res.add(MessageTopic.STATEUPDATES);
+        return res;
+        //return Collections.singletonList(MessageTopic.STATEUPDATES);
     }
 
     @Override

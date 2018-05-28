@@ -79,7 +79,11 @@ public abstract class Tactic extends ManagedThread implements Subscriber {
      */
     @SuppressWarnings("unused") //Assigned through OSGi
     private volatile ArchitectureEventController architectureEventController;
+<<<<<<< HEAD
 
+=======
+    /** The Subscriber to use for receiving messages */
+>>>>>>> 1df8449eb5206b5d5f2b168aa1bd0d520aefe4b0
     private Instance simulationInstance;
     private boolean registered = false;
     /**
@@ -126,8 +130,6 @@ public abstract class Tactic extends ManagedThread implements Subscriber {
 
         simulationInstance = new TacticInstance(drone.getIdentifier());
 
-        registerSubscriber();
-
         super.start();
     }
 
@@ -139,8 +141,15 @@ public abstract class Tactic extends ManagedThread implements Subscriber {
         unconfigSimulation();
     }
 
+<<<<<<< HEAD
     private void registerSubscriber() {
 //        this.subscriber.addTopic(MessageTopic.STATEUPDATES);
+=======
+    @Override
+    @Deprecated
+    public final void destroy() {
+        //Do nothing on shutdown
+>>>>>>> 1df8449eb5206b5d5f2b168aa1bd0d520aefe4b0
     }
 
     private void configSimulation() {
@@ -213,23 +222,22 @@ public abstract class Tactic extends ManagedThread implements Subscriber {
     }
 
     /**
-     * Handles a killMessage by stopping the tactic and exiting the process
+     * Handles a KillMessage by stopping the tactic and exiting the process.
+     * Does nothing if msg is not of type KillMessage
+     *
+     * @param msg the received message
      */
     @Override
-    public void receive(Object o, MultipartCallbacks multipartCallbacks) {
-        if (o instanceof  KillMessage) {
-            KillMessage killMessage = (KillMessage) o;
-
-            if (((KillMessage) o).getIdentifier().equals(getIdentifier())) {
-                log.info("Found kill message! Quitting for now... Last known movements: \n" +
-                        "\tposition: " + gps.getPosition().toString() + "\n" +
-                        "\tvelocity: " + gps.getVelocity().toString() + "\n" +
-                        "\tacceleration: " + gps.getAcceleration().toString() + "\n"
-                );
-                this.stopSimulation();
-                if (!log.isDebugEnabled()) {
-                    System.exit(10);
-                }
+    public void receive(Object msg, MultipartCallbacks multipartCallbacks) {
+        if (msg instanceof KillMessage && ((KillMessage) msg).getIdentifier().equals(drone.getIdentifier())) {
+            log.info("Found kill message! Quitting for now... Last known movements: \n" +
+                    "\tposition: " + gps.getPosition().toString() + "\n" +
+                    "\tvelocity: " + gps.getVelocity().toString() + "\n" +
+                    "\tacceleration: " + gps.getAcceleration().toString() + "\n"
+            );
+            this.stopSimulation();
+            if (!log.isDebugEnabled()) {
+                System.exit(10);
             }
         }
     }

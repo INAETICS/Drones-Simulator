@@ -22,7 +22,7 @@ public class Activator extends DependencyActivatorBase {
                         .setRequired(true)
                 )
                 .add(createServiceDependency()
-                        .setService(Publisher.class, "(" + Publisher.PUBSUB_TOPIC +"=" + MessageTopic.MOVEMENTS + ")")
+                        .setService(Publisher.class, "(" + Publisher.PUBSUB_TOPIC +"=" + MessageTopic.ALL + ")")
                         .setRequired(true)
                 )
                 .add(createServiceDependency()

@@ -1,5 +1,8 @@
 package org.inaetics.dronessimulator.common.vector;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.regex.Matcher;
@@ -8,6 +11,7 @@ import java.util.regex.Pattern;
 /**
  * Three-dimensional vector implementation.
  */
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class D3Vector implements Serializable {
     /** The unity vector. */
     public static final transient D3Vector UNIT = new D3Vector(1, 1, 1);

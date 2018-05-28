@@ -1,21 +1,16 @@
 package inaetics;
 
+import inaetics.subscriber.DemoSubscriber;
 import org.apache.felix.dm.DependencyActivatorBase;
 import org.apache.felix.dm.DependencyManager;
-import org.inaetics.pubsub.api.pubsub.Subscriber;
 import org.inaetics.pubsub.api.pubsub.Publisher;
+import org.inaetics.pubsub.api.pubsub.Subscriber;
 import org.osgi.framework.BundleContext;
-import org.osgi.service.log.LogService;
 import org.osgi.framework.ServiceRegistration;
 
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.util.Properties;
-import inaetics.subscriber.DemoSubscriber;
-
-import org.osgi.framework.ServiceReference;
-import org.osgi.service.cm.Configuration;
-import org.osgi.service.cm.ConfigurationAdmin;
 
 //import static org.inaetics.pubsub.api.pubsub.Subscriber.PUBSUB_TOPIC;
 
@@ -75,9 +70,9 @@ public class Activator extends DependencyActivatorBase {
                 try {
                     Thread.sleep(5000);
                     System.out.println("done waiting");
-                    doLater();;
+                    doLater();
                 } catch (Exception e) {
-                    e.printStackTrace();;
+                    e.printStackTrace();
                 }
             }
         });

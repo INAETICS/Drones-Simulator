@@ -137,7 +137,6 @@ Bundle-Activator: org.inaetics.dronessimulator.drone.components.engine.Activator
                     </instructions>
                 </configuration>
             </plugin>
-
         </plugins>
     </build>
 </project>

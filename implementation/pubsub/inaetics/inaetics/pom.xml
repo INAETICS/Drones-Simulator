@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>pubsub</artifactId>
+        <groupId>org.inaetics.dronessimulator</groupId>
+        <version>0.1</version>
+    </parent>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <manifest-file>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifest-file>
+
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+        <bnd-maven-plugin.version>3.5.0</bnd-maven-plugin.version>
+        <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
+        <maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
+        <osgi.version>6.0.0</osgi.version>
+    </properties>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>inaetics</artifactId>
+    <packaging>pom</packaging>
+    <modules>
+        <module>publisher</module>
+        <module>test</module>
+        <module>inaetics-test-renew</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.inaetics.dronessimulator.pubsub</groupId>
+            <artifactId>pubsub-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.ops4j.pax.logging</groupId>
+            <artifactId>pax-logging-api</artifactId>
+        </dependency>
+    </dependencies>
+
+    <!--<build>-->
+        <!--<plugins>-->
+            <!--<plugin>-->
+                <!--<artifactId>maven-jar-plugin</artifactId>-->
+                <!--<version>${maven-jar-plugin.version}</version>-->
+                <!--<configuration>-->
+                    <!--<archive>-->
+                        <!--<manifestFile>${manifest-file}</manifestFile>-->
+                    <!--</archive>-->
+                <!--</configuration>-->
+            <!--</plugin>-->
+            <!--<plugin>-->
+                <!--<groupId>biz.aQute.bnd</groupId>-->
+                <!--<artifactId>bnd-maven-plugin</artifactId>-->
+                <!--<version>${bnd-maven-plugin.version}</version>-->
+                <!--<configuration>-->
+                    <!--<manifestPath>${manifest-file}</manifestPath>-->
+                    <!--<bnd><![CDATA[-->
+<!--#Always export packages with a @Version annotation-->
+<!-- -exportcontents: ${packages;ANNOTATED;org.osgi.annotation.versioning.Version}-->
+<!--]]>-->
+                    <!--</bnd>-->
+                <!--</configuration>-->
+                <!--<executions>-->
+                    <!--<execution>-->
+                        <!--<goals>-->
+                            <!--<goal>bnd-process</goal>-->
+                        <!--</goals>-->
+                    <!--</execution>-->
+                <!--</executions>-->
+            <!--</plugin>-->
+        <!--</plugins>-->
+    <!--</build>-->
+
+
+
+</project>

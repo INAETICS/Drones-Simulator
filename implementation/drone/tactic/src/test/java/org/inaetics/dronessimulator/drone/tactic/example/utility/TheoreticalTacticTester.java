@@ -13,7 +13,6 @@ import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
 import org.inaetics.dronessimulator.drone.tactic.TacticTesterHelper;
 import org.inaetics.dronessimulator.drone.tactic.example.utility.messages.HeartbeatMessage;
 import org.inaetics.dronessimulator.drone.tactic.example.utility.messages.InstructionMessage;
-import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.test.MockPublisher;
 import org.inaetics.dronessimulator.test.MockSubscriber;
 import org.inaetics.dronessimulator.test.TestUtils;
@@ -43,8 +42,7 @@ public class TheoreticalTacticTester {
     public void setup() throws IllegalAccessException, NoSuchFieldException, InstantiationException {
         droneInit = new DroneInit();
         publisher = new MockPublisher();
-        Subscriber subscriber = mock(Subscriber.class);
-        tactic = TacticTesterHelper.getTactic(TheoreticalTactic.class, publisher, subscriber, mock(Discoverer.class), droneInit);
+        tactic = TacticTesterHelper.getTactic(TheoreticalTactic.class, publisher, mock(Discoverer.class), droneInit);
         tactic.initializeTactics();
     }
 
@@ -57,24 +55,25 @@ public class TheoreticalTacticTester {
     public void testCalculateTactics() {
         for (int i = 0; i < 10; i++) {
             tactic.calculateTactics();
-            tactic.getRadio().handleMessage(new HeartbeatMessage(tactic, tactic.getGps()).getMessage());
+            tactic.getRadio().receive(new HeartbeatMessage(tactic, tactic.getGps()).getMessage(), null);
         }
         Assert.assertTrue(publisher.getReceivedMessages().size() >= 10);
         Assert.assertThat(publisher.getReceivedMessages(), hasItem(new Tuple<>(new TeamTopic("unknown_team"), new HeartbeatMessage(tactic, tactic.getGps())
                 .getMessage())));
-        publisher.getReceivedMessages().forEach(message -> log.debug("Message on topic \"" + message.getLeft().getName
-                () + "\" with content: " + message.getRight().toString()));
+        publisher.getReceivedMessages().forEach(message -> log.debug("Message with content: " + message.toString()));
     }
 
     @Test
     public void testGettingALeader() throws IllegalAccessException, NoSuchFieldException, InstantiationException, InterruptedException {
-        Tuple<MockPublisher, MockSubscriber> pubSub = getConnectedMockPubSub();
+        MockPublisher publisher = new MockPublisher();
         DroneInit drone1 = new DroneInit();
         DroneInit drone2 = new DroneInit();
-        TheoreticalTactic tactic = TacticTesterHelper.getTactic(TheoreticalTactic.class, pubSub.getLeft(), pubSub.getRight(), mock(Discoverer.class), drone1);
+        TheoreticalTactic tactic = TacticTesterHelper.getTactic(TheoreticalTactic.class, publisher, mock(Discoverer.class), drone1);
+        publisher.addSubscriber(tactic);
         tactic.initializeTactics();
         tactic.startTactic();
-        TheoreticalTactic tactic2 = TacticTesterHelper.getTactic(TheoreticalTactic.class, pubSub.getLeft(), pubSub.getRight(), mock(Discoverer.class), drone2);
+        TheoreticalTactic tactic2 = TacticTesterHelper.getTactic(TheoreticalTactic.class, publisher, mock(Discoverer.class), drone2);
+        publisher.addSubscriber(tactic2);
         tactic2.initializeTactics();
         tactic2.startTactic();
         for (int i = 0; i < 20; i++) {

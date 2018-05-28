@@ -19,8 +19,7 @@ import org.inaetics.dronessimulator.drone.components.gun.Gun;
 import org.inaetics.dronessimulator.drone.components.radar.Radar;
 import org.inaetics.dronessimulator.drone.components.radio.Radio;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
-import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
+import org.inaetics.pubsub.api.pubsub.Subscriber;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -31,7 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * The abstract tactic each drone tactic should extend
  */
-public abstract class Tactic extends ManagedThread implements MessageHandler<KillMessage> {
+public abstract class Tactic extends ManagedThread implements Subscriber {
     private static final long TACTIC_TIMOUT = 1;//tck
     private final TimeoutTimer workTimoutTimer = new TimeoutTimer(TACTIC_TIMOUT * Settings.TICK_TIME);
     private final AtomicBoolean initialized = new AtomicBoolean(false);
@@ -80,9 +79,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler<Kil
      */
     @SuppressWarnings("unused") //Assigned through OSGi
     private volatile ArchitectureEventController architectureEventController;
-    /** The Subscriber to use for receiving messages */
-    @SuppressWarnings("unused") //Assigned through OSGi
-    private volatile Subscriber subscriber;
+
     private Instance simulationInstance;
     private boolean registered = false;
     /**
@@ -143,18 +140,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler<Kil
     }
 
     private void registerSubscriber() {
-        try {
-            this.subscriber.addTopic(MessageTopic.STATEUPDATES);
-        } catch (IOException e) {
-            log.fatal(e);
-        }
-        this.subscriber.addHandler(KillMessage.class, this);
-    }
-
-    @Override
-    @Deprecated
-    public final void destroy() {
-        //Do nothing on shutdown
+//        this.subscriber.addTopic(MessageTopic.STATEUPDATES);
     }
 
     private void configSimulation() {
@@ -228,19 +214,22 @@ public abstract class Tactic extends ManagedThread implements MessageHandler<Kil
 
     /**
      * Handles a killMessage by stopping the tactic and exiting the process
-     *
-     * @param killMessage the received killMessage
      */
-    public void handleMessage(KillMessage killMessage) {
-        if (killMessage.getIdentifier().equals(drone.getIdentifier())) {
-            log.info("Found kill message! Quitting for now... Last known movements: \n" +
-                    "\tposition: " + gps.getPosition().toString() + "\n" +
-                    "\tvelocity: " + gps.getVelocity().toString() + "\n" +
-                    "\tacceleration: " + gps.getAcceleration().toString() + "\n"
-            );
-            this.stopSimulation();
-            if (!log.isDebugEnabled()) {
-                System.exit(10);
+    @Override
+    public void receive(Object o, MultipartCallbacks multipartCallbacks) {
+        if (o instanceof  KillMessage) {
+            KillMessage killMessage = (KillMessage) o;
+
+            if (((KillMessage) o).getIdentifier().equals(getIdentifier())) {
+                log.info("Found kill message! Quitting for now... Last known movements: \n" +
+                        "\tposition: " + gps.getPosition().toString() + "\n" +
+                        "\tvelocity: " + gps.getVelocity().toString() + "\n" +
+                        "\tacceleration: " + gps.getAcceleration().toString() + "\n"
+                );
+                this.stopSimulation();
+                if (!log.isDebugEnabled()) {
+                    System.exit(10);
+                }
             }
         }
     }

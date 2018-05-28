@@ -21,13 +21,13 @@ public class LocaltimeSerializer extends StdSerializer<LocalTime>{
     }
 
     @Override
-    public serialize(LocalTime value, JsonGenerator jgen, SerializerProvider provider)
+    public void serialize(LocalTime value, JsonGenerator jgen, SerializerProvider provider)
         throws IOException, JsonProcessingException {
             jgen.writeStartObject();
-            jgen.writeNumberField("Hour", value.getHour());
+            jgen.writeNumberField("hour", value.getHour());
             jgen.writeNumberField("minute",value.getMinute());
             jgen.writeNumberField("nano",value.getNano());
             jgen.writeNumberField("second",value.getSecond());
             jgen.writeEndObject();
     }
-    }
+}

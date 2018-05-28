@@ -1,5 +1,9 @@
 package org.inaetics.dronessimulator.common.protocol;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.inaetics.dronessimulator.common.protocol.serializer.LocaltimeDeserializer;
+import org.inaetics.dronessimulator.common.protocol.serializer.LocaltimeSerializer;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 
@@ -11,7 +15,8 @@ import java.util.*;
  */
 
 public class StateMessage extends ProtocolMessage {
-
+    @JsonSerialize(using = LocaltimeSerializer.class)
+    @JsonDeserialize(using = LocaltimeDeserializer.class)
     private final LocalTime timestamp;
 
     public StateMessage(LocalTime timestamp) { //For testing purposes.

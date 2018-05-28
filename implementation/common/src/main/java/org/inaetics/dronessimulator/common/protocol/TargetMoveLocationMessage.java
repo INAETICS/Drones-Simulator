@@ -2,10 +2,7 @@ package org.inaetics.dronessimulator.common.protocol;
 
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 public class TargetMoveLocationMessage extends ProtocolMessage {
     public TargetMoveLocationMessage() {
@@ -23,7 +20,10 @@ public class TargetMoveLocationMessage extends ProtocolMessage {
 
     @Override
     public List<MessageTopic> getTopics() {
-        return Collections.singletonList(MessageTopic.MOVEMENTS);
+        List<MessageTopic> res = new ArrayList<>();
+        res.add(MessageTopic.MOVEMENTS);
+        return res;
+        //return Collections.singletonList(MessageTopic.MOVEMENTS);
     }
 
     public String getIdentifier() {

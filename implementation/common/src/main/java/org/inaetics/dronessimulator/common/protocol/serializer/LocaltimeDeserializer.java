@@ -12,13 +12,13 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalTime;
 
-public class LocaltimeSerializer extends StdDeserializer<LocalTime> {
+public class LocaltimeDeserializer extends StdDeserializer<LocalTime> {
 
     public LocaltimeDeserializer() {
         this(null);
     }
 
-    public LocaltimeSerializer(Class<LocalTime> t) {
+    public LocaltimeDeserializer(Class<LocalTime> t) {
         super(t);
     }
 
@@ -31,6 +31,6 @@ public class LocaltimeSerializer extends StdDeserializer<LocalTime> {
         int second = (Integer) ((IntNode) node.get("second")).numberValue();
         int nano = (Integer) ((IntNode) node.get("nano")).numberValue();
 
-        return new LocalTime());
+        return LocalTime.of(hour,minute,second,nano);
     }
 }

@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.common.vector;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.inaetics.dronessimulator.common.Tuple;
 
 import java.io.Serializable;
@@ -10,6 +11,7 @@ import java.util.regex.Pattern;
 /**
  * Three-dimensional polar coordinate.
  */
+@JsonIgnoreProperties(ignoreUnknown=true)
 public class D3PolarCoordinate implements Serializable {
     /** The unity coordinate. */
     public static final D3PolarCoordinate UNIT = new D3PolarCoordinate(0,0, 1);

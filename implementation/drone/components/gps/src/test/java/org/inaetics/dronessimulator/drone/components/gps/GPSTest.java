@@ -5,8 +5,6 @@ import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
-import org.inaetics.dronessimulator.test.MockSubscriber;
 import org.inaetics.dronessimulator.test.TestUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -16,7 +14,6 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
 import static org.inaetics.dronessimulator.test.matchers.D3VectorMatcher.closeTo;
-import static org.mockito.Mockito.mock;
 
 @SuppressWarnings("ConstantConditions") //Ignore all the issues with the "get" on optionals
 public class GPSTest {

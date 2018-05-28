@@ -1,11 +1,8 @@
 package org.inaetics.dronessimulator.common;
 
-import com.sun.org.apache.xml.internal.security.c14n.implementations.Canonicalizer11_OmitComments;
-import org.codehaus.jackson.annotate.JsonTypeInfo;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.protocol.CollisionMessage;
 import org.inaetics.dronessimulator.common.protocol.CompressedProtocolMessage;
-import org.inaetics.dronessimulator.common.protocol.CreateEntityMessage;
 import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.protocol.DamageMessage;
@@ -15,19 +12,15 @@ import org.inaetics.dronessimulator.common.protocol.KillMessage;
 import org.inaetics.dronessimulator.common.protocol.MovementMessage;
 import org.inaetics.dronessimulator.common.protocol.RequestArchitectureStateChangeMessage;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
-import org.inaetics.dronessimulator.common.protocol.TacticMessage;
 import org.inaetics.dronessimulator.common.protocol.TargetMoveLocationMessage;
 import org.inaetics.dronessimulator.common.protocol.TextMessage;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.pubsub.impl.serialization.jackson.JacksonSerializer;
-import org.inaetics.dronessimulator.common.protocol.serializer.LocaltimeSerializer;
 
 
-import java.time.LocalTime;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Random;
 
 import org.junit.Assert;
 import org.junit.BeforeClass;
@@ -68,6 +61,7 @@ public class ProtocolSerializationTest {
         CompressedProtocolMessage filledCpm = new CompressedProtocolMessage(msgs);
         byte[] serializedEmptyCpm = jacksonSerializer.serialize(emptyCpm);
         byte[] serializedFilledCpm = jacksonSerializer.serialize(filledCpm);
+        System.out.println(new String(serializedFilledCpm));
         CompressedProtocolMessage deserializedEmptyCpm =
                 (CompressedProtocolMessage)jacksonSerializer.deserialize(CompressedProtocolMessage.class.getName(),serializedEmptyCpm);
         CompressedProtocolMessage deserializedFilledCpm =
@@ -155,7 +149,7 @@ public class ProtocolSerializationTest {
                 (MovementMessage) jacksonSerializer.deserialize(MovementMessage.class.getName(),serializedEmptyMm);
         MovementMessage deserializedFilledMm =
                 (MovementMessage) jacksonSerializer.deserialize(MovementMessage.class.getName(),serializedFilledMm);
-        //Assert.assertEquals(emptyMm,deserializedEmptyMm);
+        Assert.assertEquals(emptyMm,deserializedEmptyMm);
         Assert.assertEquals(filledMm,deserializedFilledMm);
     }
 
@@ -187,10 +181,11 @@ public class ProtocolSerializationTest {
         filledSm.setVelocity(new D3Vector(1,1,1));
         byte[] serializedEmptySm = jacksonSerializer.serialize(emptySm);
         byte[] serializedFilledSm = jacksonSerializer.serialize(filledSm);
-        StateMessage deserializedEmptySm =
-                (StateMessage) jacksonSerializer.deserialize(StateMessage.class.getName(),serializedEmptySm);
+
         StateMessage deserializedFilledSm =
                 (StateMessage) jacksonSerializer.deserialize(StateMessage.class.getName(),serializedFilledSm);
+        StateMessage deserializedEmptySm =
+                (StateMessage) jacksonSerializer.deserialize(StateMessage.class.getName(),serializedEmptySm);
         Assert.assertEquals(emptySm,deserializedEmptySm);
         Assert.assertEquals(filledSm,deserializedFilledSm);
     }
@@ -207,7 +202,7 @@ public class ProtocolSerializationTest {
                 (TargetMoveLocationMessage) jacksonSerializer.deserialize(TargetMoveLocationMessage.class.getName(),serializedEmptyTmlm);
         TargetMoveLocationMessage deserializedFilledTmlm =
                 (TargetMoveLocationMessage) jacksonSerializer.deserialize(TargetMoveLocationMessage.class.getName(),serializedFilledTmlm);
-       // Assert.assertEquals(emptyTmlm,deserializedEmptyTmlm);
+        Assert.assertEquals(emptyTmlm,deserializedEmptyTmlm);
         Assert.assertEquals(filledTmlm,deserializedFilledTmlm);
     }
     @Test

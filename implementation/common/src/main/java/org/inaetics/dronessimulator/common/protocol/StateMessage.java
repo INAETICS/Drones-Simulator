@@ -45,24 +45,24 @@ public class StateMessage extends ProtocolMessage {
 
 
 
-    public Optional<D3Vector> getPosition() {
-        return Optional.ofNullable(position);
+    public D3Vector getPosition() {
+        return position;
     }
 
-    public Optional<D3PolarCoordinate> getDirection() {
-        return Optional.ofNullable(direction);
+    public D3PolarCoordinate getDirection() {
+        return direction;
     }
 
-    public Optional<D3Vector> getVelocity() {
-        return Optional.ofNullable(velocity);
+    public D3Vector getVelocity() {
+        return velocity;
     }
 
-    public Optional<D3Vector> getAcceleration() {
-        return Optional.ofNullable(acceleration);
+    public D3Vector getAcceleration() {
+        return acceleration;
     }
 
-    public Optional<Integer> getHp() {
-        return Optional.ofNullable(hp);
+    public Integer getHp() {
+        return hp;
     }
 
     @Override

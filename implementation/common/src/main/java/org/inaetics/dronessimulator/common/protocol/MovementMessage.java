@@ -23,16 +23,16 @@ public class MovementMessage extends ProtocolMessage {
 
     private D3Vector velocity = null;
 
-    public Optional<D3PolarCoordinate> getDirection() {
-        return Optional.ofNullable(direction);
+    public D3PolarCoordinate getDirection() {
+        return direction;
     }
 
-    public Optional<D3Vector> getAcceleration() {
-        return Optional.ofNullable(acceleration);
+    public D3Vector getAcceleration() {
+        return acceleration;
     }
 
-    public Optional<D3Vector> getVelocity() {
-        return Optional.ofNullable(velocity);
+    public D3Vector getVelocity() {
+        return velocity;
     }
 
     public String getIdentifier() {

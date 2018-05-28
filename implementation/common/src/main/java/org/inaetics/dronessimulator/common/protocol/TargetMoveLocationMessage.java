@@ -14,8 +14,8 @@ public class TargetMoveLocationMessage extends ProtocolMessage {
     /** The target location for the object. */
     private D3Vector targetLocation = null;
 
-    public Optional<D3Vector> getTargetLocation() {
-        return Optional.ofNullable(targetLocation);
+    public D3Vector getTargetLocation() {
+        return targetLocation;
     }
 
     @Override

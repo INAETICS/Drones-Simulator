@@ -1,7 +1,8 @@
 package org.inaetics.dronessimulator.common.protocol;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -10,32 +11,33 @@ import java.util.stream.Stream;
 
 public class CompressedProtocolMessage extends ProtocolMessage {
 
+    private List<StateMessage> msgs;
+
     public CompressedProtocolMessage() {
+        msgs = new ArrayList<>();
     }
 
-    public CompressedProtocolMessage(List<ProtocolMessage> msgs) {
+    public CompressedProtocolMessage(List<StateMessage> msgs) {
         this.msgs = msgs;
     }
 
-    private List<ProtocolMessage> msgs = new ArrayList<>();
-
-    public void add(ProtocolMessage msg) {
+    public void add(StateMessage msg) {
         msgs.add(msg);
     }
 
-    public void add(List<ProtocolMessage> msgsArg) {
+    public void add(List<StateMessage> msgsArg) {
         msgs.addAll(msgsArg);
     }
 
-    public void remove(ProtocolMessage msg) {
+    public void remove(StateMessage msg) {
         msgs.remove(msg);
     }
 
-    public void remove(List<ProtocolMessage> msgsArg) {
+    public void remove(List<StateMessage> msgsArg) {
         msgs.removeAll(msgsArg);
     }
 
-    public List<ProtocolMessage> getAll() {
+    public List<StateMessage> getMsgs() {
         return msgs;
     }
 
@@ -48,7 +50,7 @@ public class CompressedProtocolMessage extends ProtocolMessage {
         return null;
     }
 
-    public Stream<ProtocolMessage> stream() {
+    public Stream<StateMessage> stream() {
         return msgs.stream();
     }
 
@@ -77,7 +79,7 @@ public class CompressedProtocolMessage extends ProtocolMessage {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(msgs);
     }
+
 }

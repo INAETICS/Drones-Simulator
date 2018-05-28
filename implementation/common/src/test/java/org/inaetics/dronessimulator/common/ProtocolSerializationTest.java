@@ -56,8 +56,8 @@ public class ProtocolSerializationTest {
     @Test
     public void testCompressedProtocolMessage() {
         CompressedProtocolMessage emptyCpm = new CompressedProtocolMessage();
-        List<ProtocolMessage> msgs = new ArrayList<>();
-        msgs.add(new CollisionMessage());
+        List<StateMessage> msgs = new ArrayList<>();
+        msgs.add(new StateMessage());
         CompressedProtocolMessage filledCpm = new CompressedProtocolMessage(msgs);
         byte[] serializedEmptyCpm = jacksonSerializer.serialize(emptyCpm);
         byte[] serializedFilledCpm = jacksonSerializer.serialize(filledCpm);

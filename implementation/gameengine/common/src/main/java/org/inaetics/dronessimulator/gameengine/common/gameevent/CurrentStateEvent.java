@@ -26,7 +26,7 @@ public class CurrentStateEvent extends GameEngineEvent {
 
     @Override
     public List<ProtocolMessage> getProtocolMessage(IdentifierMapper id_mapper) {
-        List<ProtocolMessage> msgs = new ArrayList<>();
+        List<StateMessage> msgs = new ArrayList<>();
 
         for(GameEntity e : currentState) {
 

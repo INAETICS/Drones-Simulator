@@ -37,10 +37,14 @@ public class FireBulletMessageHandler implements MessageHandler {
 
         int gameEngineId = id_mapper.getNewGameEngineId();
 
-        Optional<D3Vector> maybePosition = fireBulletMessage.getPosition();
-        Optional<D3Vector> maybeVelocity = fireBulletMessage.getVelocity();
-        Optional<D3Vector> maybeAcceleration = fireBulletMessage.getAcceleration();
-        Optional<D3PolarCoordinate> maybeDirection = fireBulletMessage.getDirection();
+        Optional<D3Vector> maybePosition = fireBulletMessage.getPosition() == null ? Optional.empty() :
+                Optional.of(fireBulletMessage.getPosition());
+        Optional<D3Vector> maybeVelocity = fireBulletMessage.getVelocity() == null ? Optional.empty() :
+                Optional.of(fireBulletMessage.getVelocity());
+        Optional<D3Vector> maybeAcceleration = fireBulletMessage.getAcceleration() == null ? Optional.empty() :
+                Optional.of(fireBulletMessage.getAcceleration());
+        Optional<D3PolarCoordinate> maybeDirection = fireBulletMessage.getDirection() == null ? Optional.empty() :
+                Optional.of(fireBulletMessage.getDirection());
 
 
         if(fireBulletMessage.getType().equals(EntityType.BULLET) && maybePosition.isPresent() && maybeVelocity.isPresent() && maybeAcceleration.isPresent() && maybeDirection.isPresent()) {

@@ -150,9 +150,15 @@ public class Radar implements Subscriber {
         if (msg instanceof StateMessage) {
             StateMessage stateMessage = (StateMessage) msg;
             if (stateMessage.getIdentifier().equals(this.drone.getIdentifier())) {
-                stateMessage.getPosition().ifPresent(this::setPosition);
+                D3Vector pos = stateMessage.getPosition();
+                if (pos != null) {
+                    setPosition(pos);
+                }
             } else if (stateMessage.getType().equals(EntityType.DRONE)) {
-                stateMessage.getPosition().ifPresent(pos -> this.allEntities.put(stateMessage.getIdentifier(), pos));
+                D3Vector pos = stateMessage.getPosition();
+                if (pos != null) {
+                    allEntities.put(stateMessage.getIdentifier(), pos);
+                }
             }
         } else if (msg instanceof KillMessage) {
             KillMessage killMessage = (KillMessage) msg;

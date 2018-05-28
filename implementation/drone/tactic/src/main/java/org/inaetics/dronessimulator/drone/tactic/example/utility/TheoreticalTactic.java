@@ -62,8 +62,8 @@ public class TheoreticalTactic extends Tactic {
             //Send a message if you fire a bullet
             gun.registerCallback((fireBulletMessage) -> {
                 DataMessage shotMessage = new DataMessage(this, MyTacticMessage.MESSAGETYPES.FIRED_BULLET_MESSAGE);
-                shotMessage.getData().put("direction", String.valueOf(fireBulletMessage.getDirection().orElse(null)));
-                shotMessage.getData().put("velocity", String.valueOf(fireBulletMessage.getVelocity().orElse(null)));
+                shotMessage.getData().put("direction", String.valueOf(fireBulletMessage.getDirection()));
+                shotMessage.getData().put("velocity", String.valueOf(fireBulletMessage.getVelocity()));
                 shotMessage.getData().put("firedMoment", LocalDateTime.now().format(DateTimeFormatter.ISO_DATE_TIME));
                 radio.send(shotMessage.getMessage());
             });

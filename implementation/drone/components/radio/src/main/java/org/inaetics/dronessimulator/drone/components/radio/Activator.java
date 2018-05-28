@@ -17,7 +17,7 @@ public class Activator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
         Properties subscriberProperties = new Properties();
-        subscriberProperties.setProperty(Subscriber.PUBSUB_TOPIC, MessageTopic.RADIO.getName());
+        subscriberProperties.setProperty(Subscriber.PUBSUB_TOPIC, MessageTopic.ALL.getName());
         new Thread(() ->
         {
             try {

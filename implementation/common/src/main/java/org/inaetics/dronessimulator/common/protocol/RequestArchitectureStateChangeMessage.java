@@ -3,6 +3,7 @@ package org.inaetics.dronessimulator.common.protocol;
 
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -38,7 +39,10 @@ public class RequestArchitectureStateChangeMessage extends ProtocolMessage {
 
     @Override
     public List<MessageTopic> getTopics() {
-        return Collections.singletonList(MessageTopic.ARCHITECTURE);
+        List<MessageTopic> res = new ArrayList<>();
+        res.add(MessageTopic.STATEUPDATES);
+        return res;
+        //return Collections.singletonList(MessageTopic.ARCHITECTURE);
     }
 
     @Override

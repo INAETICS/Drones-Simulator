@@ -192,7 +192,7 @@ public class GameEngine implements Subscriber {
         }
         else if(obj instanceof TargetMoveLocationMessage){
             m_physicsEngineDriver.changeTargetLocationEntity((
-                    (TargetMoveLocationMessage) obj).getIdentifier(), ((TargetMoveLocationMessage) obj).getTargetLocation().orElse(null));
+                    (TargetMoveLocationMessage) obj).getIdentifier(), ((TargetMoveLocationMessage) obj).getTargetLocation());
         }
         else if(obj instanceof StateMessage){
             stateMessageHandler.handleMessage( (StateMessage) obj);

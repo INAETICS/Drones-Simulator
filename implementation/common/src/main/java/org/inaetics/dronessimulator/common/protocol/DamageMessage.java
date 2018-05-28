@@ -1,7 +1,9 @@
 package org.inaetics.dronessimulator.common.protocol;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Protocol message describing that an entity has been damaged
@@ -23,7 +25,10 @@ public class DamageMessage extends ProtocolMessage {
 
     @Override
     public List<MessageTopic> getTopics() {
-        return Collections.singletonList(MessageTopic.STATEUPDATES);
+        List<MessageTopic> res = new ArrayList<>();
+        res.add(MessageTopic.STATEUPDATES);
+        return res;
+        //return Collections.singletonList(MessageTopic.STATEUPDATES);
     }
 
     public String getEntityId() {
@@ -48,5 +53,21 @@ public class DamageMessage extends ProtocolMessage {
 
     public void setDamage(int damage) {
         this.damage = damage;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DamageMessage)) return false;
+        DamageMessage that = (DamageMessage) o;
+        return damage == that.damage &&
+                Objects.equals(entityId, that.entityId) &&
+                entityType == that.entityType;
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(entityId, entityType, damage);
     }
 }

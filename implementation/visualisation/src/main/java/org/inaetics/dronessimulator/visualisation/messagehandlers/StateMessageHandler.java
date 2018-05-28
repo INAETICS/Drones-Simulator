@@ -55,9 +55,18 @@ public class StateMessageHandler implements MessageHandler<StateMessage> {
     private void updateDrone(StateMessage stateMessage) {
         Drone currentDrone = (Drone) entities.get(stateMessage.getIdentifier());
         if(currentDrone != null) {
-            stateMessage.getPosition().ifPresent(currentDrone::setPosition);
-            stateMessage.getDirection().ifPresent(currentDrone::setDirection);
-            stateMessage.getHp().ifPresent(currentDrone::setCurrentHP);
+            D3Vector pos = stateMessage.getPosition();
+            if (pos != null) {
+                currentDrone.setPosition(pos);
+            }
+            D3PolarCoordinate dir = stateMessage.getDirection();
+            if (dir != null) {
+                currentDrone.setDirection(dir);
+            }
+            Integer hp = stateMessage.getHp();
+            if (hp != null) {
+                currentDrone.setCurrentHP(hp);
+            }
         }
     }
 
@@ -69,8 +78,14 @@ public class StateMessageHandler implements MessageHandler<StateMessage> {
     private void createOrUpdateBullet(StateMessage stateMessage) {
         BaseEntity currentBullet = entities.computeIfAbsent(stateMessage.getIdentifier(), k -> createBullet());
 
-        stateMessage.getPosition().ifPresent(currentBullet::setPosition);
-        stateMessage.getDirection().ifPresent(currentBullet::setDirection);
+        D3Vector pos = stateMessage.getPosition();
+        if (pos != null) {
+            currentBullet.setPosition(pos);
+        }
+        D3PolarCoordinate dir = stateMessage.getDirection();
+        if (dir != null) {
+            currentBullet.setDirection(dir);
+        }
     }
 
     /**

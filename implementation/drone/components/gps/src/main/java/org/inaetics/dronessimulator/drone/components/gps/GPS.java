@@ -1,15 +1,12 @@
 package org.inaetics.dronessimulator.drone.components.gps;
 
 import org.inaetics.dronessimulator.common.Settings;
-import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.pubsub.api.pubsub.Subscriber;
 
-import java.io.IOException;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
@@ -21,8 +18,6 @@ import java.util.Set;
  */
 public class GPS implements Subscriber {
     private final Set<GPSCallback> callbacks = new HashSet<>();
-    /** The Subscriber to use for receiving messages */
-    private volatile Subscriber subscriber;
     /** The drone instance that can be used to get information about the current drone */
     private volatile DroneInit drone;
     private StateMessage previousMessage;
@@ -30,8 +25,7 @@ public class GPS implements Subscriber {
     public GPS() {
     }
     //Testing constructor
-    public GPS(Subscriber subscriber, DroneInit drone, StateMessage previousMessage, D3Vector position, D3Vector velocity, D3Vector acceleration, D3PolarCoordinate direction) {
-        this.subscriber = subscriber;
+    public GPS(DroneInit drone, StateMessage previousMessage, D3Vector position, D3Vector velocity, D3Vector acceleration, D3PolarCoordinate direction) {
         this.drone = drone;
         this.previousMessage = previousMessage;
         this.position = position;
@@ -113,10 +107,14 @@ public class GPS implements Subscriber {
             StateMessage message = (StateMessage) o;
             //Prepare some variables
             double deltaNow = ChronoUnit.MILLIS.between(message.getTimestamp(), LocalTime.now());
-            Optional<D3Vector> optionalPosition = message.getPosition();
-            Optional<D3Vector> optionalVelocity = message.getVelocity();
-            Optional<D3Vector> optionalAcceleration = message.getAcceleration();
-            Optional<D3PolarCoordinate> optionalDirection = message.getDirection();
+            Optional<D3Vector> optionalPosition = message.getPosition() == null ?
+                    Optional.empty() : Optional.of(message.getPosition());
+            Optional<D3Vector> optionalVelocity = message.getVelocity() == null ?
+                    Optional.empty() : Optional.of(message.getVelocity());
+            Optional<D3Vector> optionalAcceleration = message.getAcceleration() == null ?
+                    Optional.empty() : Optional.of(message.getAcceleration());
+            Optional<D3PolarCoordinate> optionalDirection = message.getDirection() == null ?
+                    Optional.empty() : Optional.of(message.getDirection());
 
             //Check if the message is recent
             if (previousMessage != null && deltaNow > Settings.getTickTime(ChronoUnit.MILLIS)) {
@@ -147,12 +145,18 @@ public class GPS implements Subscriber {
      * @param message       The current message
      */
     private void interpolateMessages(double deltaNow, double deltaMessages, StateMessage message) {
-        Optional<D3Vector> optionalPosition = message.getPosition();
-        Optional<D3Vector> optionalVelocity = message.getVelocity();
-        Optional<D3Vector> optionalAccelration = message.getAcceleration();
-        Optional<D3Vector> optionalPreviousPosition = previousMessage.getPosition();
-        Optional<D3Vector> optionalPreviousVelocity = previousMessage.getVelocity();
-        Optional<D3Vector> optionalPreviousAcceleration = previousMessage.getAcceleration();
+        Optional<D3Vector> optionalPosition = message.getPosition() == null ?
+                Optional.empty() : Optional.of(message.getPosition());
+        Optional<D3Vector> optionalVelocity = message.getVelocity() == null ?
+                Optional.empty() : Optional.of(message.getVelocity());
+        Optional<D3Vector> optionalAccelration = message.getAcceleration() == null ?
+                Optional.empty() : Optional.of(message.getAcceleration());
+        Optional<D3Vector> optionalPreviousPosition = previousMessage.getPosition() == null ?
+                Optional.empty() : Optional.of(previousMessage.getPosition());
+        Optional<D3Vector> optionalPreviousVelocity = previousMessage.getVelocity() == null ?
+                Optional.empty() : Optional.of(previousMessage.getVelocity());
+        Optional<D3Vector> optionalPreviousAcceleration = previousMessage.getAcceleration() == null ?
+                Optional.empty() : Optional.of(previousMessage.getAcceleration());
 
         //Use the previous message to make a better guess of the location the drone probably is.
         if (optionalAccelration.isPresent() && optionalPreviousAcceleration.isPresent()) {

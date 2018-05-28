@@ -31,15 +31,13 @@ public class RadarTest {
     private Radar radar;
     private DroneInit drone;
     private MockDiscoverer discoverer;
-    private MockSubscriber subscriber;
 
     @Before
     public void setUp() throws Exception {
         drone = new DroneInit();
         drone.setIdentifier("1");
         discoverer = new MockDiscoverer();
-        subscriber = new MockSubscriber();
-        radar = new Radar(mock(ArchitectureEventController.class), subscriber, drone, discoverer, D3Vector.UNIT);
+        radar = new Radar(mock(ArchitectureEventController.class), drone, discoverer, D3Vector.UNIT);
     }
 
     @Test
@@ -50,9 +48,6 @@ public class RadarTest {
         allEntities.put("drone-id", D3Vector.ZERO);
 
         Assert.assertThat(discoverer.getRemovedHandlers().size(), is(1));
-        Assert.assertThat(subscriber.getHandlers().get(StateMessage.class), hasItem((MessageHandler<Message>) radar));
-        Assert.assertThat(subscriber.getHandlers().get(KillMessage.class), hasItem((MessageHandler<Message>) radar));
-        Assert.assertThat(subscriber.getTopics(), hasItem(MessageTopic.STATEUPDATES));
 
         DiscoveryNode node = new DiscoveryNode("drone-id", new DiscoveryNode("root"), DiscoveryPath.config(Type.DRONE, Group.DRONE, "name"));
         RemovedNode removedNode = new RemovedNode(node);
@@ -60,10 +55,10 @@ public class RadarTest {
         Assert.assertThat(allEntities.values(), not(hasItem(D3Vector.ZERO)));
         Assert.assertThat(allEntities.size(), is(0));
 
-        Object[] radarStateBefore = getRadarState(radar);
+        Radar radarStateBefore = new Radar(radar);
         removedNode = new RemovedNode(new DiscoveryNode("random node", new DiscoveryNode("root"), DiscoveryPath.config(Type.SERVICE, Group.TACTIC, "some tactic")));
         discoverer.getRemovedHandlers().get(0).handle(removedNode);
-        Assert.assertThat(radarStateBefore, is(getRadarState(radar)));
+        Assert.assertThat(radarStateBefore, is(radar));
     }
 
     @Test
@@ -102,26 +97,28 @@ public class RadarTest {
         StateMessage stateMessageDronePosition = new StateMessage();
         stateMessageDronePosition.setIdentifier(drone.getIdentifier());
         stateMessageDronePosition.setPosition(new D3Vector(50, 50, 50));
-        radar.handleMessage(stateMessageDronePosition);
+
+        radar.receive(stateMessageDronePosition, null);
         Assert.assertThat(radar.getPosition(), is(new D3Vector(50, 50, 50)));
+
 
         StateMessage stateMessageOtherDrones = new StateMessage();
         stateMessageOtherDrones.setIdentifier("other-drone");
         stateMessageOtherDrones.setType(EntityType.DRONE);
         stateMessageOtherDrones.setPosition(new D3Vector(125, 125, 125));
-        radar.handleMessage(stateMessageOtherDrones);
+        radar.receive(stateMessageOtherDrones, null);
         Assert.assertThat(radar.getRadar(), hasItem(new D3Vector(125, 125, 125)));
 
-        Object[] radarStateBeforeUselessMessage = getRadarState(radar);
+        Radar radarStateBeforeUselessMessage = new Radar(radar);
         StateMessage uselessStateMessage = new StateMessage();
         uselessStateMessage.setIdentifier("bullet");
         uselessStateMessage.setType(EntityType.BULLET);
-        radar.handleMessage(uselessStateMessage);
-        Assert.assertThat(radarStateBeforeUselessMessage, is(getRadarState(radar)));
+        radar.receive(uselessStateMessage, null);
+        Assert.assertThat(radarStateBeforeUselessMessage, is(radar));
 
-        radarStateBeforeUselessMessage = getRadarState(radar);
-        radar.handleMessage(new MovementMessage());
-        Assert.assertThat(radarStateBeforeUselessMessage, is(getRadarState(radar)));
+        radarStateBeforeUselessMessage = new Radar(radar);
+        radar.receive(new MovementMessage(), null);
+        Assert.assertThat(radarStateBeforeUselessMessage, is(radar));
     }
 
     @Test
@@ -132,33 +129,22 @@ public class RadarTest {
         KillMessage killMessage = new KillMessage();
         killMessage.setIdentifier("far");
         killMessage.setEntityType(EntityType.DRONE);
-        radar.handleMessage(killMessage);
+        radar.receive(killMessage, null);
         Assert.assertThat(radar.getRadar(), not(hasItem(new D3Vector(100, 100, 100))));
 
         //Killing the drone self, nothing happens since the drone itself is not part of the radar image
-        Object[] radarStateBeforeUselessMessage = getRadarState(radar);
+        Radar radarStateBeforeUselessMessage = new Radar(radar);
         KillMessage killMessageSelf = new KillMessage();
         killMessageSelf.setIdentifier(drone.getIdentifier());
         killMessageSelf.setEntityType(EntityType.DRONE);
-        radar.handleMessage(killMessageSelf);
-        Assert.assertThat(radarStateBeforeUselessMessage, is(getRadarState(radar)));
+        radar.receive(killMessageSelf, null);
+        Assert.assertThat(radarStateBeforeUselessMessage, is(radar));
 
-        radarStateBeforeUselessMessage = getRadarState(radar);
+        radarStateBeforeUselessMessage = new Radar(radar);
         KillMessage uselessKillMessage = new KillMessage();
         uselessKillMessage.setIdentifier("non-existing-drone");
         uselessKillMessage.setEntityType(EntityType.DRONE);
-        radar.handleMessage(uselessKillMessage);
-        Assert.assertThat(radarStateBeforeUselessMessage, is(getRadarState(radar)));
-    }
-
-    private Object[] getRadarState(final Radar radar) throws NoSuchFieldException, IllegalAccessException {
-        Object[] fields = new Object[6];
-        fields[0] = getField(radar, "allEntities");
-        fields[1] = getField(radar, "architectureEventController");
-        fields[2] = getField(radar, "subscriber");
-        fields[3] = getField(radar, "drone");
-        fields[4] = getField(radar, "discoverer");
-        fields[5] = getField(radar, "position");
-        return fields;
+        radar.receive(uselessKillMessage, null);
+        Assert.assertThat(radarStateBeforeUselessMessage, is(radar));
     }
 }

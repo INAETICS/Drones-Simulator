@@ -27,13 +27,27 @@ import java.util.stream.Collectors;
 public class Radar implements Subscriber {
     //OSGi constructor
     public Radar() {
+        allEntities = new ConcurrentHashMap<>();
     }
+
     //Testing constructor
     public Radar(ArchitectureEventController architectureEventController, DroneInit drone, Discoverer discoverer, D3Vector position) {
         this.architectureEventController = architectureEventController;
         this.drone = drone;
         this.discoverer = discoverer;
         this.position = position;
+        allEntities = new ConcurrentHashMap<>();
+    }
+
+    /**
+     * Copy constructor.
+     */
+    public Radar(Radar copy) {
+        this.architectureEventController = copy.architectureEventController;
+        this.drone = copy.drone;
+        this.discoverer = copy.discoverer;
+        this.position = new D3Vector().add(copy.position);
+        this.allEntities = new ConcurrentHashMap<>(copy.allEntities);
     }
 
     /**
@@ -44,7 +58,7 @@ public class Radar implements Subscriber {
      * Map of all last known entities and their positions (the first string is the id of the entity, the tuple's string is the team name if applicable and the D3Vector is
      * the location)
      */
-    private final Map<String, D3Vector> allEntities = new ConcurrentHashMap<>();
+    private final Map<String, D3Vector> allEntities;
     /**
      * Reference to Architecture Event Controller bundle
      */
@@ -126,18 +140,6 @@ public class Radar implements Subscriber {
     }
 
     /**
-     * Handles a recieved message and calls the appropriate message handler.
-     *
-     * @param message The received message.
-     */
-    public void handleMessage(Message message) {
-        if (message instanceof StateMessage) {
-            handleMessage((StateMessage) message);
-        } else if (message instanceof KillMessage) {
-            handleMessage((KillMessage) message);
-        }
-    }
-
     /**
      * Handles a StateMessage by changing the internal state based on this message.
      * or a KillMessage by removing the killed entity from the internal state representation.
@@ -150,9 +152,15 @@ public class Radar implements Subscriber {
         if (msg instanceof StateMessage) {
             StateMessage stateMessage = (StateMessage) msg;
             if (stateMessage.getIdentifier().equals(this.drone.getIdentifier())) {
-                stateMessage.getPosition().ifPresent(this::setPosition);
+                D3Vector pos = stateMessage.getPosition();
+                if (pos != null) {
+                    setPosition(pos);
+                }
             } else if (stateMessage.getType().equals(EntityType.DRONE)) {
-                stateMessage.getPosition().ifPresent(pos -> this.allEntities.put(stateMessage.getIdentifier(), pos));
+                D3Vector pos = stateMessage.getPosition();
+                if (pos != null) {
+                    allEntities.put(stateMessage.getIdentifier(), pos);
+                }
             }
         } else if (msg instanceof KillMessage) {
             KillMessage killMessage = (KillMessage) msg;
@@ -162,4 +170,20 @@ public class Radar implements Subscriber {
         }
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Radar radar = (Radar) o;
+        return Objects.equals(allEntities, radar.allEntities) &&
+                Objects.equals(architectureEventController, radar.architectureEventController) &&
+                Objects.equals(drone, radar.drone) &&
+                Objects.equals(discoverer, radar.discoverer) &&
+                Objects.equals(position, radar.position);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(allEntities, architectureEventController, drone, discoverer, position);
+    }
 }

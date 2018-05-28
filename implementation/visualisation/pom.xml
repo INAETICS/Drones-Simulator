@@ -13,20 +13,23 @@
 
     <packaging>jar</packaging>
 
+    <groupId>org.inaetics.dronessimulator</groupId>
+
+
     <dependencies>
         <dependency>
             <groupId>org.inaetics.dronessimulator</groupId>
             <artifactId>common</artifactId>
         </dependency>
 <!--START old pubsub-->
-        <dependency>
-            <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
-            <artifactId>rabbitmq-subscriber</artifactId>
-        </dependency>
+    <!--<dependency>
+        <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
+        <artifactId>rabbitmq-subscriber</artifactId>
+    </dependency>
         <dependency>
             <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
             <artifactId>rabbitmq-publisher</artifactId>
-        </dependency>
+        </dependency>-->
         <dependency>
             <groupId>org.inaetics.dronessimulator.pubsub</groupId>
             <artifactId>java-serializer</artifactId>
@@ -55,7 +58,6 @@
             <artifactId>org.inaetics.pubsub.psa.zeromq</artifactId>
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
-
 
         <dependency>
             <groupId>org.inaetics.pubsub</groupId>
@@ -87,6 +89,21 @@
         <dependency>
             <groupId>org.apache.felix</groupId>
             <artifactId>org.apache.felix.dependencymanager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.framework</artifactId>
+            <version>${apache.felix.version}</version> <!--TODO: Pull dependency management up-->
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.utils</artifactId>
+            <version>1.11.0</version> <!--TODO: Pull dependency management up-->
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.main</artifactId>
+            <version>${apache.felix.version}</version> <!--TODO: Pull dependency management up-->
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -131,6 +148,28 @@
             <version>${testfx.version}</version>
             <scope>test</scope>
         </dependency>
+
+        <!--OSGi dependencies-->
+        <!--<dependency>
+            <groupId>org.osgi</groupId>
+            <artifactId>org.osgi.core</artifactId>
+            <version>${osgi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.dependencymanager</artifactId>
+            <version>${apache.felix.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.configadmin</artifactId>
+            <version>${apache.felix.configadmin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.felix</groupId>
+            <artifactId>org.apache.felix.main</artifactId>
+            <version>${apache.felix.version}</version>
+        </dependency>-->
     </dependencies>
     <properties>
         <testfx.version>4.0.10-alpha</testfx.version>
@@ -138,6 +177,54 @@
 
     <build>
         <plugins>
+
+           <!-- <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        &lt;!&ndash;<Export-Package>org.inaetics.dronessimulator.visualisation.*</Export-Package>&ndash;&gt;
+                        <Export-Package>org.inaetics.dronessimulator.visualisation.*</Export-Package>
+                        <Bundle-Activator>org.inaetics.dronessimulator.visualisation.Activator</Bundle-Activator>
+                    </instructions>
+                </configuration>
+            </plugin>-->
+<!--
+            <plugin>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bnd-maven-plugin</artifactId>
+                <version>${bnd-maven-plugin.version}</version>
+                <configuration>
+                    <bnd combine.self="override"><![CDATA[
+#Always export packages with a @Version annotation
+-exportcontents: ${packages;ANNOTATED;org.osgi.annotation.versioning.Version}
+Bundle-Activator: org.inaetics.dronessimulator.visualisation.Activator
+]]>
+                    </bnd>
+                </configuration>
+            </plugin>-->
+
+            <!--<plugin>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bnd-export-maven-plugin</artifactId>
+                <version>${bnd-maven-plugin.version}</version>
+                <configuration>
+                    <failOnChanges>false</failOnChanges>
+                    <resolve>true</resolve>
+                    <bndruns>
+                        <bndrun>visualisation.bndrun</bndrun>
+                    </bndruns>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>export</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>-->
+
              <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
@@ -149,7 +236,7 @@
                     <configuration combine.self="append">
                         <transformers>
                             <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                <mainClass>org.inaetics.dronessimulator.visualisation.Game</mainClass>
+                                <mainClass>org.inaetics.dronessimulator.visualisation.Launcher</mainClass>
                             </transformer>
                         </transformers>
                         <filters>

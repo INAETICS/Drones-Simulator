@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.visualisation;
 
-import com.rabbitmq.client.ConnectionFactory;
 import javafx.animation.AnimationTimer;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -34,16 +33,13 @@ import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.A
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.NodeEvent;
 import org.inaetics.dronessimulator.discovery.api.discoverynode.discoveryevent.RemovedNode;
 import org.inaetics.dronessimulator.discovery.etcd.EtcdDiscovererService;
-import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
-import org.inaetics.dronessimulator.pubsub.rabbitmq.common.RabbitConnectionInfo;
-import org.inaetics.dronessimulator.pubsub.rabbitmq.publisher.RabbitPublisher;
-import org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber.RabbitSubscriber;
 import org.inaetics.dronessimulator.visualisation.controls.PannableCanvas;
 import org.inaetics.dronessimulator.visualisation.controls.SceneGestures;
 import org.inaetics.dronessimulator.visualisation.messagehandlers.GameFinishedHandler;
 import org.inaetics.dronessimulator.visualisation.messagehandlers.KillMessageHandler;
 import org.inaetics.dronessimulator.visualisation.messagehandlers.StateMessageHandler;
 import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
+import org.inaetics.pubsub.api.pubsub.Subscriber;
 
 import java.io.IOException;
 import java.util.*;
@@ -58,7 +54,7 @@ import java.util.stream.Collectors;
  * Instances of the game class create a new javafx application. This class provides a connection with etcd, rabbitmq and
  * contain all the game elements.
  */
-public class Game extends Application {
+public class Game extends Application implements Subscriber {
     public static final String USERNAME_FIELD = "username";
     public static final String PASSWORD_FIELD = "password";
     public static final String URI_FIELD = "uri";
@@ -100,16 +96,16 @@ public class Game extends Application {
     /**
      * Subscriber for rabbitmq
      */
-    private RabbitSubscriber subscriber;
+//    private RabbitSubscriber subscriber;
 
-    public RabbitSubscriber getSubscriber() {
-        return subscriber;
-    }
+//    public RabbitSubscriber getSubscriber() {
+//        return subscriber;
+//    }
 
     /**
      * Publisher for rabbitmq
      */
-    private RabbitPublisher publisher;
+//    private RabbitPublisher publisher;
 
     /**
      * Discoverer for etcd
@@ -132,17 +128,13 @@ public class Game extends Application {
         public void handle(WindowEvent t) {
             if (!isClosed) {
                 log.info("Closing the application gracefully");
-                try {
-                    if (subscriber != null)
-                        subscriber.disconnect();
-                    if (publisher != null)
-                        publisher.disconnect();
-                    if (discoverer != null)
-                        discoverer.stop();
-                    isClosed = true;
-                } catch (IOException e) {
-                    log.fatal(e);
-                }
+                //                    if (subscriber != null)
+//                        subscriber.disconnect();
+//                    if (publisher != null)
+//                        publisher.disconnect();
+                if (discoverer != null)
+                    discoverer.stop();
+                isClosed = true;
                 Platform.exit();
             }
         }
@@ -164,22 +156,13 @@ public class Game extends Application {
      * Time is ms of the last log
      */
     private long lastLog = -1;
-    private RabbitConnectionInfo rabbitConnectionInfo;
 
     /**
      * Instantiates a new game object
      */
     public Game() {
+        System.out.println("Game.java Constructor called");
         this.uiUpdates = new LinkedBlockingQueue<>();
-    }
-
-    /**
-     * Main method of the visualisation
-     *
-     * @param args - args
-     */
-    public static void main(String[] args) {
-        launch(args);
     }
 
     /**
@@ -202,6 +185,7 @@ public class Game extends Application {
             public void handle(long now) {
                 long current_step_started_at_ms = System.currentTimeMillis();
 
+/*
                 if (!isRabbitConnected()) {
                     log.info("RabbitMQ is not (yet) connected. " +
                             "subscriber != null == " + (subscriber != null) + " subscriber.isConnected()  == " + (subscriber != null && subscriber.isConnected()) + " " +
@@ -215,6 +199,7 @@ public class Game extends Application {
                     onRabbitConnect();
                     onRabbitConnectExecuted.set(true);
                 }
+*/
 
                 i++;
                 if (i == 100 && log.isDebugEnabled()) {
@@ -321,7 +306,7 @@ public class Game extends Application {
         DiscoveryNode node = e.getNode();
         DiscoveryPath path = node.getPath();
 
-        if (path.equals(DiscoveryPath.config(Type.RABBITMQ, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.BROKER, "default"))) {
+        /*if (path.equals(DiscoveryPath.config(Type.RABBITMQ, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.BROKER, "default"))) {
             if (node.getValue(USERNAME_FIELD) != null) {
                 rabbitConfig.put(USERNAME_FIELD, node.getValue(USERNAME_FIELD));
             }
@@ -342,18 +327,19 @@ public class Game extends Application {
                     log.fatal(e);
                 }
             }
-        }
+        }*/
     }
 
-    private boolean isRabbitConnected() {
+    /*private boolean isRabbitConnected() {
         return subscriber != null && subscriber.isConnected() && publisher != null && publisher.isConnected();
     }
+*/
 
     /**
      * Connect to rabbitmq using the rabbitconfig, then connect the publisher and subscriber
      * Adds the handlers for listening to incoming game messages
      */
-    private void connectRabbit(boolean forceUpdate) throws IOException {
+    /*private void connectRabbit(boolean forceUpdate) throws IOException {
         if (!isRabbitConnected() && rabbitConnectionInfo != null) {
             log.info("Connecting RabbitMQ...");
             ConnectionFactory connectionFactory = null;
@@ -374,8 +360,8 @@ public class Game extends Application {
             }
             if (subscriber == null)
                 this.subscriber = new RabbitSubscriber(connectionFactory, RABBIT_IDENTIFIER, new JavaSerializer(), discoverer);
-            if (publisher == null)
-                this.publisher = new RabbitPublisher(connectionFactory, new JavaSerializer(), discoverer);
+//            if (publisher == null)
+//                this.publisher = new RabbitPublisher(connectionFactory, new JavaSerializer(), discoverer);
 
             this.subscriber.connect();
             this.publisher.connect();
@@ -384,9 +370,10 @@ public class Game extends Application {
             configureMessageHandlers();
         }
     }
+*/
 
     private void configureMessageHandlers() throws IOException {
-        if (subscriber != null) {
+  /*      if (subscriber != null) {
             if (subscriber.getHandlers().get(KillMessage.class) == null || subscriber.getHandlers().get(KillMessage.class).isEmpty()) {
                 this.subscriber.addHandler(KillMessage.class, new KillMessageHandler(this.entities));
             }
@@ -399,7 +386,7 @@ public class Game extends Application {
             if (!subscriber.hasTopic(MessageTopic.STATEUPDATES)) {
                 this.subscriber.addTopic(MessageTopic.STATEUPDATES);
             }
-        }
+        }*/
     }
 
     /**
@@ -478,11 +465,11 @@ public class Game extends Application {
         borderPane.setBottom(container);
         root.getChildren().add(borderPane);
 
-        configButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.CONFIG, publisher));
-        startButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.START, publisher));
-        stopButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.STOP, publisher));
-        pauseButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.PAUSE, publisher));
-        resumeButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.RESUME, publisher));
+//        configButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.CONFIG, publisher));
+//        startButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.START, publisher));
+//        stopButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.STOP, publisher));
+//        pauseButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.PAUSE, publisher));
+//        resumeButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.RESUME, publisher));
     }
 
     /**
@@ -538,5 +525,10 @@ public class Game extends Application {
         drone.setPosition(new D3Vector(-9999, -9999, -9999));
         drone.setDirection(new D3PolarCoordinate(-9999, -9999, -9999));
         entities.putIfAbsent(id, drone);
+    }
+
+    @Override
+    public void receive(Object o, MultipartCallbacks multipartCallbacks) {
+        System.out.println("RECEIVE!!!\n\n");
     }
 }

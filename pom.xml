@@ -174,7 +174,6 @@
         <module>drone.simulator.components</module>
         <module>drone.simulator.tactics.radar</module>
         <module>drone.simulator.images</module>
-        <module>pubsubtest</module>
         <module>drone.simulator.pubsubtest</module>
     </modules>
 

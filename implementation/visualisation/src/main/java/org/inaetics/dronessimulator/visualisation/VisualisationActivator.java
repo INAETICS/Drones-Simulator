@@ -25,16 +25,18 @@ public class VisualisationActivator extends DependencyActivatorBase {
                 .setInterface(Object.class.getName(),null)
                 .setImplementation(new Vector()));
 
+//        Game gameImpl = new Game();
+
         /*NOTE: Originally, GameEngine subscribed to MessageTopic.MOVEMENTS and MessageTopic.STATEUPDATES */
         dependencyManager.add(createComponent()
                 .setInterface(Subscriber.class.getName(), subscriberProperties)
                 .setImplementation(Game.class)
                         .add(createServiceDependency()
                                 .setService(Publisher.class ,"(" + Publisher.PUBSUB_TOPIC +"=" + TOPIC + ")")
-                                .setRequired(true)
+//                                .setRequired(true)
                         )
         );
 
-
+//        Game.launch() //;
     }
 }

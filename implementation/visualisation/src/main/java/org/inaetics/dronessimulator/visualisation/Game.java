@@ -165,6 +165,12 @@ public class Game extends Application implements Subscriber {
         this.uiUpdates = new LinkedBlockingQueue<>();
     }
 
+    /*OSGi start method*/
+    public void start() {
+        System.out.println("Game::start()");
+        Game.launch();
+    }
+
     /**
      * Main entry point for a JavaFX application
      *
@@ -172,6 +178,7 @@ public class Game extends Application implements Subscriber {
      */
     @Override
     public void start(Stage primaryStage) {
+        System.out.println("Game::start(Stage)");
         this.primaryStage = primaryStage;
         setupInterface();
         setupDiscovery();

@@ -101,8 +101,8 @@ public class Launcher {
 
             felix.start();
 
-            for (Bundle b : felix.getBundleContext().getBundles()) {
-                System.out.println("bundle: " + b.toString() + " ---- state: " + b.getState());
+//            for (Bundle b : felix.getBundleContext().getBundles()) {
+//                System.out.println("bundle: " + b.toString() + " ---- state: " + b.getState());
 //                BundleWiring wiring = b.adapt(BundleWiring.class);
 //                System.out.println(wiring.);
 
@@ -110,7 +110,7 @@ public class Launcher {
                 System.out.println(namespace.size());
                 Inspect.printRequirements(felix.getBundleContext(), namespace, felix.getBundleContext().getBundles());
                 Inspect.printCapabilities(felix.getBundleContext(), namespace, felix.getBundleContext().getBundles());
-            }
+//            }
 
 //            felix.stop();
 //            felix.waitForStop(2000);

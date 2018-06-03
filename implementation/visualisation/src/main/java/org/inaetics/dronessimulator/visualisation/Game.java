@@ -39,6 +39,7 @@ import org.inaetics.dronessimulator.visualisation.messagehandlers.GameFinishedHa
 import org.inaetics.dronessimulator.visualisation.messagehandlers.KillMessageHandler;
 import org.inaetics.dronessimulator.visualisation.messagehandlers.StateMessageHandler;
 import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
+import org.inaetics.pubsub.api.pubsub.Publisher;
 import org.inaetics.pubsub.api.pubsub.Subscriber;
 
 import java.io.IOException;
@@ -107,6 +108,8 @@ public class Game extends Application implements Subscriber {
      */
 //    private RabbitPublisher publisher;
 
+    private volatile Publisher publisher;
+
     /**
      * Discoverer for etcd
      */
@@ -162,12 +165,14 @@ public class Game extends Application implements Subscriber {
      */
     public Game() {
         System.out.println("Game.java Constructor called");
+
         this.uiUpdates = new LinkedBlockingQueue<>();
     }
 
     /*OSGi start method*/
     public void start() {
         System.out.println("Game::start()");
+
         Game.launch();
     }
 
@@ -179,6 +184,7 @@ public class Game extends Application implements Subscriber {
     @Override
     public void start(Stage primaryStage) {
         System.out.println("Game::start(Stage)");
+
         this.primaryStage = primaryStage;
         setupInterface();
         setupDiscovery();

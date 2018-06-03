@@ -30,10 +30,10 @@
             <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
             <artifactId>rabbitmq-publisher</artifactId>
         </dependency>-->
-        <dependency>
-            <groupId>org.inaetics.dronessimulator.pubsub</groupId>
-            <artifactId>java-serializer</artifactId>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.inaetics.dronessimulator.pubsub</groupId>-->
+            <!--<artifactId>java-serializer</artifactId>-->
+        <!--</dependency>-->
         <dependency>
             <groupId>org.inaetics.dronessimulator.discovery</groupId>
             <artifactId>etcd</artifactId>
@@ -51,6 +51,11 @@
             <groupId>org.zeromq</groupId>
             <artifactId>jnacl</artifactId>
             <version>0.1.1-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>org.zeromq</groupId>
+            <artifactId>jeromq</artifactId>
+            <version>0.4.3</version>
         </dependency>
 
         <dependency>
@@ -82,39 +87,15 @@
             <groupId>org.inaetics.dronessimulator</groupId>
             <artifactId>architecture-event-controller</artifactId>
         </dependency>
-        <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.dependencymanager</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.framework</artifactId>
-            <version>${apache.felix.version}</version> <!--TODO: Pull dependency management up-->
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.utils</artifactId>
-            <version>1.11.0</version> <!--TODO: Pull dependency management up-->
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.main</artifactId>
-            <version>${apache.felix.version}</version> <!--TODO: Pull dependency management up-->
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-api</artifactId>
-            <version>2.8</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.logging.log4j</groupId>
-            <artifactId>log4j-core</artifactId>
-            <version>2.8</version>
-        </dependency>
+        <!--<dependency>-->
+            <!--<groupId>org.osgi</groupId>-->
+            <!--<artifactId>org.osgi.core</artifactId>-->
+        <!--</dependency>-->
+        <!--<dependency>-->
+            <!--<groupId>org.apache.felix</groupId>-->
+            <!--<artifactId>org.apache.felix.dependencymanager</artifactId>-->
+        <!--</dependency>-->
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -148,28 +129,6 @@
             <version>${testfx.version}</version>
             <scope>test</scope>
         </dependency>
-
-        <!--OSGi dependencies-->
-        <!--<dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>org.osgi.core</artifactId>
-            <version>${osgi.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.dependencymanager</artifactId>
-            <version>${apache.felix.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.configadmin</artifactId>
-            <version>${apache.felix.configadmin.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.felix</groupId>
-            <artifactId>org.apache.felix.main</artifactId>
-            <version>${apache.felix.version}</version>
-        </dependency>-->
     </dependencies>
     <properties>
         <testfx.version>4.0.10-alpha</testfx.version>
@@ -178,52 +137,27 @@
     <build>
         <plugins>
 
-           <!-- <plugin>
-                <groupId>org.apache.felix</groupId>
-                <artifactId>maven-bundle-plugin</artifactId>
-                <extensions>true</extensions>
-                <configuration>
-                    <instructions>
-                        &lt;!&ndash;<Export-Package>org.inaetics.dronessimulator.visualisation.*</Export-Package>&ndash;&gt;
-                        <Export-Package>org.inaetics.dronessimulator.visualisation.*</Export-Package>
-                        <Bundle-Activator>org.inaetics.dronessimulator.visualisation.Activator</Bundle-Activator>
-                    </instructions>
-                </configuration>
-            </plugin>-->
-<!--
             <plugin>
-                <groupId>biz.aQute.bnd</groupId>
-                <artifactId>bnd-maven-plugin</artifactId>
-                <version>${bnd-maven-plugin.version}</version>
-                <configuration>
-                    <bnd combine.self="override"><![CDATA[
-#Always export packages with a @Version annotation
--exportcontents: ${packages;ANNOTATED;org.osgi.annotation.versioning.Version}
-Bundle-Activator: org.inaetics.dronessimulator.visualisation.Activator
-]]>
-                    </bnd>
-                </configuration>
-            </plugin>-->
-
-            <!--<plugin>
-                <groupId>biz.aQute.bnd</groupId>
-                <artifactId>bnd-export-maven-plugin</artifactId>
-                <version>${bnd-maven-plugin.version}</version>
-                <configuration>
-                    <failOnChanges>false</failOnChanges>
-                    <resolve>true</resolve>
-                    <bndruns>
-                        <bndrun>visualisation.bndrun</bndrun>
-                    </bndruns>
-                </configuration>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>3.1.1</version>
                 <executions>
                     <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
                         <goals>
-                            <goal>export</goal>
+                            <goal>copy-dependencies</goal>
                         </goals>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/bundle_dependencies</outputDirectory>
+                            <overWriteReleases>false</overWriteReleases>
+                            <overWriteSnapshots>false</overWriteSnapshots>
+                            <overWriteIfNewer>true</overWriteIfNewer>
+                            <excludeTransitive>false</excludeTransitive>
+                        </configuration>
                     </execution>
                 </executions>
-            </plugin>-->
+            </plugin>
 
              <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

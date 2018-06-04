@@ -87,7 +87,7 @@ public class Launcher {
             for (String path : bundle_filesnames) {
                 String bundle_path = dependencies_uri + path;
                 Bundle bundle = felix.getBundleContext().installBundle(bundle_path);
-                System.out.println("Installed bundle: " + bundle.toString() + " ---- state: " + bundle.getState());
+                System.out.println("Installed bundle: " + bundle.toString() + " ---- state: " + bundle.getState() + "\tpath="+path);
             }
 
             ServiceReference<?>[] registeredServices = felix.getBundleContext().getBundle().getRegisteredServices();
@@ -100,7 +100,9 @@ public class Launcher {
 //            final String TOPIC = "test";
 //            Dictionary subscriberProperties = new Properties();
 //            subscriberProperties.put(Subscriber.PUBSUB_TOPIC, TOPIC);
-//            ServiceRegistration registration = felix.getBundleContext().registerService(Subscriber.class.getName(), new Game(), subscriberProperties);
+ //            ServiceRegistration registration = felix.getBundleContext().registerService(Subscriber.class.getName(), new Game(), subscriberProperties);
+
+            felix.start();
 
             System.out.println("List bundles:");
             for (Bundle bundle : felix.getBundleContext().getBundles()) {
@@ -114,7 +116,6 @@ public class Launcher {
 //            Inspect.printRequirements(felix.getBundleContext(), namespace, felix.getBundleContext().getBundles());
 //            Inspect.printCapabilities(felix.getBundleContext(), namespace, felix.getBundleContext().getBundles());
 
-            felix.start();
 //            felix.stop();
 //            felix.waitForStop(2000);
 

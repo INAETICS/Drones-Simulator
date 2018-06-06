@@ -21,14 +21,11 @@ public class VisualisationActivator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
 
-        System.out.println("\nVisualisation Activator::init() ----\n");
-
         final String TOPIC = "test";
         Properties subscriberProperties = new Properties();
         subscriberProperties.setProperty(Subscriber.PUBSUB_TOPIC, TOPIC);
 
         List<String> namespace = Util.parseSubstring("service");
-        System.out.println(namespace.size());
 
         new Thread(() -> {
             try {

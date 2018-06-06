@@ -32,9 +32,10 @@ public class Launcher {
         System.out.println("Game Launcher...");
         System.out.println("Starting Felix");
 
+        String jar_path = new File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParentFile().getAbsolutePath() + "/";
 
         String framework_systempackages = null;
-        try (Stream<String> stream = Files.lines(Paths.get("framework_systempackages.txt"))) {
+        try (Stream<String> stream = Files.lines(Paths.get(jar_path+"../framework_systempackages.txt"))) {
             framework_systempackages = stream.filter(l -> !l.startsWith("//")).collect(Collectors.joining(","));
         } catch (IOException e) {
             e.printStackTrace();
@@ -73,12 +74,11 @@ public class Launcher {
 
             AutoProcessor.process(configProps, felix.getBundleContext());
 
-            String jar_path = new File(Launcher.class.getProtectionDomain().getCodeSource().getLocation().getPath()).getParentFile().getAbsolutePath();
             String dependencies_uri = "file:" + jar_path + "/bundle_dependencies/";
 
 
             String[] bundle_filesnames = null;
-            try (Stream<String> stream = Files.lines(Paths.get("bundles_list.txt"))) {
+            try (Stream<String> stream = Files.lines(Paths.get(jar_path+"../bundles_list.txt"))) {
                 bundle_filesnames = stream.filter(l -> !l.startsWith("//")).toArray(String[]::new);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -97,11 +97,6 @@ public class Launcher {
             }
 
 
-//            final String TOPIC = "test";
-//            Dictionary subscriberProperties = new Properties();
-//            subscriberProperties.put(Subscriber.PUBSUB_TOPIC, TOPIC);
- //            ServiceRegistration registration = felix.getBundleContext().registerService(Subscriber.class.getName(), new Game(), subscriberProperties);
-
             felix.start();
 
             System.out.println("List bundles:");
@@ -113,11 +108,6 @@ public class Launcher {
 
             List<String> namespace = Util.parseSubstring("service");
             System.out.println(namespace.size());
-//            Inspect.printRequirements(felix.getBundleContext(), namespace, felix.getBundleContext().getBundles());
-//            Inspect.printCapabilities(felix.getBundleContext(), namespace, felix.getBundleContext().getBundles());
-
-//            felix.stop();
-//            felix.waitForStop(2000);
 
 
         } catch (Exception ex) {

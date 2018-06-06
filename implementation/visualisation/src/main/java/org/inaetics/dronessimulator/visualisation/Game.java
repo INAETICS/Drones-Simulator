@@ -172,8 +172,10 @@ public class Game extends Application implements Subscriber {
     /*OSGi start method*/
     public void start() {
         System.out.println("Game::start()");
-
-        Game.launch();
+        //Because this is the OSGi start method, we don't want to block here.
+        new Thread(
+                () -> Game.launch()
+        ).start(); ;
     }
 
     /**
@@ -188,7 +190,6 @@ public class Game extends Application implements Subscriber {
         this.primaryStage = primaryStage;
         setupInterface();
         setupDiscovery();
-        setupRabbit();
         setupGameEventListener();
 
         lastLog = System.currentTimeMillis();
@@ -197,22 +198,6 @@ public class Game extends Application implements Subscriber {
             @Override
             public void handle(long now) {
                 long current_step_started_at_ms = System.currentTimeMillis();
-
-/*
-                if (!isRabbitConnected()) {
-                    log.info("RabbitMQ is not (yet) connected. " +
-                            "subscriber != null == " + (subscriber != null) + " subscriber.isConnected()  == " + (subscriber != null && subscriber.isConnected()) + " " +
-                            "publisher != null == " + (publisher != null) + " publisher.isConnected() == " + (publisher != null && publisher.isConnected()));
-                    try {
-                        connectRabbit(false);
-                    } catch (IOException e) {
-                        log.fatal(e);
-                    }
-                } else if (!onRabbitConnectExecuted.get()) {
-                    onRabbitConnect();
-                    onRabbitConnectExecuted.set(true);
-                }
-*/
 
                 i++;
                 if (i == 100 && log.isDebugEnabled()) {
@@ -239,12 +224,6 @@ public class Game extends Application implements Subscriber {
                 // update sprites in scene
                 entities.forEach((id, entity) -> entity.updateUI());
 
-                try {
-                    configureMessageHandlers();
-                } catch (IOException e) {
-                    log.fatal(e);
-                }
-
                 long current_step_ended_at_ms = System.currentTimeMillis();
                 long current_step_took_ms = current_step_ended_at_ms - current_step_started_at_ms;
                 long diff = 10 - current_step_took_ms;
@@ -261,6 +240,8 @@ public class Game extends Application implements Subscriber {
 
         };
         gameLoop.start();
+
+       //TODO: Move message Handlers to receive()
     }
 
     /**
@@ -308,13 +289,6 @@ public class Game extends Application implements Subscriber {
         this.discoverer.start();
     }
 
-    /**
-     * Sets up the connection to the message broker and subscribes to the necessary channels and sets the required handlers
-     */
-    private void setupRabbit() {
-        this.discoverer.addHandlers(true, Collections.singletonList(this::handleNodeEvent), Collections.singletonList(this::handleNodeEvent), Collections.emptyList());
-    }
-
     private void handleNodeEvent(NodeEvent e) {
         DiscoveryNode node = e.getNode();
         DiscoveryPath path = node.getPath();
@@ -343,72 +317,26 @@ public class Game extends Application implements Subscriber {
         }*/
     }
 
-    /*private boolean isRabbitConnected() {
-        return subscriber != null && subscriber.isConnected() && publisher != null && publisher.isConnected();
-    }
-*/
 
-    /**
-     * Connect to rabbitmq using the rabbitconfig, then connect the publisher and subscriber
-     * Adds the handlers for listening to incoming game messages
-     */
-    /*private void connectRabbit(boolean forceUpdate) throws IOException {
-        if (!isRabbitConnected() && rabbitConnectionInfo != null) {
-            log.info("Connecting RabbitMQ...");
-            ConnectionFactory connectionFactory = null;
-            try {
-                connectionFactory = rabbitConnectionInfo.createConnectionFactory();
-            } catch (RabbitConnectionInfo.ConnectionInfoExpiredException e) {
-                rabbitConnectionInfo = RabbitConnectionInfo.createInstance(discoverer);
-            }
-
-            // We can connect to localhost, since the visualization does not run within Docker
-            if (forceUpdate) {
-                if (subscriber != null && subscriber.isConnected())
-                    subscriber.disconnect();
-                subscriber = null;
-                if (publisher != null && publisher.isConnected())
-                    publisher.disconnect();
-                publisher = null;
-            }
-            if (subscriber == null)
-                this.subscriber = new RabbitSubscriber(connectionFactory, RABBIT_IDENTIFIER, new JavaSerializer(), discoverer);
-//            if (publisher == null)
-//                this.publisher = new RabbitPublisher(connectionFactory, new JavaSerializer(), discoverer);
-
-            this.subscriber.connect();
-            this.publisher.connect();
-            log.info("Connected RabbitMQ!");
-
-            configureMessageHandlers();
-        }
-    }
-*/
-
-    private void configureMessageHandlers() throws IOException {
-  /*      if (subscriber != null) {
-            if (subscriber.getHandlers().get(KillMessage.class) == null || subscriber.getHandlers().get(KillMessage.class).isEmpty()) {
-                this.subscriber.addHandler(KillMessage.class, new KillMessageHandler(this.entities));
-            }
-            if (subscriber.getHandlers().get(StateMessage.class) == null || subscriber.getHandlers().get(StateMessage.class).isEmpty()) {
-                this.subscriber.addHandler(StateMessage.class, new StateMessageHandler(uiUpdates, this.entities));
-            }
-            if (subscriber.getHandlers().get(GameFinishedMessage.class) == null || subscriber.getHandlers().get(GameFinishedMessage.class).isEmpty()) {
-                this.subscriber.addHandler(GameFinishedMessage.class, new GameFinishedHandler());
-            }
-            if (!subscriber.hasTopic(MessageTopic.STATEUPDATES)) {
-                this.subscriber.addTopic(MessageTopic.STATEUPDATES);
-            }
-        }*/
-    }
-
-    /**
-     * Setup the architecture management buttons when rabbit is connected
-     */
-    private void onRabbitConnect() {
-        setupArchitectureManagementVisuals();
-        setupArchitectureManagement();
-    }
+    //Not needed anymore, because messages will be handled by receive()
+    //TODO: move handling of messages to receive()
+//    private void configureMessageHandlers() throws IOException {
+//
+//
+//
+//        if (subscriber.getHandlers().get(KillMessage.class) == null || subscriber.getHandlers().get(KillMessage.class).isEmpty()) {
+//            this.subscriber.addHandler(KillMessage.class, new KillMessageHandler(this.entities));
+//        }
+//        if (subscriber.getHandlers().get(StateMessage.class) == null || subscriber.getHandlers().get(StateMessage.class).isEmpty()) {
+//            this.subscriber.addHandler(StateMessage.class, new StateMessageHandler(uiUpdates, this.entities));
+//        }
+//        if (subscriber.getHandlers().get(GameFinishedMessage.class) == null || subscriber.getHandlers().get(GameFinishedMessage.class).isEmpty()) {
+//            this.subscriber.addHandler(GameFinishedMessage.class, new GameFinishedHandler());
+//        }
+//        if (!subscriber.hasTopic(MessageTopic.STATEUPDATES)) {
+//            this.subscriber.addTopic(MessageTopic.STATEUPDATES);
+//        }
+//}
 
     /**
      * Sets up the connection to the message broker and subscribes to the necessary channels and sets the required handlers
@@ -478,19 +406,30 @@ public class Game extends Application implements Subscriber {
         borderPane.setBottom(container);
         root.getChildren().add(borderPane);
 
-//        configButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.CONFIG, publisher));
-//        startButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.START, publisher));
-//        stopButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.STOP, publisher));
-//        pauseButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.PAUSE, publisher));
-//        resumeButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.RESUME, publisher));
+        configButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.CONFIG, publisher));
+        startButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.START, publisher));
+        stopButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.STOP, publisher));
+        pauseButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.PAUSE, publisher));
+        resumeButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.RESUME, publisher));
+    }
+
+    public void publisher_added(Publisher p){
+        System.out.println("Publisher_add");
+        setupArchitectureManagementVisuals();
+        setupArchitectureManagement();
+    }
+
+
+    public void publisher_removed(Publisher p){
+        //TODO: handle this case by removing or disabling GUI
+        throw new RuntimeException("Game Publisher was removed. Stopping game.");
     }
 
     /**
      * Responds to incoming architecture lifecycle messages
      */
     private void setupArchitectureManagement() {
-        ArchitectureEventControllerService architectureEventController;
-        architectureEventController = new ArchitectureEventControllerService(this.discoverer);
+        ArchitectureEventControllerService architectureEventController = new ArchitectureEventControllerService(this.discoverer);
         architectureEventController.start();
 
         architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG,
@@ -542,6 +481,6 @@ public class Game extends Application implements Subscriber {
 
     @Override
     public void receive(Object o, MultipartCallbacks multipartCallbacks) {
-        System.out.println("RECEIVE!!!\n\n");
+        System.out.println("Game::Receive!!!\n\n" + o.toString());
     }
 }

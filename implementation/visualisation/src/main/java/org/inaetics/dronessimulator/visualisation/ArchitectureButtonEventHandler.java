@@ -7,7 +7,7 @@ import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.RequestArchitectureStateChangeMessage;
-import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
+import org.inaetics.pubsub.api.pubsub.Publisher;
 
 import java.io.IOException;
 
@@ -40,10 +40,7 @@ public class ArchitectureButtonEventHandler implements EventHandler<MouseEvent> 
     public void handle(MouseEvent event) {
         RequestArchitectureStateChangeMessage msg = new RequestArchitectureStateChangeMessage(action);
 
-        try {
-            publisher.send(MessageTopic.ARCHITECTURE, msg);
-        } catch (IOException e) {
-            logger.fatal(e);
-        }
+        //Note: originally this message was sent under topic: MessageTopic.ARCHITECTURE
+        publisher.send(msg);
     }
 }

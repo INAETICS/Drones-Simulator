@@ -95,21 +95,11 @@ public class Game extends Application implements Subscriber {
     private final AtomicBoolean onRabbitConnectExecuted = new AtomicBoolean(false);
     private final Instance visualisationInstance = new Instance(Type.SERVICE, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.SERVICES, "visualisation", new HashMap<>());
 
-    /**
-     * Subscriber for rabbitmq
-     */
-//    private RabbitSubscriber subscriber;
-
-//    public RabbitSubscriber getSubscriber() {
-//        return subscriber;
-//    }
-
-    /**
-     * Publisher for rabbitmq
-     */
-//    private RabbitPublisher publisher;
-
-    private volatile Publisher publisher;
+    /*
+    Publisher field should be static
+    It is injected by OSGi, but JavaFX creates it's own Game instance
+   */
+    private static volatile Publisher publisher;
 
     /**
      * Discoverer for etcd
@@ -173,9 +163,6 @@ public class Game extends Application implements Subscriber {
     /*OSGi start method*/
     public void start() {
         System.out.println("Game::start()");
-
-        System.out.println("\n\t=====\tCLASSLOADER 2 = "+Publisher.class.getClassLoader());
-        System.out.println("\n\t=====\tCLASSLOADER ZMQ 2 = "+ ZmqPublisher.class.getClassLoader());
 
         //Because this is the OSGi start method, we don't want to block here.
         new Thread(

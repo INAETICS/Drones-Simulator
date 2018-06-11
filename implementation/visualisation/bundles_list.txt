@@ -22,7 +22,7 @@ org.apache.felix.http.servlet-api-1.0.0.jar
 org.inaetics.pubsub.psa.zeromq-1.0.0-SNAPSHOT.jar
 org.inaetics.pubsub.discovery.etcd-1.0.0-SNAPSHOT.jar
 org.inaetics.pubsub.topologymanager-1.0.0-SNAPSHOT.jar
-org.inaetics.pubsub.api-1.0.0-SNAPSHOT.jar
+//org.inaetics.pubsub.api-1.0.0-SNAPSHOT.jar
 org.inaetics.pubsub.serialization.json-1.0.0-SNAPSHOT.jar
 org.inaetics.pubsub.spi-1.0.0-SNAPSHOT.jar
 jeromq-0.4.3.jar

@@ -30,4 +30,5 @@ org.w3c.dom; version=1.0.0
 org.w3c.dom.bootstrap; version=1.0.0
 org.w3c.dom.ls; version=1.0.0
 org.xml.sax; version=1.0.0
-org.zeromq; verison=0.4.1
+org.zeromq; version=0.4.1
+org.inaetics.pubsub.api.pubsub; version=1.0.0

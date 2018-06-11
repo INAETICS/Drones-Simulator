@@ -41,6 +41,7 @@ import org.inaetics.dronessimulator.visualisation.messagehandlers.StateMessageHa
 import org.inaetics.dronessimulator.visualisation.uiupdates.UIUpdate;
 import org.inaetics.pubsub.api.pubsub.Publisher;
 import org.inaetics.pubsub.api.pubsub.Subscriber;
+import org.inaetics.pubsub.impl.pubsubadmin.zeromq.ZmqPublisher;
 
 import java.io.IOException;
 import java.util.*;
@@ -172,6 +173,10 @@ public class Game extends Application implements Subscriber {
     /*OSGi start method*/
     public void start() {
         System.out.println("Game::start()");
+
+        System.out.println("\n\t=====\tCLASSLOADER 2 = "+Publisher.class.getClassLoader());
+        System.out.println("\n\t=====\tCLASSLOADER ZMQ 2 = "+ ZmqPublisher.class.getClassLoader());
+
         //Because this is the OSGi start method, we don't want to block here.
         new Thread(
                 () -> Game.launch()
@@ -241,6 +246,8 @@ public class Game extends Application implements Subscriber {
         };
         gameLoop.start();
 
+        setupArchitectureManagementVisuals();
+        setupArchitectureManagement();
        //TODO: Move message Handlers to receive()
     }
 
@@ -411,18 +418,6 @@ public class Game extends Application implements Subscriber {
         stopButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.STOP, publisher));
         pauseButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.PAUSE, publisher));
         resumeButton.setOnMouseClicked(new ArchitectureButtonEventHandler(SimulationAction.RESUME, publisher));
-    }
-
-    public void publisher_added(Publisher p){
-        System.out.println("Publisher_add");
-        setupArchitectureManagementVisuals();
-        setupArchitectureManagement();
-    }
-
-
-    public void publisher_removed(Publisher p){
-        //TODO: handle this case by removing or disabling GUI
-        throw new RuntimeException("Game Publisher was removed. Stopping game.");
     }
 
     /**

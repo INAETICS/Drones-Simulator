@@ -21,24 +21,11 @@
             <groupId>org.inaetics.dronessimulator</groupId>
             <artifactId>common</artifactId>
         </dependency>
-<!--START old pubsub-->
-    <!--<dependency>
-        <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
-        <artifactId>rabbitmq-subscriber</artifactId>
-    </dependency>
-        <dependency>
-            <groupId>org.inaetics.dronessimulator.pubsub.rabbitmq</groupId>
-            <artifactId>rabbitmq-publisher</artifactId>
-        </dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.inaetics.dronessimulator.pubsub</groupId>-->
-            <!--<artifactId>java-serializer</artifactId>-->
-        <!--</dependency>-->
+
         <dependency>
             <groupId>org.inaetics.dronessimulator.discovery</groupId>
             <artifactId>etcd</artifactId>
         </dependency>
-<!--END old pubsub-->
 
 <!--START inaetics pubsub-->
         <dependency>
@@ -87,14 +74,6 @@
             <groupId>org.inaetics.dronessimulator</groupId>
             <artifactId>architecture-event-controller</artifactId>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>org.osgi</groupId>-->
-            <!--<artifactId>org.osgi.core</artifactId>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>org.apache.felix</groupId>-->
-            <!--<artifactId>org.apache.felix.dependencymanager</artifactId>-->
-        <!--</dependency>-->
 
         <dependency>
             <groupId>junit</groupId>

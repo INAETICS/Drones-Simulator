@@ -8,8 +8,11 @@ import org.apache.felix.gogo.command.Inspect;
 import org.apache.felix.gogo.command.Util;
 import org.inaetics.pubsub.api.pubsub.Publisher;
 import org.inaetics.pubsub.api.pubsub.Subscriber;
+import org.inaetics.pubsub.impl.pubsubadmin.zeromq.ZmqPublisher;
 import org.osgi.framework.Bundle;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.InvalidSyntaxException;
+import org.osgi.util.tracker.ServiceTracker;
 
 import java.util.Hashtable;
 import java.util.List;
@@ -25,11 +28,9 @@ public class VisualisationActivator extends DependencyActivatorBase {
         Properties subscriberProperties = new Properties();
         subscriberProperties.setProperty(Subscriber.PUBSUB_TOPIC, TOPIC);
 
-        List<String> namespace = Util.parseSubstring("service");
-
         new Thread(() -> {
             try {
-                Thread.sleep(2000);
+                Thread.sleep(1000);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -44,11 +45,33 @@ public class VisualisationActivator extends DependencyActivatorBase {
                     )
             );
 
-            Inspect.printRequirements(bundleContext, namespace, bundleContext.getBundles());
-            Inspect.printCapabilities(bundleContext, namespace, bundleContext.getBundles());
+            System.out.println("\n\t=====\tCLASSLOADER 1 = "+Publisher.class.getClassLoader());
+            System.out.println("\n\t=====\tCLASSLOADER 1 ZMQ = "+ org.inaetics.pubsub.impl.pubsubadmin.zeromq.ZmqPublisher.class.getClassLoader());
+
+
+            List<String> namespace = Util.parseSubstring("service");
+//            Inspect.printRequirements(bundleContext, namespace, bundleContext.getBundles());
+//            Inspect.printCapabilities(bundleContext, namespace, bundleContext.getBundles());
 
             System.out.println("WTF?");
             new DMCommand(bundleContext).wtf();
+
+
+            // Create a service tracker to monitor dictionary services.
+//            ServiceTracker tracker = null;
+//            try {
+//                tracker = new ServiceTracker(
+//                        bundleContext,
+//                        bundleContext.createFilter(
+//                                "(objectClass=" + Publisher.class.getName() + ")"),
+//                        null);
+//                tracker.open();
+//            } catch (InvalidSyntaxException e) {
+//                e.printStackTrace();
+//            }
+//            ZmqPublisher tracker_publisher = (ZmqPublisher) tracker.getService();
+//            System.out.println("Publisher from tracker = "+tracker_publisher);
+
         }).start();
 
 //        Game.launch() //;

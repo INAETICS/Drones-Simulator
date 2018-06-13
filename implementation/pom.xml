@@ -11,7 +11,7 @@
 
     <modules>
         <module>common</module>
-        <module>pubsub</module>
+        <!--<module>pubsub</module>-->
         <module>discovery</module>
         <module>visualisation</module>
         <module>gameengine</module>

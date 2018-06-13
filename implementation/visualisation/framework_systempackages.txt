@@ -32,3 +32,5 @@ org.w3c.dom.ls; version=1.0.0
 org.xml.sax; version=1.0.0
 org.zeromq; version=0.4.1
 org.inaetics.pubsub.api.pubsub; version=1.0.0
+org.inaetics.dronessimulator.common; version=1.0.0
+org.inaetics.dronessimulator.common.protocol; version=1.0.0

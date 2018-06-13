@@ -149,7 +149,7 @@ public class Radar implements Subscriber {
      */
     @Override
     public void receive(Object msg, MultipartCallbacks multipartCallbacks) {
-        System.out.println("[GPS] Got message " + msg);
+        System.out.println("[Radar] Got message " + msg);
         if (msg instanceof StateMessage) {
             StateMessage stateMessage = (StateMessage) msg;
             if (stateMessage.getIdentifier().equals(this.drone.getIdentifier())) {

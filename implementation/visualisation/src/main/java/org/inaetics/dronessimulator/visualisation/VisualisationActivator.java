@@ -24,7 +24,7 @@ public class VisualisationActivator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
 
-        final String TOPIC = "test";
+        final String TOPIC = "All";
         Properties subscriberProperties = new Properties();
         subscriberProperties.setProperty(Subscriber.PUBSUB_TOPIC, TOPIC);
 

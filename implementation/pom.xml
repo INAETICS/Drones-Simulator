@@ -36,7 +36,7 @@
         <java.version>1.8</java.version>
         <junit.version>4.12</junit.version>
         <osgi.version>6.0.0</osgi.version>
-        <apache.felix.version>4.4.0</apache.felix.version>
+        <apache.felix.version>5.6.10</apache.felix.version>
         <apache.felix.configadmin.version>1.8.14</apache.felix.configadmin.version>
         <pax.logging.version>1.10.0</pax.logging.version>
         <jacoco.version>0.7.9</jacoco.version>
@@ -124,13 +124,13 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.dependencymanager</artifactId>
-                <version>${apache.felix.version}</version>
+                <artifactId>org.apache.felix.configadmin</artifactId>
+                <version>${apache.felix.configadmin.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.configadmin</artifactId>
-                <version>${apache.felix.configadmin.version}</version>
+                <artifactId>org.apache.felix.main</artifactId>
+                <version>${apache.felix.version}</version>
             </dependency>
 
             <!--Logging dependencies-->

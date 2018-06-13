@@ -1,0 +1,52 @@
+-runsystemcapabilities: ${native_capability}
+
+-resolve.effective: active;skip:="osgi.service"
+-runee: JavaSE-1.8
+-runsystemcapabilities: ${native_capability}
+
+-resolve.effective: active;skip:="osgi.service"
+
+-runsystempackages: javafx.animation;version=latest, \
+ javafx.application;version=latest, \
+ javafx.beans;version=latest, \
+ javafx.beans.binding;version=latest, \
+ javafx.beans.property;version=latest, \
+ javafx.beans.value;version=latest, \
+ javafx.collections;version=latest, \
+ javafx.concurrent;version=latest, \
+ javafx.event;version=latest, \
+ javafx.util;version=latest, \
+ javafx.fxml;version=latest, \
+ javafx.geometry;version=latest, \
+ javafx.scene;version=latest, \
+ javafx.scene.chart;version=latest, \
+ javafx.scene.control;version=latest, \
+ javafx.scene.control.cell;version=latest, \
+ javafx.scene.effect;version=latest, \
+ javafx.scene.image;version=latest, \
+ javafx.scene.input;version=latest, \
+ javafx.scene.canvas;version=latest, \
+ javafx.scene.layout;version=latest, \
+ javafx.scene.media;version=latest, \
+ javafx.scene.paint;version=latest, \
+ javafx.scene.shape;version=latest, \
+ javafx.scene.text;version=latest, \
+ javafx.scene.transform;version=latest, \
+ javafx.scene.web;version=latest, \
+ javafx.stage;version=latest
+
+-runrequires: \
+        osgi.identity;filter:='(osgi.identity=org.osgi.core)',\
+        osgi.identity;filter:='(osgi.identity=org.apache.felix.log)',\
+        osgi.identity;filter:='(osgi.identity=org.apache.felix.dependencymanager)',\
+        osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.command)',\
+        osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.runtime)',\
+        osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.shell)',\
+        osgi.identity;filter:='(osgi.identity=org.apache.felix.dependencymanager.shell)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.api)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.psa.zeromq)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.topologymanager)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.discovery.etcd)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.serialization.json)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.dronessimulator.visualisation)'
+-resolve: auto

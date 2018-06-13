@@ -12,8 +12,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class EngineTest {
-    //TODO: reimplement test
-    /*@Rule
+    @Rule
     public final EnvironmentVariables environmentVariables = new EnvironmentVariables();
     private Engine engine;
     private MockPublisher publisher;
@@ -99,6 +98,6 @@ public class EngineTest {
 //        D3Vector in = D3Vector.fromString("(x:-23.613400167909106, y:172.40476530548727, z:95.8106379471248)");
 //        engine.changeAcceleration(in);
         engine.changeAcceleration(new D3Vector());
-    }*/
+    }
 
 }

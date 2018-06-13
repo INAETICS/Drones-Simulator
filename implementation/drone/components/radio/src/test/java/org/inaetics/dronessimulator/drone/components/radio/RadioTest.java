@@ -24,49 +24,30 @@ import static org.inaetics.dronessimulator.test.TestUtils.getConnectedMockPubSub
 
 public class RadioTest {
     private Radio radio;
-//    private MockSubscriber subscriber;
     private DroneInit drone;
     private MockPublisher publisher;
 
     @Before
     public void setUp() throws Exception {
-//        subscriber = pubsub.getRight();
         publisher = new MockPublisher(null, new ArrayList<>());
         drone = new DroneInit();
         radio = new Radio(publisher, drone, "initial topic");
         publisher.setSubscriber(radio);
     }
 
-//    @Test
-//    public void start() throws Exception {
-//        radio.start();
-//        Assert.assertThat(subscriber.getTopics(), hasItem(new TeamTopic(drone.getTeamname())));
-//        Assert.assertThat(subscriber.getHandlers().get(TextMessage.class), hasItem((MessageHandler<Message>) radio));
-//        Assert.assertThat(subscriber.getHandlers().get(TacticMessage.class), hasItem((MessageHandler<Message>) radio));
-//    }
-
     @Test
     public void send() throws Exception {
         TextMessage msg = new TextMessage("This is a test message");
+        String another = "another test object";
+
+        //send two different messages
+        Assert.assertTrue(radio.send(another));
         Assert.assertTrue(radio.send(msg));
+
+        //and assert that we can get them by type
         Assert.assertEquals(msg, radio.getMessage(TextMessage.class));
+        Assert.assertEquals(another, radio.getMessage(String.class));
 
         Assert.assertTrue(publisher.getReceivedMessages().get(0) instanceof RadioMessage);
     }
-
-//    @Test
-//    public void handleMessage() throws Exception {
-//        int messagesBefore = radio.getMessages().size();
-//        TextMessage testMessage = new TextMessage("Dit is een test");
-//        radio.handleMessage(testMessage);
-//        int messagesAfter = radio.getMessages().size();
-//        Assert.assertEquals(messagesBefore, messagesAfter - 1);
-//        Assert.assertTrue(radio.getMessages().contains(testMessage));
-//    }
-//
-//    @Test
-//    public void getMessage() throws Exception {
-//        Assert.assertThat(radio.getMessage(TacticMessage.class), is(simpleMessage));
-//    }
-
 }

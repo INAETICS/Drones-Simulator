@@ -1,15 +1,12 @@
 package org.inaetics.dronessimulator.drone.components.gps;
 
 import org.inaetics.dronessimulator.common.Settings;
-import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 import org.inaetics.pubsub.api.pubsub.Subscriber;
 
-import java.io.IOException;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
@@ -21,8 +18,6 @@ import java.util.Set;
  */
 public class GPS implements Subscriber {
     private final Set<GPSCallback> callbacks = new HashSet<>();
-    /** The Subscriber to use for receiving messages */
-    private volatile Subscriber subscriber;
     /** The drone instance that can be used to get information about the current drone */
     private volatile DroneInit drone;
     private StateMessage previousMessage;
@@ -30,8 +25,7 @@ public class GPS implements Subscriber {
     public GPS() {
     }
     //Testing constructor
-    public GPS(Subscriber subscriber, DroneInit drone, StateMessage previousMessage, D3Vector position, D3Vector velocity, D3Vector acceleration, D3PolarCoordinate direction) {
-        this.subscriber = subscriber;
+    public GPS(DroneInit drone, StateMessage previousMessage, D3Vector position, D3Vector velocity, D3Vector acceleration, D3PolarCoordinate direction) {
         this.drone = drone;
         this.previousMessage = previousMessage;
         this.position = position;

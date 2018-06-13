@@ -79,6 +79,7 @@ public abstract class Tactic extends ManagedThread implements Subscriber {
      */
     @SuppressWarnings("unused") //Assigned through OSGi
     private volatile ArchitectureEventController architectureEventController;
+
     /** The Subscriber to use for receiving messages */
     private Instance simulationInstance;
     private boolean registered = false;
@@ -135,6 +136,10 @@ public abstract class Tactic extends ManagedThread implements Subscriber {
     public final void stopTactic() {
         this.stopThread();
         unconfigSimulation();
+    }
+
+    private void registerSubscriber() {
+//        this.subscriber.addTopic(MessageTopic.STATEUPDATES);
     }
 
     @Override

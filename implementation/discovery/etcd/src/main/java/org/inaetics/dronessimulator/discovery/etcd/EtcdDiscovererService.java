@@ -58,7 +58,7 @@ public class EtcdDiscovererService implements Discoverer {
         this.discoverer.closeConnection();
 
         try {
-            this.changeHandler.join();
+            this.changeHandler.join(5000);
         } catch (InterruptedException e) {
             logger.fatal(e);
             Thread.currentThread().interrupt();

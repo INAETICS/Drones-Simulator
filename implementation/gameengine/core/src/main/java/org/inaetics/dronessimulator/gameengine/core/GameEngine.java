@@ -174,7 +174,7 @@ public class GameEngine implements Subscriber {
 
     @Override
     public void receive(Object obj, MultipartCallbacks multipartCallbacks) {
-        System.out.println("GameEngine Received an object *******");
+        System.out.println("[GameEngine] Got message " + obj);
         if(obj instanceof CollisionMessage){
             collisionMessageHandler.handleMessage( (CollisionMessage) obj);
         }

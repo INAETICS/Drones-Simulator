@@ -74,6 +74,7 @@ public class ArchitectureManager implements Subscriber {
 
     @Override
     public void receive(Object o, MultipartCallbacks multipartCallbacks) {
+        System.out.println("[ArchitectureManager] Got message " + o);
         if (o instanceof RequestArchitectureStateChangeMessage) {
             RequestArchitectureStateChangeMessage msg = (RequestArchitectureStateChangeMessage) o;
             SimulationAction action = msg.getAction();

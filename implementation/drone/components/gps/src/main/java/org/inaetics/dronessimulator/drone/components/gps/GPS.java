@@ -109,6 +109,7 @@ public class GPS implements Subscriber {
 
     @Override
     public void receive(Object o, MultipartCallbacks multipartCallbacks) {
+        System.out.println("[GPS] Got message " + o);
         if (o instanceof StateMessage && ((StateMessage) o).getIdentifier().equals(this.drone.getIdentifier())) {
             StateMessage message = (StateMessage) o;
             //Prepare some variables

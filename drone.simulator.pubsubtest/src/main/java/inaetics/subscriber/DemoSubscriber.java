@@ -15,7 +15,7 @@ public class DemoSubscriber implements Subscriber {
 
     @Override
     public void receive(Object o, MultipartCallbacks multipartCallbacks) {
-        System.out.println("Received object %s" + o.getClass().getName());
+        System.out.println("Received object " + o);
         if(o instanceof SendDemoObj) {
             setContent(((SendDemoObj) o).getContent());
         }

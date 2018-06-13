@@ -16,7 +16,7 @@ import java.util.Properties;
 
 public class Activator extends DependencyActivatorBase {
 
-    private final static String TOPIC = "test";
+    private final static String TOPIC = "All";
 
     private BundleContext bundleContext;
     private DependencyManager dm;
@@ -24,7 +24,7 @@ public class Activator extends DependencyActivatorBase {
     class InternalTest implements Subscriber {
         @Override
         public void receive(Object o, MultipartCallbacks multipartCallbacks) {
-            System.out.println("Received object %s" + o.getClass().getName());
+            System.out.println("Received object " + o);
         }
     }
 

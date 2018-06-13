@@ -81,6 +81,7 @@ public class Radio implements Subscriber {
      */
     @Override
     public void receive(Object o, MultipartCallbacks multipartCallbacks) {
+        System.out.println("[Radio] Got message " + o);
         if (o instanceof RadioMessage) {
             RadioMessage rm = (RadioMessage) o;
             if (rm.getTeamName().equals(teamName)) {

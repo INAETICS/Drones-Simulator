@@ -45,10 +45,6 @@ public class VisualisationActivator extends DependencyActivatorBase {
                     )
             );
 
-            System.out.println("\n\t=====\tCLASSLOADER 1 = "+Publisher.class.getClassLoader());
-            System.out.println("\n\t=====\tCLASSLOADER 1 ZMQ = "+ org.inaetics.pubsub.impl.pubsubadmin.zeromq.ZmqPublisher.class.getClassLoader());
-
-
             List<String> namespace = Util.parseSubstring("service");
 //            Inspect.printRequirements(bundleContext, namespace, bundleContext.getBundles());
 //            Inspect.printCapabilities(bundleContext, namespace, bundleContext.getBundles());

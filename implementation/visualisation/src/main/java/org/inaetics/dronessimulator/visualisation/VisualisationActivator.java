@@ -49,24 +49,8 @@ public class VisualisationActivator extends DependencyActivatorBase {
 //            Inspect.printRequirements(bundleContext, namespace, bundleContext.getBundles());
 //            Inspect.printCapabilities(bundleContext, namespace, bundleContext.getBundles());
 
-            System.out.println("WTF?");
+            System.out.println("dm.wtf() output:");
             new DMCommand(bundleContext).wtf();
-
-
-            // Create a service tracker to monitor dictionary services.
-//            ServiceTracker tracker = null;
-//            try {
-//                tracker = new ServiceTracker(
-//                        bundleContext,
-//                        bundleContext.createFilter(
-//                                "(objectClass=" + Publisher.class.getName() + ")"),
-//                        null);
-//                tracker.open();
-//            } catch (InvalidSyntaxException e) {
-//                e.printStackTrace();
-//            }
-//            ZmqPublisher tracker_publisher = (ZmqPublisher) tracker.getService();
-//            System.out.println("Publisher from tracker = "+tracker_publisher);
 
         }).start();
 

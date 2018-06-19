@@ -25,7 +25,7 @@ public class ArchitectureButtonEventHandler implements EventHandler<MouseEvent> 
     /**
      * Instantiates a button that will send a architecture change message based on its action
      * @param action Action the button has to send
-     * @param publisher Publisher that will publish the action to rabbitmq
+     * @param publisher Publisher that will publish the action to pubsub
      */
     ArchitectureButtonEventHandler(SimulationAction action, Publisher publisher) {
         this.action = action;

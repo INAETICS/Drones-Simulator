@@ -53,14 +53,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 /**
- * Instances of the game class create a new javafx application. This class provides a connection with etcd, rabbitmq and
+ * Instances of the game class create a new javafx application. This class provides a connection with etcd and INAETICS PubSub and
  * contain all the game elements.
  */
 public class Game extends Application implements Subscriber {
     public static final String USERNAME_FIELD = "username";
     public static final String PASSWORD_FIELD = "password";
     public static final String URI_FIELD = "uri";
-    public static final String RABBIT_IDENTIFIER = "visualisation";
 
     /**
      * Create the logger
@@ -68,10 +67,18 @@ public class Game extends Application implements Subscriber {
     private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Game.class);
 
     /**
+     * UI updates
+     */
+    private final BlockingQueue<UIUpdate> uiUpdates = new LinkedBlockingQueue<UIUpdate>();
+
+    /**
      * All the entities in the game
      */
     //@Getter(AccessLevel.PACKAGE)
     private final ConcurrentMap<String, BaseEntity> entities = new ConcurrentHashMap<>();
+    private final KillMessageHandler killMessageHandler = new KillMessageHandler(entities);
+    private final GameFinishedHandler gameFinishedHandler = new GameFinishedHandler();
+    private final StateMessageHandler stateMessageHandler = new StateMessageHandler(uiUpdates, entities);
 
     ConcurrentMap<String, BaseEntity> getEntities() {
         return entities;
@@ -81,18 +88,7 @@ public class Game extends Application implements Subscriber {
      * All the available entities from the discoverer
      */
     private final ConcurrentMap<String, DiscoveryNode> availableEntities = new ConcurrentHashMap<>();
-    /**
-     * Rabbitmq configuration
-     */
-    private final Map<String, String> rabbitConfig = new HashMap<>();
-    /**
-     * UI updates
-     */
-    private final BlockingQueue<UIUpdate> uiUpdates;
-    /**
-     * check to see if the method onRabbitConnect is executed
-     */
-    private final AtomicBoolean onRabbitConnectExecuted = new AtomicBoolean(false);
+
     private final Instance visualisationInstance = new Instance(Type.SERVICE, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.SERVICES, "visualisation", new HashMap<>());
 
     /*
@@ -113,7 +109,7 @@ public class Game extends Application implements Subscriber {
 
     /**
      * Close event handler
-     * When the window closes, rabbitmq and the discoverer disconnect
+     * When the window closes, the discoverer disconnect
      */
     private final EventHandler<WindowEvent> onCloseEventHandler = new EventHandler<WindowEvent>() {
         boolean isClosed = false;
@@ -122,10 +118,6 @@ public class Game extends Application implements Subscriber {
         public void handle(WindowEvent t) {
             if (!isClosed) {
                 log.info("Closing the application gracefully");
-                //                    if (subscriber != null)
-//                        subscriber.disconnect();
-//                    if (publisher != null)
-//                        publisher.disconnect();
                 if (discoverer != null)
                     discoverer.stop();
                 isClosed = true;
@@ -156,8 +148,6 @@ public class Game extends Application implements Subscriber {
      */
     public Game() {
         System.out.println("Game.java Constructor called");
-
-        this.uiUpdates = new LinkedBlockingQueue<>();
     }
 
     /*OSGi start method*/
@@ -286,51 +276,7 @@ public class Game extends Application implements Subscriber {
     private void handleNodeEvent(NodeEvent e) {
         DiscoveryNode node = e.getNode();
         DiscoveryPath path = node.getPath();
-
-        /*if (path.equals(DiscoveryPath.config(Type.RABBITMQ, org.inaetics.dronessimulator.discovery.api.discoverynode.Group.BROKER, "default"))) {
-            if (node.getValue(USERNAME_FIELD) != null) {
-                rabbitConfig.put(USERNAME_FIELD, node.getValue(USERNAME_FIELD));
-            }
-
-            if (node.getValue(PASSWORD_FIELD) != null) {
-                rabbitConfig.put(PASSWORD_FIELD, node.getValue(PASSWORD_FIELD));
-            }
-
-            if (node.getValue(URI_FIELD) != null) {
-                rabbitConfig.put(URI_FIELD, node.getValue(URI_FIELD));
-            }
-
-            if (rabbitConfig.size() == 3) {
-                rabbitConnectionInfo = new RabbitConnectionInfo(rabbitConfig.get(USERNAME_FIELD), rabbitConfig.get(PASSWORD_FIELD), rabbitConfig.get(URI_FIELD));
-                try {
-                    connectRabbit(true);
-                } catch (IOException e1) {
-                    log.fatal(e);
-                }
-            }
-        }*/
     }
-
-
-    //Not needed anymore, because messages will be handled by receive()
-    //TODO: move handling of messages to receive()
-//    private void configureMessageHandlers() throws IOException {
-//
-//
-//
-//        if (subscriber.getHandlers().get(KillMessage.class) == null || subscriber.getHandlers().get(KillMessage.class).isEmpty()) {
-//            this.subscriber.addHandler(KillMessage.class, new KillMessageHandler(this.entities));
-//        }
-//        if (subscriber.getHandlers().get(StateMessage.class) == null || subscriber.getHandlers().get(StateMessage.class).isEmpty()) {
-//            this.subscriber.addHandler(StateMessage.class, new StateMessageHandler(uiUpdates, this.entities));
-//        }
-//        if (subscriber.getHandlers().get(GameFinishedMessage.class) == null || subscriber.getHandlers().get(GameFinishedMessage.class).isEmpty()) {
-//            this.subscriber.addHandler(GameFinishedMessage.class, new GameFinishedHandler());
-//        }
-//        if (!subscriber.hasTopic(MessageTopic.STATEUPDATES)) {
-//            this.subscriber.addTopic(MessageTopic.STATEUPDATES);
-//        }
-//}
 
     /**
      * Sets up the connection to the message broker and subscribes to the necessary channels and sets the required handlers
@@ -463,6 +409,18 @@ public class Game extends Application implements Subscriber {
 
     @Override
     public void receive(Object o, MultipartCallbacks multipartCallbacks) {
-        System.out.println("Game::Receive!!!\n\n" + o.toString());
+        System.out.println("Game::Received msg: " + o.toString());
+
+        if( o instanceof KillMessage) {
+            this.killMessageHandler.handleMessage((KillMessage) o);
+            return;
+        } else if( o instanceof GameFinishedHandler) {
+            this.gameFinishedHandler.handleMessage((GameFinishedMessage) o);
+            return;
+        } else if( o instanceof StateMessage) {
+            this.stateMessageHandler.handleMessage((StateMessage) o);
+            return;
+        }
+        System.out.println("(Message not handled)");
     }
 }

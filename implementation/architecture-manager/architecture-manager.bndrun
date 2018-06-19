@@ -15,7 +15,10 @@
         osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.psa.zeromq)',\
         osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.topologymanager)',\
         osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.discovery.etcd)',\
-        osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.serialization.json)'
+        osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.serialization.json)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.dronessimulator.discovery.etcd)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.dronessimulator.discovery.api)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.dronessimulator.architecture-manager)'
 
 -resolve: auto
 

@@ -35,6 +35,8 @@ public class Activator extends DependencyActivatorBase {
 
         Tactic tactic = createNewTactic();
 
+        System.out.println("-----------------------------_Tactic start_-----------------------------------");
+
         Component component = createComponent()
                 .setInterface(interfaces, properties)
                 .setImplementation(tactic)

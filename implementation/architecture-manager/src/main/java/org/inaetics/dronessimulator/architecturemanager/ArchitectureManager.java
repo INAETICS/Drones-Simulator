@@ -4,6 +4,7 @@ import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
 import org.inaetics.dronessimulator.common.protocol.RequestArchitectureStateChangeMessage;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
+import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
 import org.inaetics.dronessimulator.discovery.api.instances.ArchitectureInstance;
 import org.inaetics.pubsub.api.pubsub.Subscriber;
@@ -58,15 +59,6 @@ public class ArchitectureManager implements Subscriber {
     }
 
     /**
-     * Construct a new Architecture Manager for testing purposes
-     * @param discoverer The discoverer to use
-     */
-    public ArchitectureManager(Discoverer discoverer) {
-        this();
-        this.discoverer = discoverer;
-    }
-
-    /**
      *Create the logger
      */
     private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ArchitectureManager.class);
@@ -100,7 +92,14 @@ public class ArchitectureManager implements Subscriber {
      * Start the Architecture Manager service, with the Subscriber being initialized by OSGi
      */
     public void start() {
-        log.info("Started Architecture Manager!");
+        log.info("\n\nStarted Architecture Manager!\n\n");
+        try {
+            discoverer.register(instance);
+        } catch (DuplicateName duplicateName) {
+            duplicateName.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private Instance safeUpdateProperties(final Instance instance, final Map<String, String> properties) {

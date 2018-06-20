@@ -6,6 +6,7 @@ import org.apache.felix.dm.DependencyManager;
 import org.apache.felix.dm.shell.DMCommand;
 import org.apache.felix.gogo.command.Inspect;
 import org.apache.felix.gogo.command.Util;
+import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.pubsub.api.pubsub.Publisher;
 import org.inaetics.pubsub.api.pubsub.Subscriber;
 import org.inaetics.pubsub.impl.pubsubadmin.zeromq.ZmqPublisher;
@@ -24,7 +25,7 @@ public class VisualisationActivator extends DependencyActivatorBase {
     @Override
     public void init(BundleContext bundleContext, DependencyManager dependencyManager) throws Exception {
 
-        final String TOPIC = "All";
+        final String TOPIC = MessageTopic.ALL.getName();
         Properties subscriberProperties = new Properties();
         subscriberProperties.setProperty(Subscriber.PUBSUB_TOPIC, TOPIC);
 

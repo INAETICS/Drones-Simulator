@@ -4,6 +4,7 @@ import mousio.client.retry.RetryOnce;
 import mousio.etcd4j.EtcdClient;
 import mousio.etcd4j.promises.EtcdResponsePromise;
 import mousio.etcd4j.requests.EtcdKeyGetRequest;
+import mousio.etcd4j.requests.EtcdVersionRequest;
 import mousio.etcd4j.responses.*;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
@@ -46,9 +47,11 @@ public class EtcdDiscoverer {
 
         // Log server version
         EtcdVersionResponse versionResponse = this.client.version();
-
         if (versionResponse != null) {
             logger.info("Discoverer connected with etcd at {}, server version {}", uri.toString(), versionResponse.getServer());
+            if( ! "2.3.8".equals(versionResponse.server)){
+                logger.warn("Discoverer was only tested with version 2.3.8, current server version is {}.", versionResponse.server);
+            }
         } else {
             logger.warn("Discoverer started, but could not connect to etcd");
         }

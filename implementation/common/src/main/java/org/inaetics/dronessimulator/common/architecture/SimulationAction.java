@@ -1,12 +1,8 @@
 package org.inaetics.dronessimulator.common.architecture;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
 /**
  * An action to be taken by the architecture
  */
-@AllArgsConstructor
 public enum SimulationAction {
     /**
      * Initialize the architecture
@@ -44,9 +40,16 @@ public enum SimulationAction {
      */
     DESTROY("destroy");
 
+    SimulationAction(String name) {
+        this.name = name;
+    }
+
     /**
      * The name of the architecture Action
      */
-    @Getter
     private String name;
+
+    public String getName() {
+        return name;
+    }
 }

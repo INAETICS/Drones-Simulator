@@ -11,9 +11,9 @@ import org.inaetics.dronessimulator.drone.components.gun.Gun;
 import org.inaetics.dronessimulator.drone.components.radar.Radar;
 import org.inaetics.dronessimulator.drone.components.radio.Radio;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
-import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.test.TestUtils;
+import org.inaetics.pubsub.api.pubsub.Publisher;
+import org.inaetics.pubsub.api.pubsub.Subscriber;
 
 import java.util.Arrays;
 import java.util.List;
@@ -21,17 +21,17 @@ import java.util.List;
 import static org.mockito.Mockito.mock;
 
 public class TacticTesterHelper {
-    public static <T extends Tactic> T getTactic(Class<T> tacticClass, Publisher publisher, Subscriber subscriber, Discoverer discoverer, DroneInit droneInit, String...
+    public static <T extends Tactic> T getTactic(Class<T> tacticClass, Publisher publisher, Discoverer discoverer, DroneInit droneInit, String...
             components) throws NoSuchFieldException, IllegalAccessException, InstantiationException {
         T tactic = tacticClass.newInstance();
-        return getTactic(tactic, publisher, subscriber, discoverer, droneInit, components);
+        return getTactic(tactic, publisher, discoverer, droneInit, components);
     }
 
-    public static <T extends Tactic> T getTactic(T tactic, Publisher publisher, Subscriber
-            subscriber, Discoverer discoverer, DroneInit droneInit, String... components) throws NoSuchFieldException, IllegalAccessException {
+    public static <T extends Tactic> T getTactic(T tactic, Publisher publisher, Discoverer discoverer, DroneInit
+            droneInit, String... components) throws NoSuchFieldException, IllegalAccessException {
         List<String> componentList = Arrays.asList(components);
         if (componentList.contains("gps") || components.length == 0) {
-            tactic.gps = new GPS(subscriber, droneInit, null, D3Vector.UNIT, D3Vector.UNIT, D3Vector.UNIT, D3PolarCoordinate.UNIT);
+            tactic.gps = new GPS(droneInit, null, D3Vector.UNIT, D3Vector.UNIT, D3Vector.UNIT, D3PolarCoordinate.UNIT);
             tactic.gps.start();
         }
         if (componentList.contains("engine") || components.length == 0) {
@@ -39,11 +39,11 @@ public class TacticTesterHelper {
         }
 
         if (componentList.contains("radio") || components.length == 0) {
-            tactic.radio = new Radio(subscriber, publisher, droneInit, null);
+            tactic.radio = new Radio(publisher, droneInit, null);
             tactic.radio.start();
         }
         if (componentList.contains("radar") || components.length == 0) {
-            tactic.radar = new Radar(mock(ArchitectureEventController.class), subscriber, droneInit, mock(Discoverer.class),
+            tactic.radar = new Radar(mock(ArchitectureEventController.class), droneInit, mock(Discoverer.class),
                     D3Vector.UNIT);
             tactic.radar.start();
         }
@@ -52,7 +52,6 @@ public class TacticTesterHelper {
         }
         TestUtils.setField(tactic, "drone", droneInit);
         TestUtils.setField(tactic, "architectureEventController", new ArchitectureEventControllerService());
-        TestUtils.setField(tactic, "subscriber", subscriber);
         TestUtils.setField(tactic, "discoverer", discoverer);
         return tactic;
     }

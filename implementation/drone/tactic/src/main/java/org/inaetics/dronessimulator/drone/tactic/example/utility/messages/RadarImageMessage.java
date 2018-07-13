@@ -1,7 +1,6 @@
 package org.inaetics.dronessimulator.drone.tactic.example.utility.messages;
 
-import lombok.AccessLevel;
-import lombok.Getter;
+
 import org.inaetics.dronessimulator.common.protocol.TacticMessage;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.tactic.Tactic;
@@ -13,8 +12,12 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class RadarImageMessage extends MyTacticMessage {
-    @Getter(AccessLevel.PROTECTED)
     private final Map<String, String> data = new HashMap<>();
+
+    @Override
+    protected Map<String, String> getData() {
+        return data;
+    }
 
     public RadarImageMessage(Tactic tactic, List<D3Vector> radarImage) {
         super(tactic);

@@ -1,20 +1,22 @@
 package org.inaetics.dronessimulator.gameengine.common.state;
 
-import lombok.AccessLevel;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 
+import java.util.Objects;
+
 /**
  * Base game entity with health points.
  */
-@EqualsAndHashCode(callSuper=true)
+//@EqualsAndHashCode(callSuper=true)
 public abstract class HealthGameEntity<C extends GameEntity<C>> extends GameEntity<C> {
     /** The amount of hp this entity has left. */
-    @Getter(AccessLevel.PUBLIC)
     private volatile int hp;
+
+    public int getHp() {
+        return hp;
+    }
 
     /**
      * Construction of a health game entity.
@@ -42,5 +44,20 @@ public abstract class HealthGameEntity<C extends GameEntity<C>> extends GameEnti
      */
     public void damage(int dmg) {
         this.hp -= dmg;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof HealthGameEntity)) return false;
+        if (!super.equals(o)) return false;
+        HealthGameEntity<?> that = (HealthGameEntity<?>) o;
+        return hp == that.hp;
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(super.hashCode(), hp);
     }
 }

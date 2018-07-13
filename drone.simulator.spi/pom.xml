@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.inaetics.drone.simulator</groupId>
+        <artifactId>org.inaetics.drone.simulator.parent</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </parent>
+
+    <artifactId>org.inaetics.drone.simulator.spi</artifactId>
+    <name>Drone Simulator SPI</name>
+    <description>
+        The Drone Simulator Service Provider Interface (SPI).
+        This is the API used to implement the different game element/components
+    </description>
+
+    <!--
+        TODO add dep to avro-tools and induce the avpr files from the java interfaces to that the SPI
+        can be used for different languages
+    -->
+
+    <dependencies>
+        <dependency>
+            <groupId>org.inaetics.drone.simulator</groupId>
+            <artifactId>org.inaetics.drone.simulator.api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>biz.aQute.bnd</groupId>
+                <artifactId>bnd-maven-plugin</artifactId>
+                <version>${bnd-maven-plugin.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

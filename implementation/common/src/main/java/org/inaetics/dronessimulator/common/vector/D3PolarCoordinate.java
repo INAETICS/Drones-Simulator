@@ -1,5 +1,6 @@
 package org.inaetics.dronessimulator.common.vector;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.inaetics.dronessimulator.common.Tuple;
 
 import java.io.Serializable;
@@ -10,18 +11,19 @@ import java.util.regex.Pattern;
 /**
  * Three-dimensional polar coordinate.
  */
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class D3PolarCoordinate implements Serializable {
     /** The unity coordinate. */
     public static final D3PolarCoordinate UNIT = new D3PolarCoordinate(0,0, 1);
 
     /** The angle between the x and y axis. */
-    private final double angle1_x_y; // Between 0 and 2pi
+    private double angle1_x_y; // Between 0 and 2pi
 
     /** The angle between the x and z axis. */
-    private final double angle2_x_z; // Between -0.5 * pi and 0.5 * pi
+    private double angle2_x_z; // Between -0.5 * pi and 0.5 * pi
 
     /** The distance to the coordinate. */
-    private final double length;
+    private double length;
 
     /**
      * Instantiates a new three-dimensional unity polar coordinate.
@@ -115,7 +117,7 @@ public class D3PolarCoordinate implements Serializable {
      * Returns the angle between the x and y axis in radians.
      * @return The angle between the x and y axis.
      */
-    public double getAngle1() {
+    public double getAngle1_x_y() {
         return angle1_x_y;
     }
 
@@ -131,7 +133,7 @@ public class D3PolarCoordinate implements Serializable {
      * Returns the angle between the x and z axis in radians.
      * @return The angle between the x and z axis.
      */
-    public double getAngle2() {
+    public double getAngle2_x_z() {
         return angle2_x_z;
     }
 
@@ -210,8 +212,8 @@ public class D3PolarCoordinate implements Serializable {
     public boolean equals(Object o) {
         if(o instanceof D3PolarCoordinate) {
             D3PolarCoordinate other = (D3PolarCoordinate) o;
-            return BigDecimal.valueOf(this.getAngle1()).compareTo(BigDecimal.valueOf(other.getAngle1())) == 0
-                && BigDecimal.valueOf(this.getAngle2()).compareTo(BigDecimal.valueOf(other.getAngle2())) == 0
+            return BigDecimal.valueOf(this.getAngle1_x_y()).compareTo(BigDecimal.valueOf(other.getAngle1_x_y())) == 0
+                && BigDecimal.valueOf(this.getAngle2_x_z()).compareTo(BigDecimal.valueOf(other.getAngle2_x_z())) == 0
                 && BigDecimal.valueOf(this.getLength()).compareTo(BigDecimal.valueOf(other.getLength())) == 0;
         } else {
             return false;
@@ -220,7 +222,7 @@ public class D3PolarCoordinate implements Serializable {
 
     @Override
     public int hashCode() {
-        return (int) Math.round(this.getAngle1() + this.getAngle2() + this.getLength());
+        return (int) Math.round(this.getAngle1_x_y() + this.getAngle2_x_z() + this.getLength());
     }
 
     /**
@@ -239,5 +241,20 @@ public class D3PolarCoordinate implements Serializable {
      */
     public static double degreesToRadian(double degrees) {
         return (degrees / 180) * Math.PI;
+    }
+
+    // Required for serialization
+
+
+    public void setAngle1_x_y(double angle1_x_y) {
+        this.angle1_x_y = angle1_x_y;
+    }
+
+    public void setAngle2_x_z(double angle2_x_z) {
+        this.angle2_x_z = angle2_x_z;
+    }
+
+    public void setLength(double length) {
+        this.length = length;
     }
 }

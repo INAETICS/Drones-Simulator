@@ -1,14 +1,14 @@
 package org.inaetics.dronessimulator.gameengine.common.state;
 
-import lombok.EqualsAndHashCode;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 
+import java.util.Objects;
+
 /**
  * A bullet game entity.
  */
- @EqualsAndHashCode(callSuper=true)
 public class Bullet extends GameEntity<Bullet> {
     /** How much damage this bullet will inflict upon impact. */
     private final int dmg;
@@ -61,5 +61,21 @@ public class Bullet extends GameEntity<Bullet> {
      */
     public GameEntity getFiredBy() {
         return this.firedBy;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Bullet)) return false;
+        if (!super.equals(o)) return false;
+        Bullet bullet = (Bullet) o;
+        return dmg == bullet.dmg &&
+                Objects.equals(firedBy, bullet.firedBy);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(super.hashCode(), dmg, firedBy);
     }
 }

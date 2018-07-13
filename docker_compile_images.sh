@@ -72,13 +72,6 @@ docker build $BASE_IMAGE -t dronesim/base
 cp -r "$STATIC/etcd_docker_image" "$DOCKER_IMAGES/etcd"
 
 
-# RABBITMQ #
-############
-
-# Copy rabbitmq image
-cp -r "$STATIC/rabbitmq_docker_image" "$DOCKER_IMAGES/rabbitmq"
-
-
 # GAME ENGINE #
 ###############
 
@@ -88,14 +81,10 @@ cp "$STATIC/osgi_Dockerfile" "$GAME_ENGINE_IMAGE/Dockerfile"
 # Game engine add bundles
 cp "$ROOT/discovery/api/target/discovery-api-0.1.jar" $GAME_ENGINE_BUNDLES
 cp "$ROOT/discovery/etcd/target/etcd-0.1.jar" $GAME_ENGINE_BUNDLES
-cp "$ROOT/pubsub/javaserializer/target/java-serializer-0.1.jar" $GAME_ENGINE_BUNDLES
-cp "$ROOT/pubsub/rabbitmq/common/target/rabbitmq-common-0.1.jar" $GAME_ENGINE_BUNDLES
-cp "$ROOT/pubsub/rabbitmq/subscriber/target/rabbitmq-subscriber-0.1.jar" $GAME_ENGINE_BUNDLES
-cp "$ROOT/pubsub/rabbitmq/publisher/target/rabbitmq-publisher-0.1.jar" $GAME_ENGINE_BUNDLES
 cp "$ROOT/pubsub/api/target/pubsub-api-0.1.jar" $GAME_ENGINE_BUNDLES
 cp "$ROOT/common/target/common-0.1.jar" $GAME_ENGINE_BUNDLES
 cp "$ROOT/gameengine/common/target/gameengine-common-0.1.jar" $GAME_ENGINE_BUNDLES
-cp "$ROOT/gameengine/gameengine/target/gameengine-gameengine-0.1.jar" $GAME_ENGINE_BUNDLES
+cp "$ROOT/gameengine/core/target/gameengine-core-0.1.jar" $GAME_ENGINE_BUNDLES
 cp "$ROOT/gameengine/gamestate-manager/target/gameengine-gamestate-manager-0.1.jar" $GAME_ENGINE_BUNDLES
 cp "$ROOT/gameengine/physicsengine/target/gameengine-physicsengine-0.1.jar" $GAME_ENGINE_BUNDLES
 cp "$ROOT/gameengine/physicsenginedriver/target/gameengine-physicsenginedriver-0.1.jar" $GAME_ENGINE_BUNDLES
@@ -113,10 +102,6 @@ cp "$STATIC/osgi_Dockerfile" "$DRONE_IMAGE/Dockerfile"
 # Drone add bundles
 cp "$ROOT/discovery/api/target/discovery-api-0.1.jar" $DRONE_BUNDLES
 cp "$ROOT/discovery/etcd/target/etcd-0.1.jar" $DRONE_BUNDLES
-cp "$ROOT/pubsub/javaserializer/target/java-serializer-0.1.jar" $DRONE_BUNDLES
-cp "$ROOT/pubsub/rabbitmq/common/target/rabbitmq-common-0.1.jar" $DRONE_BUNDLES
-cp "$ROOT/pubsub/rabbitmq/subscriber/target/rabbitmq-subscriber-0.1.jar" $DRONE_BUNDLES
-cp "$ROOT/pubsub/rabbitmq/publisher/target/rabbitmq-publisher-0.1.jar" $DRONE_BUNDLES
 cp "$ROOT/pubsub/api/target/pubsub-api-0.1.jar" $DRONE_BUNDLES
 cp "$ROOT/common/target/common-0.1.jar" $DRONE_BUNDLES
 cp "$ROOT/drone/components/engine/target/components-engine-0.1.jar" $DRONE_BUNDLES
@@ -138,9 +123,6 @@ cp "$STATIC/osgi_Dockerfile" "$ARCHITECTURE_MANAGER_IMAGE/Dockerfile"
 # Architecture Manager bundles
 cp "$ROOT/discovery/api/target/discovery-api-0.1.jar" $ARCHITECTURE_MANAGER_BUNDLES
 cp "$ROOT/discovery/etcd/target/etcd-0.1.jar" $ARCHITECTURE_MANAGER_BUNDLES
-cp "$ROOT/pubsub/javaserializer/target/java-serializer-0.1.jar" $ARCHITECTURE_MANAGER_BUNDLES
-cp "$ROOT/pubsub/rabbitmq/common/target/rabbitmq-common-0.1.jar" $ARCHITECTURE_MANAGER_BUNDLES
-cp "$ROOT/pubsub/rabbitmq/subscriber/target/rabbitmq-subscriber-0.1.jar" $ARCHITECTURE_MANAGER_BUNDLES
 cp "$ROOT/pubsub/api/target/pubsub-api-0.1.jar" $ARCHITECTURE_MANAGER_BUNDLES
 cp "$ROOT/common/target/common-0.1.jar" $ARCHITECTURE_MANAGER_BUNDLES
 cp "$ROOT/architecture-manager/target/architecture-manager-0.1.jar" $ARCHITECTURE_MANAGER_BUNDLES

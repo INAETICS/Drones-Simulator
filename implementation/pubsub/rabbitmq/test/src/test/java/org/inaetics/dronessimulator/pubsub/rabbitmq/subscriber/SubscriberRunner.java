@@ -1,8 +1,6 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 
 import com.rabbitmq.client.ConnectionFactory;
-import lombok.Getter;
-import lombok.extern.log4j.Log4j;
 import org.apache.logging.log4j.ThreadContext;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.pubsub.api.Message;
@@ -20,14 +18,16 @@ import static org.awaitility.Awaitility.await;
 /**
  * Runner for the RabbitMQ subscriber for use in tests.
  */
-@Log4j
 public class SubscriberRunner implements Runnable {
     /** The identifier of the subscriber queue. */
     private final String identifier;
 
     /** The subscriber under test. */
-    @Getter
     private final RabbitSubscriber subscriber;
+
+    public RabbitSubscriber getSubscriber() {
+        return subscriber;
+    }
 
     /** The topic to receive test messages from. */
     private final Topic topic;
@@ -39,6 +39,11 @@ public class SubscriberRunner implements Runnable {
     private final long timeout;
     private final Callable<Boolean> awaitUntil;
     private boolean ready;
+
+    /**
+     * Create the logger
+     */
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SubscriberRunner.class);
 
     /**
      * @param connectionFactory The connection settings to use for tests.

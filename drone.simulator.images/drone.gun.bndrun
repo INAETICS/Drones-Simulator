@@ -1,0 +1,22 @@
+-runfw: org.apache.felix.framework'
+-runee: JavaSE-1.8
+-runsystemcapabilities: ${native_capability}
+
+-resolve.effective: active;skip:="osgi.service"
+
+-runrequires: \
+        osgi.identity;filter:='(osgi.identity=org.apache.felix.log)',\
+        osgi.identity;filter:='(osgi.identity=org.apache.felix.dependencymanager)',\
+        osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.command)',\
+        osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.runtime)',\
+        osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.shell)',\
+        osgi.identity;filter:='(osgi.identity=org.apache.felix.dependencymanager.shell)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.drone.simulator.api)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.drone.simulator.spi)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.drone.simulator.components)'
+        #TODO add gun bundle id
+-resolve: auto
+
+-runproperties: \
+    drone.components.gun.top.enabled=true,\
+    drone.components.gun.bottom.enabled=true

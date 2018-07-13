@@ -1,0 +1,32 @@
+-runfw: org.apache.felix.framework
+-runee: JavaSE-1.8
+-runsystemcapabilities: ${native_capability}
+
+-resolve.effective: active;skip:="osgi.service"
+
+-runrequires: \
+        osgi.identity;filter:='(osgi.identity=org.apache.felix.log)',\
+        osgi.identity;filter:='(osgi.identity=org.apache.felix.dependencymanager)',\
+        osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.command)',\
+        osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.runtime)',\
+        osgi.identity;filter:='(osgi.identity=org.apache.felix.gogo.shell)',\
+        osgi.identity;filter:='(osgi.identity=org.apache.felix.dependencymanager.shell)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.api)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.psa.zeromq)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.topologymanager)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.discovery.etcd)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.pubsub.serialization.json)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.dronessimulator.drone.components.gps)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.dronessimulator.discovery.etcd)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.dronessimulator.discovery.api)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.dronessimulator.drone.components.gun)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.dronessimulator.drone.components.engine)',\
+        osgi.identity;filter:='(osgi.identity=org.inaetics.dronessimulator.drone.tactic)'
+
+-resolve: auto
+
+-runbundles: \
+        org.apache.felix.log,\
+        org.inaetics.pubsub.serialization.json,\
+        org.inaetics.pubsub.psa.zeromq,\
+        org.inaetics.pubsub.topologymanager,\

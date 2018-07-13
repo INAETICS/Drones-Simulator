@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.drone.tactic;
 
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventHandler;
 import org.inaetics.dronessimulator.architectureevents.LifeCycleStep;
@@ -13,10 +12,10 @@ import org.inaetics.dronessimulator.discovery.api.Instance;
 import org.inaetics.dronessimulator.discovery.api.MockDiscoverer;
 import org.inaetics.dronessimulator.discovery.api.instances.TacticInstance;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 import org.inaetics.dronessimulator.test.MockPublisher;
 import org.inaetics.dronessimulator.test.MockSubscriber;
 import org.inaetics.dronessimulator.test.TestUtils;
+import org.inaetics.pubsub.api.pubsub.Publisher;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -33,26 +32,25 @@ import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.inaetics.dronessimulator.test.TestUtils.*;
 import static org.mockito.Mockito.*;
 
-@Log4j
 public class TacticTest {
     @Rule
     public final ExpectedSystemExit exit = ExpectedSystemExit.none();
-    private Publisher publisher;
-    private MockSubscriber subscriber;
+    private MockPublisher publisher;
     private DroneInit drone;
     private Tactic tacticMock;
     private Tactic tactic;
     private MockDiscoverer discoverer;
 
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(TacticTest.class);
+
     @Before
     public void setUp() throws Exception {
-        Tuple<MockPublisher, MockSubscriber> publisherSubscriberTuple = getConnectedMockPubSub();
-        publisher = publisherSubscriberTuple.getLeft();
-        subscriber = publisherSubscriberTuple.getRight();
+        publisher = new MockPublisher();
         discoverer = spy(new MockDiscoverer());
         drone = new DroneInit();
         tacticMock = spy(new DoNothingTactic());
-        tactic = TacticTesterHelper.getTactic(tacticMock, publisher, subscriber, discoverer, drone, "engine", "radio", "radar", "gps", "gun");
+        tactic = TacticTesterHelper.getTactic(tacticMock, publisher, discoverer, drone, "engine", "radio", "radar", "gps", "gun");
+        publisher.setSubscriber(tactic);
     }
 
     @Test
@@ -104,7 +102,6 @@ public class TacticTest {
 
         //First start it
         tactic.startTactic();
-        Assert.assertTrue(subscriber.getHandlers().get(KillMessage.class).contains(tactic));
         Assert.assertEquals(getField(tactic, "simulationInstance"), instance);
         Assert.assertTrue(tactic.isAlive());
 
@@ -158,10 +155,10 @@ public class TacticTest {
         KillMessage msg = new KillMessage();
         //Not the correct identifier so nothing should happen
         msg.setIdentifier("");
-        tactic.handleMessage(msg);
+        tactic.receive(msg, null);
         verify(tacticMock, atMost(0)).stopThread();
         msg.setIdentifier(tactic.getIdentifier());
-        tactic.handleMessage(msg);
+        tactic.receive(msg, null);
         verify(tacticMock, atMost(1)).stopThread();
     }
 

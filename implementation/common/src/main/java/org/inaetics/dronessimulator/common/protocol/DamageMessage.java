@@ -1,16 +1,13 @@
 package org.inaetics.dronessimulator.common.protocol;
 
-import lombok.Getter;
-import lombok.Setter;
-
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Protocol message describing that an entity has been damaged
  */
-@Getter
-@Setter
 public class DamageMessage extends ProtocolMessage {
     /**
      * The id of the entity which is damaged
@@ -28,6 +25,49 @@ public class DamageMessage extends ProtocolMessage {
 
     @Override
     public List<MessageTopic> getTopics() {
-        return Collections.singletonList(MessageTopic.STATEUPDATES);
+        List<MessageTopic> res = new ArrayList<>();
+        res.add(MessageTopic.STATEUPDATES);
+        return res;
+        //return Collections.singletonList(MessageTopic.STATEUPDATES);
+    }
+
+    public String getEntityId() {
+        return entityId;
+    }
+
+    public void setEntityId(String entityId) {
+        this.entityId = entityId;
+    }
+
+    public EntityType getEntityType() {
+        return entityType;
+    }
+
+    public void setEntityType(EntityType entityType) {
+        this.entityType = entityType;
+    }
+
+    public int getDamage() {
+        return damage;
+    }
+
+    public void setDamage(int damage) {
+        this.damage = damage;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof DamageMessage)) return false;
+        DamageMessage that = (DamageMessage) o;
+        return damage == that.damage &&
+                Objects.equals(entityId, that.entityId) &&
+                entityType == that.entityType;
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(entityId, entityType, damage);
     }
 }

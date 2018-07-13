@@ -85,11 +85,18 @@ public class TestUtils {
 
     public static Tuple<MockPublisher, MockSubscriber> getConnectedMockPubSub() {
         MockSubscriber subscriber = new MockSubscriber();
+//        MockPublisher publisher = new MockPublisher() {
+//            @Override
+//            public void send(Topic topic, Message message) throws IOException {
+//                super.send(topic, message);
+//                subscriber.receive(message);
+//            }
+//        };
         MockPublisher publisher = new MockPublisher() {
             @Override
-            public void send(Topic topic, Message message) throws IOException {
-                super.send(topic, message);
-                subscriber.receive(message);
+            public void send(Object message) {
+                super.send(message);
+                subscriber.receive(message, null);
             }
         };
         return new Tuple<>(publisher, subscriber);

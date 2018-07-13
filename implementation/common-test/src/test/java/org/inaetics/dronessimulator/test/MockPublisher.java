@@ -1,44 +1,67 @@
 package org.inaetics.dronessimulator.test;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
 import org.inaetics.dronessimulator.common.Tuple;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
-import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
-import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
+import org.inaetics.pubsub.api.pubsub.MultipartException;
+import org.inaetics.pubsub.api.pubsub.Publisher;
+import org.inaetics.pubsub.api.pubsub.Subscriber;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-@AllArgsConstructor
-@NoArgsConstructor
 public class MockPublisher implements Publisher {
+    public MockPublisher(Subscriber subscriber, List<Object> receivedMessages) {
+        this.subscriber = subscriber;
+        this.receivedMessages = receivedMessages;
+    }
+
+    public MockPublisher() {
+    }
+
     private Subscriber subscriber;
 
-    @Getter
-    private List<Tuple<Topic, Message>> receivedMessages = new LinkedList<>();
+    private List<Object> receivedMessages = new LinkedList<>();
+
+    public List<Object> getReceivedMessages() {
+        return receivedMessages;
+    }
 
     @Override
-    public void send(Topic topic, Message message) throws IOException {
-        receivedMessages.add(new Tuple<>(topic, message));
+    public void send(Object message) {
+        receivedMessages.add(message);
         if (subscriber != null) {
-            subscriber.receive(message);
+            subscriber.receive(message, null);
         }
     }
 
-    public boolean isMessageReceived(Topic topic, Message message) {
-        if (receivedMessages.contains(new Tuple<>(topic, message))) {
-            return true;
-        } else {
-            for (Tuple<Topic, Message> receivedMessage : receivedMessages) {
-                if (receivedMessage.getLeft().equals(topic) && receivedMessage.getRight().equals(message)) {
-                    return true;
-                }
-            }
-        }
-        return false;
+    @Override
+    public void send(Object o, int i) {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public void sendMultipart(Object o, int i) throws MultipartException {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public void sendMultipart(Object o, int i, int i1) throws MultipartException {
+        throw new NotImplementedException();
+    }
+
+    @Override
+    public int localMsgTypeIdForMsgType(String s) {
+        throw new NotImplementedException();
+    }
+
+    public boolean isMessageReceived(Message message) {
+        return receivedMessages.contains(message);
+    }
+
+    public void setSubscriber(Subscriber subscriber) {
+        this.subscriber = subscriber;
     }
 }

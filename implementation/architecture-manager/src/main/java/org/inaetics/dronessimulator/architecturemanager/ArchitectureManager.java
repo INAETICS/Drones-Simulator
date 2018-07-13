@@ -1,16 +1,13 @@
 package org.inaetics.dronessimulator.architecturemanager;
 
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.architecture.SimulationState;
-import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.RequestArchitectureStateChangeMessage;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.discovery.api.DuplicateName;
 import org.inaetics.dronessimulator.discovery.api.Instance;
 import org.inaetics.dronessimulator.discovery.api.instances.ArchitectureInstance;
-import org.inaetics.dronessimulator.pubsub.api.Message;
-import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
+import org.inaetics.pubsub.api.pubsub.Subscriber;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -22,16 +19,12 @@ import java.util.Map;
  * Currently this only consists of the current lifecycle state of the architecture
  * Uses Discovery and Subscriber to publish current state and receive requested state updates
  */
-@Log4j
-public class ArchitectureManager {
+
+public class ArchitectureManager implements Subscriber {
     /**
      * Reference to discovery bundle to publish state information
      */
-    private volatile Discoverer m_discoverer;
-    /**
-     * Reference to subscriber to listen for state update requests
-     */
-    private volatile Subscriber m_subscriber;
+    private volatile Discoverer discoverer;
 
     /**
      * The instance published in Discovery
@@ -66,69 +59,52 @@ public class ArchitectureManager {
     }
 
     /**
-     * Construct a new Architecture Manager for testing purposes
-     * @param discoverer The discoverer to use
-     * @param subscriber The subscriber to use
+     *Create the logger
      */
-    public ArchitectureManager(Discoverer discoverer, Subscriber subscriber) {
-        this();
-        m_discoverer = discoverer;
-        m_subscriber = subscriber;
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(ArchitectureManager.class);
+
+
+    @Override
+    public void receive(Object o, MultipartCallbacks multipartCallbacks) {
+        System.out.println("[ArchitectureManager] Got message " + o);
+        if (o instanceof RequestArchitectureStateChangeMessage) {
+            RequestArchitectureStateChangeMessage msg = (RequestArchitectureStateChangeMessage) o;
+            SimulationAction action = msg.getAction();
+            SimulationState nextState = nextState(this.currentState, action);
+
+            if (nextState != null) {
+                // New state! Save and publish on discovery
+                this.previousState = this.currentState;
+                this.previousAction = action;
+                this.currentState = nextState;
+
+                log.info("New transition: (" + this.previousState + ", " + this.previousAction + ", " + this.currentState + ")");
+
+                instance = safeUpdateProperties(instance, getCurrentProperties());
+
+            } else {
+                log.error(String.format("Received an action which did not led to next state! Current state: %s. Action: %s", currentState, action));
+            }
+        }
     }
 
     /**
-     * Start the Architecture Manager service
-     * Registers the begin state in Discovery and
-     * adds a handler to the subscriber to listen for
-     * Architecture state change requests
+     * Start the Architecture Manager service, with the Subscriber being initialized by OSGi
      */
     public void start() {
-        while (!m_subscriber.hasConnection()){
-            log.warn("Architecture Manager does not yet have a connection to the subscriber implementation... Retrying now!");
-            try {
-                m_subscriber.connect();
-                log.debug("Connection with the subscriber created");
-            } catch (IOException e) {
-                log.error(e);
-            }
-        }
-        log.info("Starting Architecture Manager...");
+        log.info("\n\nStarted Architecture Manager!\n\n");
         try {
-            // Register instance with discovery
-            m_discoverer.register(this.instance);
-
-            //Add subscriber handlers
-            m_subscriber.addTopic(MessageTopic.ARCHITECTURE);
-            m_subscriber.addHandler(RequestArchitectureStateChangeMessage.class, (Message _msg) -> {
-                RequestArchitectureStateChangeMessage msg = (RequestArchitectureStateChangeMessage) _msg;
-                SimulationAction action = msg.getAction();
-                SimulationState nextState = nextState(this.currentState, action);
-
-                if(nextState != null) {
-                    // New state! Save and publish on discovery
-                    this.previousState = this.currentState;
-                    this.previousAction = action;
-                    this.currentState = nextState;
-
-                    log.info("New transition: (" + this.previousState + ", " + this.previousAction + ", " + this.currentState + ")");
-
-                    instance = safeUpdateProperties(instance, getCurrentProperties());
-
-                } else {
-                    log.error(String.format("Received an action which did not led to next state! Current state: %s. Action: %s", currentState, action));
-                }
-            });
-
-        } catch(IOException | DuplicateName e) {
-            log.fatal(e);
+            discoverer.register(instance);
+        } catch (DuplicateName duplicateName) {
+            duplicateName.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-
-        log.info("Started Architecture Manager!");
     }
 
     private Instance safeUpdateProperties(final Instance instance, final Map<String, String> properties) {
         try {
-            return m_discoverer.updateProperties(instance, properties);
+            return discoverer.updateProperties(instance, properties);
         } catch (IOException e) {
             log.fatal(e);
         }
@@ -142,7 +118,7 @@ public class ArchitectureManager {
     public void stop() {
         log.info("Stopping Architecture Manager...");
         try {
-            m_discoverer.unregister(instance);
+            discoverer.unregister(instance);
         } catch (IOException e) {
             log.error(e);
         }

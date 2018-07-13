@@ -1,22 +1,17 @@
 package org.inaetics.dronessimulator.common.protocol;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * Message used to tell the game state about movements.
  */
-@Getter
-@Setter
-@ToString
 public class MovementMessage extends ProtocolMessage {
+    public MovementMessage() {
+    }
+
     /** Indentifier of object */
     private String identifier = null;
 
@@ -28,20 +23,70 @@ public class MovementMessage extends ProtocolMessage {
 
     private D3Vector velocity = null;
 
-    public Optional<D3PolarCoordinate> getDirection() {
-        return Optional.ofNullable(direction);
+    public D3PolarCoordinate getDirection() {
+        return direction;
     }
 
-    public Optional<D3Vector> getAcceleration() {
-        return Optional.ofNullable(acceleration);
+    public D3Vector getAcceleration() {
+        return acceleration;
     }
 
-    public Optional<D3Vector> getVelocity() {
-        return Optional.ofNullable(velocity);
+    public D3Vector getVelocity() {
+        return velocity;
+    }
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
+    public void setIdentifier(String identifier) {
+        this.identifier = identifier;
+    }
+
+    public void setDirection(D3PolarCoordinate direction) {
+        this.direction = direction;
+    }
+
+    public void setAcceleration(D3Vector acceleration) {
+        this.acceleration = acceleration;
+    }
+
+    public void setVelocity(D3Vector velocity) {
+        this.velocity = velocity;
+    }
+
+    @Override
+    public String toString() {
+        return "MovementMessage{" +
+                "identifier='" + identifier + '\'' +
+                ", direction=" + direction +
+                ", acceleration=" + acceleration +
+                ", velocity=" + velocity +
+                '}';
     }
 
     @Override
     public List<MessageTopic> getTopics() {
-        return Collections.singletonList(MessageTopic.MOVEMENTS);
+        List<MessageTopic> res = new ArrayList<>();
+        res.add(MessageTopic.STATEUPDATES);
+        return res;
+        //return Collections.singletonList(MessageTopic.MOVEMENTS);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof MovementMessage)) return false;
+        MovementMessage that = (MovementMessage) o;
+        return Objects.equals(identifier, that.identifier) &&
+                Objects.equals(direction, that.direction) &&
+                Objects.equals(acceleration, that.acceleration) &&
+                Objects.equals(velocity, that.velocity);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(identifier, direction, acceleration, velocity);
     }
 }

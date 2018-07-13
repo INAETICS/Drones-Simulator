@@ -1,20 +1,12 @@
 package org.inaetics.dronessimulator.drone.components.gps;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.Settings;
-import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
-import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
+import org.inaetics.pubsub.api.pubsub.Subscriber;
 
-import java.io.IOException;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
@@ -24,63 +16,106 @@ import java.util.Set;
 /**
  * The GPS drone component
  */
-@Log4j
-@NoArgsConstructor //OSGi constructor
-@AllArgsConstructor //Testing constructor
-public class GPS implements MessageHandler<StateMessage> {
+public class GPS implements Subscriber {
     private final Set<GPSCallback> callbacks = new HashSet<>();
-    /** The Subscriber to use for receiving messages */
-    private volatile Subscriber subscriber;
     /** The drone instance that can be used to get information about the current drone */
     private volatile DroneInit drone;
     private StateMessage previousMessage;
+    //OSGi constructor
+    public GPS() {
+    }
+    //Testing constructor
+    public GPS(DroneInit drone, StateMessage previousMessage, D3Vector position, D3Vector velocity, D3Vector acceleration, D3PolarCoordinate direction) {
+        this.drone = drone;
+        this.previousMessage = previousMessage;
+        this.position = position;
+        this.velocity = velocity;
+        this.acceleration = acceleration;
+        this.direction = direction;
+    }
 
+    /**
+     * Create the logger
+     */
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GPS.class);
     /**
      * Last known position of this drone in the architecture
      */
-    @Getter
-    @Setter
     private volatile D3Vector position = new D3Vector();
+
+    public D3Vector getPosition() {
+        return position;
+    }
+
+    public void setPosition(D3Vector position) {
+        this.position = position;
+    }
+
     /**
      * Last known velocity of this drone in the architecture
      */
-    @Getter
-    @Setter
     private volatile D3Vector velocity = new D3Vector();
+
+    public D3Vector getVelocity() {
+        return velocity;
+    }
+
+    public void setVelocity(D3Vector velocity) {
+        this.velocity = velocity;
+    }
     /**
      * Last known acceleration of this drone in the architecture
      */
-    @Getter
-    @Setter
     private volatile D3Vector acceleration = new D3Vector();
+
+    public D3Vector getAcceleration() {
+        return acceleration;
+    }
+
+    public void setAcceleration(D3Vector acceleration) {
+        this.acceleration = acceleration;
+    }
+
     /**
      * Last known direction of this drone in the architecture
      */
-    @Getter
-    @Setter
     private volatile D3PolarCoordinate direction = new D3PolarCoordinate();
 
+    public D3PolarCoordinate getDirection() {
+        return direction;
+    }
+
+    public void setDirection(D3PolarCoordinate direction) {
+        this.direction = direction;
+    }
 
     /**
      * Start the GPS (called from Apache Felix). This initializes to what messages the subscriber should listen.
      */
     public void start() {
         try {
-            this.subscriber.addTopic(MessageTopic.STATEUPDATES);
-        } catch (IOException e) {
-            log.fatal(e);
+            Thread.sleep(5000); // To ensure PubSubAdmin can give us a subscriber.
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
-        this.subscriber.addHandler(StateMessage.class, this);
+        // Subcriber initialization is now done by the Activator.
     }
 
-    public void handleMessage(StateMessage message) {
-        if (message != null && message.getIdentifier().equals(this.drone.getIdentifier())) {
+    @Override
+    public void receive(Object o, MultipartCallbacks multipartCallbacks) {
+        System.out.println("[GPS] Got message " + o);
+        if (o instanceof StateMessage && ((StateMessage) o).getIdentifier().equals(this.drone.getIdentifier())) {
+            StateMessage message = (StateMessage) o;
             //Prepare some variables
             double deltaNow = ChronoUnit.MILLIS.between(message.getTimestamp(), LocalTime.now());
-            Optional<D3Vector> optionalPosition = message.getPosition();
-            Optional<D3Vector> optionalVelocity = message.getVelocity();
-            Optional<D3Vector> optionalAccelration = message.getAcceleration();
-            Optional<D3PolarCoordinate> optionalDirection = message.getDirection();
+            Optional<D3Vector> optionalPosition = message.getPosition() == null ?
+                    Optional.empty() : Optional.of(message.getPosition());
+            Optional<D3Vector> optionalVelocity = message.getVelocity() == null ?
+                    Optional.empty() : Optional.of(message.getVelocity());
+            Optional<D3Vector> optionalAcceleration = message.getAcceleration() == null ?
+                    Optional.empty() : Optional.of(message.getAcceleration());
+            Optional<D3PolarCoordinate> optionalDirection = message.getDirection() == null ?
+                    Optional.empty() : Optional.of(message.getDirection());
 
             //Check if the message is recent
             if (previousMessage != null && deltaNow > Settings.getTickTime(ChronoUnit.MILLIS)) {
@@ -92,7 +127,7 @@ public class GPS implements MessageHandler<StateMessage> {
                 interpolateMessages(deltaNow, deltaMessages, message);
             } else {
                 optionalPosition.ifPresent(this::setPosition);
-                optionalAccelration.ifPresent(this::setAcceleration);
+                optionalAcceleration.ifPresent(this::setAcceleration);
                 optionalVelocity.ifPresent(this::setVelocity);
                 optionalDirection.ifPresent(this::setDirection);
             }
@@ -111,12 +146,18 @@ public class GPS implements MessageHandler<StateMessage> {
      * @param message       The current message
      */
     private void interpolateMessages(double deltaNow, double deltaMessages, StateMessage message) {
-        Optional<D3Vector> optionalPosition = message.getPosition();
-        Optional<D3Vector> optionalVelocity = message.getVelocity();
-        Optional<D3Vector> optionalAccelration = message.getAcceleration();
-        Optional<D3Vector> optionalPreviousPosition = previousMessage.getPosition();
-        Optional<D3Vector> optionalPreviousVelocity = previousMessage.getVelocity();
-        Optional<D3Vector> optionalPreviousAcceleration = previousMessage.getAcceleration();
+        Optional<D3Vector> optionalPosition = message.getPosition() == null ?
+                Optional.empty() : Optional.of(message.getPosition());
+        Optional<D3Vector> optionalVelocity = message.getVelocity() == null ?
+                Optional.empty() : Optional.of(message.getVelocity());
+        Optional<D3Vector> optionalAccelration = message.getAcceleration() == null ?
+                Optional.empty() : Optional.of(message.getAcceleration());
+        Optional<D3Vector> optionalPreviousPosition = previousMessage.getPosition() == null ?
+                Optional.empty() : Optional.of(previousMessage.getPosition());
+        Optional<D3Vector> optionalPreviousVelocity = previousMessage.getVelocity() == null ?
+                Optional.empty() : Optional.of(previousMessage.getVelocity());
+        Optional<D3Vector> optionalPreviousAcceleration = previousMessage.getAcceleration() == null ?
+                Optional.empty() : Optional.of(previousMessage.getAcceleration());
 
         //Use the previous message to make a better guess of the location the drone probably is.
         if (optionalAccelration.isPresent() && optionalPreviousAcceleration.isPresent()) {

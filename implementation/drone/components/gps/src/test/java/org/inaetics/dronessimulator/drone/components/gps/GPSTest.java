@@ -5,7 +5,6 @@ import org.inaetics.dronessimulator.common.protocol.StateMessage;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
 import org.inaetics.dronessimulator.test.TestUtils;
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,7 +14,6 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
 import static org.inaetics.dronessimulator.test.matchers.D3VectorMatcher.closeTo;
-import static org.mockito.Mockito.mock;
 
 @SuppressWarnings("ConstantConditions") //Ignore all the issues with the "get" on optionals
 public class GPSTest {
@@ -26,7 +24,8 @@ public class GPSTest {
     public void setUp() throws Exception {
         drone = new DroneInit();
         drone.setIdentifier("1");
-        gps = new GPS(mock(Subscriber.class), drone, null, D3Vector.UNIT, D3Vector.UNIT, D3Vector.UNIT, D3PolarCoordinate.UNIT);
+
+        gps = new GPS(drone, null, D3Vector.UNIT, D3Vector.UNIT, D3Vector.UNIT, D3PolarCoordinate.UNIT);
         gps.start();
     }
 
@@ -38,14 +37,14 @@ public class GPSTest {
         msg1.setAcceleration(new D3Vector(1, 1, 1));
         msg1.setVelocity(new D3Vector(2, 2, 2));
         msg1.setPosition(new D3Vector(3, 3, 3));
-        gps.handleMessage(msg1);
+        gps.receive(msg1, null);
 
         StateMessage msg2 = new StateMessage(LocalTime.now().minusSeconds(1));
         msg2.setIdentifier(drone.getIdentifier());
         msg2.setAcceleration(new D3Vector(1, 1, 1));
         msg2.setVelocity(new D3Vector(2, 2, 2));
         msg2.setPosition(new D3Vector(3, 3, 3));
-        gps.handleMessage(msg2);
+        gps.receive(msg2, null);
 
         D3Vector nextAcceleration = msg2.getAcceleration().get();
         D3Vector nextVelocity = nextVelocity(new D3Vector(0, 0, 0).add(nextAcceleration), Settings
@@ -65,14 +64,14 @@ public class GPSTest {
         msg1.setAcceleration(new D3Vector(1, 1, 1));
         msg1.setVelocity(new D3Vector(2, 2, 2));
         msg1.setPosition(new D3Vector(3, 3, 3));
-        gps.handleMessage(msg1);
+        gps.receive(msg1, null);
 
         StateMessage msg2 = new StateMessage(LocalTime.now().minusSeconds(1));
         msg2.setIdentifier(drone.getIdentifier());
         msg2.setAcceleration(new D3Vector(2, 2, 2));
         msg2.setVelocity(new D3Vector(3, 3, 3));
         msg2.setPosition(new D3Vector(6, 6, 6));
-        gps.handleMessage(msg2);
+        gps.receive(msg2, null);
 
         D3Vector nextAcceleration = msg2.getAcceleration().get();
         D3Vector nextVelocity = nextVelocity(new D3Vector(0, 0, 0).add(nextAcceleration), Settings.getTickTime(ChronoUnit.SECONDS), msg2.getVelocity().get());
@@ -107,14 +106,14 @@ public class GPSTest {
         msg1.setAcceleration(new D3Vector(1, 1, 1));
         msg1.setVelocity(new D3Vector(2, 2, 2));
         msg1.setPosition(new D3Vector(3, 3, 3));
-        gps.handleMessage(msg1);
+        gps.receive(msg1, null);
 
         StateMessage msg2 = new StateMessage(LocalTime.now().minusSeconds(1));
         msg2.setIdentifier(drone.getIdentifier());
         msg2.setAcceleration(new D3Vector(-1, -1, -1));
         msg2.setVelocity(new D3Vector(-2, -2, -2));
         msg2.setPosition(new D3Vector(-3, -3, -3));
-        gps.handleMessage(msg2);
+        gps.receive(msg2, null);
 
         D3Vector nextAcceleration = msg2.getAcceleration().get();
         D3Vector nextVelocity = nextVelocity(new D3Vector(0, 0, 0).add(nextAcceleration), Settings
@@ -135,14 +134,14 @@ public class GPSTest {
         msg1.setAcceleration(new D3Vector(1, 1, 1));
         msg1.setVelocity(new D3Vector(2, 2, 2));
         msg1.setPosition(new D3Vector(3, 3, 3));
-        gps.handleMessage(msg1);
+        gps.receive(msg1, null);
 
         StateMessage msg2 = new StateMessage();
         msg2.setIdentifier(drone.getIdentifier());
         msg2.setAcceleration(new D3Vector(2, 2, 2));
         msg2.setVelocity(new D3Vector(3, 3, 3));
         msg2.setPosition(new D3Vector(6, 6, 6));
-        gps.handleMessage(msg2);
+        gps.receive(msg2, null);
 
         //Because there is no delay, we expect to have the state to be updated.
         Assert.assertEquals(new D3Vector(2, 2, 2), gps.getAcceleration());

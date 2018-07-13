@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.ruleprocessors.rules;
 
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.CurrentStateEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
@@ -13,11 +12,12 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@Log4j
 public abstract class AbstractGameFinishedRule extends Rule {
     protected final IdentifierMapper idMapper;
     private final AtomicBoolean gameFinishedEventWasSend = new AtomicBoolean(false);
     private final AtomicBoolean wasGameFinishedInPreviousRun = new AtomicBoolean(false);
+
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(AbstractGameFinishedRule.class);
 
     public AbstractGameFinishedRule(IdentifierMapper idMapper) {
         this.idMapper = idMapper;

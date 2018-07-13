@@ -1,10 +1,10 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.publisher;
 
 import com.rabbitmq.client.ConnectionFactory;
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
+import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
 import org.inaetics.dronessimulator.pubsub.javaserializer.JavaSerializer;
 
 import java.io.IOException;
@@ -13,7 +13,6 @@ import java.util.ArrayList;
 /**
  * Runner for the RabbitMQ publisher for use in tests.
  */
-@Log4j
 public class PublisherRunner implements Runnable {
     /** The time to wait between messages. */
     public static final long SLEEP_TIME = 1000;
@@ -27,6 +26,10 @@ public class PublisherRunner implements Runnable {
     /** List of messages to send. */
     private final ArrayList<Message> testMessages;
 
+    /**
+     * Create the logger
+     */
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(PublisherRunner.class);
     /**
      * @param connectionFactory The connection settings to use for tests.
      * @param topic The topic to publish test messages to.

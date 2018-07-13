@@ -1,8 +1,6 @@
 package org.inaetics.dronessimulator.drone.tactic;
 
 
-import lombok.Getter;
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.common.ManagedThread;
 import org.inaetics.dronessimulator.common.Settings;
@@ -21,8 +19,7 @@ import org.inaetics.dronessimulator.drone.components.gun.Gun;
 import org.inaetics.dronessimulator.drone.components.radar.Radar;
 import org.inaetics.dronessimulator.drone.components.radio.Radio;
 import org.inaetics.dronessimulator.drone.droneinit.DroneInit;
-import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
-import org.inaetics.dronessimulator.pubsub.api.subscriber.Subscriber;
+import org.inaetics.pubsub.api.pubsub.Subscriber;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -33,23 +30,48 @@ import java.util.concurrent.atomic.AtomicBoolean;
 /**
  * The abstract tactic each drone tactic should extend
  */
-@Log4j
-public abstract class Tactic extends ManagedThread implements MessageHandler<KillMessage> {
+public abstract class Tactic extends ManagedThread implements Subscriber {
     private static final long TACTIC_TIMOUT = 1;//tck
     private final TimeoutTimer workTimoutTimer = new TimeoutTimer(TACTIC_TIMOUT * Settings.TICK_TIME);
     private final AtomicBoolean initialized = new AtomicBoolean(false);
     private final TimeoutTimer ticker = new TimeoutTimer(Settings.TICK_TIME);
+
+    /**
+     * Create the logger
+     */
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Tactic.class);
+
     // drone components
-    @Getter
     protected volatile Radar radar;
-    @Getter
+
+    public Radar getRadar() {
+        return radar;
+    }
+
     protected volatile GPS gps;
-    @Getter
+
+    public GPS getGps() {
+        return gps;
+    }
+
     protected volatile Engine engine;
-    @Getter
+
+    public Engine getEngine() {
+        return engine;
+    }
+
     protected volatile Gun gun;
-    @Getter
+
+    public Gun getGun() {
+        return gun;
+    }
+
     protected volatile Radio radio;
+
+    public Radio getRadio() {
+        return radio;
+    }
+
     /** The drone instance that can be used to get information about the current drone */
     protected volatile DroneInit drone;
     /**
@@ -57,9 +79,8 @@ public abstract class Tactic extends ManagedThread implements MessageHandler<Kil
      */
     @SuppressWarnings("unused") //Assigned through OSGi
     private volatile ArchitectureEventController architectureEventController;
+
     /** The Subscriber to use for receiving messages */
-    @SuppressWarnings("unused") //Assigned through OSGi
-    private volatile Subscriber subscriber;
     private Instance simulationInstance;
     private boolean registered = false;
     /**
@@ -106,8 +127,6 @@ public abstract class Tactic extends ManagedThread implements MessageHandler<Kil
 
         simulationInstance = new TacticInstance(drone.getIdentifier());
 
-        registerSubscriber();
-
         super.start();
     }
 
@@ -120,12 +139,7 @@ public abstract class Tactic extends ManagedThread implements MessageHandler<Kil
     }
 
     private void registerSubscriber() {
-        try {
-            this.subscriber.addTopic(MessageTopic.STATEUPDATES);
-        } catch (IOException e) {
-            log.fatal(e);
-        }
-        this.subscriber.addHandler(KillMessage.class, this);
+//        this.subscriber.addTopic(MessageTopic.STATEUPDATES);
     }
 
     @Override
@@ -204,12 +218,14 @@ public abstract class Tactic extends ManagedThread implements MessageHandler<Kil
     }
 
     /**
-     * Handles a killMessage by stopping the tactic and exiting the process
+     * Handles a KillMessage by stopping the tactic and exiting the process.
+     * Does nothing if msg is not of type KillMessage
      *
-     * @param killMessage the received killMessage
+     * @param msg the received message
      */
-    public void handleMessage(KillMessage killMessage) {
-        if (killMessage.getIdentifier().equals(drone.getIdentifier())) {
+    @Override
+    public void receive(Object msg, MultipartCallbacks multipartCallbacks) {
+        if (msg instanceof KillMessage && ((KillMessage) msg).getIdentifier().equals(drone.getIdentifier())) {
             log.info("Found kill message! Quitting for now... Last known movements: \n" +
                     "\tposition: " + gps.getPosition().toString() + "\n" +
                     "\tvelocity: " + gps.getVelocity().toString() + "\n" +

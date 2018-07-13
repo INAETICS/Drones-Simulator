@@ -1,7 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.ruleprocessors;
 
-
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.architectureevents.ArchitectureEventController;
 import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.TimeoutTimer;
@@ -11,7 +9,7 @@ import org.inaetics.dronessimulator.gameengine.common.gameevent.GameEngineEvent;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
 import org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.Rule;
-import org.inaetics.dronessimulator.pubsub.api.publisher.Publisher;
+import org.inaetics.pubsub.api.pubsub.Publisher;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,17 +19,20 @@ import java.util.concurrent.LinkedBlockingQueue;
 /**
  * Rule processors service. The rule processors listen on events and act on them based on predefined rules.
  */
-@Log4j
 public class RuleProcessors extends Thread implements IRuleProcessors {
     public static final TimeoutTimer INTERVAL_RULES_TIMEOUT = new TimeoutTimer(Settings.TICK_TIME * 10); //Run interval rules once every 10 iterations.
     private ArchitectureEventController m_architectureEventController;
 
     /**
+     * Create the logger
+     */
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(RuleProcessors.class);
+    /**
      * The physics engine driver to get events from.
      */
-    private volatile IPhysicsEngineDriver m_driver;
-    private volatile Publisher m_publisher;
-    private volatile IdentifierMapper m_id_mapper;
+    private volatile IPhysicsEngineDriver driver;
+    private volatile Publisher publisher;
+    private volatile IdentifierMapper idMapper;
 
     /**
      * Queue of the events to process.
@@ -48,13 +49,13 @@ public class RuleProcessors extends Thread implements IRuleProcessors {
     public void start() {
         log.info("Starting Rule Processors...");
 
-        assert m_driver != null;
+        assert driver != null;
 
-        this.incomingEvents = this.m_driver.getOutgoingQueue();
+        this.incomingEvents = this.driver.getOutgoingQueue();
 
-        this.rules = RuleSets.getRulesForGameMode(Settings.GAME_MODE, this.m_publisher, this.m_id_mapper);
-        this.intervalRules = RuleSets.getIntervalRulesForGameMode(Settings.GAME_MODE, this.m_publisher, this
-                .m_id_mapper);
+        this.rules = RuleSets.getRulesForGameMode(Settings.GAME_MODE, this.publisher, this.idMapper);
+        this.intervalRules = RuleSets.getIntervalRulesForGameMode(Settings.GAME_MODE, this.publisher, this
+                .idMapper);
 
         m_architectureEventController.addHandler(SimulationState.INIT, SimulationAction.CONFIG, SimulationState.CONFIG, (from, action, to) -> configRules());
         //When the user presses start, reset the Interval rules timeout

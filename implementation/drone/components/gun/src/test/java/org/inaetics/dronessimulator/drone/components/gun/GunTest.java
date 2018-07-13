@@ -33,7 +33,6 @@ public class GunTest {
         when(gps.getPosition()).thenReturn(D3Vector.UNIT);
         drone = new DroneInit();
         gun = new Gun(publisher, drone, gps, System.currentTimeMillis(), System.currentTimeMillis());
-
     }
 
     @Test
@@ -41,7 +40,7 @@ public class GunTest {
         D3PolarCoordinate direction = new D3PolarCoordinate(90, 90, 100);
         gun.fireBullet(direction);
         Assert.assertThat(publisher.getReceivedMessages().size(), is(1));
-        FireBulletMessage receivedMessage = (FireBulletMessage) publisher.getReceivedMessages().get(0).getRight();
+        FireBulletMessage receivedMessage = (FireBulletMessage) publisher.getReceivedMessages().get(0);
         Assert.assertThat(receivedMessage.getDamage(), is(20));
         Assert.assertThat(receivedMessage.getFiredById(), is(drone.getIdentifier()));
         Assert.assertThat(receivedMessage.getType(), is(BULLET));

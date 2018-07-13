@@ -1,7 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.common.gameevent;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import org.inaetics.dronessimulator.common.protocol.CompressedProtocolMessage;
 import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
@@ -14,9 +12,11 @@ import java.util.*;
 /**
  * A unified physics engine message which contains the state of all entities.
  */
-@AllArgsConstructor
-@Getter
 public class CurrentStateEvent extends GameEngineEvent {
+    public CurrentStateEvent(List<GameEntity> currentState) {
+        this.currentState = currentState;
+    }
+
     /** The entities as currently in the physics engine. */
     List<GameEntity> currentState;
 
@@ -26,7 +26,7 @@ public class CurrentStateEvent extends GameEngineEvent {
 
     @Override
     public List<ProtocolMessage> getProtocolMessage(IdentifierMapper id_mapper) {
-        List<ProtocolMessage> msgs = new ArrayList<>();
+        List<StateMessage> msgs = new ArrayList<>();
 
         for(GameEntity e : currentState) {
 
@@ -52,5 +52,9 @@ public class CurrentStateEvent extends GameEngineEvent {
         }
 
         return Collections.singletonList(new CompressedProtocolMessage(msgs));
+    }
+
+    public List<GameEntity> getCurrentState() {
+        return currentState;
     }
 }

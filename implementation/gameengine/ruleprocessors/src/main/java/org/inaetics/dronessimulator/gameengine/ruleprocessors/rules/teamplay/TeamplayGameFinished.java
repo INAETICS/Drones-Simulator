@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.ruleprocessors.rules.teamplay;
 
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.gameengine.common.state.Drone;
 import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
@@ -12,9 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@Log4j
 public class TeamplayGameFinished extends AbstractGameFinishedRule {
     private Map<String, Long> dronesPerTeam;
+
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(TeamplayGameFinished.class);
 
     public TeamplayGameFinished(IdentifierMapper idMapper) {
         super(idMapper);

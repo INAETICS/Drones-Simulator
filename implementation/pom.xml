@@ -11,7 +11,7 @@
 
     <modules>
         <module>common</module>
-        <module>pubsub</module>
+        <!--<module>pubsub</module>-->
         <module>discovery</module>
         <module>visualisation</module>
         <module>gameengine</module>
@@ -22,6 +22,10 @@
     </modules>
 
     <properties>
+        <!-- General properties -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <manifest-file>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifest-file>
+
         <!-- Sonar -->
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.dynamicAnalysis>reuseReports</sonar.dynamicAnalysis>
@@ -32,7 +36,7 @@
         <java.version>1.8</java.version>
         <junit.version>4.12</junit.version>
         <osgi.version>6.0.0</osgi.version>
-        <apache.felix.version>4.4.0</apache.felix.version>
+        <apache.felix.version>5.6.10</apache.felix.version>
         <apache.felix.configadmin.version>1.8.14</apache.felix.configadmin.version>
         <pax.logging.version>1.10.0</pax.logging.version>
         <jacoco.version>0.7.9</jacoco.version>
@@ -46,6 +50,15 @@
         <hamcrest.version>1.3</hamcrest.version>
         <system-rules.version>1.16.0</system-rules.version>
         <awaitility.version>3.0.0</awaitility.version>
+
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+
+        <bnd-maven-plugin.version>3.5.0</bnd-maven-plugin.version>
+        <maven-jar-plugin.version>3.0.2</maven-jar-plugin.version>
+        <maven-clean-plugin.version>3.0.0</maven-clean-plugin.version>
+        <osgi.version>6.0.0</osgi.version>
+
     </properties>
 
     <dependencyManagement>
@@ -111,13 +124,13 @@
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.dependencymanager</artifactId>
-                <version>${apache.felix.version}</version>
+                <artifactId>org.apache.felix.configadmin</artifactId>
+                <version>${apache.felix.configadmin.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.apache.felix</groupId>
-                <artifactId>org.apache.felix.configadmin</artifactId>
-                <version>${apache.felix.configadmin.version}</version>
+                <artifactId>org.apache.felix.main</artifactId>
+                <version>${apache.felix.version}</version>
             </dependency>
 
             <!--Logging dependencies-->
@@ -208,16 +221,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-    <!--Give all modules access to lombok.-->
-    <dependencies>
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <version>${lombok.version}</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
 
     <build>
         <plugins>
@@ -379,6 +382,7 @@
                     <extensions>true</extensions>
                     <version>3.3.0</version>
                 </plugin>
+
             </plugins>
         </pluginManagement>
     </build>

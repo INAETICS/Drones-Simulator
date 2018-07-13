@@ -1,8 +1,5 @@
 package org.inaetics.dronessimulator.drone.components.gun;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.protocol.FireBulletMessage;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
@@ -21,10 +18,19 @@ import java.util.UUID;
 /**
  * The gun component for drone tactics
  */
-@Log4j
-@NoArgsConstructor //OSGi constructor
-@AllArgsConstructor //Testing constructor
 public class Gun {
+    //OSGi constructor
+    public Gun() {
+    }
+    //Testing constructor
+    public Gun(Publisher publisher, DroneInit drone, GPS gps, long lastShotAtMs, long nextShotAtMs) {
+        this.publisher = publisher;
+        this.drone = drone;
+        this.gps = gps;
+        this.lastShotAtMs = lastShotAtMs;
+        this.nextShotAtMs = nextShotAtMs;
+    }
+
     /**
      * The speed of the bullet
      */
@@ -72,6 +78,11 @@ public class Gun {
     public long msSinceLastShot() {
         return System.currentTimeMillis() - this.lastShotAtMs;
     }
+
+    /**
+     * Create the logger
+     */
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(Gun.class);
 
     /**
      * Fires a bullet in de given direction. If you know the position where the bullet should end, you can use the following code to call this method:

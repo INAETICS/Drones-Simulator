@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.messagehandlers;
 
-import lombok.AllArgsConstructor;
 import org.inaetics.dronessimulator.gameengine.gamestatemanager.IGameStateManager;
 import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper;
 import org.inaetics.dronessimulator.gameengine.physicsenginedriver.IPhysicsEngineDriver;
@@ -10,8 +9,13 @@ import org.inaetics.dronessimulator.pubsub.api.MessageHandler;
 /**
  * Message handler for collision messages.
  */
-@AllArgsConstructor
 public class CollisionMessageHandler implements MessageHandler {
+    public CollisionMessageHandler(IPhysicsEngineDriver physicsEngineDriver, IdentifierMapper id_mapper, IGameStateManager stateManager) {
+        this.physicsEngineDriver = physicsEngineDriver;
+        this.id_mapper = id_mapper;
+        this.stateManager = stateManager;
+    }
+
     /** The physics engine to update entities in. */
     private final IPhysicsEngineDriver physicsEngineDriver;
 

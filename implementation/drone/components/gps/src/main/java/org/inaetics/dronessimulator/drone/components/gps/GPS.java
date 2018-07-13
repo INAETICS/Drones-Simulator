@@ -1,10 +1,5 @@
 package org.inaetics.dronessimulator.drone.components.gps;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.Settings;
 import org.inaetics.dronessimulator.common.protocol.MessageTopic;
 import org.inaetics.dronessimulator.common.protocol.StateMessage;
@@ -24,9 +19,6 @@ import java.util.Set;
 /**
  * The GPS drone component
  */
-@Log4j
-@NoArgsConstructor //OSGi constructor
-@AllArgsConstructor //Testing constructor
 public class GPS implements MessageHandler<StateMessage> {
     private final Set<GPSCallback> callbacks = new HashSet<>();
     /** The Subscriber to use for receiving messages */
@@ -34,32 +26,74 @@ public class GPS implements MessageHandler<StateMessage> {
     /** The drone instance that can be used to get information about the current drone */
     private volatile DroneInit drone;
     private StateMessage previousMessage;
+    //OSGi constructor
+    public GPS() {
+    }
+    //Testing constructor
+    public GPS(Subscriber subscriber, DroneInit drone, StateMessage previousMessage, D3Vector position, D3Vector velocity, D3Vector acceleration, D3PolarCoordinate direction) {
+        this.subscriber = subscriber;
+        this.drone = drone;
+        this.previousMessage = previousMessage;
+        this.position = position;
+        this.velocity = velocity;
+        this.acceleration = acceleration;
+        this.direction = direction;
+    }
 
+    /**
+     * Create the logger
+     */
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GPS.class);
     /**
      * Last known position of this drone in the architecture
      */
-    @Getter
-    @Setter
     private volatile D3Vector position = new D3Vector();
+
+    public D3Vector getPosition() {
+        return position;
+    }
+
+    public void setPosition(D3Vector position) {
+        this.position = position;
+    }
+
     /**
      * Last known velocity of this drone in the architecture
      */
-    @Getter
-    @Setter
     private volatile D3Vector velocity = new D3Vector();
+
+    public D3Vector getVelocity() {
+        return velocity;
+    }
+
+    public void setVelocity(D3Vector velocity) {
+        this.velocity = velocity;
+    }
     /**
      * Last known acceleration of this drone in the architecture
      */
-    @Getter
-    @Setter
     private volatile D3Vector acceleration = new D3Vector();
+
+    public D3Vector getAcceleration() {
+        return acceleration;
+    }
+
+    public void setAcceleration(D3Vector acceleration) {
+        this.acceleration = acceleration;
+    }
+
     /**
      * Last known direction of this drone in the architecture
      */
-    @Getter
-    @Setter
     private volatile D3PolarCoordinate direction = new D3PolarCoordinate();
 
+    public D3PolarCoordinate getDirection() {
+        return direction;
+    }
+
+    public void setDirection(D3PolarCoordinate direction) {
+        this.direction = direction;
+    }
 
     /**
      * Start the GPS (called from Apache Felix). This initializes to what messages the subscriber should listen.

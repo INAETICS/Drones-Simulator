@@ -1,7 +1,5 @@
 package org.inaetics.dronessimulator.drone.tactic.example.utility;
 
-import lombok.NoArgsConstructor;
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.*;
 import org.inaetics.dronessimulator.common.model.Triple;
 import org.inaetics.dronessimulator.common.protocol.TacticMessage;
@@ -21,8 +19,6 @@ import java.util.stream.IntStream;
 
 import static org.inaetics.dronessimulator.drone.tactic.example.utility.CalculateUtilityHelper.MOVE_GENERATION_DELTA;
 
-@Log4j
-@NoArgsConstructor //An OSGi constructor
 public class TheoreticalTactic extends Tactic {
     public static final double TTL_DRONE = 3 * Settings.getTickTime(ChronoUnit.SECONDS); //seconds
     /**
@@ -39,6 +35,11 @@ public class TheoreticalTactic extends Tactic {
     private Queue<Tuple<LocalDateTime, D3Vector>> radarImage = new ConcurrentLinkedQueue<>();
     private ManagedThread handleBroadcastMessagesThread;
     private D3Vector myTargetMoveLocation;
+    //An OSGi constructor
+    public TheoreticalTactic() {
+    }
+
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(TheoreticalTactic.class);
 
     private DroneType getType() {
         DroneType type;

@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.physicsenginedriver;
 
-import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.CollisionEndEvent;
 import org.inaetics.dronessimulator.gameengine.common.gameevent.CollisionStartEvent;
@@ -20,7 +19,6 @@ import java.util.concurrent.LinkedBlockingQueue;
  * Wraps any events into a {@link org.inaetics.dronessimulator.gameengine.common.gameevent} message
  * and puts it into the outgoingQueue for further processing.
  */
-@Getter
 public class PhysicsEngineObserver implements PhysicsEngineEventObserver {
     /** Event queue for game engine events. */
     private final LinkedBlockingQueue<GameEngineEvent> outgoingQueue;
@@ -96,5 +94,13 @@ public class PhysicsEngineObserver implements PhysicsEngineEventObserver {
         } else {
             Logger.getLogger(GameEntity.class).fatal("Tried to update state from entity, but ids did not match. Received: " + physicsEntity.getEntityId() + ". Needed: " + gameEntity.getEntityId());
         }
+    }
+
+    public LinkedBlockingQueue<GameEngineEvent> getOutgoingQueue() {
+        return outgoingQueue;
+    }
+
+    public IGameStateManager getStateManager() {
+        return stateManager;
     }
 }

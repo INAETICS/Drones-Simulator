@@ -4,7 +4,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.Labeled;
 import javafx.stage.Stage;
-import lombok.extern.log4j.Log4j;
 import org.awaitility.Duration;
 import org.awaitility.core.ConditionTimeoutException;
 import org.inaetics.dronessimulator.common.Tuple;
@@ -26,10 +25,11 @@ import java.util.stream.Collectors;
 
 import static org.awaitility.Awaitility.await;
 
-@Log4j
 public class GameIT extends ApplicationTest {
     public static final Duration TIMEOUT_GAME = new Duration(5, TimeUnit.MINUTES);
     private Game game;
+
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(GameIT.class);
 
     @Override
     public void start(Stage stage) throws Exception {

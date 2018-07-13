@@ -1,7 +1,6 @@
 package org.inaetics.dronessimulator.pubsub.rabbitmq.subscriber;
 
 import com.rabbitmq.client.ConnectionFactory;
-import lombok.Getter;
 import org.apache.log4j.Logger;
 import org.inaetics.dronessimulator.common.protocol.CompressedProtocolMessage;
 import org.inaetics.dronessimulator.discovery.api.Discoverer;
@@ -21,12 +20,21 @@ import java.util.stream.Collectors;
  */
 public class RabbitSubscriber extends RabbitConnection implements Subscriber {
     private static final Logger logger = Logger.getLogger(RabbitSubscriber.class);
+
     /** The handlers for each message class this subscriber processes. */
-    @Getter
     private final Map<Class<? extends Message>, Collection<MessageHandler<Message>>> handlers = new HashMap<>();
+
+    public Map<Class<? extends Message>, Collection<MessageHandler<Message>>> getHandlers() {
+        return handlers;
+    }
+
     /** The identifier of this subscriber. */
-    @Getter
     private String identifier;
+
+    public String getIdentifier() {
+        return identifier;
+    }
+
     /** The topics this subscriber is subscribed to. */
     private Map<Topic, String> topics;
 

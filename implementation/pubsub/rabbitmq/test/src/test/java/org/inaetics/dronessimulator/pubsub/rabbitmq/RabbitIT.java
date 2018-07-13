@@ -2,7 +2,6 @@ package org.inaetics.dronessimulator.pubsub.rabbitmq;
 
 
 import com.rabbitmq.client.ConnectionFactory;
-import lombok.extern.log4j.Log4j;
 import org.awaitility.core.ConditionTimeoutException;
 import org.inaetics.dronessimulator.pubsub.api.Message;
 import org.inaetics.dronessimulator.pubsub.api.Topic;
@@ -27,7 +26,6 @@ import static org.junit.Assert.assertThat;
  * WARNING: The tests included in this class expect to find a running RabbitMQ instance without password protection on
  * localhost using the default port.
  */
-@Log4j
 public class RabbitIT {
     private static final String LIPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed ac magna sit a" +
             "met erat blandit tincidunt. Phasellus ornare neque sem, sit amet interdum magna tincidunt viverra. Praes" +
@@ -40,6 +38,8 @@ public class RabbitIT {
             "et maximus ex metus sed odio. Quisque at neque nec neque tempor porttitor vel ac libero.";
 
     ConnectionFactory connection;
+
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(RabbitIT.class);
 
     @Before
     public void setUp() throws Exception {

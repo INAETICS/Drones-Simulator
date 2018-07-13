@@ -1,6 +1,5 @@
 package org.inaetics.dronessimulator.gameengine.common.gameevent;
 
-import lombok.RequiredArgsConstructor;
 import org.inaetics.dronessimulator.common.architecture.SimulationAction;
 import org.inaetics.dronessimulator.common.protocol.GameFinishedMessage;
 import org.inaetics.dronessimulator.common.protocol.ProtocolMessage;
@@ -10,8 +9,11 @@ import org.inaetics.dronessimulator.gameengine.identifiermapper.IdentifierMapper
 import java.util.LinkedList;
 import java.util.List;
 
-@RequiredArgsConstructor
 public class GameFinishedEvent extends GameEngineEvent {
+    public GameFinishedEvent(String winner) {
+        this.winner = winner;
+    }
+
     private final String winner;
 
     @Override

@@ -1,9 +1,5 @@
 package org.inaetics.dronessimulator.drone.tactic.example.utility.messages;
 
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.ToString;
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.protocol.TacticMessage;
 import org.inaetics.dronessimulator.drone.tactic.Tactic;
 
@@ -11,9 +7,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-@RequiredArgsConstructor
-@Log4j
 public abstract class MyTacticMessage {
+    public MyTacticMessage(Tactic tactic) {
+        this.tactic = tactic;
+    }
+
     private final Tactic tactic;
 
     public static <M extends MyTacticMessage> boolean checkType(TacticMessage newMessage, Class<M> messageClass) {
@@ -37,6 +35,10 @@ public abstract class MyTacticMessage {
         return message;
     }
 
+    /**
+     * Create the logger
+     */
+    private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(MyTacticMessage.class);
     /**
      * This method is called to add all the data to the final message. This should return a map of the data. This
      * method can also be used to modify the data of a message from outside the subclass.
@@ -77,9 +79,38 @@ public abstract class MyTacticMessage {
         }
     }
 
-    @AllArgsConstructor
-    @ToString
     public class InvalidMessageTypeException extends RuntimeException {
         private final String invalidMessageType;
+
+        public InvalidMessageTypeException(String invalidMessageType) {
+            this.invalidMessageType = invalidMessageType;
+        }
+
+        public InvalidMessageTypeException(String message, String invalidMessageType) {
+            super(message);
+            this.invalidMessageType = invalidMessageType;
+        }
+
+        public InvalidMessageTypeException(String message, Throwable cause, String invalidMessageType) {
+            super(message, cause);
+            this.invalidMessageType = invalidMessageType;
+        }
+
+        public InvalidMessageTypeException(Throwable cause, String invalidMessageType) {
+            super(cause);
+            this.invalidMessageType = invalidMessageType;
+        }
+
+        public InvalidMessageTypeException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace, String invalidMessageType) {
+            super(message, cause, enableSuppression, writableStackTrace);
+            this.invalidMessageType = invalidMessageType;
+        }
+
+        @Override
+        public String toString() {
+            return "InvalidMessageTypeException{" +
+                    "invalidMessageType='" + invalidMessageType + '\'' +
+                    '}';
+        }
     }
 }

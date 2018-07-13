@@ -1,26 +1,32 @@
 package org.inaetics.dronessimulator.gameengine.common.state;
 
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
 
+import java.util.Objects;
+
 /**
  * A Drone game entity.
  */
-@EqualsAndHashCode(callSuper = true)
+//@EqualsAndHashCode(callSuper = true)
 public class Drone extends HealthGameEntity<Drone> {
     /**
      * The maximum health of a drone.
      */
     public static final int DRONE_MAX_HEALTH = 100;
 
-    @Getter
     private final String teamname;
 
-    @Getter
+    public String getTeamname() {
+        return teamname;
+    }
+
     private final D3Vector targetLocation;
+
+    public D3Vector getTargetLocation() {
+        return targetLocation;
+    }
 
     //Test constructor
     public Drone(int id, String teamname, D3Vector position, D3Vector velocity, D3Vector acceleration,
@@ -48,5 +54,21 @@ public class Drone extends HealthGameEntity<Drone> {
     public synchronized Drone deepCopy() {
         return new Drone(this.getEntityId(), this.getTeamname(), this.getHp(), this.getPosition(), this.getVelocity()
                 , this.getAcceleration(), this.getDirection(), this.getTargetLocation());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Drone)) return false;
+        if (!super.equals(o)) return false;
+        Drone drone = (Drone) o;
+        return Objects.equals(teamname, drone.teamname) &&
+                Objects.equals(targetLocation, drone.targetLocation);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(super.hashCode(), teamname, targetLocation);
     }
 }

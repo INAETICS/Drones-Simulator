@@ -1,9 +1,5 @@
 package org.inaetics.dronessimulator.physicsengine;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
-import lombok.extern.log4j.Log4j;
 import org.inaetics.dronessimulator.common.protocol.EntityType;
 import org.inaetics.dronessimulator.common.vector.D3PolarCoordinate;
 import org.inaetics.dronessimulator.common.vector.D3Vector;
@@ -15,10 +11,8 @@ import org.inaetics.dronessimulator.gameengine.common.state.GameEntity;
  * x == width, y == depth, z == height
  */
 
-@Getter
-@Setter
-@ToString
 public class Entity extends GameEntity {
+
     /**
      * Creates an entity.
      *
@@ -219,11 +213,9 @@ public class Entity extends GameEntity {
     }
 
 
-    @Log4j
     public static class DroneEntity extends Entity {
 
-        @Getter
-        @Setter
+        private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(DroneEntity.class);
         private D3Vector targetPosition;
 
         public DroneEntity(int id, Size size, D3Vector position, D3Vector velocity, D3Vector acceleration, D3PolarCoordinate direction, D3Vector targetPosition) {
@@ -231,6 +223,67 @@ public class Entity extends GameEntity {
             this.targetPosition = targetPosition;
         }
 
+        public D3Vector getTargetPosition() {
+            return targetPosition;
+        }
 
+        public void setTargetPosition(D3Vector targetPosition) {
+            this.targetPosition = targetPosition;
+        }
+    }
+
+    @Override
+    public int getEntityId() {
+        return super.getEntityId();
+    }
+
+    @Override
+    public Size getSize() {
+        return super.getSize();
+    }
+
+    @Override
+    public D3Vector getPosition() {
+        return super.getPosition();
+    }
+
+    @Override
+    public void setPosition(D3Vector position) {
+        super.setPosition(position);
+    }
+
+    @Override
+    public D3Vector getVelocity() {
+        return super.getVelocity();
+    }
+
+    @Override
+    public void setVelocity(D3Vector velocity) {
+        super.setVelocity(velocity);
+    }
+
+    @Override
+    public D3Vector getAcceleration() {
+        return super.getAcceleration();
+    }
+
+    @Override
+    public void setAcceleration(D3Vector acceleration) {
+        super.setAcceleration(acceleration);
+    }
+
+    @Override
+    public D3PolarCoordinate getDirection() {
+        return super.getDirection();
+    }
+
+    @Override
+    public void setDirection(D3PolarCoordinate direction) {
+        super.setDirection(direction);
+    }
+
+    @Override
+    public String toString() {
+        return "Entity{}";
     }
 }
